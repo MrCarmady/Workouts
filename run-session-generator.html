@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
+<title>Run Session Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+/* Layout: PB input and reference paces side by side, session table full width below. Same track-red system as the lift calculator. */
+:root {
+  --bg: #f2f2f1;
+  --surface: #ffffff;
+  --surface-2: #f0f0ee;
+  --fg: #17181a;
+  --muted: #6a6d72;
+  --line: #deded9;
+  --accent: #c8372d;
+  --accent-fg: #ffffff;
+  --accent-soft: #f6dcd9;
+  --warn: #a35a00;
+  --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+    --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+  --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 20px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 2rem; letter-spacing: .02em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 12px; color: var(--muted); }
+.head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.themes { display: inline-flex; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; background: var(--surface); }
+.themes button { font: inherit; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: transparent; border: 0; padding: 7px 12px; cursor: pointer; }
+.themes button + button { border-left: 1px solid var(--line); }
+.themes button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.themes button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 62ch; }
+.top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 720px) { .top { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+label { display: grid; gap: 4px; align-content: start; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+input, select { box-sizing: border-box; height: 2.75rem; font: inherit; font-size: 1.05rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 9px 10px; width: 100%; min-width: 0; font-variant-numeric: tabular-nums; }
+input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.note { font-size: .85rem; color: var(--muted); margin: 0; }
+.warn { color: var(--warn); font-size: .88rem; margin: 0; }
+.kv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.kv div { background: var(--surface-2); border-radius: 2px; padding: 8px 10px; }
+.kv b { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kv span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.wrap > * { min-width: 0; }
+.fields3 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: end; margin-bottom: 14px; }
+@media (max-width: 600px) { .fields3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.res { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 600px) { .res { grid-template-columns: repeat(2, minmax(0, 1fr)); } .res .wide { grid-column: 1 / -1; } }
+.res div { background: var(--surface-2); border-radius: 2px; padding: 10px 12px; min-width: 0; }
+.res b { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.res b.pace { color: var(--accent); }
+.res span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.res small { display: block; font-size: .78rem; color: var(--muted); margin-top: 2px; }
+.method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
+.method p { margin: 0; }
+.method ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.method b { color: var(--fg); font-weight: 600; }
+</style>
+
+<main class="wrap">
+  <p class="sitenav"><a href="index.html">&larr; All tools</a></p>
+  <header class="head">
+    <div>
+      <h1>Run Session Generator</h1>
+      <p class="sub">Enter a recent race result and a rep length. Get the pace, recovery and rep count.</p>
+    </div>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <section class="top">
+    <div class="panel">
+      <h2>Race result</h2>
+      <div class="fields">
+        <label>Distance
+          <select id="dist">
+            <option value="1.5">1500m</option>
+            <option value="1.609344">Mile</option>
+            <option value="3">3km</option>
+            <option value="5" selected>5km</option>
+            <option value="10">10km</option>
+            <option value="21.0975">Half marathon</option>
+          </select>
+        </label>
+        <label>Time
+          <input id="time" type="text" inputmode="numeric" autocomplete="off" value="20:00" placeholder="mm:ss or h:mm:ss">
+        </label>
+        <label>Running on
+          <select id="surface">
+            <option value="flat" selected>Flat ground</option>
+            <option value="tread">Treadmill</option>
+          </select>
+        </label>
+        <label id="inclinewrap" hidden>Incline (%)
+          <input id="incline" type="number" inputmode="decimal" min="0" max="15" step="0.5" value="1">
+        </label>
+      </div>
+      <p class="note" style="margin-top:12px">Use a recent, hard effort on a flat course.</p>
+      <p class="note" id="treadnote" hidden></p>
+    </div>
+    <div class="panel">
+      <h2>Rep length</h2>
+      <div class="fields">
+        <label>Length
+          <input id="rep" type="text" inputmode="decimal" autocomplete="off" value="6">
+        </label>
+        <label>Unit
+          <select id="unit">
+            <option value="min" selected>Minutes</option>
+            <option value="m">Metres</option>
+            <option value="km">Kilometres</option>
+          </select>
+        </label>
+      </div>
+      <div class="fields" style="margin-top:14px; align-items:end">
+        <label>Weekly distance
+          <input id="week" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="optional, e.g. 70">
+        </label>
+        <label>Unit
+          <select id="wunit">
+            <option value="km" selected>km</option>
+            <option value="mi">miles</option>
+          </select>
+        </label>
+      </div>
+      <p class="note" style="margin-top:12px" id="repnote">Minutes can be decimal (2.5) or mm:ss (2:30).</p>
+    </div>
+  </section>
+
+  <p class="warn" id="err" hidden></p>
+
+  <section id="resbox">
+    <h2>Session</h2>
+    <div class="res">
+      <div><span>Pace /km</span><b class="pace" id="o-pace">-</b><small id="o-pace-s"></small></div>
+      <div><span>Speed km/h</span><b id="o-speed">-</b></div>
+      <div><span id="o-len-l">Distance</span><b id="o-len">-</b><small id="o-len-s"></small></div>
+      <div><span>Recovery</span><b id="o-rec">-</b></div>
+      <div><span>Suggested reps</span><b id="o-reps">-</b><small id="o-reps-s"></small></div>
+      <div><span>VDOT (equivalent)</span><b id="o-p5">-</b><small id="o-p5-s"></small></div>
+    </div>
+  </section>
+
+  <section id="loadbox">
+    <h2>Session load</h2>
+    <div class="panel">
+      <div class="fields3">
+        <label>Reps
+          <input id="reps" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="-">
+        </label>
+        <label>Warm-up (min)
+          <input id="wu" type="text" inputmode="decimal" autocomplete="off" value="10">
+        </label>
+        <label>Cool-down (min)
+          <input id="cd" type="text" inputmode="decimal" autocomplete="off" value="10">
+        </label>
+        <label>Warm-up and cool-down pace /km
+          <input id="wcp" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="-">
+        </label>
+      </div>
+      <div class="res">
+        <div><span>TSS</span><b class="pace" id="o-tss">-</b><small id="o-tss-s"></small></div>
+        <div><span>Total time</span><b id="o-total">-</b></div>
+        <div><span>Threshold pace /km</span><b id="o-thr">-</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="method">
+    <h2>How this is calculated</h2>
+    <ul>
+      <li><b>Pace base.</b> Your race becomes a 5km equivalent with Riegel (time × distance ratio ^ 1.06). Results under 5km are slowed by 8 s/km × ln(5 ÷ km). Paces beyond the half marathon are slowed by up to 5 s/km at the marathon. These corrections are my estimates.</li>
+      <li><b>Rep pace.</b> Set by rep length and interpolated between anchors: 200m at 91–96% of 5km pace time, 300m at 5km pace ±2 s/km, 400m at 8–10km pace, 3 min at 14–16km pace, 6 min at 20–21km, 10 min at 25–30km, tempo reps of 15–20km at 3–6% slower than marathon pace. The 3, 6 and 10 minute anchors follow Copeland's book, as relayed to me. The rest are my estimates.</li>
+      <li><b>Recovery.</b> From the rule at each anchor (90s at 200m, 45s at 300–400m, 60s at 3–6 min, 75–90s at 8–10 min, 120s at 12 min, 150–240s at 15–20 min), interpolated. Beyond 20 min it rises from 195s to 300s at 40 min (my estimate).</li>
+      <li><b>Suggested reps.</b> My estimate: total work at each anchor ÷ rep time. Sessions are capped at 25km, and at 5km of mile-paced work, 10km of 5km-paced or 400m work, 1 hour of 3–12 min reps and 2 hours of marathon-paced work.</li>
+      <li><b>Weekly distance (optional).</b> Caps the top of the range at a share of weekly distance: 5% for 200m, 8% for 300m, 10% for 400m, 12% for 3–12 min reps, 20% for 15 min and longer. These are Daniels' figures except 12%, which I raised from his 10% because most of these sessions are below threshold pace. The lower share applies between anchors. Floors: 2km mile-paced, 4km 5km-paced, 6km slower work.</li>
+      <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Threshold is the predicted 16km pace. Warm-up and cool-down default to 62.5% of 5km speed (editable), reps run at the middle of the pace range and recoveries are walked at 6 km/h.</li>
+      <li><b>Treadmill.</b> ACSM running equation: belt speed = flat speed ÷ (1 + 4.5 × grade). Rep times stay the same. It ignores air resistance and treadmill calibration.</li>
+      <li>Treat all numbers as starting points and check them against heart rate or feel. Keep the last rep within 1–2 s per 200m, or 3 s per 400m, of the first.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var K = 1.06, HM = 21.0975, MAR = 42.195;
+  // Slowing applied to the 5km equivalent when the input race is shorter than 5km, in s/km (my estimate).
+  function adj(km) { return km < 5 ? 8 * Math.log(5 / km) : 0; }
+  // Slowing of race-pace equivalents beyond the half marathon, in s/km: 0 at the half marathon, rising linearly to +5 at the marathon.
+  function off(km) { return km <= HM ? 0 : 5 * (Math.min(km, MAR) - HM) / (MAR - HM); }
+
+  // Anchor reps. kind: "d" distance (m), "t" timed (min), "c" continuous tempo (km).
+  // basis: "x" multiple of 5km pace, "r" Riegel race distance km, "p5" 5km pace +/- s, "m" multiple of marathon pace.
+  // w = total work in minutes (low, high); rec = recovery in seconds; pct = Daniels maximum for a session, % of weekly distance.
+  var ANCH = [
+    { kind: "d", m: 200, basis: ["x", 0.91, 0.96], w: [12, 15], pct: 5, absKm: 5, rec: 90 },
+    { kind: "d", m: 300, basis: ["p5", -2, 2], w: [17, 22], pct: 8, absKm: 10, rec: 45 },
+    { kind: "d", m: 400, basis: ["r", 8, 10], w: [20, 26], pct: 10, absKm: 10, rec: 45 },
+    { kind: "t", min: 3, basis: ["r", 14, 16], w: [24, 30], pct: 12, absMin: 60, rec: 60 },
+    { kind: "t", min: 6, basis: ["r", 20, 21], w: [24, 36], pct: 12, absMin: 60, rec: 60 },
+    { kind: "t", min: 8, basis: ["r", 23, 26], w: [24, 32], pct: 12, absMin: 60, rec: 82.5 },
+    { kind: "t", min: 10, basis: ["r", 25, 30], w: [20, 40], pct: 12, absMin: 60, rec: 82.5 },
+    { kind: "t", min: 12, basis: ["r", 30, 35], w: [24, 48], pct: 12, absMin: 60, rec: 120 },
+    { kind: "t", min: 15, basis: ["r", 35, 40], w: [30, 60], pct: 20, absMin: 120, rec: 195 },
+    { kind: "t", min: 20, basis: ["r", 40, 42.195], w: [40, 80], pct: 20, absMin: 120, rec: 195 },
+    { kind: "c", km: 15, basis: ["m", 1.03, 1.06], w: null, pct: 20, absMin: 120, rec: 0 },
+    { kind: "c", km: 20, basis: ["m", 1.03, 1.06], w: null, pct: 20, absMin: 120, rec: 0 }
+  ];
+
+  function parseTime(str) {
+    str = (str || "").trim();
+    if (!str) return null;
+    var parts = str.split(":");
+    if (parts.length > 3) return null;
+    var nums = parts.map(function (p) { return p === "" ? NaN : Number(p); });
+    if (nums.some(function (x) { return isNaN(x) || x < 0; })) return null;
+    if (parts.length === 1) return nums[0] * 60;                       // plain number = minutes
+    if (parts.length === 2) return nums[0] * 60 + nums[1];
+    return nums[0] * 3600 + nums[1] * 60 + nums[2];
+  }
+  function mmss(sec) {
+    sec = Math.round(sec);
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+  function hmmss(sec) {
+    sec = Math.round(sec);
+    var h = Math.floor(sec / 3600), r = sec - h * 3600;
+    return h > 0 ? h + ":" + (Math.floor(r / 60) < 10 ? "0" : "") + mmss(r) : mmss(r);
+  }
+  function rangeText(a, b) { return a === b ? a : a + "–" + b; }
+  function kmh(p) { return 3600 / p; }
+  function roundTo(x, step) { return Math.round(x / step) * step; }
+  function distText(km, step) {
+    var d = roundTo(km, step);
+    return d < 1 ? Math.round(d * 1000) + "m" : parseFloat(d.toFixed(2)) + "km";
+  }
+  function dur(sec) { return sec >= 1200 ? Math.round(sec / 60) + " min" : (sec < 120 ? Math.round(sec) + "s" : mmss(sec)); }
+  function durRange(a, b) {
+    if (b >= 1200) return rangeText(String(Math.round(a / 60)), String(Math.round(b / 60))) + " min";
+    if (b < 120) return rangeText(String(Math.round(a)), String(Math.round(b))) + "s";
+    return rangeText(mmss(a), mmss(b));
+  }
+  // Linear interpolation over anchors sorted by time t (seconds); flat beyond the ends.
+  function lerp(A, t, f) {
+    if (t <= A[0].t) return f(A[0]);
+    for (var i = 0; i < A.length - 1; i++) {
+      if (t <= A[i + 1].t) { var w = (t - A[i].t) / (A[i + 1].t - A[i].t); return f(A[i]) * (1 - w) + f(A[i + 1]) * w; }
+    }
+    return f(A[A.length - 1]);
+  }
+
+  // Daniels-Gilbert VDOT for a race of `min` minutes over `m` metres.
+  function vdot(min, m) {
+    var v = m / min;
+    var vo2 = -4.60 + 0.182258 * v + 0.000104 * v * v;
+    var pct = 0.8 + 0.1894393 * Math.exp(-0.012778 * min) + 0.2989558 * Math.exp(-0.1932605 * min);
+    return vo2 / pct;
+  }
+  var VDOT_MIN = 15, VDOT_MAX = 85;   // plausible human range (my choice; world records are about 80-85)
+
+  function save() {
+    try { localStorage.setItem("rsc2", JSON.stringify({ d: $("dist").value, t: $("time").value, s: $("surface").value, i: $("incline").value, r: $("rep").value, u: $("unit").value, w: $("week").value, wu: $("wunit").value, n: $("reps").value, a: $("wu").value, c: $("cd").value, p: $("wcp").value })); } catch (e) {}
+  }
+  function restore() {
+    try {
+      var s = JSON.parse(localStorage.getItem("rsc2") || "null");
+      if (s) {
+        if (s.d && $("dist").querySelector('option[value="' + s.d + '"]')) $("dist").value = s.d;
+        if (s.t) $("time").value = s.t;
+        if (s.s === "tread" || s.s === "flat") $("surface").value = s.s;
+        if (s.i) $("incline").value = s.i;
+        if (s.u === "min" || s.u === "m" || s.u === "km") $("unit").value = s.u;
+        if (s.r) $("rep").value = s.r;
+        if (typeof s.w === "string") $("week").value = s.w;
+        if (s.wu === "km" || s.wu === "mi") $("wunit").value = s.wu;
+        if (typeof s.n === "string") $("reps").value = s.n;
+        if (typeof s.a === "string" && s.a) $("wu").value = s.a;
+        if (typeof s.c === "string" && s.c) $("cd").value = s.c;
+        if (typeof s.p === "string") $("wcp").value = s.p;
+      }
+    } catch (e) {}
+  }
+
+  function clearOut() { ["o-pace", "o-speed", "o-len", "o-rec", "o-reps", "o-p5", "o-tss", "o-total", "o-thr"].forEach(function (i) { $(i).textContent = "-"; }); ["o-pace-s", "o-len-s", "o-p5-s", "o-reps-s", "o-tss-s"].forEach(function (i) { $(i).textContent = ""; }); }
+  function fail(msg) { $("err").hidden = false; $("err").textContent = msg; clearOut(); }
+
+  function update() {
+    var D = parseFloat($("dist").value), t = parseTime($("time").value);
+    var tread = $("surface").value === "tread";
+    $("inclinewrap").hidden = !tread;
+    var G = Math.max(0, Math.min(15, parseFloat($("incline").value) || 0)) / 100;
+    var f = tread ? 1 + 4.5 * G : 1;                   // belt speed = flat speed / f (ACSM)
+    var tn = $("treadnote");
+    tn.hidden = !tread;
+    if (tread) tn.textContent = "At " + (G * 100).toFixed(1).replace(/\.0$/, "") + "% incline, belt speed is " + Math.round(100 / f) + "% of flat speed (ACSM). Rep times stay the same.";
+    var unit = $("unit").value;
+    $("repnote").textContent = unit === "min" ? "Minutes can be decimal (2.5) or mm:ss (2:30)." : (tread ? "Treat the distance as flat-equivalent. The belt distance is shown with the result." : "");
+    $("err").hidden = true;
+    if (t === null || t <= 0) return fail("Enter a race time like 18:54 or 1:32:10.");
+    var vd = vdot(t / 60, D * 1000);
+    if (vd < VDOT_MIN || vd > VDOT_MAX) return fail("That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of " + VDOT_MIN + " to " + VDOT_MAX + ". Check the distance and time.");
+
+    var riegel5 = t * Math.pow(5 / D, K) / 5;
+    var p5r = riegel5 + adj(D);
+    var race = function (km) { return p5r * Math.pow(km / 5, K - 1) + off(km) - off(D); };
+    var p5 = race(5);
+    var pm = race(MAR);
+
+    // Build anchors with their paces and durations
+    var A = ANCH.map(function (r) {
+      var b = r.basis, fast, slow;
+      if (b[0] === "x") { fast = p5 * b[1]; slow = p5 * b[2]; }
+      else if (b[0] === "r") { fast = race(b[1]); slow = race(b[2]); }
+      else if (b[0] === "p5") { fast = p5 + b[1]; slow = p5 + b[2]; }
+      else { fast = pm * b[1]; slow = pm * b[2]; }
+      var mid = (fast + slow) / 2;
+      var tt = r.kind === "d" ? r.m / 1000 * mid : (r.kind === "t" ? r.min * 60 : r.km * mid);
+      return { t: tt, fast: fast, slow: slow, w: r.w || [tt / 60, tt / 60], rec: r.rec, pct: r.pct, absKm: r.absKm, absMin: r.absMin, cont: r.kind === "c" };
+    }).sort(function (a, b) { return a.t - b.t; });
+    var pf = function (a) { return a.fast; }, ps = function (a) { return a.slow; };
+    var midAt = function (x) { return (lerp(A, x, pf) + lerp(A, x, ps)) / 2; };
+
+    var rep = ($("rep").value || "").trim(), tRep, dKm = null;
+    if (unit === "min") {
+      tRep = parseTime(rep);
+      if (tRep === null || tRep <= 0) return fail("Enter a rep length like 6, 2.5 or 2:30 minutes.");
+    } else {
+      var v = Number(rep.replace(",", "."));
+      if (!rep || isNaN(v) || v <= 0) return fail("Enter a rep distance as a number.");
+      dKm = unit === "m" ? v / 1000 : v;
+      var lo = 1, hi = 20000;                           // bisection: find t where t = distance x pace(t)
+      for (var i = 0; i < 60; i++) {
+        var mid = (lo + hi) / 2;
+        if (mid / dKm - midAt(mid) > 0) hi = mid; else lo = mid;
+      }
+      tRep = (lo + hi) / 2;
+    }
+    var wkTxt = ($("week").value || "").trim(), weekKm = null;
+    if (wkTxt) {
+      var wv = Number(wkTxt.replace(",", "."));
+      if (isNaN(wv) || wv <= 0) return fail("Enter weekly distance as a number, or leave it blank.");
+      weekKm = $("wunit").value === "mi" ? wv * 1.609344 : wv;
+      if (weekKm < 30 || weekKm > 300) return fail("Weekly distance should be between 30 km (19 miles) and 300 km (186 miles). Check the number and unit.");
+    }
+    var tmin = A[0].t, tmax = A[A.length - 1].t;
+    if (tRep < tmin - 0.5 || tRep > tmax + 0.5) {
+      var rg = unit === "min" ? "from " + dur(tmin) + " to " + dur(tmax) + " for this race result" : "from 200m to 20km";
+      return fail("Rep length is outside the supported range, " + rg + ".");
+    }
+
+    var fast = lerp(A, tRep, pf), slow = lerp(A, tRep, ps);
+    var bf = fast * f, bs = slow * f;
+    $("o-pace").textContent = rangeText(mmss(bf), mmss(bs));
+    $("o-pace-s").textContent = tread ? "belt pace" : "";
+    $("o-speed").textContent = rangeText((Math.round(kmh(bs) * 10) / 10).toFixed(1), (Math.round(kmh(bf) * 10) / 10).toFixed(1));
+    if (dKm === null) {
+      $("o-len-l").textContent = "Distance";
+      var step = tRep < 240 ? 0.05 : 0.1;
+      $("o-len").textContent = "ca. " + distText(tRep / ((bf + bs) / 2), step);
+      $("o-len-s").textContent = tread && G > 0 ? "flat equivalent ca. " + distText(tRep / ((fast + slow) / 2), step) : "";
+    } else {
+      $("o-len-l").textContent = "Rep time";
+      $("o-len").textContent = durRange(fast * dKm, slow * dKm);
+      $("o-len-s").textContent = tread && G > 0 ? "belt ca. " + distText(dKm / f, dKm < 1 ? 0.01 : 0.1) : "";
+    }
+    // Recovery and reps
+    // Total work and recovery stop at the 20 minute anchor; the continuous tempo anchor only sets pace.
+    var AW = A.filter(function (a) { return !a.cont; });
+    var wl = lerp(AW, tRep, function (a) { return a.w[0]; }), wh = lerp(AW, tRep, function (a) { return a.w[1]; });
+    var repKm = tRep / ((fast + slow) / 2);                 // flat distance of one rep
+    var capReps = Math.max(1, Math.floor(25 / repKm + 0.05));  // total distance of the session is capped at 25km
+    // Intensity tier from rep length: the nearest anchor at or below it (so the lower share applies between anchors).
+    var pa = A[0];
+    A.forEach(function (a) { if (a.t <= tRep + 0.5) pa = a; });
+    var tier = pa.pct;                                       // 5 mile-paced, 8 5km-paced, 10 400m, 12 sub-threshold, 20 marathon-paced
+    // Absolute session limits: 5km of mile-paced work, 10km of 5km-paced and 10km-paced (400m) work, 1 hour of tempo work, 2 hours of marathon-paced work.
+    var capAbs = Math.max(1, pa.absKm ? Math.floor(pa.absKm / repKm + 0.05) : Math.floor(pa.absMin * 60 / tRep + 0.05));
+    var rh = Math.max(1, Math.min(Math.round(wh * 60 / tRep), capReps, capAbs)), rl = Math.max(1, Math.min(Math.round(wl * 60 / tRep), rh));
+    var repsSub = "";
+    if (weekKm !== null) {
+      // Daniels maximum as a share of weekly distance, with a floor for low mileage (2km mile-paced, 4km 5km-paced, 6km slower work).
+      var floorKm = tier <= 5 ? 2 : (tier <= 8 ? 4 : 6);
+      var maxKm = Math.max(weekKm * tier / 100, floorKm);
+      var cm = Math.floor(maxKm / repKm + 0.05);
+      if (cm < 1) { rh = 1; repsSub = "one rep is above the " + tier + "% limit (" + maxKm.toFixed(1) + "km)"; }
+      else { rh = Math.min(cm, capReps, capAbs); }
+      rl = Math.max(1, Math.min(Math.round(wl * 60 / tRep), rh));
+    }
+    $("o-reps-s").textContent = repsSub;
+    var recRaw = lerp(AW, tRep, function (a) { return a.rec; });
+    if (tRep > 1200) recRaw = 195 + Math.min(1, (tRep - 1200) / 1200) * 105;   // my estimate: 195s at 20 min rising to 300s at 40 min, then flat
+    var rec = Math.round(recRaw / 5) * 5;
+    $("o-reps").textContent = rh === 1 ? (tRep >= 1200 ? "1 (continuous)" : "1") : rangeText(String(rl), String(rh));
+    $("o-rec").textContent = rh === 1 || rec <= 0 ? "none" : "ca. " + (rec >= 120 ? mmss(rec) : rec + "s");
+    // Session load (TSS = hours x intensity^2 x 100, intensity = threshold pace / pace; threshold = pace at about 16km)
+    var thr = race(16);
+    var nDef = Math.max(1, Math.round((rl + rh) / 2));
+    $("reps").placeholder = String(nDef);
+    var nTxt = ($("reps").value || "").trim(), nReps = nDef;
+    if (nTxt !== "") {
+      nReps = Number(nTxt);
+      if (!isFinite(nReps) || nReps < 1 || nReps > 100 || Math.floor(nReps) !== nReps) return fail("Enter reps as a whole number from 1 to 100, or leave it blank.");
+    }
+    var wuMin = Number(($("wu").value || "").trim().replace(",", ".")), cdMin = Number(($("cd").value || "").trim().replace(",", "."));
+    if (($("wu").value || "").trim() === "" || ($("cd").value || "").trim() === "" || !isFinite(wuMin) || !isFinite(cdMin) || wuMin < 0 || cdMin < 0 || wuMin > 60 || cdMin > 60) return fail("Enter warm-up and cool-down as minutes from 0 to 60.");
+    var inten = function (pace) { return thr / pace; };
+    var wcSug = p5 / 0.625;                                   // suggested warm-up and cool-down pace: 62.5% of 5km speed, the middle of 55-70%
+    $("wcp").placeholder = mmss(wcSug);
+    var wcPace = wcSug, wcTxt = ($("wcp").value || "").trim();
+    if (wcTxt !== "") {
+      wcPace = parseTime(wcTxt);
+      if (wcPace === null || wcPace < 120 || wcPace > 900) return fail("Enter the warm-up and cool-down pace like 6:30, between 2:00 and 15:00 per km, or leave it blank.");
+    }
+    var recSec = nReps > 1 ? (nReps - 1) * rec : 0;
+    var tssW = Math.round((wuMin + cdMin) / 60 * Math.pow(inten(wcPace), 2) * 100);
+    var tssE = Math.round(nReps * tRep / 3600 * Math.pow(inten((fast + slow) / 2), 2) * 100);
+    var tssR = Math.round(recSec / 3600 * Math.pow(inten(600), 2) * 100);   // walking recoveries at 6 km/h
+    $("o-tss").textContent = String(tssW + tssE + tssR);
+    $("o-tss-s").textContent = tssW + " warm-up and cool-down + " + tssE + " reps + " + tssR + " recoveries" + (nReps > rh || nReps < rl ? ". Reps outside the suggested rep range." : "");
+    $("o-total").textContent = hmmss((wuMin + cdMin) * 60 + nReps * tRep + recSec);
+    $("o-thr").textContent = mmss(thr);
+    $("o-p5").textContent = vdot(p5 * 5 / 60, 5000).toFixed(1);
+    $("o-p5-s").textContent = D === 5 ? "" : "from the 5km equivalent, " + hmmss(p5 * 5);
+  }
+
+  restore();
+  ["dist", "time", "surface", "incline", "rep", "unit", "week", "wunit", "reps", "wu", "cd", "wcp"].forEach(function (id) {
+    $(id).addEventListener("input", function () { save(); update(); });
+    $(id).addEventListener("change", function () { save(); update(); });
+  });
+  update();
+})();
+
+  (function () {
+    var btns = document.querySelectorAll("[data-theme-set]");
+    function apply(t) {
+      if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+      else document.documentElement.removeAttribute("data-theme");
+      btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+    }
+    var saved = "system";
+    try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+    apply(saved);
+    btns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = b.getAttribute("data-theme-set");
+        apply(t);
+        try { localStorage.setItem("theme-pref", t); } catch (e) {}
+      });
+    });
+  })();
+</script>

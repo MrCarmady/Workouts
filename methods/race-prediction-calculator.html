@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Race Prediction Calculator: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
+.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
+.themes button + button { border-left:1px solid var(--line); }
+.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../race-prediction-calculator.html">Open Race Prediction Calculator</a></nav>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+  <article class="doc">
+<h1>Race Prediction Calculator: methodology</h1>
+<p>Takes one race result (distance and time) and predicts times, paces per km and paces per mile for 1500m, mile, 3km, 5km, 10km, 10 miles, half marathon and marathon.</p>
+<h2>What is standard and what is a choice</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Riegel formula, exponent 1.06</td>
+<td>Published, widely used</td>
+</tr>
+<tr>
+<td>Slowing the 5km equivalent from a result shorter than 5km by 8 × ln(5 / km) s/km</td>
+<td>My estimate. The coefficient was lowered from 10.6 to 8 because the 5km PB it was first set from is thought to be soft</td>
+</tr>
+<tr>
+<td>No adjustment between 5km and the half marathon</td>
+<td>Chosen here</td>
+</tr>
+<tr>
+<td>Slowing paces beyond the half marathon, rising to +5 s/km at the marathon</td>
+<td>My estimate</td>
+</tr>
+<tr>
+<td>Distances offered</td>
+<td>Chosen here</td>
+</tr>
+</tbody>
+</table>
+<p>The adjustments were set by judgment. The short-race one rests on a single runner's untrained mile, so it is weak evidence. Treat them as starting points.</p>
+<h2>Step 1: Riegel base</h2>
+<p>For a result of time <code>t</code> over <code>D</code> km, the Riegel pace at 5km is:</p>
+<pre><code>riegel5 = t * (5 / D) ^ 1.06 / 5       (s/km)
+</code></pre>
+<h2>Step 2: short-race adjustment</h2>
+<p>Riegel from a short race is optimistic about the 5km, so the 5km equivalent is slowed:</p>
+<pre><code>adj(km) = 8 * ln(5 / km)   for km &lt; 5      adj(km) = 0   otherwise
+(1500m: 9.7 s/km, mile: 9.1, 3km: 4.1)
+p5 = riegel5 + adj(D)
+</code></pre>
+<h2>Step 3: beyond the half marathon</h2>
+<p>Paces beyond the half marathon get an extra slowing that is 0 at the half marathon (21.0975 km) and rises linearly to +5 s/km at the marathon (42.195 km):</p>
+<pre><code>off(km) = 0                                            for km &lt;= 21.0975
+off(km) = 5 * (min(km, 42.195) - 21.0975) / 21.0975    otherwise
+</code></pre>
+<h2>Step 4: prediction for a target distance <code>T</code></h2>
+<pre><code>pace(T) = (p5 - adj(T)) * (T / 5) ^ 0.06 + off(T) - off(D)       (s/km)
+time(T) = pace(T) * T
+</code></pre>
+<ul>
+<li><code>(T/5)^0.06</code> is the pace form of Riegel: exponent 1.06 on time becomes 0.06 on pace.</li>
+<li><code>adj(T)</code> is subtracted for short targets, so the same adjustment works in both directions. A 5km runner's 1500m is predicted 9.7 s/km faster (before the distance scaling) than plain Riegel would give.</li>
+<li><code>- off(D)</code> removes the long-distance slowing already in the input when the input is a marathon.</li>
+<li>The input race always reproduces its own time exactly.</li>
+</ul>
+<h2>Worked example: 20:00 5km</h2>
+<ul>
+<li><code>riegel5</code> = 240 s/km, <code>adj</code> = 0, so <code>p5</code> = 240.</li>
+<li>Half marathon: 240 × (21.0975 / 5) ^ 0.06 = 262 s/km, which is 4:22/km and 1:32:00.</li>
+<li>Marathon: 240 × (42.195 / 5) ^ 0.06 + 5 = 278 s/km, which is 4:38/km and 3:15:20.</li>
+<li>1500m: (240 − 9.7) × (1.5 / 5) ^ 0.06 = 214.3 s/km, which is a time of 5:21.</li>
+</ul>
+<h2>Plausibility check</h2>
+<p>The page rejects a result whose Daniels–Gilbert VDOT (of the raw race result) is below 15 or above 85. The bounds are my choice: the best performances on record are around 80 to 85. This catches a distance and time that don't belong together, such as a 3km time entered against 5km.</p>
+<h2>Input limits</h2>
+<p>The page shows an error when the time can't be read, when the VDOT check above fails, or when the time over the chosen distance gives a pace outside 2:00 to 12:00 per km. These are sanity limits I chose.</p>
+<h2>Limits</h2>
+<ul>
+<li>Riegel and these adjustments are rules of thumb for a trained runner with a comparable preparation for each distance. They do not account for course, weather, pacing or distance-specific training.</li>
+<li>Predictions are most reliable close to the input distance, and least reliable at the extremes (for example 1500m from a marathon time).</li>
+<li>The marathon adjustment is small and is a guess. Long runs, fuelling and heat dominate real marathon outcomes.</li>
+</ul>
+  </article>
+</main>
+<script>
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>
