@@ -65,6 +65,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 .res b { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
 .res b.pace { color: var(--accent); }
 .res span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.res .handoff { display: block; margin-top: 8px; font-size: .8rem; font-weight: 600; color: var(--accent); }
 .res small { display: block; font-size: .78rem; color: var(--muted); margin-top: 2px; }
 .method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
 .method p { margin: 0; }
@@ -177,7 +178,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
         </label>
       </div>
       <div class="res">
-        <div><span>TSS</span><b class="pace" id="o-tss">-</b><small id="o-tss-s"></small></div>
+        <div><span>TSS</span><b class="pace" id="o-tss">-</b><small id="o-tss-s"></small><a id="toplanner" class="handoff" href="#" hidden>Add to Run Load Planner &rarr;</a></div>
         <div><span>Total time</span><b id="o-total">-</b></div>
         <div><span>Threshold pace /km</span><b id="o-thr">-</b></div>
       </div>
@@ -278,7 +279,12 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   }
   var VDOT_MIN = 15, VDOT_MAX = 85;   // plausible human range (my choice; world records are about 80-85)
 
+  // Shared race result for all pages on the same site (browser storage; does not sync between devices).
+  function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
+  function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
+  var SITE = true;                                    // set to true in the hosted site build, where the planner page sits next to this one
   function save() {
+    try { profSet("km", $("dist").value); profSet("time", $("time").value); } catch (e) {}
     try { localStorage.setItem("rsc2", JSON.stringify({ d: $("dist").value, t: $("time").value, s: $("surface").value, i: $("incline").value, r: $("rep").value, u: $("unit").value, w: $("week").value, wu: $("wunit").value, n: $("reps").value, a: $("wu").value, c: $("cd").value, p: $("wcp").value })); } catch (e) {}
   }
   function restore() {
@@ -301,7 +307,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     } catch (e) {}
   }
 
-  function clearOut() { ["o-pace", "o-speed", "o-len", "o-rec", "o-reps", "o-p5", "o-tss", "o-total", "o-thr"].forEach(function (i) { $(i).textContent = "-"; }); ["o-pace-s", "o-len-s", "o-p5-s", "o-reps-s", "o-tss-s"].forEach(function (i) { $(i).textContent = ""; }); }
+  function clearOut() { ["o-pace", "o-speed", "o-len", "o-rec", "o-reps", "o-p5", "o-tss", "o-total", "o-thr"].forEach(function (i) { $(i).textContent = "-"; }); ["o-pace-s", "o-len-s", "o-p5-s", "o-reps-s", "o-tss-s"].forEach(function (i) { $(i).textContent = ""; }); $("toplanner").hidden = true; }
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; clearOut(); }
 
   function update() {
@@ -435,7 +441,11 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     var tssW = Math.round((wuMin + cdMin) / 60 * Math.pow(inten(wcPace), 2) * 100);
     var tssE = Math.round(nReps * tRep / 3600 * Math.pow(inten((fast + slow) / 2), 2) * 100);
     var tssR = Math.round(recSec / 3600 * Math.pow(inten(600), 2) * 100);   // walking recoveries at 6 km/h
-    $("o-tss").textContent = String(tssW + tssE + tssR);
+    var tssTot = tssW + tssE + tssR;
+    $("o-tss").textContent = String(tssTot);
+    var tp = $("toplanner");
+    tp.hidden = !SITE;
+    tp.href = "run-load-planner.html?tss=" + tssTot + "&name=" + encodeURIComponent(nReps + "x " + ($("rep").value || "").trim() + " " + ({ min: "min", m: "m", km: "km" }[unit] || ""));
     $("o-tss-s").textContent = tssW + " warm-up and cool-down + " + tssE + " reps + " + tssR + " recoveries" + (nReps > rh || nReps < rl ? ". Reps outside the suggested rep range." : "");
     $("o-total").textContent = hmmss((wuMin + cdMin) * 60 + nReps * tRep + recSec);
     $("o-thr").textContent = mmss(thr);
@@ -444,6 +454,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   }
 
   restore();
+  (function () { var pr = profGet(); if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km; if (pr.time) $("time").value = pr.time; })();
   ["dist", "time", "surface", "incline", "rep", "unit", "week", "wunit", "reps", "wu", "cd", "wcp"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });

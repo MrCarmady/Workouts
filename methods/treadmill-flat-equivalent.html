@@ -71,6 +71,10 @@ a { color:var(--accent); }
 <td>Chosen here</td>
 </tr>
 <tr>
+<td>Display error default of 1.7%</td>
+<td>One measurement, my treadmill against a Stryd footpod</td>
+</tr>
+<tr>
 <td>Input limits (5 to 25 km/h, 0 to 20% incline)</td>
 <td>Chosen here, not taken from ACSM</td>
 </tr>
@@ -111,7 +115,7 @@ S_flat = S * (1 + 4.5 * G)
 <h2>Choices and limits</h2>
 <ul>
 <li><strong>Wind and treadmill effect:</strong> the equation has no term for air resistance. Some treadmill conversion tables add an offset because treadmill running at 0% is easier than the same pace outdoors. This page does not. The choice is to err on the easy side, which is safer for sub-threshold work.</li>
-<li><strong>Belt speed:</strong> enter the true belt speed. If your treadmill's display is off (one gym treadmill read about 1.7% fast against a footpod), correct for that before entering the speed. A calibration input is not included yet.</li>
+<li><strong>Display error:</strong> the page has a "Display reads fast by (%)" input, default 1.7. That figure is one measurement of my treadmill against a Stryd footpod, not a general value. True belt speed = displayed speed / (1 + error). The flat equivalent uses the true speed. Set it to 0 if your display is accurate. The value is stored in the browser and shared with the Run Session Generator when both pages are on the same site.</li>
 <li><strong>Incline:</strong> the displayed incline is assumed to be accurate.</li>
 <li><strong>Steady state:</strong> the equation is for steady-state running. It says nothing about fatigue, heat or the mental load of treadmill running.</li>
 <li><strong>Accuracy:</strong> this is an estimate for training, not a lab measurement.</li>

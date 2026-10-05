@@ -85,6 +85,9 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
       <label>Incline (%)
         <input id="grade" type="number" inputmode="decimal" min="0" max="20" step="0.5" value="6">
       </label>
+      <label>Display reads fast by (%)
+        <input id="cal" type="number" inputmode="decimal" min="-10" max="10" step="0.1" value="1.7">
+      </label>
     </div>
   </section>
 
@@ -108,9 +111,11 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   }
 
   function save() {
+    try { localStorage.setItem("tt-tread-cal", $("cal").value); } catch (e) {}
     try { localStorage.setItem("acsmwidget", JSON.stringify({ speed: $("speed").value, unit: $("unit").value, grade: $("grade").value })); } catch (e) {}
   }
   function restore() {
+    try { var c = localStorage.getItem("tt-tread-cal"); if (c !== null && c !== "") $("cal").value = c; } catch (e) {}
     try {
       var o = JSON.parse(localStorage.getItem("acsmwidget") || "null");
       if (!o) return;
@@ -124,8 +129,11 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   function update() {
     $("err").hidden = true;
     var unit = $("unit").value, v = parseFloat($("speed").value), g = parseFloat($("grade").value);
-    var kmh = unit === "mph" ? v * MILE : v;
-    if (isNaN(v) || kmh < 5 || kmh > 25) return fail("Enter a belt speed between 5 and 25 km/h (3.1 to 15.5 mph).");
+    var shown = unit === "mph" ? v * MILE : v;
+    var cal = parseFloat($("cal").value);
+    if (isNaN(cal) || cal < -10 || cal > 10) return fail("Enter a display error between -10 and 10%. Use 0 if the display is accurate.");
+    var kmh = shown / (1 + cal / 100);                 // true belt speed
+    if (isNaN(v) || shown < 5 || shown > 25) return fail("Enter a belt speed between 5 and 25 km/h (3.1 to 15.5 mph).");
     if (isNaN(g) || g < 0 || g > 20) return fail("Enter an incline between 0 and 20%.");
     // ACSM running equation: VO2 = 0.2*S + 0.9*S*G + 3.5. Equal oxygen cost on the flat gives S_flat = S*(1 + 4.5*G).
     var flat = kmh * (1 + 4.5 * g / 100);
@@ -133,12 +141,13 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     $("kv").innerHTML =
       "<div><b>" + mmss(3600 * MILE / flat) + "</b><span>Per mile</span></div>" +
       "<div><b>" + flat.toFixed(1) + "</b><span>Flat speed, km/h</span></div>" +
-      "<div><b>" + mmss(3600 / kmh) + "</b><span>Belt pace, /km</span></div>";
+      "<div><b>" + mmss(3600 / shown) + "</b><span>Display pace, /km</span></div>" +
+      (cal !== 0 ? "<div><b>" + kmh.toFixed(2) + "</b><span>True belt speed, km/h</span></div>" : "");
     $("res").hidden = false;
   }
 
   restore();
-  ["speed", "unit", "grade"].forEach(function (id) {
+  ["speed", "unit", "grade", "cal"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });

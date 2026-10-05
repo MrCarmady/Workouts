@@ -184,7 +184,11 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   }
 
   var IDS = ["mode", "thr", "dist", "time", "target", "emin", "wmin", "wpace"];
+  // Shared race result for all pages on the same site (browser storage; does not sync between devices).
+  function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
+  function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
   function save() {
+    try { profSet("km", $("dist").value); profSet("time", $("time").value); } catch (e) {}
     try {
       var o = {}; IDS.forEach(function (i) { o[i] = $(i).value; });
       localStorage.setItem("tssplan", JSON.stringify(o));
@@ -257,6 +261,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   }
 
   restore();
+  (function () { var pr = profGet(); if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km; if (pr.time) $("time").value = pr.time; })();
   IDS.forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });

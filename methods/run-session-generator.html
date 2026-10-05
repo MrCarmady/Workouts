@@ -416,7 +416,7 @@ belt speed = flat speed / (1 + 4.5 * G)
 belt pace  = flat pace  * (1 + 4.5 * G)
 </code></pre>
 <p>At 3.5% incline the factor is 1.1575, so belt speed is 86% of flat speed. Rep times stay the same as flat. A time input shows the belt distance with the flat equivalent underneath. A distance input is the flat distance and shows the belt distance underneath.</p>
-<p>No offset is added for the lower air resistance of treadmill running, by design. See the Treadmill Flat Equivalent methodology for the comparison with the Hillrunner table. The choice is to take the equation as is and err on the easy side, because for sub-threshold work running too easy costs less than running too hard. The equation ignores your treadmill's calibration, heat and the mental load of treadmill running.</p>
+<p>No offset is added for the lower air resistance of treadmill running, by design. See the Treadmill Flat Equivalent methodology for the comparison with the Hillrunner table. The choice is to take the equation as is and err on the easy side, because for sub-threshold work running too easy costs less than running too hard. The equation ignores your treadmill's calibration, heat and the mental load of treadmill running. The Treadmill Flat Equivalent page has a display error input; this page does not.</p>
 <h2>What changed from the earlier version</h2>
 <ul>
 <li>The fixed table of rows is replaced by a single rep-length input.</li>
@@ -432,6 +432,10 @@ belt pace  = flat pace  * (1 + 4.5 * G)
 <li>4.5 min (between the 3 and 6 minute anchors): 4:17–4:19, ca. 1.0km, 5–7 reps.</li>
 <li>15km tempo: marathon pace is 4:38, so 4:46–4:54 and 72–74 min.</li>
 </ul>
+<h2>Shared race result</h2>
+<p>This page shares its race distance and time with the Run Session Generator, the Race Prediction Calculator, the Run TSS Calculator and the Run TSS Planner. The values are kept in the browser's local storage under one key. The last page you edited sets the value for the others. It applies only on the hosted site, where the pages share an origin, and only in the same browser on the same device. It does not sync between devices. If a stored distance is missing from a page's list (the 10 miles and marathon options exist only on the predictor), that page keeps its own distance.</p>
+<h2>Hand-off to the Run Load Planner</h2>
+<p>On the hosted site, the session load has an "Add to Run Load Planner" link. It opens the planner with the session's TSS and a short label in the address (<code>run-load-planner.html?tss=65&amp;name=5x 6 min</code>). Nothing is stored. The link is hidden in the standalone artifact, where the planner page is not next to it.</p>
   </article>
 </main>
 <script>
