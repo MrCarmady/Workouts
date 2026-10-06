@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Run Session Generator: how it works</title>
+<title>Sub-Threshold Session Generator: how it works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
 <style>
@@ -39,7 +39,7 @@ a { color:var(--accent); }
 </style>
 <main class="wrap">
   <header class="head">
-    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../run-session-generator.html">Open Run Session Generator</a></nav>
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../run-session-generator.html">Open Sub-Threshold Session Generator</a></nav>
     <div class="themes" role="group" aria-label="Theme">
       <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
       <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
@@ -47,7 +47,7 @@ a { color:var(--accent); }
     </div>
   </header>
   <article class="doc">
-<h1>Run Session Generator: methodology</h1>
+<h1>Sub-Threshold Session Generator: methodology</h1>
 <p>Takes a recent race result and a rep length (a time or a distance) and returns the rep pace, recovery and suggested rep count, with an optional treadmill-incline adjustment.</p>
 <h2>What is published and what is an estimate</h2>
 <table>
@@ -433,7 +433,7 @@ belt pace  = flat pace  * (1 + 4.5 * G)
 <li>15km tempo: marathon pace is 4:38, so 4:46–4:54 and 72–74 min.</li>
 </ul>
 <h2>Shared race result</h2>
-<p>This page shares its race distance and time with the Run Session Generator, the Race Prediction Calculator, the Run TSS Calculator and the Run TSS Planner. The values are kept in the browser's local storage under one key. The last page you edited sets the value for the others. It applies only on the hosted site, where the pages share an origin, and only in the same browser on the same device. It does not sync between devices. If a stored distance is missing from a page's list (the 10 miles and marathon options exist only on the predictor), that page keeps its own distance.</p>
+<p>This page shares its race distance and time with the Sub-Threshold Session Generator, the Race Prediction Calculator, the Run TSS Calculator and the Run TSS Planner. The values are kept in the browser's local storage under one key. The last page you edited sets the value for the others. It applies only on the hosted site, where the pages share an origin, and only in the same browser on the same device. It does not sync between devices. If a stored distance is missing from a page's list (the 10 miles and marathon options exist only on the predictor), that page keeps its own distance.</p>
 <h2>Hand-off to the Run Load Planner</h2>
 <p>On the hosted site, the session load has an "Add to Run Load Planner" link. It opens the planner with the session's TSS and a short label in the address (<code>run-load-planner.html?tss=65&amp;name=5x 6 min</code>). Nothing is stored. The link is hidden in the standalone artifact, where the planner page is not next to it.</p>
   </article>
