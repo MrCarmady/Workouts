@@ -151,8 +151,8 @@ td.num, th.num { text-align: right; padding-right: 14px; }
         <label>Taper
           <select id="taper">
             <option value="0" selected>None</option>
-            <option value="7">7 days</option>
-            <option value="14">14 days</option>
+            <option value="7">Race week only (7 days)</option>
+            <option value="14">Hold week + race week (14 days)</option>
           </select>
         </label>
         <label class="full">Race-day TSB (taper only)
@@ -220,7 +220,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     <ul>
       <li><b>Pace base.</b> The same model as the Race Prediction Calculator, with the marathon pace set by your weekly distance. Easy pace is 62.5% of 5km speed unless you change it. Sub-threshold is 4% slower than threshold (my placeholder). Threshold is the predicted 16km pace, intervals are race(4), mile pace is the predicted mile pace.</li>
       <li><b>Quality sessions per week.</b> Set by run days: 3 days gives 1, 4 and 5 give 2, 6 and 7 give 3. The week layout is a placeholder. A focus with intervals or mile pace puts one such session in the week, always the last.</li>
-      <li><b>Session size.</b> Each quality session gets an equal share of the week's quality budget. Daniels' per-session limits apply as read from secondary summaries, not checked against the book: threshold up to 10% of weekly distance, intervals the lesser of 10km or 8%, repetitions the lesser of 5 miles or 5%, marathon pace up to 110 minutes. Sub-threshold has no Daniels limit, so I use 15% of weekly distance.</li>
+      <li><b>Session size.</b> Each quality session gets an equal share of the week's quality budget. Daniels' per-session limits apply as read from secondary summaries, not checked against the book: threshold up to 10% of weekly distance, intervals the lesser of 10km or 8%, repetitions the lesser of 5 miles or 5%, marathon pace up to 110 minutes. Sub-threshold has no Daniels limit, so it uses 12%: Daniels' 10% for threshold, raised a little because sub-threshold sessions are easier (lower lactate).</li>
       <li><b>Weekly limits.</b> Distance at each pace is capped as a share of weekly distance: mile pace 10%, intervals 16%, threshold 20%, sub-threshold 30%, marathon pace 40%. Mixed weeks share one budget: each km of a type uses 1 ÷ its limit, and the total cannot exceed 1. At least 60% of the week is always easy.</li>
       <li><b>Easy and long runs.</b> Quality days include warm-up and cool-down, counted as easy. They are 20 minutes together at least and grow up to 40, so a quality day takes about 80% of an easy day's time. The 80% and the 40 are my choices. The rest of the week is split between easy days and one long run, which counts 1.6 times an easy day. The long run is capped at 35% of weekly distance (your rule, since Daniels' 25% is too low for 3 and 4 run days) and at 150 minutes, and no easy run is longer than it. If the week cannot fit in the run days, the distance falls short and the table says so. The 1.6 is my choice. Easy days under 20 minutes are flagged.</li>
       <li><b>Load.</b> TSS per km = threshold pace² ÷ (36 × pace). CTL and ATL are daily exponential averages with 42-day and 7-day constants (new = old × e^(−1/n) + TSS × (1 − e^(−1/n))). TSB is CTL minus ATL at the end of each day, as in the Run Load Planner.</li>
@@ -359,7 +359,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     var eDays = 0; for (var k2 in layout) if (layout[k2] === "E") eDays++;
 
     function sessCap(ty, V) {
-      if (ty === "subT") return 0.15 * V;
+      if (ty === "subT") return 0.12 * V;
       if (ty === "T") return 0.10 * V;
       if (ty === "I") return Math.min(10, 0.08 * V);
       if (ty === "R") return Math.min(5 * MILE, 0.05 * V);
