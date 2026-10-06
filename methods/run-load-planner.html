@@ -105,7 +105,7 @@ TSB     = CTL_new - ATL_new
 <p>The user picks the weekday the plan starts on (default: today). Day <code>d</code> is labelled <code>Mon…Sun</code> as <code>(start + d − 1) mod 7</code>. The labels are cosmetic and do not change the calculation.</p>
 <h2>Target mode: build, then taper</h2>
 <p>The user sets a target CTL and a target TSB for the last day, a number of weeks <code>W</code>, and a taper length of <code>k</code> days (7, 10, 14 or 21). Train at a constant daily TSS <code>T</code> for the build phase (<code>B = 7W − k</code> days), then at a constant daily TSS <code>S</code> for the <code>k</code> taper days.</p>
-<p>A constant load alone cannot be used for a TSB target: CTL and ATL both converge on the daily load, so TSB drifts toward 0. A positive TSB such as +10 needs a taper.</p>
+<p>A constant load alone cannot be used for a TSB target: CTL and ATL both converge on the daily load, so TSB drifts towards 0. A positive TSB such as +10 needs a taper.</p>
 <p>Let <code>cB = dC^B</code>, <code>aB = dA^B</code>, <code>ck = dC^k</code>, <code>ak = dA^k</code>. The end values are:</p>
 <pre><code>CTL_N = CTL0*cB*ck + T*(1 - cB)*ck + S*(1 - ck)
 ATL_N = ATL0*aB*ak + T*(1 - aB)*ak + S*(1 - ak)

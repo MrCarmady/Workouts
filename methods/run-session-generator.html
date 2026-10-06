@@ -288,7 +288,7 @@ off(km) = 0                                              for km &lt;= 21.0975
 </tbody>
 </table>
 <p>The percentages and distance limits were checked against secondary sources quoting Daniels (see "Source check"), not against the book. Daniels gives 20% for marathon-paced work, and the page uses it. Where he gives a distance, the page's limit can differ (see the table below the check).</p>
-<p><strong>Low-mileage floor:</strong> the weekly limit never drops below 2km of mile-paced work, 4km of 5km-paced work or 6km of slower work (<strong>author's judgment</strong>, set so that low-mileage runners still get a usable session).</p>
+<p><strong>Low-mileage floor:</strong> the weekly limit never drops below 2km of mile-paced work, 4km of 5km-paced work or 6km of slower work (<strong>author's judgement</strong>, set so that low-mileage runners still get a usable session).</p>
 <pre><code>weeklyMaxKm = max(weeklyKm * share, floorKm)      // floorKm: 2 (200m), 4 (300m), 6 (400m and longer)
 topReps     = min(floor(weeklyMaxKm / repDistance), floor(absolute limit / rep size), floor(25km / repDistance))
 bottom      = the unchanged estimate from total work, never above the top
