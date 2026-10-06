@@ -188,7 +188,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   <section class="method">
     <h2>How this is calculated</h2>
     <ul>
-      <li><b>Pace base.</b> Your race becomes a 5km equivalent with Riegel (time × distance ratio ^ 1.06). Results under 5km are slowed by 8 s/km × ln(5 ÷ km). Paces beyond the half marathon are slowed, rising linearly to a marathon slow-down that depends on weekly distance: the marathon is twice the half marathon plus 7 min at 80 miles (129 km) a week or more, plus 10 min at 70 miles (113 km), and plus 25 min at 35 miles (56 km) or less. With no weekly distance, 70 miles is assumed. These corrections are my estimates.</li>
+      <li><b>Pace base.</b> Your race becomes a 5km equivalent with Riegel (time × distance ratio ^ 1.06). Results under 5km are slowed by 8 s/km × ln(5 ÷ km). Paces beyond the half marathon are slowed, rising linearly to a marathon slow-down that depends on weekly distance: the marathon is twice the half marathon plus 7 min at 80 miles (129 km) a week or more, plus 10 min at 70 miles (113 km), 13 at 60, 17 at 50, and 25 at 35 miles (56 km) or less. With no weekly distance, 70 miles is assumed. These corrections are my estimates.</li>
       <li><b>Rep pace.</b> Set by rep length and interpolated between anchors: 200m at 91–96% of 5km pace time, 300m at 5km pace ±2 s/km, 400m at 8–10km pace, 3 min at 14–16km pace, 6 min at 20–21km, 10 min at 25–30km, tempo reps of 15–20km at 3–6% slower than marathon pace. The 3, 6 and 10 minute anchors follow Copeland's book, as relayed to me. The rest are my estimates.</li>
       <li><b>Recovery.</b> From the rule at each anchor (90s at 200m, 45s at 300–400m, 60s at 3–6 min, 75–90s at 8–10 min, 120s at 12 min, 150–240s at 15–20 min), interpolated. Beyond 20 min it rises from 195s to 300s at 40 min (my estimate).</li>
       <li><b>Suggested reps.</b> My estimate: total work at each anchor ÷ rep time. Sessions are capped at 25km, and at 5km of mile-paced work, 10km of 5km-paced or 400m work, 1 hour of 3–12 min reps and 2 hours of marathon-paced work.</li>
@@ -207,16 +207,18 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   // Slowing applied to the 5km equivalent when the input race is shorter than 5km, in s/km (my estimate).
   function adj(km) { return km < 5 ? 8 * Math.log(5 / km) : 0; }
   // Marathon slow-down beyond the half marathon, in s/km at the marathon (my estimate, see the method notes).
-  // The marathon is set to 2 x half marathon + X minutes, where X is 7 min at 80 miles a week, 10 min at 70 and 25 min at 35 (linear between, flat outside).
+  // The marathon is set to 2 x half marathon + X minutes, where X is 7 min at 80 miles a week, 10 at 70, 13 at 60, 17 at 50 and 25 at 35 (linear between, flat outside).
   // With no weekly distance, 70 miles a week is assumed.
   var offM = 5;
   function off(km) { return km <= HM ? 0 : offM * (Math.min(km, MAR) - HM) / (MAR - HM); }
   function marathonExtraMin(weekKm) {
     var mi = weekKm / 1.609344;
-    if (mi >= 80) return 7;
-    if (mi >= 70) return 7 + (80 - mi) / 10 * 3;      // 7 min at 80 miles, 10 min at 70
-    if (mi > 35) return 10 + (70 - mi) / 35 * 15;     // 10 min at 70 miles, 25 min at 35
-    return 25;
+    var P = [[80, 7], [70, 10], [60, 13], [50, 17], [35, 25]];   // [miles per week, minutes added to 2 x half marathon]
+    if (mi >= P[0][0]) return P[0][1];
+    for (var i = 1; i < P.length; i++) {
+      if (mi >= P[i][0]) { var f = (P[i - 1][0] - mi) / (P[i - 1][0] - P[i][0]); return P[i - 1][1] + f * (P[i][1] - P[i - 1][1]); }
+    }
+    return P[P.length - 1][1];
   }
   // p5r = 5km-equivalent pace from Riegel (s/km). Returns the marathon slow-down in s/km.
   function marathonOff(p5r, weekKm) {
