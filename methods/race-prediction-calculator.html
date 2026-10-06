@@ -71,8 +71,8 @@ a { color:var(--accent); }
 <td>Chosen here</td>
 </tr>
 <tr>
-<td>Slowing paces beyond the half marathon, rising to +5 s/km at the marathon</td>
-<td>My estimate</td>
+<td>Marathon = 2 × half marathon + 7 min at 80+ miles a week, + 10 min at 70, + 25 min at 35 or less; 70 miles assumed when blank</td>
+<td>My estimate, set by judgment. Not fitted to data</td>
 </tr>
 <tr>
 <td>Distances offered</td>
@@ -92,10 +92,45 @@ a { color:var(--accent); }
 p5 = riegel5 + adj(D)
 </code></pre>
 <h2>Step 3: beyond the half marathon</h2>
-<p>Paces beyond the half marathon get an extra slowing that is 0 at the half marathon (21.0975 km) and rises linearly to +5 s/km at the marathon (42.195 km):</p>
-<pre><code>off(km) = 0                                            for km &lt;= 21.0975
-off(km) = 5 * (min(km, 42.195) - 21.0975) / 21.0975    otherwise
+<p>Paces beyond the half marathon get an extra slowing that is 0 at the half marathon (21.0975 km) and rises linearly to <code>offM</code> s/km at the marathon (42.195 km):</p>
+<pre><code>off(km) = 0                                                for km &lt;= 21.0975
+off(km) = offM * (min(km, 42.195) - 21.0975) / 21.0975     otherwise
 </code></pre>
+<p><code>offM</code> is set from the weekly distance. With the field blank, 70 miles a week is assumed.</p>
+<p>The marathon is set to twice the half marathon plus <code>X</code> minutes, where <code>X</code> is a straight line through these points (weekly distance in miles):</p>
+<table>
+<thead>
+<tr>
+<th>Weekly distance</th>
+<th>X</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>80 or more</td>
+<td>7 min</td>
+</tr>
+<tr>
+<td>70</td>
+<td>10 min</td>
+</tr>
+<tr>
+<td>35 or less</td>
+<td>25 min</td>
+</tr>
+</tbody>
+</table>
+<pre><code>X = 7                                   for weekly &gt;= 80
+X = 7 + (80 - weekly) / 10 * 3          for 70 &lt;= weekly &lt; 80
+X = 10 + (70 - weekly) / 35 * 15        for 35 &lt; weekly &lt; 70
+X = 25                                  for weekly &lt;= 35
+
+H0 = half marathon time and M0 = marathon time from Riegel with no offset, both from the input race
+offM = max(0, (X * 60 - (M0 - 2 * H0)) / 42.195)     (s/km)
+</code></pre>
+<p>Riegel with exponent 1.06 already puts the marathon about 8.5% above twice the half marathon (6.8 min for an 80-minute half). The mileage term adds only the remainder up to <code>X</code>. It is never negative, so a slower runner at high mileage keeps the plain Riegel result, which can be above <code>X</code>.</p>
+<p>Where the numbers come from: all of them are my judgment, set with the author, not fitted to data. 7 min is for a well-trained club runner (elites lose almost nothing). 10 min at 70 miles was chosen because the author says a common 70-mile Pfitzinger plan assumes about that conversion; I have not checked that against Pfitzinger's books. 25 min at 35 miles is the author's figure for a low-mileage marathon build, raised from 20 because a runner's fuelling capacity and muscular endurance should still grow with mileage. The slide between the points is linear by choice.</p>
+<p>The closest published work is Vickers &amp; Vertosick (2016, BMC Sports Science, Medicine and Rehabilitation, 2,303 recreational runners). There, Riegel with k = 1.07 predicted marathon times 10 minutes or more too fast for about half of runners, and models that add typical weekly mileage cut that to about 25%. I could not read the model equations, so they are not used here. Below 35 miles a week the adjustment stops at +25 min and the page says so.</p>
 <h2>Step 4: prediction for a target distance <code>T</code></h2>
 <pre><code>pace(T) = (p5 - adj(T)) * (T / 5) ^ 0.06 + off(T) - off(D)       (s/km)
 time(T) = pace(T) * T

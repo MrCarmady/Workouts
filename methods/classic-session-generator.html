@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classic Session Generator: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
+.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
+.themes button + button { border-left:1px solid var(--line); }
+.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../classic-session-generator.html">Open Classic Session Generator</a></nav>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+  <article class="doc">
+<h1>Classic Session Generator: methodology</h1>
+<p>Gives paces for traditional workouts from one race result. The Run Session Generator is built around sub-threshold reps. This page covers the more traditional sessions, most of which run at or above threshold.</p>
+<h2>What is standard and what is a choice</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pace model (Riegel 1.06, short-race adjustment, marathon slow-down by weekly distance)</td>
+<td>Same as the Race Prediction Calculator. See its methodology for sources and status</td>
+</tr>
+<tr>
+<td>VDOT (Daniels-Gilbert) and the 15 to 85 plausibility check</td>
+<td>Published formula, range chosen here</td>
+</tr>
+<tr>
+<td>Mona fartlek structure (2×90 s, 4×60 s, 4×30 s, 4×15 s, equal recoveries)</td>
+<td>As described by Canadian Running</td>
+</tr>
+<tr>
+<td>All other session structures and every pace choice below</td>
+<td>Set by the author from his own descriptions, not published prescriptions</td>
+</tr>
+<tr>
+<td>TSS = hours × (threshold pace ÷ pace)² × 100</td>
+<td>The same method as the other tools</td>
+</tr>
+</tbody>
+</table>
+<p>In this document, race(x) is the predicted race pace over x km, from the Race Prediction Calculator model with the weekly distance applied. Threshold pace is race(16).</p>
+<h2>Pace choices</h2>
+<table>
+<thead>
+<tr>
+<th>Session</th>
+<th>Hard part</th>
+<th>Easy part</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Continuous tempo</td>
+<td>20 min at threshold. Longer tempos slow by 4.9% × ln(minutes ÷ 20), capped at marathon pace, up to 60 min</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Ladder 5-4-3-2-1 min</td>
+<td>5 min at race(10), 4 at race(5), 3 at race(3), 2 at race(2), 1 at race(1.5)</td>
+<td>90 s jog (adjustable), 4 jogs</td>
+</tr>
+<tr>
+<td>Aussie quarters</td>
+<td>400 m at race(4)</td>
+<td>200 m float from marathon pace to 3% faster, continuous. 8 reps by default (4.8 km), optional 200 m float first (5 km)</td>
+</tr>
+<tr>
+<td>Mona fartlek</td>
+<td>90 s at race(4), 60 s at race(3), 30 s at mile pace, 15 s at race(1.5)</td>
+<td>Float from marathon pace to 3% faster, same duration as the effort. No float after the last effort</td>
+</tr>
+<tr>
+<td>Yasso 800s</td>
+<td>800 m at race(5)</td>
+<td>Jog for the same time as the rep, at the warm-up pace. 10 reps by default</td>
+</tr>
+<tr>
+<td>Rosario 800s</td>
+<td>800 m at race(5)</td>
+<td>800 m float at race(5) + 25 s per 800 m (31.25 s/km). 8 reps by default, a float after every rep</td>
+</tr>
+<tr>
+<td>1 km repeats</td>
+<td>1 km from race(3) to race(5)</td>
+<td>Jog, 150 s by default</td>
+</tr>
+<tr>
+<td>Mile repeats</td>
+<td>1 mile at race(5)</td>
+<td>Jog, 150 s by default</td>
+</tr>
+<tr>
+<td>30/30</td>
+<td>30 s at race(3)</td>
+<td>30 s jog</td>
+</tr>
+<tr>
+<td>Marathon-pace long run</td>
+<td>Chosen distance at marathon pace (12 km by default)</td>
+<td>Easy running first (12 km by default)</td>
+</tr>
+</tbody>
+</table>
+<p>Race(1.5) is the shortest distance the pace model is fitted to. Nothing here goes faster than it.</p>
+<h2>Tempo scale</h2>
+<p>A tempo longer than 20 minutes at threshold pace is closer to a time trial, so the pace slides toward marathon pace as the run gets longer. The slide is <code>pace(T) = threshold × (1 + 0.049 × ln(T / 20))</code>, never slower than marathon pace, for T from 20 to 60 minutes.</p>
+<p>The 0.049 comes from a least-squares fit to a table the author supplied and described as Daniels' method. It listed, for 20 to 60 minutes in 5-minute steps, paces of 4:07, 4:10, 4:12, 4:14, 4:16, 4:17, 4:18, 4:19 and 4:20 per km. That is +1.2% at 25 minutes and +5.3% at 60 minutes against the 20-minute pace, and the fit stays within about 1 s/km of every entry. I have not seen where the table comes from and have not checked it against Daniels' books. The fit uses percentages, so it is applied to your threshold pace, not to the runner in the table. The cap at marathon pace stops the slide from passing it when the gap between threshold and marathon pace is small, for example at high weekly mileage.</p>
+<h2>Marathon pace and weekly distance</h2>
+<p>Marathon pace is race(42.195), which depends on the weekly distance field. The marathon is set to twice the half marathon plus 7 min at 80 miles (129 km) a week or more, plus 10 min at 70 miles, and plus 25 min at 35 miles or less, in straight lines between those points. Blank means 70 miles. The Race Prediction Calculator methodology gives the formula and says these numbers are my estimates.</p>
+<h2>Yasso 800s and the marathon</h2>
+<p>The traditional rule reads the average 800 m time in minutes:seconds as the marathon time in hours:minutes. This page runs the 800s at race(5) and shows the rule's marathon time beside the model's predicted marathon, with the difference. At about 75 miles a week the model was 1 min 23 s slower than the rule for an 18:54 5k. At lower weekly distances the model's marathon is slower, so the rule would overestimate. This is shown for comparison. The rule is a folk rule, and 5km-paced 800s are a fitness check more than a predictor.</p>
+<h2>Rosario 800s</h2>
+<p>The float pace is race(5) + 25 s per 800 m. The page shows how far that float is from the predicted marathon pace. The intention, as described by the author, is that the floats approximate marathon pace when the weekly volume is adequate. I have not checked that against a published source.</p>
+<h2>Session load</h2>
+<ul>
+<li>Warm-up and cool-down default to 10 + 10 min at 62.5% of 5km speed. The pace is editable and also sets the jog pace.</li>
+<li>Hard parts use their stated paces. Floats use the mid-point of their range.</li>
+<li>The marathon-pace long run has no separate warm-up or cool-down.</li>
+<li>TSS = hours × (threshold pace ÷ pace)² × 100, summed over every part.</li>
+</ul>
+<h2>Aussie quarters as a 5km predictor</h2>
+<p>The page notes that some runners use the time for the full set (4.8 or 5 km) as a 5km predictor, and that most can run faster in a race. I have not checked how well it predicts.</p>
+<h2>Limits</h2>
+<ul>
+<li>No weekly-volume limits are applied, unlike the Run Session Generator.</li>
+<li>Pace choices are mine from the author's descriptions. Check them against heart rate or feel.</li>
+<li>The model is calibrated on one runner's results, so treat paces as starting points.</li>
+<li>Input range: weekly distance 30 to 300 km. VDOT 15 to 85.</li>
+</ul>
+  </article>
+</main>
+<script>
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>

@@ -88,7 +88,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
           </select>
         </label>
         <label id="thrwrap" class="full">Threshold pace (min/km)
-          <input id="thr" type="text" inputmode="numeric" autocomplete="off" value="4:15" placeholder="m:ss">
+          <input id="thr" type="text" inputmode="numeric" autocomplete="off" value="4:15" placeholder="4:15 or 415">
         </label>
         <label id="distwrap" hidden>Race distance
           <select id="dist">
@@ -101,7 +101,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
           </select>
         </label>
         <label id="timewrap" hidden>Race time
-          <input id="time" type="text" inputmode="numeric" autocomplete="off" value="20:00" placeholder="mm:ss or h:mm:ss">
+          <input id="time" type="text" inputmode="numeric" autocomplete="off" value="20:00" placeholder="39:43 or 3943">
         </label>
       </div>
       <p class="note" id="thrnote" style="margin-top:12px" hidden></p>
@@ -123,7 +123,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
               <input id="wmin" type="number" inputmode="decimal" min="0" max="480" step="1" value="20">
             </label>
             <label>Avg pace (min/km)
-              <input id="wpace" type="text" inputmode="numeric" autocomplete="off" value="6:30" placeholder="m:ss">
+              <input id="wpace" type="text" inputmode="numeric" autocomplete="off" value="6:30" placeholder="4:15 or 415">
             </label>
           </div>
         </div>
@@ -134,7 +134,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
               <input id="emin" type="number" inputmode="decimal" min="0" max="480" step="1" value="30">
             </label>
             <label>Avg pace (min/km)
-              <input id="epace" type="text" inputmode="numeric" autocomplete="off" value="4:25" placeholder="m:ss">
+              <input id="epace" type="text" inputmode="numeric" autocomplete="off" value="4:25" placeholder="4:15 or 415">
             </label>
           </div>
         </div>
@@ -164,6 +164,12 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   function parseTime(str) {
     str = (str || "").trim();
     if (!str) return null;
+    if (/^\d{3,6}$/.test(str)) {                                       // digits only: read from the right
+      var sec = str.slice(-2), rest = str.slice(0, -2);
+      if (Number(sec) >= 60) return null;
+      if (rest.length > 2) { if (Number(rest.slice(-2)) >= 60) return null; str = rest.slice(0, -2) + ":" + rest.slice(-2) + ":" + sec; }
+      else str = rest + ":" + sec;
+    }
     var parts = str.split(":");
     if (parts.length > 3) return null;
     var nums = parts.map(function (p) { return p === "" ? NaN : Number(p); });
@@ -230,7 +236,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     var problem = null;
     var MINP = 120, MAXP = 900;                          // plausible paces: 2:00 to 15:00 per km
     var bad = function (p) { return !p || p < MINP || p > MAXP; };
-    if (!thr || thr <= 0) problem = race ? "Enter a race time like 18:54." : "Enter a threshold pace like 4:15.";
+    if (!thr || thr <= 0) problem = race ? "Enter a race time like 18:54 or 1854." : "Enter a threshold pace like 4:15 or 415.";
     else if (thr < 150 || thr > 480) problem = "Threshold pace should be between 2:30 and 8:00 per km.";
     else if (wmin < 0 || emin < 0 || wmin > 480 || emin > 480) problem = "Minutes should be between 0 and 480.";
     else if (wmin > 0 && bad(wp)) problem = "Warm-up and cool-down pace should be between 2:00 and 15:00 per km.";
@@ -254,6 +260,19 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     $("tss").textContent = String(ra + rb);
     $("split").textContent = "Warm-up and cool-down " + ra + " · efforts " + rb;
   }
+
+  // Phone keypads often have no colon. Digits only are read from the right: 3943 = 39:43, 12010 = 1:20:10, 415 = 4:15.
+  (function () {
+    function norm(t) { var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.round(t % 60); return (h ? h + ":" + (m < 10 ? "0" : "") + m : m) + ":" + (s < 10 ? "0" : "") + s; }
+    ["time", "thr", "wpace", "epace", "wcp"].forEach(function (id) {
+      var el = $(id); if (!el) return;
+      el.addEventListener("change", function () {
+        if (!/^\d{3,6}$/.test(el.value.trim())) return;
+        var t = parseTime(el.value);
+        if (t !== null) { el.value = norm(t); el.dispatchEvent(new Event("input", { bubbles: true })); }
+      });
+    });
+  })();
 
   restore();
   (function () { var pr = profGet(); if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km; if (pr.time) $("time").value = pr.time; })();
