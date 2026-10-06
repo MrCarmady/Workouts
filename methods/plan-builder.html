@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan Builder: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
+.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
+.themes button + button { border-left:1px solid var(--line); }
+.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../plan-builder.html">Open Plan Builder</a></nav>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+  <article class="doc">
+<h1>Plan Builder: methodology</h1>
+<p>Builds a block of weeks from a race result, current weekly distance, run days and a target rate of fitness gain. It is a prototype. The rules come from the author's guidelines. The constants and week layouts are my placeholders, marked below.</p>
+<h2>What is a rule and what is a choice</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quality sessions by run days: 3 days 1, 4 days 2, 6 days 3</td>
+<td>Author's rule</td>
+</tr>
+<tr>
+<td>5 days 2, 7 days 3</td>
+<td>My interpolation</td>
+</tr>
+<tr>
+<td>Weekly limits by pace type: mile pace 10%, intervals 16%, threshold 20%, sub-threshold 30%, marathon pace 40%</td>
+<td>Author's rule</td>
+</tr>
+<tr>
+<td>Shared quality budget across pace types</td>
+<td>Author's rule</td>
+</tr>
+<tr>
+<td>Ramp target 1 CTL point per week, band 0.1 to 1.9</td>
+<td>Author's rule</td>
+</tr>
+<tr>
+<td>TSB at or above -10 where possible, never -20</td>
+<td>Author's rule</td>
+</tr>
+<tr>
+<td>Daniels per-session limits</td>
+<td>As read from secondary summaries, not checked against the book</td>
+</tr>
+<tr>
+<td>Sub-threshold per-session limit of 15% of weekly distance</td>
+<td>My choice</td>
+</tr>
+<tr>
+<td>Sub-threshold pace 4% slower than threshold</td>
+<td>My placeholder</td>
+</tr>
+<tr>
+<td>Long run weighted 1.6 times an easy day, capped at 35% of weekly distance and 150 minutes</td>
+<td>35% is the author's rule (Daniels' 25% is too low for 3 and 4 run days). The 1.6 is my choice. The 150 minutes is Daniels' long-run limit as summarised in a secondary source</td>
+</tr>
+<tr>
+<td>No quality dose setting: every session gets its full share of the weekly limit</td>
+<td>Author's choice, to be tested: TSB and the caps restrain the load</td>
+</tr>
+<tr>
+<td>Warm-up and cool-down: 20 minutes together at least, up to 40, so a quality day takes about 80% of an easy day's time</td>
+<td>My choice, to avoid a long easy run one day and a short quality day the next</td>
+</tr>
+<tr>
+<td>Week layouts</td>
+<td>Placeholder</td>
+</tr>
+</tbody>
+</table>
+<h2>Paces</h2>
+<p>Same model as the Race Prediction Calculator, with marathon pace set by the weekly distance entered.</p>
+<ul>
+<li>Easy: 62.5% of 5km speed, or your own pace.</li>
+<li>Sub-threshold: 1.04 × threshold pace.</li>
+<li>Threshold: the predicted 16km pace.</li>
+<li>Intervals: race(4).</li>
+<li>Mile pace: the predicted mile pace.</li>
+<li>Marathon pace: the predicted marathon pace.</li>
+</ul>
+<h2>Quality sessions</h2>
+<p>The number of quality sessions per week comes from run days. The focus picks their types. Intervals, mile pace or marathon pace each add one session as the last quality session of the week, and the rest are sub-threshold or threshold.</p>
+<p>Each session gets an equal share of the week's budget:</p>
+<pre><code>km = min(cap[type] * V / n, per-session cap[type])
+</code></pre>
+<p><code>V</code> is weekly distance and <code>n</code> the number of quality sessions. Per-session caps, as read from secondary summaries (<a href="https://cdbaca.github.io/ssg/reading-daniels-running-formula-chapter-4.html">notes on Daniels chapter 4</a>, <a href="https://www.coachray.nz/2023/05/03/jack-daniels-running-intensity/">Coach Ray's summary</a>):</p>
+<ul>
+<li>Threshold: 10% of V.</li>
+<li>Intervals: the lesser of 10 km or 8% of V.</li>
+<li>Repetition (mile pace): the lesser of 5 miles or 5% of V.</li>
+<li>Marathon pace: 110 minutes.</li>
+<li>Sub-threshold: 15% of V (mine).</li>
+</ul>
+<p>The weekly limits and the shared budget are the author's: each km of a type uses 1 ÷ its limit of a budget of 1. There is no dose setting: each session takes its full share of the budget. TSB and the caps restrain the load. At least 60% of every week is easy.</p>
+<h2>Easy and long runs</h2>
+<p>Each quality day includes the warm-up and cool-down, counted as easy. Together they last at least 20 minutes and grow up to 40 minutes, so the quality day takes about 80% of an easy day's time. The remaining distance goes to easy days and one long run, which counts 1.6 times an easy day. The long run stops at 35% of weekly distance or 150 minutes, whichever is lower, and the excess goes to the easy days. No easy run is longer than the long run. If the week cannot fit in the run days under those limits, the distance falls short of the target and the page says so. The page flags easy days under 20 minutes or over 2 hours.</p>
+<h2>Load</h2>
+<p>TSS per km at pace <code>p</code> follows from the TSS definition used on the other pages:</p>
+<pre><code>TSS per km = (p / 3600) * (threshold / p)^2 * 100 = threshold^2 / (36 * p)
+</code></pre>
+<p>CTL and ATL are daily exponential averages:</p>
+<pre><code>CTL += (TSS - CTL) / 42
+ATL += (TSS - ATL) / 7
+TSB = CTL - ATL at the end of each day, the same convention and exponential constants as the Run Load Planner
+</code></pre>
+<p>Starting CTL is entered, or estimated as the TSS of the current weekly distance run as this plan's week, divided by 7.</p>
+<h2>Solving each week</h2>
+<p>For each week the weekly distance is found by bisection so that CTL at the end of the week rises by the target. Three other distances are found the same way: the one that gives a ramp of 0.1, the one that keeps the lowest TSB at -10, and the one that keeps it at -20. The week uses:</p>
+<pre><code>V = min(V_target, max(V_tsb10, V_ramp_min))
+V = min(V, V_tsb20)
+</code></pre>
+<p>So the -10 limit holds the ramp back, but not below 0.1. The -20 limit always wins. The weekly table says when a week was held back, when the lowest TSB is under -10, or when the ramp is under 0.1.</p>
+<h2>Behaviour to know about</h2>
+<ul>
+<li>Week 1 is the first step above the current load. The author accepts this: most users are runners who have just entered a race and want to push volume. A ramp of 1 from a steady state needs about 45 TSS more in the week, so week 1 shows the largest increase. In test runs this was +10% at 76 km a week, +19% at 40 km and +29% at 30 km.</li>
+<li>A sustained ramp of 1 pushes the lowest TSB to about -10 within three or four weeks. The week after, the solver holds the load back, then lets it rise again, so some blocks show a step-back week followed by a rise. The author accepts this: the aim of tight TSB control is to avoid unplanned down weeks, so one after a -10 week is reasonable.</li>
+<li>Runners with 3 run days and a high weekly distance get large days and low TSB. The flags show this.</li>
+</ul>
+<h2>Taper</h2>
+<p>A taper of 7 or 14 days is optional. With 14 days, the penultimate week holds CTL (ramp 0) and the last week is the taper proper. With 7 days, only the last week is the taper. Race day replaces the long run.</p>
+<p>The race week is solved so TSB on the morning of race day (end of the day before) equals the target. The target defaults to +10 and is capped at +10, since more is overkill (author's view). The race week is kept between 50% and 80% of the peak week's distance (author's expectation: about 50 to 80% of normal; the exact bounds are my placeholders). If the 50% floor stops the target being reached, the table says so and shows the TSB reached.</p>
+<p>The headline CTL is the peak, at the end of the last build week, not the lower value on race day. The peak is the fitness you take into the race; the CTL model's taper decay overstates how much of it is lost (author's view). Race-day CTL is shown beside it.</p>
+<p>The Run Load Planner holds daily TSS constant in the taper. Plan Builder does not. TSB and the CTL/ATL constants follow the same convention in both.</p>
+<h2>Time first</h2>
+<p>The page leads with time for each run and each week, with distance second. Easy and long runs are best done by time, which removes the temptation to push easy days. Distance is derived from the easy pace entered, so an error in that pace changes the km, not the minutes.</p>
+<h2>Limits</h2>
+<ul>
+<li>It does not adapt to what was actually run.</li>
+<li>TSB does not capture the structural load of big jumps in weekly km. This was left open on purpose.</li>
+<li>Week layouts and the pace and distance placeholders are mine.</li>
+<li>No injury, hills, heat or race calendar inputs.</li>
+</ul>
+  </article>
+</main>
+<script>
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>
