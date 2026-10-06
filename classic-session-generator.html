@@ -404,11 +404,11 @@ tr.easy td:first-child { padding-left: 11px; }
       notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ".");
     } else if (w.key === "mona") {
       struct = "2×90 s, 4×60 s, 4×30 s, 4×15 s, equal-time floats";
-      [[90, 2, raceP(4), "race(4)", 2], [60, 4, raceP(3), "race(3)", 4], [30, 4, raceP(MILE), "mile pace", 4], [15, 4, raceP(1.5), "race(1.5)", 3]].forEach(function (g) {
+      [[90, 2, raceP(4), "race(4)", 2], [60, 4, raceP(3), "race(3)", 4], [30, 4, raceP(MILE), "mile pace", 4], [15, 4, raceP(1.5), "race(1.5)", 4]].forEach(function (g) {
         add(g[0] + " s at " + g[3], g[1], { s: g[0] }, g[2], g[2], "hard", true);
         add(g[0] + " s float", g[4], { s: g[0] }, mpFast, mpFl, "easy", true);
       });
-      notes.push("The last effort has no float after it. The structure is as described by Canadian Running. The paces are my choices.");
+      notes.push("Total 20 min: 10 min of efforts and 10 min of floats. The structure is as described by Canadian Running. The paces are my choices.");
     } else if (w.key === "yasso") {
       var py = raceP(5), rep800 = 0.8 * py;
       struct = o.reps + " × 800 m, jog the same time between";
