@@ -183,7 +183,7 @@ tr.easy td:first-child { padding-left: 11px; }
       <li><b>Mona fartlek.</b> 2×90s, 4×60s, 4×30s and 4×15s, each followed by a float of the same length, as described by Canadian Running. Efforts run at race(4), race(3), mile pace and race(1.5). Floats run at marathon pace to 3% faster, using the 70-mile marathon pace whatever the weekly distance.</li>
       <li><b>Yasso 800s.</b> 800m at race(5) with a jog of the same time. The old rule (800m time in minutes:seconds = marathon time in hours:minutes) is shown for comparison only.</li>
       <li><b>Rosario 800s.</b> 800m at race(5) with an 800m float at 5km pace plus 25s per 800m, which is about +31 s/km.</li>
-      <li><b>1km repeats, mile repeats, 30/30.</b> 1km at race(3) to race(5), 1 mile at race(10), and 30s at race(3) with a 30s jog.</li>
+      <li><b>1km repeats, mile repeats, 30/30.</b> 1km at race(4.5), 1 mile at race(10), and 30s at race(3) with a 30s jog.</li>
       <li><b>Marathon-pace long run.</b> Easy running first, then the chosen distance at marathon pace.</li>
       <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Warm-up, cool-down and jogs run at 62.5% of 5km speed unless you change the pace.</li>
       <li>The paces are my choices from your descriptions, not published prescriptions. This page does not apply weekly-volume limits. Check the numbers against heart rate or feel.</li>
@@ -423,7 +423,7 @@ tr.easy td:first-child { padding-left: 11px; }
       notes.push("Float: " + mmss(pf2) + "/km, " + Math.round(Math.abs(dd)) + " s/km " + (dd >= 0 ? "slower" : "faster") + " than predicted marathon pace (" + mmss(mp) + ").");
     } else if (w.key === "k1") {
       struct = o.reps + " × 1 km, " + o.rest + " s jog between";
-      add("1 km at race(3) to race(5)", o.reps, { m: 1000 }, raceP(3), raceP(5), "hard", true);
+      add("1 km at race(4.5)", o.reps, { m: 1000 }, raceP(4.5), raceP(4.5), "hard", true);
       add("Jog", o.reps - 1, { s: o.rest }, wcPace, wcPace, "easy", true);
     } else if (w.key === "mile") {
       var pmi = raceP(10);
