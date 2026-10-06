@@ -136,7 +136,7 @@ tr.easy td:first-child { padding-left: 11px; }
         <label>Cool-down (min)
           <input id="cd" type="text" inputmode="decimal" autocomplete="off" value="10">
         </label>
-        <label class="full">Warm-up, cool-down and jog pace /km
+        <label class="full">Easy pace /km
           <input id="wcp" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="-">
         </label>
       </div>
@@ -151,7 +151,7 @@ tr.easy td:first-child { padding-left: 11px; }
       <p class="struct" id="struct"></p>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Part</th><th>Reps</th><th>Length</th><th>Pace /km</th><th id="eqh">Time</th></tr></thead>
+          <thead><tr><th>Part</th><th>Reps</th><th>Length</th><th>Pace /km</th><th id="eqh">Equivalent</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -274,10 +274,10 @@ tr.easy td:first-child { padding-left: 11px; }
     { key: "rosario", name: "Rosario 800s", opts: [{ id: "reps", label: "Reps", def: 4, min: 2, max: 12, int: true }] },
     { key: "k1", name: "1 km repeats", opts: [
       { id: "reps", label: "Reps", def: 5, min: 3, max: 8, int: true },
-      { id: "rest", label: "Jog between (s)", def: 150, min: 60, max: 300, int: true }] },
+      { id: "rest", label: "Jog between (s)", def: 105, min: 60, max: 300, int: true }] },
     { key: "mile", name: "Mile repeats", opts: [
       { id: "reps", label: "Reps", def: 4, min: 3, max: 6, int: true },
-      { id: "rest", label: "Jog between (s)", def: 150, min: 60, max: 300, int: true }] },
+      { id: "rest", label: "Jog between (s)", def: 135, min: 60, max: 300, int: true }] },
     { key: "thirty", name: "30/30", opts: [{ id: "reps", label: "Reps", def: 16, min: 10, max: 24, int: true }] },
     { key: "mplr", name: "Marathon-pace long run", nowu: true, opts: [
       { id: "total", label: "Run distance (km)", def: 24, min: 12, max: 42 },
@@ -377,7 +377,6 @@ tr.easy td:first-child { padding-left: 11px; }
       T += wcT; Dm += wcT / wcPace * 1000; TSS += wcT / 3600 * Math.pow(thr / wcPace, 2) * 100;
       rows.push('<tr class="easy"><td>Warm-up and cool-down</td><td>1</td><td>' + (wuMin === cdMin ? wuMin + " + " + cdMin : wuMin + " + " + cdMin) + ' min</td><td class="pace">' + mmss(wcPace) + "</td><td>ca. " + distLabel(round10(wcT / wcPace * 1000)) + "</td></tr>");
     }
-    var eqHead = "Time or distance";
 
     if (w.key === "tempo") {
       var tp = tempoPace(o.min);
@@ -414,7 +413,7 @@ tr.easy td:first-child { padding-left: 11px; }
       add("800 m at race(5)", o.reps, { m: 800 }, py, py, "hard", true);
       add("Jog (same time as the rep)", o.reps - 1, { s: Math.round(rep800) }, wcPace, wcPace, "easy", true);
       var folk = Math.round(rep800) * 60, pred = mp * MAR, diff = pred - folk;
-      notes.push("The old rule reads the 800 m time as the marathon time: " + mmss(rep800) + " becomes " + hmmss(folk) + ". Your predicted marathon is " + hmmss(pred) + ", which is " + hmmss(Math.abs(diff)) + (diff >= 0 ? " slower" : " faster") + ". Treat 5km-paced 800s as a fitness check, not a marathon predictor.");
+      notes.push("Old rule: " + mmss(rep800) + " per 800 m means a " + hmmss(folk) + " marathon. Predicted: " + hmmss(pred) + ", " + mmss(Math.abs(diff)) + (diff >= 0 ? " slower" : " faster") + ".");
     } else if (w.key === "rosario") {
       var pr = raceP(5), pf2 = pr + 25 / 0.8;
       struct = o.reps + " × (800 m + 800 m float), continuous";
