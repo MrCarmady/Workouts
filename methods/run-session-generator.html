@@ -104,7 +104,7 @@ p5      = riegel5 + adj(input distance)
 </code></pre>
 <p>The <code>adj</code> slows 5km equivalents that come from short races, because the formula is too optimistic from there. It is the same adjustment as in the Race Prediction Calculator. The coefficient (8) is an estimate.</p>
 <h2>VDOT display</h2>
-<p>The result shows the VDOT of the 5km equivalent (<code>p5 * 5</code> seconds over 5000 m), using the Daniels–Gilbert formulas. <code>v</code> is speed in m/min and <code>t</code> is time in minutes:</p>
+<p>The result shows the VDOT of the 5km equivalent (<code>p5 * 5</code> seconds over 5000m), using the Daniels–Gilbert formulas. <code>v</code> is speed in m/min and <code>t</code> is time in minutes:</p>
 <pre><code>VO2   = -4.60 + 0.182258 * v + 0.000104 * v^2
 %VO2  = 0.8 + 0.1894393 * e^(-0.012778 * t) + 0.2989558 * e^(-0.1932605 * t)
 VDOT  = VO2 / %VO2
@@ -118,7 +118,7 @@ VDOT  = VO2 / %VO2
 off(km) = 0                                              for km &lt;= 21.0975
         = 5 * (min(km, 42.195) - 21.0975) / (42.195 - 21.0975)   above that
 </code></pre>
-<p><code>off</code> slows paces beyond the half marathon, rising linearly to <code>offM</code> s/km at the marathon. <code>offM</code> is set so the marathon equals twice the half marathon plus 7 min at 80 miles (129 km) a week or more, plus 10 min at 70 miles (113 km), 13 at 60, 17 at 50, and 25 at 35 miles (56 km) or less, in straight lines between those points (never negative). With no weekly distance, 70 miles is assumed. This is the same rule as the Race Prediction Calculator, whose methodology gives the formula and its status as my estimate. It changes the marathon pace anchor and the long tempo paces. Subtracting <code>off(input distance)</code> makes a 10km or half marathon input reproduce itself.</p>
+<p><code>off</code> slows paces beyond the half marathon, rising linearly to <code>offM</code> s/km at the marathon. <code>offM</code> is set so the marathon equals twice the half marathon plus 7 min at 80 miles (129km) a week or more, plus 10 min at 70 miles (113km), 13 at 60, 17 at 50, and 25 at 35 miles (56km) or less, in straight lines between those points (never negative). With no weekly distance, 70 miles is assumed. This is the same rule as the Race Prediction Calculator, whose methodology gives the formula and its status as my estimate. It changes the marathon pace anchor and the long tempo paces. Subtracting <code>off(input distance)</code> makes a 10km or half marathon input reproduce itself.</p>
 <h2>Step 3: anchor reps</h2>
 <p>Each anchor has a fast and a slow pace in s/km, a duration, a recovery and a total-work range. The fast end uses the shorter race distance.</p>
 <table>
@@ -139,7 +139,7 @@ off(km) = 0                                              for km &lt;= 21.0975
 </tr>
 <tr>
 <td>300m</td>
-<td>p5 − 2 to p5 + 2 s/km</td>
+<td>p5 − 2 to p5 + 2s/km</td>
 <td>45s</td>
 <td>17–22</td>
 </tr>
@@ -205,12 +205,12 @@ off(km) = 0                                              for km &lt;= 21.0975
 </tr>
 </tbody>
 </table>
-<p>The duration of a distance anchor is its distance times its mid pace. The tempo duration is 15 km times its mid pace. The recovery values for 8 to 20 minutes are the midpoints of the ranges given by the author (75–90s, 150–240s) and are rounded to 5s in the output.</p>
+<p>The duration of a distance anchor is its distance times its mid pace. The tempo duration is 15km times its mid pace. The recovery values for 8 to 20 minutes are the midpoints of the ranges given by the author (75–90s, 150–240s) and are rounded to 5s in the output.</p>
 <h2>Step 4: any rep length</h2>
 <ul>
 <li><strong>Rep given as a time:</strong> find the two anchors either side of it and interpolate the fast pace, slow pace, recovery and total work linearly in time.</li>
 <li><strong>Rep given as a distance <code>d</code>:</strong> find the time <code>t</code> where <code>t = d × midpace(t)</code> by bisection, then proceed as above.</li>
-<li><strong>Range:</strong> from the 200m anchor (about 45 s at a 20:00 5km) to a 20km continuous run. Between 15 and 20km the pace stays at the tempo range. Outside this the page shows an error rather than extrapolating.</li>
+<li><strong>Range:</strong> from the 200m anchor (about 45s at a 20:00 5km) to a 20km continuous run. Between 15 and 20km the pace stays at the tempo range. Outside this the page shows an error rather than extrapolating.</li>
 <li><strong>Output distance (time input):</strong> <code>t / midpace</code>, rounded to 50m under 4 minutes and 100m above, shown as "ca.".</li>
 <li><strong>Output time (distance input):</strong> distance times the fast and slow paces.</li>
 <li><strong>Suggested reps:</strong> total work low and high, divided by rep time and rounded, at least 1. The high end is also capped so that reps × rep distance is at most 25km of flat distance (<strong>author's rule</strong>), so a 12km rep shows 1, and a 4.8km rep still shows up to 4. When the high end is 1, the page shows "1 (continuous)" and no recovery.</li>
@@ -256,7 +256,7 @@ off(km) = 0                                              for km &lt;= 21.0975
 </tbody>
 </table>
 <p>All are further capped at 25km of total session distance. A single rep can still be up to 20km.</p>
-<p><strong>Weekly distance cap (optional).</strong> If a weekly distance is entered (km or miles, between 30 and 300 km), the top of the suggested rep range also cannot exceed Daniels' maximum share of it:</p>
+<p><strong>Weekly distance cap (optional).</strong> If a weekly distance is entered (km or miles, between 30 and 300km), the top of the suggested rep range also cannot exceed Daniels' maximum share of it:</p>
 <table>
 <thead>
 <tr>
@@ -293,7 +293,7 @@ off(km) = 0                                              for km &lt;= 21.0975
 topReps     = min(floor(weeklyMaxKm / repDistance), floor(absolute limit / rep size), floor(25km / repDistance))
 bottom      = the unchanged estimate from total work, never above the top
 </code></pre>
-<p>Weekly distance below 30 km (19 miles) or above 300 km (186 miles) is rejected (author's limits). When even one rep exceeds the weekly limit, the page shows 1 rep with a short warning under the rep count. With no weekly distance entered, only the absolute limits apply.</p>
+<p>Weekly distance below 30km (19 miles) or above 300km (186 miles) is rejected (author's limits). When even one rep exceeds the weekly limit, the page shows 1 rep with a short warning under the rep count. With no weekly distance entered, only the absolute limits apply.</p>
 <h2>Session load (TSS)</h2>
 <p>The page estimates the running TSS of the generated session. It uses the same definition as the Run TSS Calculator:</p>
 <pre><code>TSS_part  = (minutes / 60) * (thresholdPace / pace)^2 * 100
@@ -321,7 +321,7 @@ TSS       = round(warm-up and cool-down) + round(reps) + round(recoveries)
 <tr>
 <td>Recoveries</td>
 <td>(reps − 1) × recovery time</td>
-<td>walking at 6 km/h, which is 600 s/km (<strong>author's rule</strong>)</td>
+<td>walking at 6km/h, which is 600s/km (<strong>author's rule</strong>)</td>
 </tr>
 </tbody>
 </table>
@@ -406,7 +406,7 @@ TSS       = round(warm-up and cool-down) + round(reps) + round(recoveries)
 <li>The 6 minute anchor is close to the source. The 3 and 10 minute anchors reach faster than the source at their fast end (12km against 15km, and 25km against 30km).</li>
 <li>The source gives 60s rest across 3 to 12 minute reps. The page's recoveries for 8 minutes and longer are longer, and are author's estimates.</li>
 <li>The source also says sub-threshold work should be 20–25% (maybe 30%) of weekly running time, and easy runs no higher than 65% of MAS. The page does not use either.</li>
-<li>A third-party Norwegian Singles calculator uses a different convention (3 min reps 5–7 s/km faster than threshold, 6 min at threshold, 10 min 5–7 s/km slower). It does not name Copeland either.</li>
+<li>A third-party Norwegian Singles calculator uses a different convention (3 min reps 5–7s/km faster than threshold, 6 min at threshold, 10 min 5–7s/km slower). It does not name Copeland either.</li>
 <li>I could not read James Copeland's book, so the original wording is unchecked. The author keeps the page's anchors because the book revises these earlier online figures. The author found 12km pace too fast for 3 minute reps; the range was left unchanged.</li>
 </ul>
 <h2>Treadmill mode</h2>
@@ -420,14 +420,14 @@ belt pace  = flat pace  * (1 + 4.5 * G)
 <h2>What changed from the earlier version</h2>
 <ul>
 <li>The fixed table of rows is replaced by a single rep-length input.</li>
-<li>The short-race adjustment changed from fixed 5/5/2 s/km to <code>8 × ln(5/km)</code>.</li>
+<li>The short-race adjustment changed from fixed 5/5/2s/km to <code>8 × ln(5/km)</code>.</li>
 <li>The reference-paces panel (5km, 10km, half marathon, marathon paces) is removed. A VDOT tile (of the 5km equivalent) is shown with the result.</li>
 <li>The anchors, paces and rep counts at the original rep lengths are unchanged.</li>
 </ul>
 <h2>Worked example: 20:00 5km, flat</h2>
 <ul>
-<li>p5 = 240 s/km (4:00).</li>
-<li>400m: racePace(8) = 4:07, racePace(10) = 4:10, so 4:07–4:10 and 99–100 s per rep.</li>
+<li>p5 = 240s/km (4:00).</li>
+<li>400m: racePace(8) = 4:07, racePace(10) = 4:10, so 4:07–4:10 and 99–100s per rep.</li>
 <li>3 min: 4:15–4:17, ca. 700m, 8–10 reps, 60s recovery.</li>
 <li>4.5 min (between the 3 and 6 minute anchors): 4:17–4:19, ca. 1.0km, 5–7 reps.</li>
 <li>15km tempo: marathon pace is 4:38, so 4:46–4:54 and 72–74 min.</li>

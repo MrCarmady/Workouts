@@ -67,7 +67,7 @@ a { color:var(--accent); }
 <td>Published formula, range chosen here</td>
 </tr>
 <tr>
-<td>Mona fartlek structure (2×90 s, 4×60 s, 4×30 s, 4×15 s, equal recoveries)</td>
+<td>Mona fartlek structure (2×90s, 4×60s, 4×30s, 4×15s, equal recoveries)</td>
 <td>As described by Canadian Running</td>
 </tr>
 <tr>
@@ -99,60 +99,60 @@ a { color:var(--accent); }
 <tr>
 <td>Ladder 5-4-3-2-1 min</td>
 <td>5 min at race(10), 4 at race(5), 3 at race(3), 2 at race(2), 1 at race(1.5)</td>
-<td>90 s jog (adjustable), 4 jogs</td>
+<td>90s jog (adjustable), 4 jogs</td>
 </tr>
 <tr>
 <td>Aussie quarters</td>
-<td>400 m at race(4)</td>
-<td>200 m float from marathon pace to 3% faster, continuous. Float marathon pace ignores weekly distance (70-mile default). 8 reps by default (4.8 km), optional 200 m float first (5 km)</td>
+<td>400m at race(4)</td>
+<td>200m float from marathon pace to 3% faster, continuous. Float marathon pace ignores weekly distance (70-mile default). 8 reps by default (4.8km), optional 200m float first (5km)</td>
 </tr>
 <tr>
 <td>Mona fartlek</td>
-<td>90 s at race(4), 60 s at race(3), 30 s at mile pace, 15 s at race(1.5)</td>
+<td>90s at race(4), 60s at race(3), 30s at mile pace, 15s at race(1.5)</td>
 <td>Float from marathon pace to 3% faster (70-mile default, as for Aussie), same duration as the effort. A float follows every effort, including the last, so the total is 20 min (10 + 10)</td>
 </tr>
 <tr>
 <td>Yasso 800s</td>
-<td>800 m at race(5)</td>
+<td>800m at race(5)</td>
 <td>Jog for the same time as the rep, at the warm-up pace. 10 reps by default</td>
 </tr>
 <tr>
 <td>Rosario 800s</td>
-<td>800 m at race(5)</td>
-<td>800 m float at race(5) + 25 s per 800 m (31.25 s/km). 4 reps by default, a float after every rep</td>
+<td>800m at race(5)</td>
+<td>800m float at race(5) + 25s per 800m (31.25s/km). 4 reps by default, a float after every rep</td>
 </tr>
 <tr>
-<td>1 km repeats</td>
-<td>1 km at race(4.5)</td>
-<td>Jog, 105 s by default</td>
+<td>1km repeats</td>
+<td>1km at race(4.5)</td>
+<td>Jog, 105s by default</td>
 </tr>
 <tr>
 <td>Mile repeats</td>
 <td>1 mile at race(10)</td>
-<td>Jog, 135 s by default</td>
+<td>Jog, 135s by default</td>
 </tr>
 <tr>
 <td>30/30</td>
-<td>30 s at race(3)</td>
-<td>30 s jog</td>
+<td>30s at race(3)</td>
+<td>30s jog</td>
 </tr>
 <tr>
 <td>Marathon-pace long run</td>
-<td>Chosen distance at marathon pace (12 km by default)</td>
-<td>Easy running first (12 km by default)</td>
+<td>Chosen distance at marathon pace (12km by default)</td>
+<td>Easy running first (12km by default)</td>
 </tr>
 </tbody>
 </table>
 <p>Race(1.5) is the shortest distance the pace model is fitted to. Nothing here goes faster than it.</p>
 <h2>Tempo scale</h2>
 <p>A tempo longer than 20 minutes at threshold pace is closer to a time trial, so the pace slides towards marathon pace as the run gets longer. The slide is <code>pace(T) = threshold × (1 + 0.049 × ln(T / 20))</code>, never slower than marathon pace, for T from 20 to 60 minutes.</p>
-<p>The 0.049 comes from a least-squares fit to a table the author supplied and described as Daniels' method. It listed, for 20 to 60 minutes in 5-minute steps, paces of 4:07, 4:10, 4:12, 4:14, 4:16, 4:17, 4:18, 4:19 and 4:20 per km. That is +1.2% at 25 minutes and +5.3% at 60 minutes against the 20-minute pace, and the fit stays within about 1 s/km of every entry. I have not seen where the table comes from and have not checked it against Daniels' books. The fit uses percentages, so it is applied to your threshold pace, not to the runner in the table. The cap at marathon pace stops the slide from passing it when the gap between threshold and marathon pace is small, for example at high weekly mileage.</p>
+<p>The 0.049 comes from a least-squares fit to a table the author supplied and described as Daniels' method. It listed, for 20 to 60 minutes in 5-minute steps, paces of 4:07, 4:10, 4:12, 4:14, 4:16, 4:17, 4:18, 4:19 and 4:20 per km. That is +1.2% at 25 minutes and +5.3% at 60 minutes against the 20-minute pace, and the fit stays within about 1s/km of every entry. I have not seen where the table comes from and have not checked it against Daniels' books. The fit uses percentages, so it is applied to your threshold pace, not to the runner in the table. The cap at marathon pace stops the slide from passing it when the gap between threshold and marathon pace is small, for example at high weekly mileage.</p>
 <h2>Marathon pace and weekly distance</h2>
-<p>Marathon pace is race(42.195), which depends on the weekly distance field. The marathon is set to twice the half marathon plus 7 min at 80 miles (129 km) a week or more, plus 10 min at 70 miles, 13 at 60, 17 at 50, and 25 at 35 miles or less, in straight lines between those points. Blank means 70 miles. The Race Prediction Calculator methodology gives the formula and says these numbers are my estimates.</p>
+<p>Marathon pace is race(42.195), which depends on the weekly distance field. The marathon is set to twice the half marathon plus 7 min at 80 miles (129km) a week or more, plus 10 min at 70 miles, 13 at 60, 17 at 50, and 25 at 35 miles or less, in straight lines between those points. Blank means 70 miles. The Race Prediction Calculator methodology gives the formula and says these numbers are my estimates.</p>
 <h2>Yasso 800s and the marathon</h2>
-<p>The traditional rule reads the average 800 m time in minutes:seconds as the marathon time in hours:minutes. This page runs the 800s at race(5) and shows the rule's marathon time beside the model's predicted marathon, with the difference. At about 75 miles a week the model was 1 min 23 s slower than the rule for an 18:54 5k. At lower weekly distances the model's marathon is slower, so the rule would overestimate. This is shown for comparison. The rule is a folk rule, and 5km-paced 800s are a fitness check more than a predictor.</p>
+<p>The traditional rule reads the average 800m time in minutes:seconds as the marathon time in hours:minutes. This page runs the 800s at race(5) and shows the rule's marathon time beside the model's predicted marathon, with the difference. At about 75 miles a week the model was 1 min 23s slower than the rule for an 18:54 5k. At lower weekly distances the model's marathon is slower, so the rule would overestimate. This is shown for comparison. The rule is a folk rule, and 5km-paced 800s are a fitness check more than a predictor.</p>
 <h2>Rosario 800s</h2>
-<p>The float pace is race(5) + 25 s per 800 m. The page shows how far that float is from the predicted marathon pace. The intention, as described by the author, is that the floats approximate marathon pace when the weekly volume is adequate. I have not checked that against a published source.</p>
+<p>The float pace is race(5) + 25s per 800m. The page shows how far that float is from the predicted marathon pace. The intention, as described by the author, is that the floats approximate marathon pace when the weekly volume is adequate. I have not checked that against a published source.</p>
 <h2>Session load</h2>
 <ul>
 <li>Warm-up and cool-down default to 10 + 10 min at 62.5% of 5km speed. The pace is editable and also sets the jog pace.</li>

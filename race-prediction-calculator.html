@@ -113,7 +113,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
 
   <section class="method">
     <h2>How this is calculated</h2>
-    <p>Riegel's formula (time × distance ratio ^ 1.06) is the base, with two adjustments of mine: a result shorter than 5km is slowed by 8 s/km × ln(5 ÷ distance in km) when converted to a 5km equivalent (about 9 s/km for the mile), and predictions for those short distances are sped up by the same amount; and paces beyond the half marathon are slowed, rising linearly from nothing at the half marathon to a marathon slow-down that depends on weekly distance. The marathon is set to twice the half marathon plus 7 min at 80 miles (129 km) a week or more, plus 10 min at 70 miles (113 km), 13 at 60, 17 at 50, and 25 at 35 miles (56 km) or less, in straight lines between those points. With no weekly distance, 70 miles is assumed. These figures are my estimates. A result whose Daniels–Gilbert VDOT falls outside 15 to 85 is rejected as implausible. Treat the times as estimates, not promises.</p>
+    <p>Riegel's formula (time × distance ratio ^ 1.06) is the base, with two adjustments of mine: a result shorter than 5km is slowed by 8s/km × ln(5 ÷ distance in km) when converted to a 5km equivalent (about 9s/km for the mile), and predictions for those short distances are sped up by the same amount; and paces beyond the half marathon are slowed, rising linearly from nothing at the half marathon to a marathon slow-down that depends on weekly distance. The marathon is set to twice the half marathon plus 7 min at 80 miles (129km) a week or more, plus 10 min at 70 miles (113km), 13 at 60, 17 at 50, and 25 at 35 miles (56km) or less, in straight lines between those points. With no weekly distance, 70 miles is assumed. These figures are my estimates. A result whose Daniels–Gilbert VDOT falls outside 15 to 85 is rejected as implausible. Treat the times as estimates, not promises.</p>
   </section>
 </main>
 
@@ -225,7 +225,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       var wv = Number(wkTxt.replace(",", "."));
       if (!isFinite(wv) || wv <= 0) return fail("Enter weekly distance as a number, or leave it blank.");
       weekKm = $("wunit").value === "mi" ? wv * MILE : wv;
-      if (weekKm < 30 || weekKm > 300) return fail("Weekly distance should be between 30 km (19 miles) and 300 km (186 miles). Check the number and unit.");
+      if (weekKm < 30 || weekKm > 300) return fail("Weekly distance should be between 30km (19 miles) and 300km (186 miles). Check the number and unit.");
     }
     offM = marathonOff(riegel5, weekKm);
     var html = "";
@@ -241,7 +241,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     if (weekKm === null) wn.textContent = "No weekly distance entered, so the marathon assumes 70 miles a week: twice the half marathon plus 10 min.";
     else {
       var x = marathonExtraMin(weekKm);
-      wn.textContent = "Marathon is set to twice the half marathon plus " + (Math.round(x * 10) / 10) + " min, for " + (Math.round(weekKm * 10) / 10) + " km a week." + (weekKm / MILE < 35 ? " Below 35 miles a week the adjustment stops at +25 min; a marathon build on less is not covered." : "");
+      wn.textContent = "Marathon is set to twice the half marathon plus " + (Math.round(x * 10) / 10) + " min, for " + (Math.round(weekKm * 10) / 10) + "km a week." + (weekKm / MILE < 35 ? " Below 35 miles a week the adjustment stops at +25 min; a marathon build on less is not covered." : "");
     }
     $("res").hidden = false;
   }

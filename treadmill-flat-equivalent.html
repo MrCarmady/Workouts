@@ -133,7 +133,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     var cal = parseFloat($("cal").value);
     if (isNaN(cal) || cal < -10 || cal > 10) return fail("Enter a display error between -10 and 10%. Use 0 if the display is accurate.");
     var kmh = shown / (1 + cal / 100);                 // true belt speed
-    if (isNaN(v) || shown < 5 || shown > 25) return fail("Enter a belt speed between 5 and 25 km/h (3.1 to 15.5 mph).");
+    if (isNaN(v) || shown < 5 || shown > 25) return fail("Enter a belt speed between 5 and 25km/h (3.1 to 15.5 mph).");
     if (isNaN(g) || g < 0 || g > 20) return fail("Enter an incline between 0 and 20%.");
     // ACSM running equation: VO2 = 0.2*S + 0.9*S*G + 3.5. Equal oxygen cost on the flat gives S_flat = S*(1 + 4.5*G).
     var flat = kmh * (1 + 4.5 * g / 100);

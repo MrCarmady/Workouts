@@ -88,11 +88,11 @@ a { color:var(--accent); }
 <h2>Step 2: short-race adjustment</h2>
 <p>Riegel from a short race is optimistic about the 5km, so the 5km equivalent is slowed:</p>
 <pre><code>adj(km) = 8 * ln(5 / km)   for km &lt; 5      adj(km) = 0   otherwise
-(1500m: 9.7 s/km, mile: 9.1, 3km: 4.1)
+(1500m: 9.7s/km, mile: 9.1, 3km: 4.1)
 p5 = riegel5 + adj(D)
 </code></pre>
 <h2>Step 3: beyond the half marathon</h2>
-<p>Paces beyond the half marathon get an extra slowing that is 0 at the half marathon (21.0975 km) and rises linearly to <code>offM</code> s/km at the marathon (42.195 km):</p>
+<p>Paces beyond the half marathon get an extra slowing that is 0 at the half marathon (21.0975km) and rises linearly to <code>offM</code> s/km at the marathon (42.195km):</p>
 <pre><code>off(km) = 0                                                for km &lt;= 21.0975
 off(km) = offM * (min(km, 42.195) - 21.0975) / 21.0975     otherwise
 </code></pre>
@@ -147,16 +147,16 @@ time(T) = pace(T) * T
 </code></pre>
 <ul>
 <li><code>(T/5)^0.06</code> is the pace form of Riegel: exponent 1.06 on time becomes 0.06 on pace.</li>
-<li><code>adj(T)</code> is subtracted for short targets, so the same adjustment works in both directions. A 5km runner's 1500m is predicted 9.7 s/km faster (before the distance scaling) than plain Riegel would give.</li>
+<li><code>adj(T)</code> is subtracted for short targets, so the same adjustment works in both directions. A 5km runner's 1500m is predicted 9.7s/km faster (before the distance scaling) than plain Riegel would give.</li>
 <li><code>- off(D)</code> removes the long-distance slowing already in the input when the input is a marathon.</li>
 <li>The input race always reproduces its own time exactly.</li>
 </ul>
 <h2>Worked example: 20:00 5km</h2>
 <ul>
-<li><code>riegel5</code> = 240 s/km, <code>adj</code> = 0, so <code>p5</code> = 240.</li>
-<li>Half marathon: 240 × (21.0975 / 5) ^ 0.06 = 262 s/km, which is 4:22/km and 1:32:00.</li>
-<li>Marathon: 240 × (42.195 / 5) ^ 0.06 + 5 = 278 s/km, which is 4:38/km and 3:15:20.</li>
-<li>1500m: (240 − 9.7) × (1.5 / 5) ^ 0.06 = 214.3 s/km, which is a time of 5:21.</li>
+<li><code>riegel5</code> = 240s/km, <code>adj</code> = 0, so <code>p5</code> = 240.</li>
+<li>Half marathon: 240 × (21.0975 / 5) ^ 0.06 = 262s/km, which is 4:22/km and 1:32:00.</li>
+<li>Marathon: 240 × (42.195 / 5) ^ 0.06 + 5 = 278s/km, which is 4:38/km and 3:15:20.</li>
+<li>1500m: (240 − 9.7) × (1.5 / 5) ^ 0.06 = 214.3s/km, which is a time of 5:21.</li>
 </ul>
 <h2>Plausibility check</h2>
 <p>The page rejects a result whose Daniels–Gilbert VDOT (of the raw race result) is below 15 or above 85. The bounds are my choice: the best performances on record are around 80 to 85. This catches a distance and time that don't belong together, such as a 3km time entered against 5km.</p>
