@@ -400,7 +400,6 @@ tr.easy td:first-child { padding-left: 11px; }
       if (o.start) add("Opening float", 1, { m: 200 }, mpFast, mpFl, "easy", true);
       add("Hard 400 m at race(4)", o.reps, { m: 400 }, ph, ph, "hard", true);
       add("Float 200 m", o.reps, { m: 200 }, mpFast, mpFl, "easy", true);
-      mpNote = true;
       notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ".");
     } else if (w.key === "mona") {
       struct = "2×90 s, 4×60 s, 4×30 s, 4×15 s, equal-time floats";
@@ -408,7 +407,6 @@ tr.easy td:first-child { padding-left: 11px; }
         add(g[0] + " s at " + g[3], g[1], { s: g[0] }, g[2], g[2], "hard", true);
         add(g[0] + " s float", g[4], { s: g[0] }, mpFast, mpFl, "easy", true);
       });
-      mpNote = true;
       notes.push("The last effort has no float after it. The structure is as described by Canadian Running. The paces are my choices.");
     } else if (w.key === "yasso") {
       var py = raceP(5), rep800 = 0.8 * py;
@@ -416,7 +414,6 @@ tr.easy td:first-child { padding-left: 11px; }
       add("800 m at race(5)", o.reps, { m: 800 }, py, py, "hard", true);
       add("Jog (same time as the rep)", o.reps - 1, { s: Math.round(rep800) }, wcPace, wcPace, "easy", true);
       var folk = Math.round(rep800) * 60, pred = mp * MAR, diff = pred - folk;
-      mpNote = true;
       notes.push("The old rule reads the 800 m time as the marathon time: " + mmss(rep800) + " becomes " + hmmss(folk) + ". Your predicted marathon is " + hmmss(pred) + ", which is " + hmmss(Math.abs(diff)) + (diff >= 0 ? " slower" : " faster") + ". Treat 5km-paced 800s as a fitness check, not a marathon predictor.");
     } else if (w.key === "rosario") {
       var pr = raceP(5), pf2 = pr + 25 / 0.8;
@@ -424,8 +421,7 @@ tr.easy td:first-child { padding-left: 11px; }
       add("800 m at race(5)", o.reps, { m: 800 }, pr, pr, "hard", true);
       add("Float 800 m", o.reps, { m: 800 }, pf2, pf2, "easy", true);
       var dd = pf2 - mp;
-      mpNote = true;
-      notes.push("The float pace is " + mmss(pf2) + " per km. Your predicted marathon pace is " + mmss(mp) + ", so the float is " + Math.round(Math.abs(dd)) + " s/km " + (dd >= 0 ? "slower" : "faster") + ". The floats are meant to approximate marathon pace with enough volume.");
+      notes.push("Float: " + mmss(pf2) + "/km, " + Math.round(Math.abs(dd)) + " s/km " + (dd >= 0 ? "slower" : "faster") + " than predicted marathon pace (" + mmss(mp) + ").");
     } else if (w.key === "k1") {
       struct = o.reps + " × 1 km, " + o.rest + " s jog between";
       add("1 km at race(3) to race(5)", o.reps, { m: 1000 }, raceP(3), raceP(5), "hard", true);
