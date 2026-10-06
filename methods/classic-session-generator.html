@@ -104,12 +104,12 @@ a { color:var(--accent); }
 <tr>
 <td>Aussie quarters</td>
 <td>400 m at race(4)</td>
-<td>200 m float from marathon pace to 3% faster, continuous. 8 reps by default (4.8 km), optional 200 m float first (5 km)</td>
+<td>200 m float from marathon pace to 3% faster, continuous. Float marathon pace ignores weekly distance (70-mile default). 8 reps by default (4.8 km), optional 200 m float first (5 km)</td>
 </tr>
 <tr>
 <td>Mona fartlek</td>
 <td>90 s at race(4), 60 s at race(3), 30 s at mile pace, 15 s at race(1.5)</td>
-<td>Float from marathon pace to 3% faster, same duration as the effort. No float after the last effort</td>
+<td>Float from marathon pace to 3% faster (70-mile default, as for Aussie), same duration as the effort. No float after the last effort</td>
 </tr>
 <tr>
 <td>Yasso 800s</td>
@@ -119,7 +119,7 @@ a { color:var(--accent); }
 <tr>
 <td>Rosario 800s</td>
 <td>800 m at race(5)</td>
-<td>800 m float at race(5) + 25 s per 800 m (31.25 s/km). 8 reps by default, a float after every rep</td>
+<td>800 m float at race(5) + 25 s per 800 m (31.25 s/km). 4 reps by default, a float after every rep</td>
 </tr>
 <tr>
 <td>1 km repeats</td>
@@ -128,7 +128,7 @@ a { color:var(--accent); }
 </tr>
 <tr>
 <td>Mile repeats</td>
-<td>1 mile at race(5)</td>
+<td>1 mile at race(10)</td>
 <td>Jog, 150 s by default</td>
 </tr>
 <tr>
@@ -159,15 +159,6 @@ a { color:var(--accent); }
 <li>Hard parts use their stated paces. Floats use the mid-point of their range.</li>
 <li>The marathon-pace long run has no separate warm-up or cool-down.</li>
 <li>TSS = hours × (threshold pace ÷ pace)² × 100, summed over every part.</li>
-</ul>
-<h2>Aussie quarters as a 5km predictor</h2>
-<p>The page notes that some runners use the time for the full set (4.8 or 5 km) as a 5km predictor, and that most can run faster in a race. I have not checked how well it predicts.</p>
-<h2>Limits</h2>
-<ul>
-<li>No weekly-volume limits are applied, unlike the Run Session Generator.</li>
-<li>Pace choices are mine from the author's descriptions. Check them against heart rate or feel.</li>
-<li>The model is calibrated on one runner's results, so treat paces as starting points.</li>
-<li>Input range: weekly distance 30 to 300 km. VDOT 15 to 85.</li>
 </ul>
   </article>
 </main>

@@ -180,10 +180,10 @@ tr.easy td:first-child { padding-left: 11px; }
       <li><b>Tempo.</b> 20 minutes runs at threshold, the predicted 16km pace. Longer tempos slow down by 4.9% × ln(minutes ÷ 20), never slower than marathon pace, up to 60 minutes. The scale is a fit to a Daniels-style table you supplied (+1.2% at 25 minutes, +5.3% at 60). I have not seen the source of that table.</li>
       <li><b>Ladder.</b> The 5, 4, 3, 2 and 1 minute reps run at race(10), race(5), race(3), race(2) and race(1.5). The jog between reps is 90s by default.</li>
       <li><b>Aussie quarters.</b> 400m at race(4), then 200m floated at marathon pace to 3% faster, repeated with no stop. Eight reps is 4.8km, 5km with an opening 200m float.</li>
-      <li><b>Mona fartlek.</b> 2×90s, 4×60s, 4×30s and 4×15s, each followed by a float of the same length, as described by Canadian Running. Efforts run at race(4), race(3), mile pace and race(1.5). Floats run at marathon pace to 3% faster.</li>
+      <li><b>Mona fartlek.</b> 2×90s, 4×60s, 4×30s and 4×15s, each followed by a float of the same length, as described by Canadian Running. Efforts run at race(4), race(3), mile pace and race(1.5). Floats run at marathon pace to 3% faster, using the 70-mile marathon pace whatever the weekly distance.</li>
       <li><b>Yasso 800s.</b> 800m at race(5) with a jog of the same time. The old rule (800m time in minutes:seconds = marathon time in hours:minutes) is shown for comparison only.</li>
       <li><b>Rosario 800s.</b> 800m at race(5) with an 800m float at 5km pace plus 25s per 800m, which is about +31 s/km.</li>
-      <li><b>1km repeats, mile repeats, 30/30.</b> 1km at race(3) to race(5), 1 mile at race(5), and 30s at race(3) with a 30s jog.</li>
+      <li><b>1km repeats, mile repeats, 30/30.</b> 1km at race(3) to race(5), 1 mile at race(10), and 30s at race(3) with a 30s jog.</li>
       <li><b>Marathon-pace long run.</b> Easy running first, then the chosen distance at marathon pace.</li>
       <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Warm-up, cool-down and jogs run at 62.5% of 5km speed unless you change the pace.</li>
       <li>The paces are my choices from your descriptions, not published prescriptions. This page does not apply weekly-volume limits. Check the numbers against heart rate or feel.</li>
@@ -271,7 +271,7 @@ tr.easy td:first-child { padding-left: 11px; }
       { id: "start", type: "check", label: "Start with a 200 m float" }] },
     { key: "mona", name: "Mona fartlek", opts: [] },
     { key: "yasso", name: "Yasso 800s", opts: [{ id: "reps", label: "Reps", def: 10, min: 4, max: 12, int: true }] },
-    { key: "rosario", name: "Rosario 800s", opts: [{ id: "reps", label: "Reps", def: 8, min: 4, max: 12, int: true }] },
+    { key: "rosario", name: "Rosario 800s", opts: [{ id: "reps", label: "Reps", def: 4, min: 2, max: 12, int: true }] },
     { key: "k1", name: "1 km repeats", opts: [
       { id: "reps", label: "Reps", def: 5, min: 3, max: 8, int: true },
       { id: "rest", label: "Jog between (s)", def: 150, min: 60, max: 300, int: true }] },
@@ -340,7 +340,8 @@ tr.easy td:first-child { padding-left: 11px; }
     }
     offM = marathonOff(riegel5, weekKm);
     var raceP = function (km) { return (p5 - adj(km)) * Math.pow(km / 5, K - 1) + off(km) - off(D); };
-    var thr = raceP(16), p5e = raceP(5), mp = raceP(MAR), mpFast = mp * 0.97;
+    var thr = raceP(16), p5e = raceP(5), mp = raceP(MAR);
+    var mpFl = p5 * Math.pow(MAR / 5, K - 1) + marathonOff(riegel5, null) - off(D), mpFast = mpFl * 0.97;   // float pace ignores weekly distance (70-mile default)
     var wcSug = p5e / 0.625;
     $("wcp").placeholder = mmss(wcSug);
     var wcPace = wcSug, wcTxt = ($("wcp").value || "").trim();
@@ -395,23 +396,23 @@ tr.easy td:first-child { padding-left: 11px; }
       add("Jog", 4, { s: o.jog }, wcPace, wcPace, "easy", true);
     } else if (w.key === "aussie") {
       var ph = raceP(4);
-      struct = o.reps + " × (400 m hard + 200 m float), no stopping" + (o.start ? ", with a 200 m float first" : "");
-      if (o.start) add("Opening float", 1, { m: 200 }, mpFast, mp, "easy", true);
+      struct = o.reps + " × (400 m + 200 m float), continuous" + (o.start ? ", 200 m float first" : "");
+      if (o.start) add("Opening float", 1, { m: 200 }, mpFast, mpFl, "easy", true);
       add("Hard 400 m at race(4)", o.reps, { m: 400 }, ph, ph, "hard", true);
-      add("Float 200 m", o.reps, { m: 200 }, mpFast, mp, "easy", true);
+      add("Float 200 m", o.reps, { m: 200 }, mpFast, mpFl, "easy", true);
       mpNote = true;
-      notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ". Some runners use the time for the full set as a 5km predictor, though most can run faster in a race. I have not checked how well that works.");
+      notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ".");
     } else if (w.key === "mona") {
-      struct = "2×90 s, 4×60 s, 4×30 s, 4×15 s, each followed by a float of the same length";
+      struct = "2×90 s, 4×60 s, 4×30 s, 4×15 s, equal-time floats";
       [[90, 2, raceP(4), "race(4)", 2], [60, 4, raceP(3), "race(3)", 4], [30, 4, raceP(MILE), "mile pace", 4], [15, 4, raceP(1.5), "race(1.5)", 3]].forEach(function (g) {
         add(g[0] + " s at " + g[3], g[1], { s: g[0] }, g[2], g[2], "hard", true);
-        add(g[0] + " s float", g[4], { s: g[0] }, mpFast, mp, "easy", true);
+        add(g[0] + " s float", g[4], { s: g[0] }, mpFast, mpFl, "easy", true);
       });
       mpNote = true;
       notes.push("The last effort has no float after it. The structure is as described by Canadian Running. The paces are my choices.");
     } else if (w.key === "yasso") {
       var py = raceP(5), rep800 = 0.8 * py;
-      struct = o.reps + " × 800 m at 5km pace, jog the same time between";
+      struct = o.reps + " × 800 m, jog the same time between";
       add("800 m at race(5)", o.reps, { m: 800 }, py, py, "hard", true);
       add("Jog (same time as the rep)", o.reps - 1, { s: Math.round(rep800) }, wcPace, wcPace, "easy", true);
       var folk = Math.round(rep800) * 60, pred = mp * MAR, diff = pred - folk;
@@ -419,7 +420,7 @@ tr.easy td:first-child { padding-left: 11px; }
       notes.push("The old rule reads the 800 m time as the marathon time: " + mmss(rep800) + " becomes " + hmmss(folk) + ". Your predicted marathon is " + hmmss(pred) + ", which is " + hmmss(Math.abs(diff)) + (diff >= 0 ? " slower" : " faster") + ". Treat 5km-paced 800s as a fitness check, not a marathon predictor.");
     } else if (w.key === "rosario") {
       var pr = raceP(5), pf2 = pr + 25 / 0.8;
-      struct = o.reps + " × (800 m at 5km pace + 800 m float at 5km pace plus 25 s per 800 m), no stopping";
+      struct = o.reps + " × (800 m + 800 m float), continuous";
       add("800 m at race(5)", o.reps, { m: 800 }, pr, pr, "hard", true);
       add("Float 800 m", o.reps, { m: 800 }, pf2, pf2, "easy", true);
       var dd = pf2 - mp;
@@ -430,9 +431,9 @@ tr.easy td:first-child { padding-left: 11px; }
       add("1 km at race(3) to race(5)", o.reps, { m: 1000 }, raceP(3), raceP(5), "hard", true);
       add("Jog", o.reps - 1, { s: o.rest }, wcPace, wcPace, "easy", true);
     } else if (w.key === "mile") {
-      var pmi = raceP(5);
+      var pmi = raceP(10);
       struct = o.reps + " × 1 mile, " + o.rest + " s jog between";
-      add("1 mile at race(5)", o.reps, { m: 1609.344 }, pmi, pmi, "hard", true);
+      add("1 mile at race(10)", o.reps, { m: 1609.344 }, pmi, pmi, "hard", true);
       add("Jog", o.reps - 1, { s: o.rest }, wcPace, wcPace, "easy", true);
     } else if (w.key === "thirty") {
       var p3 = raceP(3);
