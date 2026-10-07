@@ -160,11 +160,8 @@ td.num, th.num { text-align: right; padding-right: 14px; }
         </label>
       </div>
       <div class="three">
-        <label>Ramp target (CTL/week)
+        <label>Ramp target (CTL/week, max 2)
           <input id="rt" type="text" inputmode="decimal" autocomplete="off" value="1">
-        </label>
-        <label>Ramp maximum
-          <input id="rm" type="text" inputmode="decimal" autocomplete="off" value="1.9">
         </label>
         <label>Easy pace /km
           <input id="wcp" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="-">
@@ -224,7 +221,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
       <li><b>Weekly limits.</b> Distance at each pace is capped as a share of weekly distance: mile pace 10%, intervals 16%, threshold 20%, sub-threshold 30%, marathon pace 40%. Mixed weeks share one budget: each km of a type uses 1 ÷ its limit, and the total cannot exceed 1. At least 60% of the week is always easy.</li>
       <li><b>Easy and long runs.</b> Quality days include warm-up and cool-down, counted as easy. They are 20 minutes together at least and grow up to 40, so a quality day takes about 80% of an easy day's time. The 80% and the 40 are my choices. The rest of the week is split between easy days and one long run, which counts 1.6 times an easy day. The long run is capped at 35% of weekly distance (your rule, since Daniels' 25% is too low for 3 and 4 run days) and at 150 minutes, and no easy run is longer than it. If the week cannot fit in the run days, the distance falls short and the table says so. The 1.6 is my choice. Easy days under 20 minutes are flagged.</li>
       <li><b>Load.</b> TSS per km = threshold pace² ÷ (36 × pace). CTL and ATL are daily exponential averages with 42-day and 7-day constants (new = old × e^(−1/n) + TSS × (1 − e^(−1/n))). TSB is CTL minus ATL at the end of each day, as in the Run Load Planner.</li>
-      <li><b>Ramp.</b> Each week the distance is solved so CTL rises by the target. Two limits can hold it back: TSB should stay at or above -10, and never reach -20. If the -10 limit would push the ramp below 0.1, the ramp floor wins down to the -20 limit.</li>
+      <li><b>Ramp.</b> Each week the distance is solved so CTL rises by the target. Two limits can hold it back: TSB should stay at or above -10, and never reach -20. If the -10 limit would push the ramp below 0.1, the ramp floor wins down to the -20 limit. The target is capped at 2 a week; the useful range is 0.1 to 1.9.</li>
       <li><b>Taper.</b> With a taper of 14 days, the penultimate week holds CTL (ramp 0) and the last week is the taper. With 7 days only the last week is the taper. The race week is solved so TSB on the morning of race day (end of the day before) hits your target, but is kept between 50% and 80% of the peak week (my placeholders). The target is capped at +10; more is overkill. Race day replaces the long run. If the 50% floor stops the target being reached, the table says so.</li>
       <li><b>Time first.</b> Tables lead with time. Easy running should be done by time, which removes the temptation to push the pace on easy days. Distance follows from the easy pace entered, and any error in that pace shifts the km but not the minutes.</li>
       <li>The rules come from your guidelines. The constants and week layouts are mine. This is a prototype: check each week against how you feel. It does not yet adapt to what you actually ran.</li>
@@ -328,17 +325,16 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     var vd = vdot(t / 60, D * 1000);
     if (vd < VDOT_MIN || vd > VDOT_MAX) return fail("That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of " + VDOT_MIN + " to " + VDOT_MAX + ". Check the distance and time.");
     var riegel5 = t * Math.pow(5 / D, K) / 5, p5 = riegel5 + adj(D);
-    var W0, ctlIn = null, weeks, rt, rmx, raceTsb = 10;
+    var W0, ctlIn = null, weeks, rt, raceTsb = 10;
     try {
       var wv = readNum("week", 1, 1000, "Weekly distance");
       W0 = $("wunit").value === "mi" ? wv * MILE : wv;
       if (W0 < 20 || W0 > 300) return fail("Weekly distance should be between 20km (12 miles) and 300km (186 miles). Check the number and unit.");
       weeks = readNum("weeks", 4, 16, "Weeks", true);
-      rt = readNum("rt", 0.1, 5, "Ramp target"); rmx = readNum("rm", 0.1, 5, "Ramp maximum");
+      rt = readNum("rt", 0.1, 2, "Ramp target");
       if ($("ctl").value.trim() !== "") ctlIn = readNum("ctl", 5, 200, "Current CTL");
       if (parseInt($("taper").value, 10) > 0) raceTsb = readNum("rtsb", -30, 10, "Race-day TSB");
     } catch (e) { return fail(e.message); }
-    if (rt > rmx) return fail("The ramp target can't be above the ramp maximum.");
     var taperDays = parseInt($("taper").value, 10), tw = taperDays / 7, buildWeeks = weeks - tw;
     if (buildWeeks < 3) return fail("With a " + taperDays + "-day taper the block needs at least " + (3 + tw) + " weeks.");
     var targetRamp = rt;
@@ -510,7 +506,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
 
   function save() {
     try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {}
-    try { localStorage.setItem("pb", JSON.stringify({ d: $("days").value, f: $("focus").value, n: $("weeks").value, tp: $("taper").value, rs: $("rtsb").value, rt: $("rt").value, rm: $("rm").value, c: $("ctl").value, p: $("wcp").value })); } catch (e) {}
+    try { localStorage.setItem("pb", JSON.stringify({ d: $("days").value, f: $("focus").value, n: $("weeks").value, tp: $("taper").value, rs: $("rtsb").value, rt: $("rt").value, c: $("ctl").value, p: $("wcp").value })); } catch (e) {}
   }
   function restore() {
     try {
@@ -519,7 +515,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
         if (s.d && $("days").querySelector('option[value="' + s.d + '"]')) $("days").value = s.d;
         if (FOCUS.some(function (f) { return f.key === s.f; })) $("focus").value = s.f;
         if (s.tp && $("taper").querySelector('option[value="' + s.tp + '"]')) $("taper").value = s.tp;
-        ["n", "rt", "rm", "c", "p", "rs"].forEach(function (k, i) { var id = ["weeks", "rt", "rm", "ctl", "wcp", "rtsb"][i]; if (typeof s[k] === "string") $(id).value = s[k]; });
+        ["n", "rt", "c", "p", "rs"].forEach(function (k, i) { var id = ["weeks", "rt", "ctl", "wcp", "rtsb"][i]; if (typeof s[k] === "string") $(id).value = s[k]; });
       }
     } catch (e) {}
     var pr = profGet();
@@ -543,7 +539,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
 
   $("focus").innerHTML = FOCUS.map(function (f) { return '<option value="' + f.key + '">' + f.label + "</option>"; }).join("");
   restore();
-  ["dist", "time", "week", "wunit", "days", "focus", "weeks", "taper", "rtsb", "rt", "rm", "ctl", "wcp"].forEach(function (id) {
+  ["dist", "time", "week", "wunit", "days", "focus", "weeks", "taper", "rtsb", "rt", "ctl", "wcp"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });
