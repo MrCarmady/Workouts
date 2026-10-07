@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
+<title>Hard Workout Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+/* Layout: inputs on top, block summary and weekly table below, one week in detail at the end. Same track-red system as the other running tools. */
+:root {
+  --bg: #f2f2f1;
+  --surface: #ffffff;
+  --surface-2: #f0f0ee;
+  --fg: #17181a;
+  --muted: #6a6d72;
+  --line: #deded9;
+  --accent: #c8372d;
+  --accent-fg: #ffffff;
+  --accent-soft: #f6dcd9;
+  --warn: #a35a00;
+  --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+    --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+  --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 20px; }
+.wrap > * { min-width: 0; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 2rem; letter-spacing: .02em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 12px; color: var(--muted); }
+.head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.themes { display: inline-flex; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; background: var(--surface); }
+.themes button { font: inherit; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: transparent; border: 0; padding: 7px 12px; cursor: pointer; }
+.themes button + button { border-left: 1px solid var(--line); }
+.themes button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.themes button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 62ch; }
+.top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 720px) { .top { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; display: grid; gap: 14px; align-content: start; }
+.panel h2 { margin: 0; }
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: end; }
+.grid4 .span2 { grid-column: span 2; }
+.combo { display: grid; grid-template-columns: minmax(0, 1fr) 4.5rem; gap: 6px; }
+@media (max-width: 720px) { .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: end; }
+.fields .full { grid-column: 1 / -1; }
+label { display: grid; gap: 4px; align-content: start; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+input, select { box-sizing: border-box; height: 2.75rem; font: inherit; font-size: 1.05rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 0 10px; width: 100%; min-width: 0; }
+input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+label.chk { display: flex; align-items: center; gap: 10px; min-height: 2.75rem; text-transform: none; letter-spacing: 0; font-size: .95rem; font-weight: 500; color: var(--fg); }
+label.chk input { width: 1.2rem; height: 1.2rem; accent-color: var(--accent); }
+.note { font-size: .85rem; color: var(--muted); margin: 0; }
+.warn { color: var(--warn); font-size: .88rem; margin: 0; }
+.res { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 600px) { .res { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.res div { background: var(--surface-2); border-radius: 2px; padding: 10px 12px; min-width: 0; }
+.res b { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.res b.pace { color: var(--accent); }
+.res span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.res small { display: block; font-size: .78rem; color: var(--muted); margin-top: 2px; }
+.struct { margin: 0; font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; letter-spacing: .02em; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.pace { font-weight: 600; white-space: nowrap; }
+tr.hard td:first-child { border-left: 3px solid var(--accent); padding-left: 8px; }
+tr.easy td:first-child { padding-left: 11px; }
+.notes { display: grid; gap: 6px; }
+.method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
+.method ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.method b { color: var(--fg); font-weight: 600; }
+.flag { color: var(--warn); font-size: .85rem; }
+.flag.red { color: var(--accent); font-weight: 600; }
+tr.cur td { color: var(--muted); }
+td.num, th.num { text-align: right; padding-right: 14px; }
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: end; }
+@media (max-width: 520px) { .three { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.chartwrap { width: 100%; overflow: hidden; }
+svg.chart { width: 100%; height: auto; display: block; }
+svg.chart text { fill: var(--muted); font-family: var(--font-body); font-size: 11px; }
+svg.chart .grid { stroke: var(--line); stroke-width: 1; }
+svg.chart .pt { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+svg.chart .wh { stroke: var(--accent); stroke-width: 1.5; opacity: .55; }
+svg.chart .tr { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+.btn { font: inherit; font-size: .85rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-fg); background: var(--accent); border: 0; border-radius: 2px; height: 2.75rem; padding: 0 18px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.xbtn { font: inherit; background: transparent; border: 0; color: var(--muted); cursor: pointer; padding: 4px 8px; }
+tr.out td { color: var(--muted); }
+textarea { box-sizing: border-box; width: 100%; min-height: 6rem; font: inherit; font-size: .8rem; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 8px; }
+details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+@media (max-width: 520px) { .hr { display: none; } td, th { padding-right: 8px; } td.num, th.num { padding-right: 8px; } }
+</style>
+
+<main class="wrap">
+  <p class="sitenav"><a href="index.html">&larr; All tools</a></p>
+  <header class="head">
+    <div>
+      <h1>Hard Workout Predictor</h1>
+      <p class="sub">Predict a race from a hard interval session, such as 6×1k at 5k effort with short rest.</p>
+    </div>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2>Workout</h2>
+    <div class="grid4">
+      <label>Reps <input id="reps" inputmode="numeric" value="6"></label>
+      <label>Rep distance
+        <span class="combo"><input id="rep" inputmode="decimal" value="1000"><select id="unit"><option value="m">m</option><option value="km">km</option></select></span>
+      </label>
+      <label>Rest between reps, s <input id="rest" inputmode="numeric" value="60"></label>
+      <label>RPE at the end (1–10) <input id="rpe" inputmode="decimal" value="8"></label>
+      <label>Predict
+        <select id="target">
+          <option value="1.5">1500m</option>
+          <option value="1.609344">Mile</option>
+          <option value="3">3km</option>
+          <option value="5" selected>5km</option>
+          <option value="10">10km</option>
+          <option value="21.0975">Half marathon</option>
+          <option value="42.195">Marathon</option>
+        </select>
+      </label>
+      <label class="span2">Rep times or average, comma separated <input id="splits" placeholder="3:38, 3:32, 3:33, 3:31, 3:34, 3:35"></label>
+    </div>
+    <p class="note">Times as mm:ss, or seconds if over 60. If you enter several times, the number of reps is taken from them. A single value is read as the average rep time and uses the Reps box. Enter the pace in /km instead by adding "/km" (for example 3:20/km).</p>
+    <p class="warn" id="err" hidden></p>
+  </section>
+
+  <section class="panel">
+    <h2>Prediction</h2>
+    <div class="res" id="res"></div>
+    <p class="note" id="flags"></p>
+    <div class="tablewrap"><table id="eq"></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>Anchors used</h2>
+    <div class="tablewrap"><table id="anch"></table></div>
+  </section>
+
+  <section class="panel method">
+    <h2>How it works</h2>
+    <ul>
+      <li><b>Anchors.</b> Each standard rep length is tied to a race pace at RPE 8–8.5 with its standard rest. The pace for your rep length is interpolated between anchors, then run backwards to find the 5km pace that fits. The anchors are the author's, from experience, not from a published source.</li>
+      <li><b>Volume.</b> Each anchor has a typical rep count. Pace is scaled by (typical total work / your total work) to the power 0.06, the same exponent as the race model. Rep counts are limited to half to double the typical number.</li>
+      <li><b>Range.</b> Each anchor is given a band of 1% in pace. That band is my placeholder.</li>
+      <li><b>Not adjusted.</b> Rest, RPE, heat, surface, wind and hills are not adjusted for. The tool only warns when rest or RPE is far from the anchor.</li>
+      <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. These are my estimates, not validated.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var K = 1.06, HM = 21.0975, MAR = 42.195, offM = 5;
+  function adj(km) { return km < 5 ? 8 * Math.log(5 / km) : 0; }
+  function off(km) { return km <= HM ? 0 : offM * (Math.min(km, MAR) - HM) / (MAR - HM); }
+  function marathonExtraMin(weekKm) {
+    var mi = weekKm / 1.609344, P = [[80, 7], [70, 10], [60, 13], [50, 17], [35, 25]];
+    if (mi >= P[0][0]) return P[0][1];
+    for (var i = 1; i < P.length; i++) if (mi >= P[i][0]) { var f = (P[i - 1][0] - mi) / (P[i - 1][0] - P[i][0]); return P[i - 1][1] + f * (P[i][1] - P[i - 1][1]); }
+    return P[P.length - 1][1];
+  }
+  function marathonOff(p5, weekKm) {
+    var H0 = p5 * Math.pow(HM / 5, K - 1) * HM, M0 = p5 * Math.pow(MAR / 5, K - 1) * MAR;
+    return Math.max(0, (marathonExtraMin(weekKm) * 60 - (M0 - 2 * H0)) / MAR);
+  }
+  // Pace (s/km) for a race of km at 5km pace p5.
+  function race(p5, km) { offM = marathonOff(p5, 70 * 1.609344); return (p5 - adj(km)) * Math.pow(km / 5, K - 1) + off(km); }
+  function mmss(sec) { sec = Math.round(sec); var m = Math.floor(sec / 60), s = sec % 60; return m + ":" + (s < 10 ? "0" : "") + s; }
+  function hmmss(sec) { sec = Math.round(sec); var h = Math.floor(sec / 3600), r = sec - h * 3600; return h > 0 ? h + ":" + (Math.floor(r / 60) < 10 ? "0" : "") + mmss(r) : mmss(r); }
+
+  // Anchors: rep distance (m), standard rest (s), race distance the reps equal (km), and the pace band as multiples of that race pace.
+  // The 5000m anchor is marathon pace to 2% faster. The 1% band elsewhere is a placeholder.
+  var BAND = 0.01;
+  var ANCH = [
+    { m: 400, rest: 60, n: 9, km: 1.609344, name: "mile pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 600, rest: 75, n: 6, km: 2, name: "2k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 800, rest: 90, n: 6, km: 3, name: "3k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 1000, rest: 60, n: 6, km: 5, name: "5k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 1200, rest: 90, n: 5, km: 5, name: "5k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 1600, rest: 120, n: 4, km: 10, name: "10k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 2000, rest: 120, n: 3, km: 10, name: "10k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 3000, rest: 180, n: 3, km: 21.0975, name: "HM pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 5000, rest: 180, n: 3, km: 42.195, name: "marathon pace", lo: 0.98, hi: 1.0 }
+  ];
+  function lerpA(p5, m, which) {
+    var v = function (a) { var base = race(p5, a.km); return which === "fast" ? base * a.lo : which === "slow" ? base * a.hi : base * (a.lo + a.hi) / 2; };
+    if (m <= ANCH[0].m) return v(ANCH[0]);
+    for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return v(ANCH[i]) * (1 - w) + v(ANCH[i + 1]) * w; }
+    return v(ANCH[ANCH.length - 1]);
+  }
+  function invert(p, m, which) {
+    var lo = 120, hi = 700;
+    if (lerpA(lo, m, which) > p || lerpA(hi, m, which) < p) return null;
+    for (var i = 0; i < 50; i++) { var mid = (lo + hi) / 2; if (lerpA(mid, m, which) < p) lo = mid; else hi = mid; }
+    return (lo + hi) / 2;
+  }
+  function stdRest(m) {
+    if (m <= ANCH[0].m) return ANCH[0].rest;
+    for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return ANCH[i].rest * (1 - w) + ANCH[i + 1].rest * w; }
+    return ANCH[ANCH.length - 1].rest;
+  }
+  // Typical rep count at a rep length, interpolated between anchors (placeholders, except 8-10 x 400m).
+  function typN(m) {
+    if (m <= ANCH[0].m) return ANCH[0].n;
+    for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return ANCH[i].n * (1 - w) + ANCH[i + 1].n * w; }
+    return ANCH[ANCH.length - 1].n;
+  }
+  function parseOne(x) {
+    x = x.trim();
+    if (!x) return null;
+    if (x.indexOf(":") >= 0) { var p = x.split(":"); if (p.length !== 2 || isNaN(p[0]) || isNaN(p[1])) return null; return Number(p[0]) * 60 + Number(p[1]); }
+    var n = Number(x.replace(",", ".")); return isNaN(n) ? null : n;
+  }
+  function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("res").innerHTML = ""; $("flags").textContent = ""; $("eq").innerHTML = ""; return false; }
+
+  function update() {
+    $("err").hidden = true;
+    var unit = $("unit").value, rv = Number($("rep").value.replace(",", "."));
+    if (!rv || rv <= 0) return fail("Enter the rep distance as a number.");
+    var m = unit === "km" ? rv * 1000 : rv;
+    if (m < ANCH[0].m || m > ANCH[ANCH.length - 1].m) return fail("Rep distance should be between 400m and 5000m.");
+    var rest = Number($("rest").value), rpe = Number($("rpe").value.replace(",", "."));
+    if (isNaN(rest) || rest < 0 || rest > 900) return fail("Enter the rest in seconds, 0 to 900.");
+    if (!(rpe >= 1 && rpe <= 10)) return fail("Enter the end RPE, 1 to 10.");
+    var raw = $("splits").value.trim();
+    if (!raw) { $("res").innerHTML = ""; $("flags").textContent = ""; $("eq").innerHTML = ""; renderAnch(m); return; }
+    var perKm = /\/km\s*$/i.test(raw); raw = raw.replace(/\/km\s*$/i, "");
+    var parts = raw.split(/[,;\s]+(?=\d)/).map(parseOne);
+    if (parts.some(function (x) { return x === null || x <= 0; })) return fail("Could not read the times. Use mm:ss or seconds, separated by commas.");
+    var times = perKm ? parts.map(function (p) { return p * m / 1000; }) : parts;
+    var nReps = times.length > 1 ? times.length : parseInt($("reps").value, 10);
+    if (!(nReps >= 1 && nReps <= 50)) return fail("Enter the number of reps, 1 to 50.");
+    if (times.length > 1) $("reps").value = times.length;
+    var tn = typN(m), nMin = Math.max(1, Math.ceil(tn * 0.5)), nMax = Math.floor(tn * 2);
+    if (nReps < nMin || nReps > nMax) return fail("For " + (m >= 1000 ? m / 1000 + "km" : m + "m") + " reps the tool supports " + nMin + " to " + nMax + " reps. Outside that, the session is too different from the anchors to predict from.");
+    var avg = times.reduce(function (a, b) { return a + b; }, 0) / times.length;
+    var pRaw = avg / (m / 1000);
+    var p = pRaw * Math.pow(tn * m / (nReps * m), K - 1);   // pace at the typical volume for this rep length
+    var pm = invert(p, m, "mid"), pf = invert(p, m, "fast"), ps = invert(p, m, "slow");
+    if (pm === null || pf === null || ps === null) return fail("That pace is outside the range the anchors support for this rep length. Check the times and the distance.");
+    var D = Number($("target").value);
+    var tFor = function (p5) { return race(p5, D) * D; };
+    var tMid = tFor(pm), tLo = tFor(ps), tHi = tFor(pf);   // slow end of the anchor => faster runner
+    var anch = ANCH.reduce(function (best, a) { return Math.abs(Math.log(a.m / m)) < Math.abs(Math.log(best.m / m)) ? a : best; }, ANCH[0]);
+    $("res").innerHTML =
+      "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + ", " + mmss(pRaw) + " /km</small></div>" +
+      "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
+      "<div><span>Nearest anchor</span><b>" + (m >= 1000 ? m / 1000 + "k" : m + "m") + "</b><small>" + anch.name + "</small></div>";
+    var fl = [];
+    if (times.length > 1) {
+      var half = Math.floor(times.length / 2), a1 = times.slice(0, half).reduce(function (a, b) { return a + b; }, 0) / half, a2 = times.slice(times.length - half).reduce(function (a, b) { return a + b; }, 0) / half;
+      var d = (a2 - a1) / a1 * 100;
+      if (d > 2) fl.push("The second half of the reps was " + d.toFixed(1) + "% slower than the first. That suggests the opening reps were above a sustainable pace, so the estimate may be too fast.");
+      if (d < -2) fl.push("The second half of the reps was " + (-d).toFixed(1) + "% faster than the first. That suggests reserve, so the estimate may be too slow.");
+    }
+    var sr = stdRest(m);
+    if (rest < sr * 0.8) fl.push("Rest is shorter than the standard " + Math.round(sr) + "s for this rep length, which makes the session harder. The estimate is not adjusted for this.");
+    if (rest > sr * 1.25) fl.push("Rest is longer than the standard " + Math.round(sr) + "s for this rep length, which makes the session easier. The estimate is not adjusted for this.");
+    if (rpe < 7) fl.push("RPE below 7: the session was probably not hard enough to predict a race, so the estimate may be slow.");
+    if (rpe > 9) fl.push("RPE above 9: the session was closer to an all-out effort than the anchors assume, so the estimate may be conservative for a race.");
+    if (Math.abs(nReps - tn) / tn > 0.15) fl.push("You ran " + nReps + " reps; the anchor assumes about " + Math.round(tn) + ". The estimate is scaled for that difference (Riegel exponent, a placeholder).");
+    fl.push("Heat, surface, wind and hills are not adjusted for.");
+    $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
+    var rows = [["1500m", 1.5], ["Mile", 1.609344], ["3km", 3], ["5km", 5], ["10km", 10], ["Half marathon", HM]];
+    var h = "<thead><tr><th>Race</th><th class=\"num\">Predicted</th><th class=\"num\">Range</th></tr></thead><tbody>";
+    rows.forEach(function (r) { var f = function (p5) { return race(p5, r[1]) * r[1]; }; h += "<tr><td>" + r[0] + "</td><td class=\"num pace\">" + hmmss(f(pm)) + "</td><td class=\"num\">" + hmmss(f(ps)) + "–" + hmmss(f(pf)) + "</td></tr>"; });
+    $("eq").innerHTML = h + "</tbody>";
+    renderAnch(m);
+  }
+  function renderAnch(m) {
+    var h = "<thead><tr><th>Rep</th><th class=\"num\">Typical reps</th><th class=\"num\">Standard rest</th><th>Reps equal</th></tr></thead><tbody>";
+    ANCH.forEach(function (a) { h += "<tr><td>" + (a.m >= 1000 ? a.m / 1000 + "km" : a.m + "m") + "</td><td class=\"num\">" + a.n + "</td><td class=\"num\">" + (a.rest >= 120 ? a.rest / 60 + " min" : a.rest + "s") + "</td><td>" + a.name + (a.lo < 0.99 ? " to 2% faster" : "") + "</td></tr>"; });
+    $("anch").innerHTML = h + "</tbody>";
+  }
+  ["reps", "rep", "unit", "rest", "rpe", "splits", "target"].forEach(function (id) { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
+  update();
+})();
+
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>

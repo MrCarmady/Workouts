@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hard Workout Predictor: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
+.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
+.themes button + button { border-left:1px solid var(--line); }
+.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../hard-workout-predictor.html">Open Hard Workout Predictor</a></nav>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+  <article class="doc">
+<h1>Hard Workout Predictor: methodology</h1>
+<p>Predicts a race from a hard interval session. It is a prototype. The anchors are the author's, from experience, not from a published source.</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400m, 60s rest: mile pace (8–10 reps)</td>
+<td>Author's anchor</td>
+</tr>
+<tr>
+<td>600m, 75s rest: 2k pace</td>
+<td>My midpoint between mile and 3k pace, to be confirmed</td>
+</tr>
+<tr>
+<td>800m, 90s rest: 3k pace</td>
+<td>Author's anchor</td>
+</tr>
+<tr>
+<td>1000m, 60s rest: 5k pace</td>
+<td>Author's anchor</td>
+</tr>
+<tr>
+<td>1200m, 90s rest: 5k pace</td>
+<td>My placeholder</td>
+</tr>
+<tr>
+<td>1600m and 2000m, 2 min rest: 10k pace</td>
+<td>My placeholder</td>
+</tr>
+<tr>
+<td>3000m, 3 min rest: HM pace</td>
+<td>My placeholder</td>
+</tr>
+<tr>
+<td>5000m, 3 min rest: marathon pace to 2% faster</td>
+<td>Author's anchor</td>
+</tr>
+<tr>
+<td>Typical rep counts: 400m 9 (author: 8–10), 600m 6, 800m 6, 1000m 6, 1200m 5, 1600m 4, 2000m 3, 3000m 3, 5000m 3; interpolated for other rep lengths</td>
+<td>400m from the author; the rest are my placeholders</td>
+</tr>
+<tr>
+<td>Volume scaling: pace multiplied by (typical total work / your total work)^0.06</td>
+<td>My choice: the race model's Riegel exponent. Probably too steep for intervals; to be tested</td>
+</tr>
+<tr>
+<td>Rep count limited to 0.5–2 times the typical number</td>
+<td>My choice</td>
+</tr>
+<tr>
+<td>Anchors apply at RPE 8–8.5 and standard rest</td>
+<td>Author's assumption</td>
+</tr>
+<tr>
+<td>Band of 1% in pace around each anchor (5000m: marathon pace to 2% faster)</td>
+<td>My placeholder</td>
+</tr>
+<tr>
+<td>Pace for other rep lengths: linear interpolation between anchors by rep distance</td>
+<td>My choice</td>
+</tr>
+<tr>
+<td>Race model: Riegel 1.06, adjustment below 5km, marathon offset at 70 miles a week</td>
+<td>My estimates, not validated</td>
+</tr>
+</tbody>
+</table>
+<p>Not adjusted: rest, RPE, heat, surface, wind, hills. The tool warns when rest is more than 20% shorter or 25% longer than standard, when RPE is below 7 or above 9, and when the second half of the reps differs from the first by more than 2%.</p>
+<p>Check against posted cases: 6×800 averaging 2:38.5 gives a 5k of 17:22 (range 17:12–17:32); the poster ran 17:07. One case, not a calibration.</p>
+  </article>
+</main>
+<script>
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>
