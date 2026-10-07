@@ -181,7 +181,7 @@ tr.easy td:first-child { padding-left: 11px; }
       <li><b>Tempo.</b> 20 minutes runs at threshold, the predicted 16km pace. Longer tempos slow down by 4.9% × ln(minutes ÷ 20), never slower than marathon pace, up to 60 minutes. The scale is a fit to a Daniels-style table you supplied (+1.2% at 25 minutes, +5.3% at 60). I have not seen the source of that table.</li>
       <li><b>Ladder.</b> The 5, 4, 3, 2 and 1 minute reps run at 10k, 5k, 3k, 2k and 1500m pace. The jog between reps is 90s by default.</li>
       <li><b>Aussie quarters.</b> 400m at 4k pace, then 200m floated at M pace to 3% faster, repeated with no stop. Eight reps is 4.8km, 5km with an opening 200m float.</li>
-      <li><b>Mona fartlek.</b> 2×90s, 4×60s, 4×30s and 4×15s, each followed by a quick jog of the same length, as in Nate Jenkins' article on the Moneghetti fartlek. Efforts run at 5k, 4k, 3k and mile pace. The article says about 5k effort for the 90s, getting faster as reps shorten. Quick jogs run at 85% of 5km speed (my choice).</li>
+      <li><b>Mona fartlek.</b> 2×90s, 4×60s, 4×30s and 4×15s, each followed by a float of the same length, as in Nate Jenkins' article on the Moneghetti fartlek. Efforts run at 5k, 4k, 3k and mile pace. The article says about 5k effort for the 90s, getting faster as reps shorten. Floats run at 85% of 5km speed (my choice), about 5s/km slower than marathon pace for an 18:24 runner. The article calls them a quick jog.</li>
       <li><b>Yasso 800s.</b> 800m at 5k pace with a jog of the same time. The old rule (800m time in minutes:seconds = marathon time in hours:minutes) is shown for comparison only.</li>
       <li><b>Rosario 800s.</b> 800m at 5k pace with an 800m float at 5k pace plus 25s per 800m, which is about +31s/km.</li>
       <li><b>1km repeats, mile repeats, 30/30.</b> 1km at 4.5k pace, 1 mile at 10k pace, and 30s at 3k pace with a 30s jog.</li>
@@ -406,14 +406,14 @@ tr.easy td:first-child { padding-left: 11px; }
       add("Float 200m at M pace", o.reps, { m: 200 }, mpFast, mpFl, "easy", true);
       notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ".");
     } else if (w.key === "mona") {
-      struct = "2×90s, 4×60s, 4×30s, 4×15s, equal-time quick jogs";
-      var pq = p5 / 0.85;   // quick jog: 85% of 5km speed
+      struct = "2×90s, 4×60s, 4×30s, 4×15s, equal-time floats";
+      var pq = p5 / 0.85;   // float: 85% of 5km speed
       [[90, 2, 5], [60, 4, 4], [30, 4, 3], [15, 4, MILE]].forEach(function (g) {
         var pe = raceP(g[2]);
         add(g[0] + "s at " + pn(g[2]), g[1], { s: g[0] }, pe, pe, "hard", true);
-        add(g[0] + "s quick jog", g[1], { s: g[0] }, pq, pq, "easy", true);
+        add(g[0] + "s float", g[1], { s: g[0] }, pq, pq, "easy", true);
       });
-      notes.push("Total 20 min: 10 min of efforts and 10 min of quick jogs, at 85% of 5km speed. The structure and the effort guidance are from Nate Jenkins' article on the Moneghetti fartlek. The paces are my choices.");
+      notes.push("Total 20 min: 10 min of efforts and 10 min of floats, at 85% of 5km speed (the article calls them a quick jog). The structure and the effort guidance are from Nate Jenkins' article on the Moneghetti fartlek. The paces are my choices.");
     } else if (w.key === "yasso") {
       var py = raceP(5), rep800 = 0.8 * py;
       struct = o.reps + " × 800m, jog the same time between";
