@@ -153,10 +153,11 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   <section class="panel method">
     <h2>How it works</h2>
     <ul>
-      <li><b>Anchors.</b> Each standard rep length is tied to a race pace at RPE 8–8.5 with its standard rest. The pace for your rep length is interpolated between anchors, then run backwards to find the 5km pace that fits. The anchors are the author's, from experience, not from a published source.</li>
-      <li><b>Volume.</b> Each anchor has a typical rep count. More reps than that moves the race the reps equal further out, and fewer moves it closer in: the equivalent race distance scales with (reps / typical reps) to the power 1.25 above the typical count and 0.8 below it. The result shows this as the nearest common distance, rounded down (5×400m reads as 1000m pace, 10×1.2km as 15k pace). The exponents and the typical counts are my placeholders. Sessions over 25km of work, or equal to a race under 400m, are refused. An equivalent race beyond the marathon is capped at the marathon.</li>
-      <li><b>Range.</b> Each anchor is given a band of 1% in pace (5000m: marathon pace to 2% faster). That band is my placeholder.</li>
-      <li><b>Not adjusted.</b> Rest, RPE, heat, surface, wind and hills are not adjusted for. The tool only warns when rest or RPE is far from the anchor.</li>
+      <li><b>Anchors.</b> Each rep length is tied to a race pace, at standard rest and RPE 8. Other lengths are interpolated, then converted to a 5km pace. The anchors are the author's, not published.</li>
+      <li><b>Volume.</b> Each anchor has a typical rep count. Above it, the equivalent race gets longer (power 1.25). Below it, shorter (power 0.8). The result shows the nearest common distance. The exponents and counts are placeholders. Over 25km of work, or a race under 400m, is refused. Beyond the marathon is capped at the marathon.</li>
+      <li><b>RPE.</b> Each point above 8 slows the pace used by 1%. Each point below 8 speeds it up by 1%. The 1% is a placeholder.</li>
+      <li><b>Range.</b> Each anchor has a 1% pace band (5000m: marathon pace to 2% faster). The band is a placeholder.</li>
+      <li><b>Not adjusted.</b> Rest, heat, surface, wind and hills. The tool warns when rest is far from standard.</li>
       <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. These are my estimates, not validated.</li>
     </ul>
   </section>
@@ -228,6 +229,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   // The 5000m anchor is marathon pace to 2% faster. The 1% band elsewhere is a placeholder.
   var BAND = 0.01;
   // Volume slide: the race the reps equal scales with total work, x = typical race distance * (reps / typical reps)^GAMMA, a gentler exponent below the typical count. All three limits are placeholders.
+  var RPE_REF = 8, RPE_K = 0.01;   // pace used = pace x (1 + RPE_K x (RPE - RPE_REF)); placeholders
   var GAMMA_HI = 1.25, GAMMA_LO = 0.8, MAXWORK = 25, MINX = 0.4;   // exponent above / below the typical rep count   // MAXWORK: total work in km; MINX: shortest equivalent race in km
   var ANCH = [
     { m: 400, rest: 60, n: 9, km: 1.609344, name: "mile pace", lo: 1 - BAND, hi: 1 + BAND },
@@ -303,14 +305,15 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (xEq < MINX) return fail("This many reps equals the pace of a race shorter than 400m, outside what the tool supports.");
     // more volume than a marathon is read as marathon-pace fitness, not beyond it (the cap is applied inside equivX and lerpA)
     var avg = times.reduce(function (a, b) { return a + b; }, 0) / times.length;
-    var p = avg / (m / 1000);
+    var pRaw = avg / (m / 1000);
+    var p = pRaw * (1 + RPE_K * (rpe - RPE_REF));
     var pm = invert(p, m, "mid", nReps), pf = invert(p, m, "fast", nReps), ps = invert(p, m, "slow", nReps);
     if (pm === null || pf === null || ps === null) return fail("That pace is outside the range the anchors support for this rep length. Check the times and the distance.");
     var D = Number($("target").value);
     var tFor = function (p5) { return race(p5, D) * D; };
     var tMid = tFor(pm), tLo = tFor(ps), tHi = tFor(pf);   // slow end of the anchor => faster runner
     $("res").innerHTML =
-      "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + ", " + mmss(p) + " /km</small></div>" +
+      "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + ", " + mmss(pRaw) + " /km</small></div>" +
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
       "<div><span>Reps equal about</span><b>" + xText(xEq) + "</b><small>pace, for this many reps</small></div>";
     var fl = [];
@@ -324,8 +327,8 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var sr = stdRest(m);
     if (rest < sr * 0.8) fl.push("Rest is shorter than the standard " + Math.round(sr) + "s for this rep length, which makes the session harder. The estimate is not adjusted for this.");
     if (rest > sr * 1.25) fl.push("Rest is longer than the standard " + Math.round(sr) + "s for this rep length, which makes the session easier. The estimate is not adjusted for this.");
-    if (rpe < 7) fl.push("RPE below 7: the session was probably not hard enough to predict a race, so the estimate may be slow.");
-    if (rpe > 9) fl.push("RPE above 9: the session was closer to an all-out effort than the anchors assume, so the estimate may be conservative for a race.");
+    if (rpe < 6) fl.push("RPE below 6: too easy to predict a race well. Treat the estimate with caution.");
+    if (rpe > 9.5) fl.push("RPE above 9.5: close to all-out. Treat the estimate with caution.");
     if (D / xEq > 3 || D / xEq < 1 / 3) fl.push("These reps equal about " + xText(xEq) + " pace. Predicting a " + $("target").options[$("target").selectedIndex].text + " from that is a long extrapolation, so treat it with caution.");
     fl.push("Heat, surface, wind and hills are not adjusted for.");
     $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
