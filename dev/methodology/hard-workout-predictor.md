@@ -9,11 +9,13 @@ Predicts a race from a hard interval session. It is a prototype. The anchors are
 | 800m, 90s rest: 3k pace | Author's anchor |
 | 1000m, 60s rest: 5k pace | Author's anchor |
 | 1200m, 90s rest: 5k pace | My placeholder |
-| 1600m and 2000m, 2 min rest: 10k pace | My placeholder |
+| 1600m, 2 min rest: 8k pace (4×1600m is a solid 8k predictor) | Author's anchor |
+| 2000m, 2 min rest: 8k pace | My placeholder: about the same volume as 4×1600m |
 | 3000m, 3 min rest: 10k pace | Author's anchor (3×3000m is closer to 10k than HM pace) |
 | 5000m, 3 min rest: marathon pace to 2% faster | Author's anchor |
 | Typical rep counts: 400m 9 (author: 8–10), 600m 6, 800m 6, 1000m 6, 1200m 4, 1600m 4, 2000m 3, 3000m 3, 5000m 5 (3×5km is too little volume for a marathon prediction); interpolated for other rep lengths | 400m from the author; the rest are my placeholders |
-| Volume slide: the race the reps equal is the anchor race distance × (reps / typical reps)^1.25 above the typical count and ^0.8 below it. Examples: 5×400m ≈ 1.0k pace, 18×400m ≈ 3.8k, 2×2000m ≈ 7.2k, 10×1.2km ≈ 15.7k, 3×5km ≈ 28k | Exponents are my choice, fitted to the author's examples (5×400m closer to 1000–1200m pace than 800m, 18×400m at 3–5k, 2×2000m at 6–8k, 10×1.2km at 15k to HM). Where two distances fit, the shorter, rounder one was preferred so the tool does not over-predict |
+| Volume slide: the race the reps equal is the anchor race distance × (reps / typical reps)^1.25 above the typical count and ^0.8 below it. Examples: 5×400m ≈ 1.0k pace, 18×400m ≈ 3.8k, 2×2000m ≈ 5.8k, 10×1.2km ≈ 15.7k, 3×5km ≈ 28k | Exponents are my choice, fitted to the author's examples (5×400m closer to 1000–1200m pace than 800m, 18×400m at 3–5k, 2×2000m at 6–8k, 10×1.2km at 15k to HM). Where two distances fit, the shorter, rounder one was preferred so the tool does not over-predict |
+| The equivalent race is shown as the largest common distance at or just below the computed one (2% allowed above): 400m, 600m, 800m, 1000m, 1200m, 1500m, mile, 2k, 3k, 4k, 5k, 6k, 8k, 10k, 12k, 15k, 10 mile, half marathon, 30k, marathon. The prediction itself uses the unrounded distance | Author's preference for round, lower, common distances; the list is mine |
 | Limits: total work up to 25km, and an equivalent race between 400m and the marathon | My placeholders; replace the per-rep-length rep ranges of the first version |
 | Anchors apply at RPE 8–8.5 and standard rest | Author's assumption |
 | Band of 1% in pace around each anchor (5000m: marathon pace to 2% faster) | My placeholder |
