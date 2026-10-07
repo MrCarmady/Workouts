@@ -1,8 +1,3 @@
-<!doctype html>
-<html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
 <title>Classic Session Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
@@ -80,7 +75,6 @@ tr.easy td:first-child { padding-left: 11px; }
 </style>
 
 <main class="wrap">
-  <p class="sitenav"><a href="index.html">&larr; All tools</a></p>
   <header class="head">
     <div>
       <h1>Classic Session Generator</h1>
@@ -190,7 +184,6 @@ tr.easy td:first-child { padding-left: 11px; }
       <li>The paces are my choices from your descriptions, not published prescriptions. This page does not apply weekly-volume limits. Check the numbers against heart rate or feel.</li>
     </ul>
   </section>
-  <p class="sitenav"><a href="methods/classic-session-generator.html">How it works &rarr;</a></p>
 </main>
 
 <script>
@@ -266,7 +259,7 @@ tr.easy td:first-child { padding-left: 11px; }
   function round10(x) { return Math.round(x / 10) * 10; }
 
   // Shared race result for all pages on the same site (browser storage; does not sync between devices).
-  var SITE = true;                                    // set to true in the hosted site build, where the planner page sits next to this one
+  var SITE = false;                                   // set to true in the hosted site build, where the planner page sits next to this one
   function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
   function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
 

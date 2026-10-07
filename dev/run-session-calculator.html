@@ -1,8 +1,3 @@
-<!doctype html>
-<html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
 <title>Sub-Threshold Session Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
@@ -74,7 +69,6 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 </style>
 
 <main class="wrap">
-  <p class="sitenav"><a href="index.html">&larr; All tools</a></p>
   <header class="head">
     <div>
       <h1>Sub-Threshold Session Generator</h1>
@@ -198,7 +192,6 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
       <li>Treat all numbers as starting points and check them against heart rate or feel. Keep the last rep within 1–2s per 200m, or 3s per 400m, of the first.</li>
     </ul>
   </section>
-  <p class="sitenav"><a href="methods/run-session-generator.html">How it works &rarr;</a></p>
 </main>
 
 <script>
@@ -309,7 +302,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   // Shared race result for all pages on the same site (browser storage; does not sync between devices).
   function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
   function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
-  var SITE = true;                                    // set to true in the hosted site build, where the planner page sits next to this one
+  var SITE = false;                                   // set to true in the hosted site build, where the planner page sits next to this one
   function save() {
     try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {}
     try { localStorage.setItem("rsc2", JSON.stringify({ d: $("dist").value, t: $("time").value, s: $("surface").value, i: $("incline").value, r: $("rep").value, u: $("unit").value, w: $("week").value, wu: $("wunit").value, n: $("reps").value, a: $("wu").value, c: $("cd").value, p: $("wcp").value })); } catch (e) {}

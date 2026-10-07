@@ -1,8 +1,3 @@
-<!doctype html>
-<html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
 <title>Race Prediction Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
@@ -65,7 +60,6 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
 </style>
 
 <main class="wrap">
-  <p class="sitenav"><a href="index.html">&larr; All tools</a></p>
   <header class="head">
     <div>
       <h1>Race Prediction Calculator</h1>
@@ -115,7 +109,6 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     <h2>How this is calculated</h2>
     <p>Riegel's formula (time × distance ratio ^ 1.06) is the base, with two adjustments of mine: a result shorter than 5km is slowed by 8s/km × ln(5 ÷ distance in km) when converted to a 5km equivalent (about 9s/km for the mile), and predictions for those short distances are sped up by the same amount; and paces beyond the half marathon are slowed, rising linearly from nothing at the half marathon to a marathon slow-down that depends on weekly distance. The marathon is set to twice the half marathon plus 7 min at 80 miles (129km) a week or more, plus 10 min at 70 miles (113km), 13 at 60, 17 at 50, and 25 at 35 miles (56km) or less, in straight lines between those points. With no weekly distance, 70 miles is assumed. These figures are my estimates. A result whose Daniels–Gilbert VDOT falls outside 15 to 85 is rejected as implausible. Treat the times as estimates, not promises.</p>
   </section>
-  <p class="sitenav"><a href="methods/race-prediction-calculator.html">How it works &rarr;</a></p>
 </main>
 
 <script>

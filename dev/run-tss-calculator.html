@@ -1,13 +1,8 @@
-<!doctype html>
-<html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
-<title>Run TSS Planner</title>
+<title>Run TSS Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
 <style>
-/* Layout: threshold beside the required-pace result, session inputs full width below. Track-red accent on white, same system as the other calculators. */
+/* Layout: threshold and session inputs stacked on the left, one large TSS result on the right. Track-red accent on white, same system as the other calculators. */
 :root {
   --bg: #f2f2f1;
   --surface: #ffffff;
@@ -44,7 +39,7 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; let
 .cols { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); grid-template-areas: "thr res" "ses ses"; gap: 20px; align-items: stretch; }
 .p-thr { grid-area: thr; } .p-res { grid-area: res; } .p-ses { grid-area: ses; }
 @media (max-width: 720px) { .cols { grid-template-columns: minmax(0, 1fr); grid-template-areas: "thr" "ses" "res"; } }
-.session { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.6fr); gap: 24px; }
+.session { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 @media (max-width: 720px) { .session { grid-template-columns: minmax(0, 1fr); } }
 .grp { display: grid; gap: 12px; align-content: start; min-width: 0; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; }
@@ -57,19 +52,17 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 .note { font-size: .85rem; color: var(--muted); margin: 0; }
 .warn { color: var(--warn); font-size: .88rem; margin: 0; }
 .result { display: grid; gap: 10px; align-content: center; }
-.big { font-family: var(--font-display); font-weight: 700; font-size: 5.5rem; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; line-height: 1; font-variant-numeric: tabular-nums; color: var(--accent); }
-.big small { font-size: 1.6rem; font-weight: 600; color: var(--muted); }
+.big { font-family: var(--font-display); font-weight: 700; font-size: 5.5rem; line-height: 1; font-variant-numeric: tabular-nums; color: var(--accent); }
 .split { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; margin: 0; }
 .method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
 .method p { margin: 0; }
 </style>
 
 <main class="wrap">
-  <p class="sitenav"><a href="index.html">&larr; All tools</a></p>
   <header class="head">
     <div>
-      <h1>Run TSS Planner</h1>
-      <p class="sub">Set the TSS you're aiming for and how long the warm-up, workout and cool-down will be. See the pace to run the workout at.</p>
+      <h1>Run TSS Calculator</h1>
+      <p class="sub">Enter your threshold pace and what you ran. See the TSS for the session.</p>
     </div>
     <div class="themes" role="group" aria-label="Theme">
       <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
@@ -109,30 +102,14 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     </div>
 
     <div class="panel result p-res" aria-live="polite">
-      <h2>Workout pace</h2>
-      <div class="big"><span id="pace">-</span><small id="unit"></small></div>
+      <h2>Training stress</h2>
+      <div class="big" id="tss">-</div>
       <p class="split" id="split"></p>
     </div>
 
     <div class="panel p-ses">
       <h2>Session</h2>
       <div class="session">
-        <div class="grp">
-          <div class="group-title">Target</div>
-          <div class="fields">
-            <label class="full">Training stress (TSS)
-              <input id="target" type="number" inputmode="decimal" min="1" max="600" step="1" value="60">
-            </label>
-          </div>
-        </div>
-        <div class="grp">
-          <div class="group-title">Workout efforts</div>
-          <div class="fields">
-            <label class="full">Minutes
-              <input id="emin" type="number" inputmode="decimal" min="1" max="480" step="1" value="30">
-            </label>
-          </div>
-        </div>
         <div class="grp">
           <div class="group-title">Warm-up and cool-down</div>
           <div class="fields">
@@ -144,6 +121,17 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
             </label>
           </div>
         </div>
+        <div class="grp">
+          <div class="group-title">Workout efforts</div>
+          <div class="fields">
+            <label>Minutes
+              <input id="emin" type="number" inputmode="decimal" min="0" max="480" step="1" value="30">
+            </label>
+            <label>Avg pace (min/km)
+              <input id="epace" type="text" inputmode="numeric" autocomplete="off" value="4:25" placeholder="4:15 or 415">
+            </label>
+          </div>
+        </div>
       </div>
       <p class="note" style="margin-top:12px">Example values shown. Replace them with your own session.</p>
       <p class="warn" id="err" style="margin-top:8px" hidden></p>
@@ -152,11 +140,11 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 
   <section class="method">
     <h2>How this is calculated</h2>
-    <p>Training stress for each part is hours × (threshold pace ÷ average pace)² × 100. The warm-up and cool-down score is worked out from the pace you enter. What remains of the target is assigned to the workout efforts, and their pace is solved from that. Enter total minutes at effort pace, not including recoveries.</p>
+    <p>Each part of the session scores hours × (threshold pace ÷ average pace)² × 100. A full hour at threshold pace is 100. The two parts are added.</p>
     <p>If you enter a race instead of a threshold pace, the race is converted to a 5km equivalent with Riegel's formula (time × distance ratio ^ 1.06). A result shorter than 5km is slowed by 8s/km × ln(5 ÷ distance in km) (about 9s/km for the mile). Threshold pace is then taken as the pace for 16km, using the same formula. These are estimates.</p>
-    <p>Plans are rejected when the warm-up and cool-down alone already reach the target, when the required effort pace is outside 2:00–15:00 per km, or when the whole session works out to more than 120 TSS per hour.</p>
+    <p>One hour at threshold pace scores 100. Sessions longer than an hour can score more. Inputs outside realistic ranges are rejected: paces outside 2:00–15:00 per km, and sessions that work out to more than 120 TSS per hour of total time. A short all-out effort entered with no warm-up can hit that limit.</p>
+    <p>Recoveries between reps are not counted. To include them, add their minutes to the warm-up and cool-down line and enter an average pace for the combined time.</p>
   </section>
-  <p class="sitenav"><a href="methods/run-tss-planner.html">How it works &rarr;</a></p>
 </main>
 
 <script>
@@ -221,7 +209,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   var MAX_RATE = 120;                                    // TSS per hour of total session time
 
 
-  var IDS = ["mode", "thr", "dist", "time", "target", "emin", "wmin", "wpace"];
+  var IDS = ["mode", "thr", "dist", "time", "wmin", "wpace", "emin", "epace"];
   // Shared race result for all pages on the same site (browser storage; does not sync between devices).
   function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
   function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
@@ -229,12 +217,12 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     try { profSet("km", $("dist").value); profSet("time", $("time").value); } catch (e) {}
     try {
       var o = {}; IDS.forEach(function (i) { o[i] = $(i).value; });
-      localStorage.setItem("tssplan", JSON.stringify(o));
+      localStorage.setItem("tss", JSON.stringify(o));
     } catch (e) {}
   }
   function restore() {
     try {
-      var o = JSON.parse(localStorage.getItem("tssplan") || "null");
+      var o = JSON.parse(localStorage.getItem("tss") || "null");
       if (!o) return;
       IDS.forEach(function (i) {
         if (o[i] === undefined || o[i] === "") return;
@@ -244,17 +232,13 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
       });
     } catch (e) {}
   }
-  function fail(msg) {
-    $("pace").textContent = "-"; $("unit").textContent = ""; $("split").textContent = "";
-    var err = $("err"); err.hidden = false; err.textContent = msg;
-  }
 
   function update() {
     var race = $("mode").value === "race";
     $("thrwrap").hidden = race;
     $("distwrap").hidden = !race;
     $("timewrap").hidden = !race;
-    $("err").hidden = true;
+    var err = $("err"); err.hidden = true;
     var tn = $("thrnote");
 
     var thr;
@@ -270,32 +254,36 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
       thr = parseTime($("thr").value);
       tn.hidden = true;
     }
-    var target = parseFloat($("target").value), emin = parseFloat($("emin").value);
-    var wmin = parseFloat($("wmin").value), wp = parseTime($("wpace").value);
-    wmin = isNaN(wmin) ? 0 : wmin;
-    var MINP = 120, MAXP = 900;
+    var wmin = parseFloat($("wmin").value), emin = parseFloat($("emin").value);
+    var wp = parseTime($("wpace").value), ep = parseTime($("epace").value);
+    wmin = isNaN(wmin) ? 0 : wmin; emin = isNaN(emin) ? 0 : emin;
 
-    if (!thr || thr <= 0) return fail(race ? "Enter a race time like 18:54 or 1854." : "Enter a threshold pace like 4:15 or 415.");
-    if (thr < 150 || thr > 480) return fail("Threshold pace should be between 2:30 and 8:00 per km.");
-    if (!(target > 0) || target > 600) return fail("Enter a target between 1 and 600 TSS.");
-    if (!(emin > 0) || emin > 480) return fail("Enter between 1 and 480 minutes for the workout efforts.");
-    if (wmin < 0 || wmin > 480) return fail("Warm-up and cool-down minutes should be between 0 and 480.");
-    if (wmin > 0 && (!wp || wp < MINP || wp > MAXP)) return fail("Warm-up and cool-down pace should be between 2:00 and 15:00 per km.");
+    var problem = null;
+    var MINP = 120, MAXP = 900;                          // plausible paces: 2:00 to 15:00 per km
+    var bad = function (p) { return !p || p < MINP || p > MAXP; };
+    if (!thr || thr <= 0) problem = race ? "Enter a race time like 18:54 or 1854." : "Enter a threshold pace like 4:15 or 415.";
+    else if (thr < 150 || thr > 480) problem = "Threshold pace should be between 2:30 and 8:00 per km.";
+    else if (wmin < 0 || emin < 0 || wmin > 480 || emin > 480) problem = "Minutes should be between 0 and 480.";
+    else if (wmin > 0 && bad(wp)) problem = "Warm-up and cool-down pace should be between 2:00 and 15:00 per km.";
+    else if (emin > 0 && bad(ep)) problem = "Effort pace should be between 2:00 and 15:00 per km.";
+    else if (wmin <= 0 && emin <= 0) problem = "Enter minutes for at least one part of the session.";
 
-    var totalH = (wmin + emin) / 60;
-    if (target / totalH > MAX_RATE) return fail("A target of " + Math.round(target) + " TSS over " + Math.round(wmin + emin) + " minutes is " + Math.round(target / totalH) + " per hour. Above " + MAX_RATE + " per hour is not realistic, so lower the target or lengthen the session.");
-
-    var wTss = wmin > 0 ? (wmin / 60) * Math.pow(thr / wp, 2) * 100 : 0;
-    var rest = target - wTss;
-    if (rest <= 0) return fail("The warm-up and cool-down alone score " + Math.round(wTss) + " TSS, which already reaches the target. Shorten them or raise the target.");
-
-    var q = Math.sqrt(rest * 60 / (emin * 100));          // effort speed as a fraction of threshold speed
-    var pace = thr / q;
-    if (pace < MINP || pace > MAXP) return fail("That target needs an effort pace of " + mmss(pace) + " per km, which is not realistic. Adjust the target or the minutes.");
-
-    $("pace").textContent = mmss(pace);
-    $("unit").textContent = "/km";
-    $("split").textContent = (Math.round(3600 / pace * 10) / 10).toFixed(1) + "km/h · " + Math.round(q * 100) + "% of threshold speed · efforts " + Math.round(rest) + " TSS, warm-up and cool-down " + Math.round(wTss);
+    if (problem) {
+      $("tss").textContent = "-"; $("split").textContent = "";
+      err.hidden = false; err.textContent = problem;
+      return;
+    }
+    var part = function (m, p) { return m > 0 ? (m / 60) * Math.pow(thr / p, 2) * 100 : 0; };
+    var a = part(wmin, wp), b = part(emin, ep);
+    var perHour = (a + b) / ((wmin + emin) / 60);
+    if (perHour > MAX_RATE) {
+      $("tss").textContent = "-"; $("split").textContent = "";
+      err.hidden = false; err.textContent = "This session works out to " + Math.round(perHour) + " TSS per hour. Above " + MAX_RATE + " per hour is not realistic, so check the paces and minutes.";
+      return;
+    }
+    var ra = Math.round(a), rb = Math.round(b);   // total is the sum of the rounded parts so the line adds up
+    $("tss").textContent = String(ra + rb);
+    $("split").textContent = "Warm-up and cool-down " + ra + " · efforts " + rb;
   }
 
   // Phone keypads often have no colon. Digits only are read from the right: 3943 = 39:43, 12010 = 1:20:10, 415 = 4:15.

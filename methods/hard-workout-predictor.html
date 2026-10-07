@@ -90,16 +90,16 @@ a { color:var(--accent); }
 <td>Author's anchor</td>
 </tr>
 <tr>
-<td>Typical rep counts: 400m 9 (author: 8–10), 600m 6, 800m 6, 1000m 6, 1200m 5, 1600m 4, 2000m 3, 3000m 3, 5000m 5 (3×5km is too little volume for a marathon prediction); interpolated for other rep lengths</td>
+<td>Typical rep counts: 400m 9 (author: 8–10), 600m 6, 800m 6, 1000m 6, 1200m 4, 1600m 4, 2000m 3, 3000m 3, 5000m 5 (3×5km is too little volume for a marathon prediction); interpolated for other rep lengths</td>
 <td>400m from the author; the rest are my placeholders</td>
 </tr>
 <tr>
-<td>Volume scaling: pace multiplied by (typical total work / your total work)^0.06</td>
-<td>My choice: the race model's Riegel exponent. Probably too steep for intervals; to be tested</td>
+<td>Volume slide: the race the reps equal is the anchor race distance × (reps / typical reps)^1.25 above the typical count and ^0.8 below it. Examples: 5×400m ≈ 1.0k pace, 18×400m ≈ 3.8k, 2×2000m ≈ 7.2k, 10×1.2km ≈ 15.7k, 3×5km ≈ 28k</td>
+<td>Exponents are my choice, fitted to the author's examples (5×400m closer to 1000–1200m pace than 800m, 18×400m at 3–5k, 2×2000m at 6–8k, 10×1.2km at 15k to HM). Where two distances fit, the shorter, rounder one was preferred so the tool does not over-predict</td>
 </tr>
 <tr>
-<td>Supported rep counts: 400m 5–18, 600m 3–12, 800m 3–12, 1000m 3–12, 1200m 3–10, 1600m 2–8, 2000m 2–6, 3000m 2–6, 5000m 3–5; interpolated</td>
-<td>My placeholders (about half to double the typical count, except 5000m, which is the author's range: more than 5 reps at marathon pace is too much)</td>
+<td>Limits: total work up to 25km, and an equivalent race between 400m and the marathon</td>
+<td>My placeholders; replace the per-rep-length rep ranges of the first version</td>
 </tr>
 <tr>
 <td>Anchors apply at RPE 8–8.5 and standard rest</td>
