@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
+<title>Classic Session Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+/* Layout: race result and workout choice on top, session table and totals below. Same track-red system as the other running tools. */
+:root {
+  --bg: #f2f2f1;
+  --surface: #ffffff;
+  --surface-2: #f0f0ee;
+  --fg: #17181a;
+  --muted: #6a6d72;
+  --line: #deded9;
+  --accent: #c8372d;
+  --accent-fg: #ffffff;
+  --accent-soft: #f6dcd9;
+  --warn: #a35a00;
+  --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+    --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+  --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 20px; }
+.wrap > * { min-width: 0; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 2rem; letter-spacing: .02em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 12px; color: var(--muted); }
+.head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.themes { display: inline-flex; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; background: var(--surface); }
+.themes button { font: inherit; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: transparent; border: 0; padding: 7px 12px; cursor: pointer; }
+.themes button + button { border-left: 1px solid var(--line); }
+.themes button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.themes button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 62ch; }
+.top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 720px) { .top { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; display: grid; gap: 14px; align-content: start; }
+.panel h2 { margin: 0; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: end; }
+.fields .full { grid-column: 1 / -1; }
+label { display: grid; gap: 4px; align-content: start; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+input, select { box-sizing: border-box; height: 2.75rem; font: inherit; font-size: 1.05rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 0 10px; width: 100%; min-width: 0; }
+input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+label.chk { display: flex; align-items: center; gap: 10px; min-height: 2.75rem; text-transform: none; letter-spacing: 0; font-size: .95rem; font-weight: 500; color: var(--fg); }
+label.chk input { width: 1.2rem; height: 1.2rem; accent-color: var(--accent); }
+.note { font-size: .85rem; color: var(--muted); margin: 0; }
+.warn { color: var(--warn); font-size: .88rem; margin: 0; }
+.res { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 600px) { .res { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.res div { background: var(--surface-2); border-radius: 2px; padding: 10px 12px; min-width: 0; }
+.res b { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.res b.pace { color: var(--accent); }
+.res .handoff { display: block; margin-top: 8px; font-size: .8rem; font-weight: 600; color: var(--accent); }
+.res span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.res small { display: block; font-size: .78rem; color: var(--muted); margin-top: 2px; }
+.struct { margin: 0; font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; letter-spacing: .02em; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.pace { font-weight: 600; white-space: nowrap; }
+tr.hard td:first-child { border-left: 3px solid var(--accent); padding-left: 8px; }
+tr.easy td:first-child { padding-left: 11px; }
+.notes { display: grid; gap: 6px; }
+.method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
+.method ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.method b { color: var(--fg); font-weight: 600; }
+</style>
+
+<main class="wrap">
+  <p class="sitenav"><a href="index.html">&larr; All tools</a></p>
+  <header class="head">
+    <div>
+      <h1>Classic Session Generator</h1>
+      <p class="sub">Enter a race result and pick a workout. Get the pace for each part of a traditional session.</p>
+    </div>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <section class="top">
+    <div class="panel">
+      <h2>Race result</h2>
+      <div class="fields">
+        <label>Distance
+          <select id="dist">
+            <option value="1.5">1500m</option>
+            <option value="1.609344">Mile</option>
+            <option value="3">3km</option>
+            <option value="5" selected>5km</option>
+            <option value="10">10km</option>
+            <option value="21.0975">Half marathon</option>
+          </select>
+        </label>
+        <label>Time
+          <input id="time" type="text" inputmode="numeric" autocomplete="off" value="20:00" placeholder="39:43 or 3943">
+        </label>
+        <label>Weekly distance
+          <input id="week" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="optional, e.g. 70">
+        </label>
+        <label>Unit
+          <select id="wunit">
+            <option value="km" selected>km</option>
+            <option value="mi">miles</option>
+          </select>
+        </label>
+      </div>
+      <p class="note">Weekly distance sets the marathon pace. Blank assumes 70 miles a week.</p>
+    </div>
+    <div class="panel">
+      <h2>Workout</h2>
+      <div class="fields">
+        <label class="full">Session
+          <select id="workout"></select>
+        </label>
+      </div>
+      <div class="fields" id="opts"></div>
+      <div class="fields">
+        <label>Warm-up (min)
+          <input id="wu" type="text" inputmode="decimal" autocomplete="off" value="10">
+        </label>
+        <label>Cool-down (min)
+          <input id="cd" type="text" inputmode="decimal" autocomplete="off" value="10">
+        </label>
+        <label class="full">Easy pace /km
+          <input id="wcp" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="-">
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <p class="warn" id="err" hidden></p>
+
+  <section id="resbox">
+    <h2 id="wname">Session</h2>
+    <div class="panel">
+      <p class="struct" id="struct"></p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Part</th><th>Reps</th><th>Length</th><th>Pace /km</th><th id="eqh">Equivalent</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="res">
+        <div><span>TSS</span><b class="pace" id="o-tss">-</b><small id="o-tss-s"></small><a id="toplanner" class="handoff" href="#" hidden>Add to Run Load Planner &rarr;</a></div>
+        <div><span>Total time</span><b id="o-time">-</b></div>
+        <div><span>Total distance</span><b id="o-dist">-</b></div>
+        <div><span>Main set</span><b id="o-main">-</b><small id="o-main-s"></small></div>
+        <div><span>Threshold pace /km</span><b id="o-thr">-</b></div>
+        <div><span>VDOT (equivalent)</span><b id="o-vdot">-</b></div>
+      </div>
+      <div class="tablewrap" id="scale" hidden>
+        <table>
+          <thead><tr><th>Tempo length</th><th>Pace /km</th><th>Distance</th></tr></thead>
+          <tbody id="scalerows"></tbody>
+        </table>
+      </div>
+      <div class="notes" id="notes"></div>
+    </div>
+  </section>
+
+  <section class="method">
+    <h2>How this is calculated</h2>
+    <ul>
+      <li><b>Pace base.</b> The same model as the Race Prediction Calculator: Riegel (time × distance ratio ^ 1.06), a slow-down for results under 5km, and a marathon slow-down that depends on weekly distance. Paces are named for the race distance they match, such as 5k pace: the predicted race pace over that distance. M pace is marathon pace.</li>
+      <li><b>Tempo.</b> 20 minutes runs at threshold, the predicted 16km pace. Longer tempos slow down by 4.9% × ln(minutes ÷ 20), never slower than marathon pace, up to 60 minutes. The scale is a fit to a Daniels-style table you supplied (+1.2% at 25 minutes, +5.3% at 60). I have not seen the source of that table.</li>
+      <li><b>Ladder.</b> The 5, 4, 3, 2 and 1 minute reps run at 10k, 5k, 3k, 2k and 1500m pace. The jog between reps is 90s by default.</li>
+      <li><b>Aussie quarters.</b> 400m at 4k pace, then 200m floated at M pace to 3% faster, repeated with no stop. Eight reps is 4.8km, 5km with an opening 200m float.</li>
+      <li><b>Mona fartlek.</b> 2×90s, 4×60s, 4×30s and 4×15s, each followed by a float of the same length, as in Nate Jenkins' article on the Moneghetti fartlek. Efforts run at 5k, 4k, 3k and mile pace. The article says about 5k effort for the 90s, getting faster as reps shorten. Floats run at 85% of 5km speed (my choice), about 5s/km slower than marathon pace for an 18:24 runner. The article calls them a quick jog.</li>
+      <li><b>Yasso 800s.</b> 800m at 5k pace with a jog of the same time. The old rule (800m time in minutes:seconds = marathon time in hours:minutes) is shown for comparison only.</li>
+      <li><b>Rosario 800s.</b> 800m at 5k pace with an 800m float at 5k pace plus 25s per 800m, which is about +31s/km.</li>
+      <li><b>1km repeats, mile repeats, 30/30.</b> 1km at 4.5k pace, 1 mile at 10k pace, and 30s at 3k pace with a 30s jog.</li>
+      <li><b>Marathon-pace long run.</b> Easy running first, then the chosen distance at marathon pace.</li>
+      <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Warm-up, cool-down and jogs run at 62.5% of 5km speed unless you change the pace.</li>
+      <li>The paces are my choices from your descriptions, not published prescriptions. This page does not apply weekly-volume limits. Check the numbers against heart rate or feel.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var K = 1.06, HM = 21.0975, MAR = 42.195, MILE = 1.609344;
+  // Slowing applied to the 5km equivalent when the input race is shorter than 5km, in s/km (my estimate).
+  function adj(km) { return km < 5 ? 8 * Math.log(5 / km) : 0; }
+  // Marathon slow-down beyond the half marathon, in s/km at the marathon (my estimate, see the Race Prediction Calculator notes).
+  // The marathon is set to 2 x half marathon + X minutes, where X is 7 min at 80 miles a week, 10 at 70, 13 at 60, 17 at 50 and 25 at 35 (linear between, flat outside).
+  // With no weekly distance, 70 miles a week is assumed.
+  var offM = 5;
+  function off(km) { return km <= HM ? 0 : offM * (Math.min(km, MAR) - HM) / (MAR - HM); }
+  function marathonExtraMin(weekKm) {
+    var mi = weekKm / 1.609344;
+    var P = [[80, 7], [70, 10], [60, 13], [50, 17], [35, 25]];   // [miles per week, minutes added to 2 x half marathon]
+    if (mi >= P[0][0]) return P[0][1];
+    for (var i = 1; i < P.length; i++) {
+      if (mi >= P[i][0]) { var f = (P[i - 1][0] - mi) / (P[i - 1][0] - P[i][0]); return P[i - 1][1] + f * (P[i][1] - P[i - 1][1]); }
+    }
+    return P[P.length - 1][1];
+  }
+  function marathonOff(p5r, weekKm) {
+    if (weekKm === null) weekKm = 70 * 1.609344;
+    var H0 = p5r * Math.pow(HM / 5, K - 1) * HM, M0 = p5r * Math.pow(MAR / 5, K - 1) * MAR;
+    return Math.max(0, (marathonExtraMin(weekKm) * 60 - (M0 - 2 * H0)) / MAR);
+  }
+  function vdot(min, m) {
+    var v = m / min;
+    var vo2 = -4.60 + 0.182258 * v + 0.000104 * v * v;
+    var pct = 0.8 + 0.1894393 * Math.exp(-0.012778 * min) + 0.2989558 * Math.exp(-0.1932605 * min);
+    return vo2 / pct;
+  }
+  var VDOT_MIN = 15, VDOT_MAX = 85;
+  // Tempo slows by this fraction per ln(minutes / 20) beyond 20 minutes. Least-squares fit to a Daniels-style table supplied by the author (20 to 60 min in 5 min steps).
+  var TEMPO_SLOW = 0.049;
+
+  function parseTime(str) {
+    str = (str || "").trim();
+    if (!str) return null;
+    if (/^\d{3,6}$/.test(str)) {                                       // digits only: read from the right
+      var sec = str.slice(-2), rest = str.slice(0, -2);
+      if (Number(sec) >= 60) return null;
+      if (rest.length > 2) { if (Number(rest.slice(-2)) >= 60) return null; str = rest.slice(0, -2) + ":" + rest.slice(-2) + ":" + sec; }
+      else str = rest + ":" + sec;
+    }
+    var parts = str.split(":");
+    if (parts.length > 3) return null;
+    var nums = parts.map(function (p) { return p === "" ? NaN : Number(p); });
+    if (nums.some(function (x) { return isNaN(x) || x < 0; })) return null;
+    if (parts.length === 1) return nums[0] * 60;
+    if (parts.length === 2) return nums[0] * 60 + nums[1];
+    return nums[0] * 3600 + nums[1] * 60 + nums[2];
+  }
+  function pn(km) { return Math.abs(km - MILE) < 0.01 ? "mile pace" : km < 2 ? Math.round(km * 1000) + "m pace" : km + "k pace"; }
+  function mmss(sec) {
+    sec = Math.round(sec);
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+  function hmmss(sec) {
+    sec = Math.round(sec);
+    var h = Math.floor(sec / 3600), r = sec - h * 3600;
+    return h > 0 ? h + ":" + (Math.floor(r / 60) < 10 ? "0" : "") + mmss(r) : mmss(r);
+  }
+  function rangeText(a, b) { return a === b ? a : a + "–" + b; }
+  function distLabel(m) { return m < 1000 ? Math.round(m) + "m" : (Math.round(m / 10) / 100).toString() + "km"; }
+  function secLabel(s) { return s >= 120 && s % 60 === 0 ? (s / 60) + " min" : s < 120 ? s + "s" : mmss(s); }
+  function round10(x) { return Math.round(x / 10) * 10; }
+
+  // Shared race result for all pages on the same site (browser storage; does not sync between devices).
+  var SITE = true;                                    // set to true in the hosted site build, where the planner page sits next to this one
+  function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
+  function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
+
+  // Workouts. Options: num (whole number if int), select, check.
+  var WORKOUTS = [
+    { key: "tempo", name: "Continuous tempo", opts: [{ id: "min", label: "Minutes", def: 20, min: 20, max: 60, int: true }] },
+    { key: "ladder", name: "Ladder 5-4-3-2-1 min", opts: [
+      { id: "order", type: "select", label: "Order", choices: [["down", "5-4-3-2-1"], ["up", "1-2-3-4-5"]] },
+      { id: "jog", label: "Jog between (s)", def: 90, min: 30, max: 300, int: true }] },
+    { key: "aussie", name: "Aussie quarters", opts: [
+      { id: "reps", label: "Reps of 600m", def: 8, min: 4, max: 12, int: true },
+      { id: "start", type: "check", label: "Start with a 200m float" }] },
+    { key: "mona", name: "Mona fartlek", opts: [] },
+    { key: "yasso", name: "Yasso 800s", opts: [{ id: "reps", label: "Reps", def: 10, min: 4, max: 12, int: true }] },
+    { key: "rosario", name: "Rosario 800s", opts: [{ id: "reps", label: "Reps", def: 4, min: 2, max: 12, int: true }] },
+    { key: "k1", name: "1km repeats", opts: [
+      { id: "reps", label: "Reps", def: 5, min: 3, max: 8, int: true },
+      { id: "rest", label: "Jog between (s)", def: 105, min: 60, max: 300, int: true }] },
+    { key: "mile", name: "Mile repeats", opts: [
+      { id: "reps", label: "Reps", def: 4, min: 3, max: 6, int: true },
+      { id: "rest", label: "Jog between (s)", def: 135, min: 60, max: 300, int: true }] },
+    { key: "thirty", name: "30/30", opts: [{ id: "reps", label: "Reps", def: 16, min: 10, max: 24, int: true }] },
+    { key: "mplr", name: "Marathon-pace long run", nowu: true, opts: [
+      { id: "total", label: "Run distance (km)", def: 24, min: 12, max: 42 },
+      { id: "mp", label: "At marathon pace (km)", def: 12, min: 4, max: 30 }] }
+  ];
+  var optVals = {};
+  function curWorkout() { var k = $("workout").value; return WORKOUTS.filter(function (w) { return w.key === k; })[0] || WORKOUTS[0]; }
+  (function build() {
+    WORKOUTS.forEach(function (w) { $("workout").insertAdjacentHTML("beforeend", '<option value="' + w.key + '">' + w.name + "</option>"); });
+  })();
+  function renderOpts() {
+    var w = curWorkout(), box = $("opts"), html = "";
+    optVals[w.key] = optVals[w.key] || {};
+    w.opts.forEach(function (o) {
+      var id = "opt_" + o.id, v = optVals[w.key][o.id];
+      if (o.type === "select") {
+        html += '<label>' + o.label + '<select id="' + id + '">' + o.choices.map(function (c) { return '<option value="' + c[0] + '"' + (v === c[0] ? " selected" : "") + ">" + c[1] + "</option>"; }).join("") + "</select></label>";
+      } else if (o.type === "check") {
+        html += '<label class="chk full"><input id="' + id + '" type="checkbox"' + (v ? " checked" : "") + "> " + o.label + "</label>";
+      } else {
+        html += '<label>' + o.label + '<input id="' + id + '" type="text" inputmode="decimal" autocomplete="off" value="' + (v !== undefined ? v : "") + '" placeholder="' + o.def + '"></label>';
+      }
+    });
+    box.innerHTML = html;
+    box.hidden = !w.opts.length;
+    $("wu").disabled = $("cd").disabled = !!w.nowu;
+    w.opts.forEach(function (o) {
+      var el = $("opt_" + o.id);
+      var h = function () { optVals[w.key][o.id] = o.type === "check" ? el.checked : el.value; update(); };
+      el.addEventListener("input", h); el.addEventListener("change", h);
+    });
+  }
+
+  function fail(msg) {
+    $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true;
+  }
+  function optNum(w, o) {
+    var raw = ((optVals[w.key] || {})[o.id] || "").toString().trim().replace(",", ".");
+    if (raw === "") return o.def;
+    var v = Number(raw);
+    if (!isFinite(v) || v < o.min || v > o.max || (o.int && Math.floor(v) !== v)) throw new Error(o.label + " must be " + (o.int ? "a whole number" : "a number") + " from " + o.min + " to " + o.max + ", or blank for " + o.def + ".");
+    return v;
+  }
+
+  function update() {
+    $("err").hidden = true;
+    var w = curWorkout();
+    var D = parseFloat($("dist").value), t = parseTime($("time").value);
+    if (t === null || t <= 0) return fail("Enter a race time like 18:54, 1854 or 1:32:10.");
+    var vd = vdot(t / 60, D * 1000);
+    if (vd < VDOT_MIN || vd > VDOT_MAX) return fail("That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of " + VDOT_MIN + " to " + VDOT_MAX + ". Check the distance and time.");
+    var riegel5 = t * Math.pow(5 / D, K) / 5;
+    var p5 = riegel5 + adj(D);
+    var wkTxt = ($("week").value || "").trim(), weekKm = null;
+    if (wkTxt !== "") {
+      var wv = Number(wkTxt.replace(",", "."));
+      if (!isFinite(wv) || wv <= 0) return fail("Enter weekly distance as a number, or leave it blank.");
+      weekKm = $("wunit").value === "mi" ? wv * MILE : wv;
+      if (weekKm < 30 || weekKm > 300) return fail("Weekly distance should be between 30km (19 miles) and 300km (186 miles). Check the number and unit.");
+    }
+    offM = marathonOff(riegel5, weekKm);
+    var raceP = function (km) { return (p5 - adj(km)) * Math.pow(km / 5, K - 1) + off(km) - off(D); };
+    var thr = raceP(16), p5e = raceP(5), mp = raceP(MAR);
+    var mpFl = p5 * Math.pow(MAR / 5, K - 1) + marathonOff(riegel5, null) - off(D), mpFast = mpFl * 0.97;   // float pace ignores weekly distance (70-mile default)
+    var wcSug = p5e / 0.625;
+    $("wcp").placeholder = mmss(wcSug);
+    var wcPace = wcSug, wcTxt = ($("wcp").value || "").trim();
+    if (wcTxt !== "") {
+      wcPace = parseTime(wcTxt);
+      if (wcPace === null || wcPace < 120 || wcPace > 900) return fail("Enter the warm-up and jog pace like 6:30, between 2:00 and 15:00 per km, or leave it blank.");
+    }
+    var wuMin = 0, cdMin = 0;
+    if (!w.nowu) {
+      var wuT = ($("wu").value || "").trim(), cdT = ($("cd").value || "").trim();
+      wuMin = Number(wuT.replace(",", ".")); cdMin = Number(cdT.replace(",", "."));
+      if (wuT === "" || cdT === "" || !isFinite(wuMin) || !isFinite(cdMin) || wuMin < 0 || cdMin < 0 || wuMin > 60 || cdMin > 60) return fail("Enter warm-up and cool-down as minutes from 0 to 60.");
+    }
+    var o = {};
+    try { w.opts.forEach(function (op) { if (op.type === "select") o[op.id] = ($("opt_" + op.id) || {}).value; else if (op.type === "check") o[op.id] = !!($("opt_" + op.id) || {}).checked; else o[op.id] = optNum(w, op); }); }
+    catch (e) { return fail(e.message); }
+
+    // Segments
+    var rows = [], T = 0, Dm = 0, TSS = 0, mainT = 0, mainD = 0, notes = [];
+    function add(label, reps, spec, pf, ps, cls, main) {
+      if (reps < 1) return;
+      var pm = (pf + ps) / 2, tMid, dMid, len, eq;
+      if (spec.m != null) { dMid = spec.m; tMid = spec.m / 1000 * pm; len = distLabel(spec.m); eq = rangeText(hmmss(spec.m / 1000 * pf), hmmss(spec.m / 1000 * ps)); }
+      else { tMid = spec.s; dMid = spec.s / pm * 1000; len = secLabel(spec.s); eq = "ca. " + distLabel(round10(dMid)); }
+      T += reps * tMid; Dm += reps * dMid; TSS += reps * tMid / 3600 * Math.pow(thr / pm, 2) * 100;
+      if (main) { mainT += reps * tMid; mainD += reps * dMid; }
+      rows.push('<tr class="' + cls + '"><td>' + label + "</td><td>" + reps + "</td><td>" + len + '</td><td class="pace">' + rangeText(mmss(pf), mmss(ps)) + "</td><td>" + eq + "</td></tr>");
+    }
+    var struct = "", mpNote = false, scaleHtml = "";
+    function tempoPace(min) { return Math.min(thr * (1 + TEMPO_SLOW * Math.log(min / 20)), Math.max(mp, thr)); }
+    if (wuMin + cdMin > 0) {
+      var wcT = (wuMin + cdMin) * 60;
+      T += wcT; Dm += wcT / wcPace * 1000; TSS += wcT / 3600 * Math.pow(thr / wcPace, 2) * 100;
+      rows.push('<tr class="easy"><td>Warm-up and cool-down</td><td>1</td><td>' + (wuMin === cdMin ? wuMin + " + " + cdMin : wuMin + " + " + cdMin) + ' min</td><td class="pace">' + mmss(wcPace) + "</td><td>ca. " + distLabel(round10(wcT / wcPace * 1000)) + "</td></tr>");
+    }
+
+    if (w.key === "tempo") {
+      var tp = tempoPace(o.min);
+      struct = o.min + " min continuous" + (o.min > 20 ? ", slowed from threshold" : " at threshold");
+      add("Tempo", 1, { s: o.min * 60 }, tp, tp, "hard", true);
+      var slow = (tp / thr - 1) * 100;
+      notes.push(o.min === 20 ? "20 minutes runs at threshold, the predicted 16km pace." : "Pace is " + (Math.round(slow * 10) / 10) + "% slower than threshold (" + mmss(thr) + ") because the tempo is longer than 20 minutes" + (tp >= mp - 0.5 ? ", and is capped at marathon pace" : "") + ". Tempo time is capped at 60 minutes.");
+      var sc = "";
+      for (var mi = 20; mi <= 60; mi += 5) { var pp = tempoPace(mi); sc += "<tr" + (mi === o.min ? ' class="hard"' : "") + "><td>" + mi + " min</td><td class=\"pace\">" + mmss(pp) + "</td><td>" + distLabel(round10(mi * 60 / pp * 1000)) + "</td></tr>"; }
+      scaleHtml = sc;
+    } else if (w.key === "ladder") {
+      var rungs = [[300, 10], [240, 5], [180, 3], [120, 2], [60, 1.5]];
+      if (o.order === "up") rungs.reverse();
+      struct = rungs.map(function (r) { return r[0] / 60; }).join("-") + " min, " + o.jog + "s jog between";
+      rungs.forEach(function (r) { var p = raceP(r[1]); add(r[0] / 60 + " min at " + pn(r[1]), 1, { s: r[0] }, p, p, "hard", true); });
+      add("Jog", 4, { s: o.jog }, wcPace, wcPace, "easy", true);
+    } else if (w.key === "aussie") {
+      var ph = raceP(4);
+      struct = o.reps + " × (400m + 200m float), continuous" + (o.start ? ", 200m float first" : "");
+      if (o.start) add("Opening float at M pace", 1, { m: 200 }, mpFast, mpFl, "easy", true);
+      add("Hard 400m at 4k pace", o.reps, { m: 400 }, ph, ph, "hard", true);
+      add("Float 200m at M pace", o.reps, { m: 200 }, mpFast, mpFl, "easy", true);
+      notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ".");
+    } else if (w.key === "mona") {
+      struct = "2×90s, 4×60s, 4×30s, 4×15s, equal-time floats";
+      var pq = p5 / 0.85;   // float: 85% of 5km speed
+      [[90, 2, 5], [60, 4, 4], [30, 4, 3], [15, 4, MILE]].forEach(function (g) {
+        var pe = raceP(g[2]);
+        add(g[0] + "s at " + pn(g[2]), g[1], { s: g[0] }, pe, pe, "hard", true);
+        add(g[0] + "s float", g[1], { s: g[0] }, pq, pq, "easy", true);
+      });
+      notes.push("Total 20 min: 10 min of efforts and 10 min of floats, at 85% of 5km speed (the article calls them a quick jog). The structure and the effort guidance are from Nate Jenkins' article on the Moneghetti fartlek. The paces are my choices.");
+    } else if (w.key === "yasso") {
+      var py = raceP(5), rep800 = 0.8 * py;
+      struct = o.reps + " × 800m, jog the same time between";
+      add("800m at 5k pace", o.reps, { m: 800 }, py, py, "hard", true);
+      add("Jog (same time as the rep)", o.reps - 1, { s: Math.round(rep800) }, wcPace, wcPace, "easy", true);
+      var folk = Math.round(rep800) * 60, pred = mp * MAR, diff = pred - folk;
+      notes.push("Old rule: " + mmss(rep800) + " per 800m means a " + hmmss(folk) + " marathon. Predicted: " + hmmss(pred) + ", " + mmss(Math.abs(diff)) + (diff >= 0 ? " slower" : " faster") + ".");
+    } else if (w.key === "rosario") {
+      var pr = raceP(5), pf2 = pr + 25 / 0.8;
+      struct = o.reps + " × (800m + 800m float), continuous";
+      add("800m at 5k pace", o.reps, { m: 800 }, pr, pr, "hard", true);
+      add("Float 800m", o.reps, { m: 800 }, pf2, pf2, "easy", true);
+      var dd = pf2 - mp;
+      notes.push("Float: " + mmss(pf2) + "/km, " + Math.round(Math.abs(dd)) + "s/km " + (dd >= 0 ? "slower" : "faster") + " than predicted marathon pace (" + mmss(mp) + ").");
+    } else if (w.key === "k1") {
+      struct = o.reps + " × 1km, " + o.rest + "s jog between";
+      add("1km at 4.5k pace", o.reps, { m: 1000 }, raceP(4.5), raceP(4.5), "hard", true);
+      add("Jog", o.reps - 1, { s: o.rest }, wcPace, wcPace, "easy", true);
+    } else if (w.key === "mile") {
+      var pmi = raceP(10);
+      struct = o.reps + " × 1 mile, " + o.rest + "s jog between";
+      add("1 mile at 10k pace", o.reps, { m: 1609.344 }, pmi, pmi, "hard", true);
+      add("Jog", o.reps - 1, { s: o.rest }, wcPace, wcPace, "easy", true);
+    } else if (w.key === "thirty") {
+      var p3 = raceP(3);
+      struct = o.reps + " × (30s hard + 30s jog)";
+      add("30s at 3k pace", o.reps, { s: 30 }, p3, p3, "hard", true);
+      add("Jog", o.reps - 1, { s: 30 }, wcPace, wcPace, "easy", true);
+    } else if (w.key === "mplr") {
+      if (o.mp > o.total) return fail("The marathon-pace distance can't be longer than the run.");
+      struct = distLabel(o.total * 1000 - o.mp * 1000) + " easy, then " + distLabel(o.mp * 1000) + " at marathon pace";
+      add("Easy", 1, { m: (o.total - o.mp) * 1000 }, wcPace, wcPace, "easy", true);
+      add("Marathon pace", 1, { m: o.mp * 1000 }, mp, mp, "hard", true);
+      mpNote = true;
+    }
+    if (mpNote && weekKm === null) notes.push("Marathon pace assumes 70 miles a week. Enter your weekly distance to change it.");
+    if (mpNote) notes.push("Predicted marathon pace: " + mmss(mp) + " per km.");
+
+    $("wname").textContent = w.name;
+    $("struct").textContent = struct;
+    $("rows").innerHTML = rows.join("");
+    $("o-tss").textContent = String(Math.round(TSS));
+    $("o-tss-s").textContent = "";
+    var tp = $("toplanner"); tp.hidden = !SITE; tp.href = "run-load-planner.html?tss=" + Math.round(TSS) + "&name=" + encodeURIComponent(w.name);
+    $("o-time").textContent = hmmss(T);
+    $("o-dist").textContent = distLabel(Dm);
+    $("o-main").textContent = hmmss(mainT);
+    $("o-main-s").textContent = distLabel(mainD);
+    $("o-thr").textContent = mmss(thr);
+    $("o-vdot").textContent = vdot(p5e * 5 / 60, 5000).toFixed(1);
+    $("scale").hidden = !scaleHtml;
+    $("scalerows").innerHTML = scaleHtml;
+    $("notes").innerHTML = notes.map(function (n) { return '<p class="note">' + n + "</p>"; }).join("");
+    $("resbox").hidden = false;
+  }
+
+  function save() {
+    try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {}
+    try { localStorage.setItem("csg", JSON.stringify({ w: $("workout").value, wu: $("wu").value, cd: $("cd").value, p: $("wcp").value })); } catch (e) {}
+  }
+  function restore() {
+    try {
+      var s = JSON.parse(localStorage.getItem("csg") || "null");
+      if (s) {
+        if (WORKOUTS.some(function (w) { return w.key === s.w; })) $("workout").value = s.w;
+        if (typeof s.wu === "string" && s.wu) $("wu").value = s.wu;
+        if (typeof s.cd === "string" && s.cd) $("cd").value = s.cd;
+        if (typeof s.p === "string") $("wcp").value = s.p;
+      }
+    } catch (e) {}
+    var pr = profGet();
+    if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km;
+    if (pr.time) $("time").value = pr.time;
+    if (typeof pr.week === "string") $("week").value = pr.week;
+    if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit;
+  }
+
+  // Phone keypads often have no colon. Digits only are read from the right: 3943 = 39:43, 12010 = 1:20:10, 415 = 4:15.
+  (function () {
+    function norm(t) { var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.round(t % 60); return (h ? h + ":" + (m < 10 ? "0" : "") + m : m) + ":" + (s < 10 ? "0" : "") + s; }
+    ["time", "wcp"].forEach(function (id) {
+      var el = $(id);
+      el.addEventListener("change", function () {
+        if (!/^\d{3,6}$/.test(el.value.trim())) return;
+        var t = parseTime(el.value);
+        if (t !== null) { el.value = norm(t); el.dispatchEvent(new Event("input", { bubbles: true })); }
+      });
+    });
+  })();
+
+  restore();
+  renderOpts();
+  ["dist", "time", "week", "wunit", "wu", "cd", "wcp"].forEach(function (id) {
+    $(id).addEventListener("input", function () { save(); update(); });
+    $(id).addEventListener("change", function () { save(); update(); });
+  });
+  $("workout").addEventListener("change", function () { save(); renderOpts(); update(); });
+  update();
+})();
+
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var t = b.getAttribute("data-theme-set");
+      apply(t);
+      try { localStorage.setItem("theme-pref", t); } catch (e) {}
+    });
+  });
+})();
+</script>

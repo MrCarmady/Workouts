@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sub-Threshold Session Generator: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
+.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
+.themes button + button { border-left:1px solid var(--line); }
+.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../run-session-generator.html">Open Sub-Threshold Session Generator</a></nav>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+  <article class="doc">
+<h1>Sub-Threshold Session Generator: methodology</h1>
+<p>Takes a recent race result and a rep length (a time or a distance) and returns the rep pace, recovery and suggested rep count, with an optional treadmill-incline adjustment.</p>
+<h2>What is published and what is an estimate</h2>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Riegel race-time formula (exponent 1.06)</td>
+<td>Published</td>
+</tr>
+<tr>
+<td>ACSM running equation (treadmill mode)</td>
+<td>Published</td>
+</tr>
+<tr>
+<td>Rep length → race-pace distance mapping at 3, 6 and 10 minutes</td>
+<td>Copeland's book, <strong>as relayed to the author; not checked against the book</strong>. The book revises his earlier online guidance, which the "Source check" compares with the page (the page's fast ends are faster)</td>
+</tr>
+<tr>
+<td>8, 12, 15, 20 minute anchors</td>
+<td><strong>Interpolated or extrapolated</strong> from the three above</td>
+</tr>
+<tr>
+<td>200m, 300m and 400m pace rules, 15km tempo rule</td>
+<td><strong>Author's estimates</strong></td>
+</tr>
+<tr>
+<td>Slow-downs for short-race inputs and for marathon pace</td>
+<td><strong>Author's estimates</strong></td>
+</tr>
+<tr>
+<td>Interpolation between anchors (linear in rep time)</td>
+<td><strong>Chosen here</strong></td>
+</tr>
+<tr>
+<td>Recoveries at the anchors</td>
+<td>Rules given by the author</td>
+</tr>
+<tr>
+<td>Suggested rep counts</td>
+<td><strong>Author's estimates</strong>, not sourced</td>
+</tr>
+</tbody>
+</table>
+<p>Treat every pace as a starting point and check it against heart rate or feel.</p>
+<h2>Step 1: 5km pace from the race result</h2>
+<pre><code>riegel5 = time * (5 / distance_km) ^ 1.06 / 5          // s per km at 5km
+adj(km) = 8 * ln(5 / km)  for km &lt; 5, else 0           // s/km
+p5      = riegel5 + adj(input distance)
+</code></pre>
+<p>The <code>adj</code> slows 5km equivalents that come from short races, because the formula is too optimistic from there. It is the same adjustment as in the Race Prediction Calculator. The coefficient (8) is an estimate.</p>
+<h2>VDOT display</h2>
+<p>The result shows the VDOT of the 5km equivalent (<code>p5 * 5</code> seconds over 5000m), using the Daniels–Gilbert formulas. <code>v</code> is speed in m/min and <code>t</code> is time in minutes:</p>
+<pre><code>VO2   = -4.60 + 0.182258 * v + 0.000104 * v^2
+%VO2  = 0.8 + 0.1894393 * e^(-0.012778 * t) + 0.2989558 * e^(-0.1932605 * t)
+VDOT  = VO2 / %VO2
+</code></pre>
+<p>A 20:00 5km gives 49.8, which matches the published value. It is display-only: paces come from Riegel, not VDOT tables. For a 5km, 10km or half marathon input it equals the standard VDOT of that result. For a mile or 3km input it is lower than the VDOT of the raw race, because the 5km equivalent includes the short-race adjustment.</p>
+<h2>Plausibility check</h2>
+<p>The page rejects a result whose Daniels–Gilbert VDOT (of the raw race result) is below 15 or above 85. The bounds are my choice: the best performances on record are around 80 to 85. This catches a distance and time that don't belong together, such as a 3km time entered against 5km.</p>
+<h2>Step 2: pace for any race distance</h2>
+<pre><code>racePace(km) = p5 * (km / 5) ^ 0.06 + off(km) - off(input distance)
+
+off(km) = 0                                              for km &lt;= 21.0975
+        = 5 * (min(km, 42.195) - 21.0975) / (42.195 - 21.0975)   above that
+</code></pre>
+<p><code>off</code> slows paces beyond the half marathon, rising linearly to <code>offM</code> s/km at the marathon. <code>offM</code> is set so the marathon equals twice the half marathon plus 7 min at 80 miles (129km) a week or more, plus 10 min at 70 miles (113km), 13 at 60, 17 at 50, and 25 at 35 miles (56km) or less, in straight lines between those points (never negative). With no weekly distance, 70 miles is assumed. This is the same rule as the Race Prediction Calculator, whose methodology gives the formula and its status as my estimate. It changes the marathon pace anchor and the long tempo paces. Subtracting <code>off(input distance)</code> makes a 10km or half marathon input reproduce itself.</p>
+<h2>Step 3: anchor reps</h2>
+<p>Each anchor has a fast and a slow pace in s/km, a duration, a recovery and a total-work range. The fast end uses the shorter race distance.</p>
+<table>
+<thead>
+<tr>
+<th>Anchor</th>
+<th>Pace basis</th>
+<th>Recovery</th>
+<th>Total work (min)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200m</td>
+<td>0.91 × p5 to 0.96 × p5</td>
+<td>90s</td>
+<td>12–15</td>
+</tr>
+<tr>
+<td>300m</td>
+<td>p5 − 2 to p5 + 2s/km</td>
+<td>45s</td>
+<td>17–22</td>
+</tr>
+<tr>
+<td>400m</td>
+<td>racePace(8) to racePace(10)</td>
+<td>45s</td>
+<td>20–26</td>
+</tr>
+<tr>
+<td>3 min</td>
+<td>racePace(14) to racePace(16)</td>
+<td>60s</td>
+<td>24–30</td>
+</tr>
+<tr>
+<td>6 min</td>
+<td>racePace(20) to racePace(21)</td>
+<td>60s</td>
+<td>24–36</td>
+</tr>
+<tr>
+<td>8 min</td>
+<td>racePace(23) to racePace(26)</td>
+<td>82.5s</td>
+<td>24–32</td>
+</tr>
+<tr>
+<td>10 min</td>
+<td>racePace(25) to racePace(30)</td>
+<td>82.5s</td>
+<td>20–40</td>
+</tr>
+<tr>
+<td>12 min</td>
+<td>racePace(30) to racePace(35)</td>
+<td>120s</td>
+<td>24–48</td>
+</tr>
+<tr>
+<td>15 min</td>
+<td>racePace(35) to racePace(40)</td>
+<td>195s</td>
+<td>30–60</td>
+</tr>
+<tr>
+<td>20 min</td>
+<td>racePace(40) to racePace(42.195)</td>
+<td>195s</td>
+<td>40–80</td>
+</tr>
+<tr>
+<td>15km tempo</td>
+<td>marathon pace × 1.03 to × 1.06</td>
+<td>none</td>
+<td>one continuous run</td>
+</tr>
+<tr>
+<td>20km tempo</td>
+<td>marathon pace × 1.03 to × 1.06</td>
+<td>none</td>
+<td>one continuous run</td>
+</tr>
+</tbody>
+</table>
+<p>The duration of a distance anchor is its distance times its mid pace. The tempo duration is 15km times its mid pace. The recovery values for 8 to 20 minutes are the midpoints of the ranges given by the author (75–90s, 150–240s) and are rounded to 5s in the output.</p>
+<h2>Step 4: any rep length</h2>
+<ul>
+<li><strong>Rep given as a time:</strong> find the two anchors either side of it and interpolate the fast pace, slow pace, recovery and total work linearly in time.</li>
+<li><strong>Rep given as a distance <code>d</code>:</strong> find the time <code>t</code> where <code>t = d × midpace(t)</code> by bisection, then proceed as above.</li>
+<li><strong>Range:</strong> from the 200m anchor (about 45s at a 20:00 5km) to a 20km continuous run. Between 15 and 20km the pace stays at the tempo range. Outside this the page shows an error rather than extrapolating.</li>
+<li><strong>Output distance (time input):</strong> <code>t / midpace</code>, rounded to 50m under 4 minutes and 100m above, shown as "ca.".</li>
+<li><strong>Output time (distance input):</strong> distance times the fast and slow paces.</li>
+<li><strong>Suggested reps:</strong> total work low and high, divided by rep time and rounded, at least 1. The high end is also capped so that reps × rep distance is at most 25km of flat distance (<strong>author's rule</strong>), so a 12km rep shows 1, and a 4.8km rep still shows up to 4. When the high end is 1, the page shows "1 (continuous)" and no recovery.</li>
+<li><strong>Recovery:</strong> interpolated, rounded to 5s.</li>
+<li><strong>Beyond the 20 minute anchor:</strong> total work (40–80 min) stays at the 20 minute value. The tempo anchors only set pace. Recovery rises linearly from 195s at 20 minutes to 300s at 40 minutes, then stays at 300s (<strong>author's estimate, not sourced</strong>). A 58 minute rep shows "1 (continuous)" with no recovery. A 38 minute rep shows 1–2 reps with 5:00 recovery.</li>
+</ul>
+<h2>Session limits and weekly distance cap</h2>
+<p><strong>Absolute session limits</strong> (apply with or without a weekly distance, and are the author's adaptation of Daniels):</p>
+<table>
+<thead>
+<tr>
+<th>Rep length</th>
+<th>Intensity</th>
+<th>Limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200m</td>
+<td>mile pace</td>
+<td>5km of work (Daniels says 5 miles; the page uses 5km as the more conservative choice)</td>
+</tr>
+<tr>
+<td>300m</td>
+<td>5km pace</td>
+<td>10km of work (Daniels: lesser of 10km and 8% of weekly distance)</td>
+</tr>
+<tr>
+<td>400m</td>
+<td>8–10km pace</td>
+<td>10km of work (the author's cap)</td>
+</tr>
+<tr>
+<td>3 up to 12 minutes</td>
+<td>sub-threshold</td>
+<td>one hour of work (the author's cap)</td>
+</tr>
+<tr>
+<td>15 minutes and longer, up to the 20km run</td>
+<td>marathon pace</td>
+<td>two hours of work</td>
+</tr>
+</tbody>
+</table>
+<p>All are further capped at 25km of total session distance. A single rep can still be up to 20km.</p>
+<p><strong>Weekly distance cap (optional).</strong> If a weekly distance is entered (km or miles, between 30 and 300km), the top of the suggested rep range also cannot exceed Daniels' maximum share of it:</p>
+<table>
+<thead>
+<tr>
+<th>Rep length</th>
+<th>Share of weekly distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200m</td>
+<td>5%</td>
+</tr>
+<tr>
+<td>300m</td>
+<td>8%</td>
+</tr>
+<tr>
+<td>400m</td>
+<td>10%</td>
+</tr>
+<tr>
+<td>3 up to 12 minutes</td>
+<td>12% (<strong>author's change</strong>: Daniels' 10% is for T-pace, and most of these sessions are below T)</td>
+</tr>
+<tr>
+<td>15 minutes and longer</td>
+<td>20%</td>
+</tr>
+</tbody>
+</table>
+<p>The percentages and distance limits were checked against secondary sources quoting Daniels (see "Source check"), not against the book. Daniels gives 20% for marathon-paced work, and the page uses it. Where he gives a distance, the page's limit can differ (see the table below the check).</p>
+<p><strong>Low-mileage floor:</strong> the weekly limit never drops below 2km of mile-paced work, 4km of 5km-paced work or 6km of slower work (<strong>author's judgement</strong>, set so that low-mileage runners still get a usable session).</p>
+<pre><code>weeklyMaxKm = max(weeklyKm * share, floorKm)      // floorKm: 2 (200m), 4 (300m), 6 (400m and longer)
+topReps     = min(floor(weeklyMaxKm / repDistance), floor(absolute limit / rep size), floor(25km / repDistance))
+bottom      = the unchanged estimate from total work, never above the top
+</code></pre>
+<p>Weekly distance below 30km (19 miles) or above 300km (186 miles) is rejected (author's limits). When even one rep exceeds the weekly limit, the page shows 1 rep with a short warning under the rep count. With no weekly distance entered, only the absolute limits apply.</p>
+<h2>Session load (TSS)</h2>
+<p>The page estimates the running TSS of the generated session. It uses the same definition as the Run TSS Calculator:</p>
+<pre><code>TSS_part  = (minutes / 60) * (thresholdPace / pace)^2 * 100
+TSS       = round(warm-up and cool-down) + round(reps) + round(recoveries)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Time</th>
+<th>Pace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Warm-up and cool-down</td>
+<td>minutes entered (default 10 + 10)</td>
+<td>the pace entered, or by default 62.5% of 5km speed, the middle of 55–70% (<strong>author's rule</strong>); the page shows the default as the placeholder. On a treadmill, enter the flat-equivalent pace</td>
+</tr>
+<tr>
+<td>Reps</td>
+<td>reps × rep time</td>
+<td>middle of the rep pace range; the flat-equivalent pace on a treadmill</td>
+</tr>
+<tr>
+<td>Recoveries</td>
+<td>(reps − 1) × recovery time</td>
+<td>walking at 6km/h, which is 600s/km (<strong>author's rule</strong>)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Threshold pace</strong> is <code>racePace(16)</code>, the predicted pace at about 16km, from the race result. This is the same rule of thumb as in the TSS calculator.</li>
+<li><strong>Warm-up and cool-down pace</strong> accepts 2:00 to 15:00 per km; blank uses the default.</li>
+<li><strong>Reps</strong> default to the middle of the suggested range, rounded. A number entered overrides it, from 1 to 100. The page notes when the number is outside the suggested range, above or below.</li>
+<li><strong>Total time</strong> is warm-up + cool-down + reps + recoveries.</li>
+<li>The recovery time per rep is the one shown in the recovery tile, which stays at its 20-minute value above 20 minutes of rep length plus the extension described above.</li>
+</ul>
+<p>Worked example at a 20:00 5km, 6 minute reps, 5 reps, 10 + 10 minutes of warm-up and cool-down: threshold 4:17, warm-up and cool-down 15, reps 49, recoveries 1, total 65 TSS in 54:00.</p>
+<h2>Source check (5 October 2026)</h2>
+<p>None of these is the primary text. All are web pages quoting the guidance.</p>
+<p><strong>Daniels weekly limits</strong> (VDOT O2 training definitions, a Daniels' Running Formula chapter 4 reading note, the Hillrunner "Basics of Speed Training" page, and Coach Ray's summary):</p>
+<table>
+<thead>
+<tr>
+<th>Pace</th>
+<th>What the sources say</th>
+<th>What the page does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Threshold (T)</td>
+<td>About 10% of weekly mileage per session; one source states it per week</td>
+<td>10% for 400m, 12% for 3 to 12 minute reps (<strong>author's change</strong>)</td>
+</tr>
+<tr>
+<td>Interval (I)</td>
+<td>Lesser of 10km and 8% of weekly mileage</td>
+<td>8% share and a 10km cap for 300m reps. The 10km cap is also applied to 400m</td>
+</tr>
+<tr>
+<td>Repetition (R)</td>
+<td>Lesser of 5 miles and 5% of weekly mileage</td>
+<td>5% share and a 5km cap (more conservative than 5 miles, <strong>author's choice</strong>)</td>
+</tr>
+<tr>
+<td>Marathon (M)</td>
+<td>Lesser of 20% of weekly mileage and 18 miles; or a single run of 110 minutes (1:50) or 18 miles</td>
+<td>20% share, a 2 hour cap (<strong>author's choice; Daniels' figure is 110 minutes</strong>) and a 25km session cap (Daniels' 18 miles is about 29km)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The "15–20%" figure for marathon-paced work was not found in any of these sources. They say 20%.</li>
+<li>One source adds that a single repetition-pace bout should not exceed 2 minutes.</li>
+</ul>
+<p><strong>Rep length to race pace</strong> (a web archive of the best posts from the LetsRun Norwegian Singles thread; the page does not name an author, so the link to James Copeland is not confirmed):</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Page anchor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3 to 4 minute reps at 10 mile to 15km pace, 60s rest</td>
+<td>3 min at 14–16km pace, 60s rest</td>
+</tr>
+<tr>
+<td>6 to 8 minute reps at half marathon pace, 60s rest</td>
+<td>6 min at 20–21km, 8 min at 23–26km, 60s and 75–90s rest</td>
+</tr>
+<tr>
+<td>10 to 12 minute reps at 30km pace, 60s rest</td>
+<td>10 min at 25–30km, 75–90s rest</td>
+</tr>
+<tr>
+<td>1km reps (usually 8 to 12) at 10 mile to 15km pace, 60s rest</td>
+<td>not an anchor</td>
+</tr>
+<tr>
+<td>400m or 1 minute reps at 10km pace, 30s rest</td>
+<td>400m at 8–10km pace, 45s rest</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The 6 minute anchor is close to the source. The 3 and 10 minute anchors reach faster than the source at their fast end (12km against 15km, and 25km against 30km).</li>
+<li>The source gives 60s rest across 3 to 12 minute reps. The page's recoveries for 8 minutes and longer are longer, and are author's estimates.</li>
+<li>The source also says sub-threshold work should be 20–25% (maybe 30%) of weekly running time, and easy runs no higher than 65% of MAS. The page does not use either.</li>
+<li>A third-party Norwegian Singles calculator uses a different convention (3 min reps 5–7s/km faster than threshold, 6 min at threshold, 10 min 5–7s/km slower). It does not name Copeland either.</li>
+<li>I could not read James Copeland's book, so the original wording is unchecked. The author keeps the page's anchors because the book revises these earlier online figures. The author found 12km pace too fast for 3 minute reps; the range was left unchanged.</li>
+</ul>
+<h2>Treadmill mode</h2>
+<p>Uses the ACSM running equation, with <code>S</code> in m/min and <code>G</code> as grade (0.035 for 3.5%):</p>
+<pre><code>VO2 = 0.2 * S + 0.9 * S * G + 3.5
+belt speed = flat speed / (1 + 4.5 * G)
+belt pace  = flat pace  * (1 + 4.5 * G)
+</code></pre>
+<p>At 3.5% incline the factor is 1.1575, so belt speed is 86% of flat speed. Rep times stay the same as flat. A time input shows the belt distance with the flat equivalent underneath. A distance input is the flat distance and shows the belt distance underneath.</p>
+<p>No offset is added for the lower air resistance of treadmill running, by design. See the Treadmill Flat Equivalent methodology for the comparison with the Hillrunner table. The choice is to take the equation as is and err on the easy side, because for sub-threshold work running too easy costs less than running too hard. The equation ignores your treadmill's calibration, heat and the mental load of treadmill running. The Treadmill Flat Equivalent page has a display error input; this page does not.</p>
+<h2>What changed from the earlier version</h2>
+<ul>
+<li>The fixed table of rows is replaced by a single rep-length input.</li>
+<li>The short-race adjustment changed from fixed 5/5/2s/km to <code>8 × ln(5/km)</code>.</li>
+<li>The reference-paces panel (5km, 10km, half marathon, marathon paces) is removed. A VDOT tile (of the 5km equivalent) is shown with the result.</li>
+<li>The anchors, paces and rep counts at the original rep lengths are unchanged.</li>
+</ul>
+<h2>Worked example: 20:00 5km, flat</h2>
+<ul>
+<li>p5 = 240s/km (4:00).</li>
+<li>400m: racePace(8) = 4:07, racePace(10) = 4:10, so 4:07–4:10 and 99–100s per rep.</li>
+<li>3 min: 4:15–4:17, ca. 700m, 8–10 reps, 60s recovery.</li>
+<li>4.5 min (between the 3 and 6 minute anchors): 4:17–4:19, ca. 1.0km, 5–7 reps.</li>
+<li>15km tempo: marathon pace is 4:38, so 4:46–4:54 and 72–74 min.</li>
+</ul>
+<h2>Shared race result</h2>
+<p>This page shares its race distance and time with the Sub-Threshold Session Generator, the Race Prediction Calculator, the Run TSS Calculator and the Run TSS Planner. The values are kept in the browser's local storage under one key. The last page you edited sets the value for the others. It applies only on the hosted site, where the pages share an origin, and only in the same browser on the same device. It does not sync between devices. If a stored distance is missing from a page's list (the 10 miles and marathon options exist only on the predictor), that page keeps its own distance.</p>
+<h2>Hand-off to the Run Load Planner</h2>
+<p>On the hosted site, the session load has an "Add to Run Load Planner" link. It opens the planner with the session's TSS and a short label in the address (<code>run-load-planner.html?tss=65&amp;name=5x 6 min</code>). Nothing is stored. The link is hidden in the standalone artifact, where the planner page is not next to it.</p>
+  </article>
+</main>
+<script>
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>
