@@ -160,7 +160,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     <h2>How it works</h2>
     <ul>
       <li><b>Anchors.</b> Each standard rep length is tied to a race pace at RPE 8–8.5 with its standard rest. The pace for your rep length is interpolated between anchors, then run backwards to find the 5km pace that fits. The anchors are the author's, from experience, not from a published source.</li>
-      <li><b>Volume.</b> Each anchor has a typical rep count. More reps than that moves the race the reps equal further out, and fewer moves it closer in: the equivalent race distance scales with (reps / typical reps) to the power 1.25 above the typical count and 0.8 below it. The result shows this as the nearest common distance, rounded down (5×400m reads as 1000m pace, 10×1.2km as 15k pace). The exponents and the typical counts are my placeholders. Sessions over 25km of work, or equal to a race over the marathon or under 400m, are refused.</li>
+      <li><b>Volume.</b> Each anchor has a typical rep count. More reps than that moves the race the reps equal further out, and fewer moves it closer in: the equivalent race distance scales with (reps / typical reps) to the power 1.25 above the typical count and 0.8 below it. The result shows this as the nearest common distance, rounded down (5×400m reads as 1000m pace, 10×1.2km as 15k pace). The exponents and the typical counts are my placeholders. Sessions over 25km of work, or equal to a race under 400m, are refused. An equivalent race beyond the marathon is capped at the marathon.</li>
       <li><b>Range.</b> Each anchor is given a band of 1% in pace (5000m: marathon pace to 2% faster). That band is my placeholder.</li>
       <li><b>Not adjusted.</b> Rest, RPE, heat, surface, wind and hills are not adjusted for. The tool only warns when rest or RPE is far from the anchor.</li>
       <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. These are my estimates, not validated.</li>
@@ -248,7 +248,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     { m: 5000, rest: 180, n: 5, km: 42.195, name: "marathon pace", lo: 0.98, hi: 1.0 }
   ];
   function lerpA(p5, m, which, n) {
-    var v = function (a) { var base = race(p5, a.km * Math.pow(n / a.n, n < a.n ? GAMMA_LO : GAMMA_HI)); return which === "fast" ? base * a.lo : which === "slow" ? base * a.hi : base * (a.lo + a.hi) / 2; };
+    var v = function (a) { var base = race(p5, Math.min(MAR, a.km * Math.pow(n / a.n, n < a.n ? GAMMA_LO : GAMMA_HI))); return which === "fast" ? base * a.lo : which === "slow" ? base * a.hi : base * (a.lo + a.hi) / 2; };
     if (m <= ANCH[0].m) return v(ANCH[0]);
     for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return v(ANCH[i]) * (1 - w) + v(ANCH[i + 1]) * w; }
     return v(ANCH[ANCH.length - 1]);
@@ -260,19 +260,18 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     return (lo + hi) / 2;
   }
   // Race distance (km) the reps equal for n reps of m metres, interpolated between anchors in log distance.
-  function equivX(m, n) {
-    var x = function (a) { return Math.log(a.km * Math.pow(n / a.n, n < a.n ? GAMMA_LO : GAMMA_HI)); };
+  function equivX(m, n, nocap) {
+    var x = function (a) { return Math.log(Math.min(nocap ? Infinity : MAR, a.km * Math.pow(n / a.n, n < a.n ? GAMMA_LO : GAMMA_HI))); };
     if (m <= ANCH[0].m) return Math.exp(x(ANCH[0]));
     for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return Math.exp(x(ANCH[i]) * (1 - w) + x(ANCH[i + 1]) * w); }
     return Math.exp(x(ANCH[ANCH.length - 1]));
   }
-  // Common race distances (km). The label is the largest one at or just below the computed distance (2% allowed above), so the tool errs short.
-  var STD = [[0.4, "400m"], [0.6, "600m"], [0.8, "800m"], [1, "1000m"], [1.2, "1200m"], [1.5, "1500m"], [1.609344, "mile"], [2, "2k"], [3, "3k"], [4, "4k"], [5, "5k"], [6, "6k"], [8, "8k"], [10, "10k"], [12, "12k"], [15, "15k"], [16.09344, "10 mile"], [21.0975, "half marathon"], [30, "30k"], [42.195, "marathon"]];
+  // Common race distances (km). The label is the largest one at or below the computed distance, or the next one up if the computed distance is within 5% of it.
+  var STD = [[0.4, "400m"], [0.6, "600m"], [0.8, "800m"], [1, "1000m"], [1.2, "1200m"], [1.5, "1500m"], [1.609344, "mile"], [2, "2k"], [3, "3k"], [5, "5k"], [8, "8k"], [10, "10k"], [12, "12k"], [15, "15k"], [16.09344, "10 mile"], [21.0975, "half marathon"], [30, "30k"], [32.18688, "20 mile"], [42.195, "marathon"]];
   function xText(x) {
-    if (x < STD[0][0] * 0.98) return "under 400m";
-    if (x > STD[STD.length - 1][0] * 1.02) return "over the marathon";
+    if (x < STD[0][0] * 0.95) return "under 400m";
     var lab = STD[0][1];
-    for (var i = 0; i < STD.length; i++) if (STD[i][0] <= x * 1.02) lab = STD[i][1];
+    for (var i = 0; i < STD.length; i++) if (STD[i][0] <= x * 1.05) lab = STD[i][1];
     return lab;
   }
   function stdRest(m) {
@@ -307,8 +306,9 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (!(nReps >= 1 && nReps <= 50)) return fail("Enter the number of reps, 1 to 50.");
     if (times.length > 1) $("reps").value = times.length;
     if (nReps * m / 1000 > MAXWORK) return fail("Total work is " + (nReps * m / 1000).toFixed(1) + "km. The tool supports up to " + MAXWORK + "km of work in a session.");
-    var xEq = equivX(m, nReps);
-    if (xEq < MINX || xEq > MAR) return fail("This many reps equals the pace of a race that is " + (xEq < MINX ? "shorter than 400m" : "longer than the marathon") + ", outside what the tool supports.");
+    var xEq = equivX(m, nReps), capped = equivX(m, nReps, true) > MAR * 1.001;
+    if (xEq < MINX) return fail("This many reps equals the pace of a race shorter than 400m, outside what the tool supports.");
+    // more volume than a marathon is read as marathon-pace fitness, not beyond it (the cap is applied inside equivX and lerpA)
     var avg = times.reduce(function (a, b) { return a + b; }, 0) / times.length;
     var p = avg / (m / 1000);
     var pm = invert(p, m, "mid", nReps), pf = invert(p, m, "fast", nReps), ps = invert(p, m, "slow", nReps);
@@ -321,6 +321,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
       "<div><span>Reps equal about</span><b>" + xText(xEq) + "</b><small>pace, for this many reps</small></div>";
     var fl = [];
+    if (capped) fl.push("This many reps would equal a race longer than the marathon. The tool caps it at marathon pace.");
     if (times.length > 1) {
       var half = Math.floor(times.length / 2), a1 = times.slice(0, half).reduce(function (a, b) { return a + b; }, 0) / half, a2 = times.slice(times.length - half).reduce(function (a, b) { return a + b; }, 0) / half;
       var d = (a2 - a1) / a1 * 100;
