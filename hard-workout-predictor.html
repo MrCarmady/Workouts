@@ -160,8 +160,8 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     <h2>How it works</h2>
     <ul>
       <li><b>Anchors.</b> Each standard rep length is tied to a race pace at RPE 8–8.5 with its standard rest. The pace for your rep length is interpolated between anchors, then run backwards to find the 5km pace that fits. The anchors are the author's, from experience, not from a published source.</li>
-      <li><b>Volume.</b> Each anchor has a typical rep count. Pace is scaled by (typical total work / your total work) to the power 0.06, the same exponent as the race model. Rep counts are limited to half to double the typical number.</li>
-      <li><b>Range.</b> Each anchor is given a band of 1% in pace. That band is my placeholder.</li>
+      <li><b>Volume.</b> Each anchor has a typical rep count. Pace is scaled by (typical total work / your total work) to the power 0.06, the same exponent as the race model. Rep counts are limited to the supported range for each rep length (my placeholders).</li>
+      <li><b>Range.</b> Each anchor is given a band of 1% in pace (5000m: marathon pace to 2% faster). That band is my placeholder.</li>
       <li><b>Not adjusted.</b> Rest, RPE, heat, surface, wind and hills are not adjusted for. The tool only warns when rest or RPE is far from the anchor.</li>
       <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. These are my estimates, not validated.</li>
     </ul>
@@ -194,15 +194,15 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   // The 5000m anchor is marathon pace to 2% faster. The 1% band elsewhere is a placeholder.
   var BAND = 0.01;
   var ANCH = [
-    { m: 400, rest: 60, n: 9, km: 1.609344, name: "mile pace", lo: 1 - BAND, hi: 1 + BAND },
-    { m: 600, rest: 75, n: 6, km: 2, name: "2k pace", lo: 1 - BAND, hi: 1 + BAND },
-    { m: 800, rest: 90, n: 6, km: 3, name: "3k pace", lo: 1 - BAND, hi: 1 + BAND },
-    { m: 1000, rest: 60, n: 6, km: 5, name: "5k pace", lo: 1 - BAND, hi: 1 + BAND },
-    { m: 1200, rest: 90, n: 5, km: 5, name: "5k pace", lo: 1 - BAND, hi: 1 + BAND },
-    { m: 1600, rest: 120, n: 4, km: 10, name: "10k pace", lo: 1 - BAND, hi: 1 + BAND },
-    { m: 2000, rest: 120, n: 3, km: 10, name: "10k pace", lo: 1 - BAND, hi: 1 + BAND },
-    { m: 3000, rest: 180, n: 3, km: 21.0975, name: "HM pace", lo: 1 - BAND, hi: 1 + BAND },
-    { m: 5000, rest: 180, n: 3, km: 42.195, name: "marathon pace", lo: 0.98, hi: 1.0 }
+    { m: 400, rest: 60, n: 9, nlo: 5, nhi: 18, km: 1.609344, name: "mile pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 600, rest: 75, n: 6, nlo: 3, nhi: 12, km: 2, name: "2k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 800, rest: 90, n: 6, nlo: 3, nhi: 12, km: 3, name: "3k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 1000, rest: 60, n: 6, nlo: 3, nhi: 12, km: 5, name: "5k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 1200, rest: 90, n: 5, nlo: 3, nhi: 10, km: 5, name: "5k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 1600, rest: 120, n: 4, nlo: 2, nhi: 8, km: 10, name: "10k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 2000, rest: 120, n: 3, nlo: 2, nhi: 6, km: 10, name: "10k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 3000, rest: 180, n: 3, nlo: 2, nhi: 6, km: 10, name: "10k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 5000, rest: 180, n: 5, nlo: 3, nhi: 5, km: 42.195, name: "marathon pace", lo: 0.98, hi: 1.0 }
   ];
   function lerpA(p5, m, which) {
     var v = function (a) { var base = race(p5, a.km); return which === "fast" ? base * a.lo : which === "slow" ? base * a.hi : base * (a.lo + a.hi) / 2; };
@@ -226,6 +226,14 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (m <= ANCH[0].m) return ANCH[0].n;
     for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return ANCH[i].n * (1 - w) + ANCH[i + 1].n * w; }
     return ANCH[ANCH.length - 1].n;
+  }
+  function typRange(m) {
+    var f = function (k) {
+      if (m <= ANCH[0].m) return ANCH[0][k];
+      for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return ANCH[i][k] * (1 - w) + ANCH[i + 1][k] * w; }
+      return ANCH[ANCH.length - 1][k];
+    };
+    return [Math.ceil(f("nlo") - 1e-9), Math.floor(f("nhi") + 1e-9)];
   }
   function parseOne(x) {
     x = x.trim();
@@ -253,7 +261,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var nReps = times.length > 1 ? times.length : parseInt($("reps").value, 10);
     if (!(nReps >= 1 && nReps <= 50)) return fail("Enter the number of reps, 1 to 50.");
     if (times.length > 1) $("reps").value = times.length;
-    var tn = typN(m), nMin = Math.max(1, Math.ceil(tn * 0.5)), nMax = Math.floor(tn * 2);
+    var tn = typN(m), rg = typRange(m), nMin = rg[0], nMax = rg[1];
     if (nReps < nMin || nReps > nMax) return fail("For " + (m >= 1000 ? m / 1000 + "km" : m + "m") + " reps the tool supports " + nMin + " to " + nMax + " reps. Outside that, the session is too different from the anchors to predict from.");
     var avg = times.reduce(function (a, b) { return a + b; }, 0) / times.length;
     var pRaw = avg / (m / 1000);
@@ -290,8 +298,8 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     renderAnch(m);
   }
   function renderAnch(m) {
-    var h = "<thead><tr><th>Rep</th><th class=\"num\">Typical reps</th><th class=\"num\">Standard rest</th><th>Reps equal</th></tr></thead><tbody>";
-    ANCH.forEach(function (a) { h += "<tr><td>" + (a.m >= 1000 ? a.m / 1000 + "km" : a.m + "m") + "</td><td class=\"num\">" + a.n + "</td><td class=\"num\">" + (a.rest >= 120 ? a.rest / 60 + " min" : a.rest + "s") + "</td><td>" + a.name + (a.lo < 0.99 ? " to 2% faster" : "") + "</td></tr>"; });
+    var h = "<thead><tr><th>Rep</th><th class=\"num\">Typical reps</th><th class=\"num\">Supported</th><th class=\"num\">Standard rest</th><th>Reps equal</th></tr></thead><tbody>";
+    ANCH.forEach(function (a) { h += "<tr><td>" + (a.m >= 1000 ? a.m / 1000 + "km" : a.m + "m") + "</td><td class=\"num\">" + a.n + "</td><td class=\"num\">" + a.nlo + "–" + a.nhi + "</td><td class=\"num\">" + (a.rest >= 120 ? a.rest / 60 + " min" : a.rest + "s") + "</td><td>" + a.name + (a.lo < 0.99 ? " to 2% faster" : "") + "</td></tr>"; });
     $("anch").innerHTML = h + "</tbody>";
   }
   ["reps", "rep", "unit", "rest", "rpe", "splits", "target"].forEach(function (id) { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
