@@ -218,7 +218,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
   <section class="method">
     <h2>How this is calculated</h2>
     <ul>
-      <li><b>Pace base.</b> The same model as the Race Prediction Calculator, with the marathon pace set by your weekly distance. Easy pace is 62.5% of 5km speed unless you change it. Sub-threshold is 4% slower than threshold (my placeholder). Threshold is the predicted 16km pace, intervals are race(4), mile pace is the predicted mile pace.</li>
+      <li><b>Pace base.</b> The same model as the Race Prediction Calculator, with the marathon pace set by your weekly distance. Easy pace is 62.5% of 5km speed unless you change it. Sub-threshold is race(21), about 1.7% slower than threshold: the average of sub-threshold paces, since longer reps run a little slower and shorter reps a little quicker. Threshold is the predicted 16km pace, intervals are race(4), mile pace is the predicted mile pace.</li>
       <li><b>Quality sessions per week.</b> Set by run days: 3 days gives 1, 4 and 5 give 2, 6 and 7 give 3. The week layout is a placeholder. A focus with intervals or mile pace puts one such session in the week, always the last.</li>
       <li><b>Session size.</b> Each quality session gets an equal share of the week's quality budget. Daniels' per-session limits apply as read from secondary summaries, not checked against the book: threshold up to 10% of weekly distance, intervals the lesser of 10km or 8%, repetitions the lesser of 5 miles or 5%, marathon pace up to 110 minutes. Sub-threshold has no Daniels limit, so it uses 12%: Daniels' 10% for threshold, raised a little because sub-threshold sessions are easier (lower lactate).</li>
       <li><b>Weekly limits.</b> Distance at each pace is capped as a share of weekly distance: mile pace 10%, intervals 16%, threshold 20%, sub-threshold 30%, marathon pace 40%. Mixed weeks share one budget: each km of a type uses 1 ÷ its limit, and the total cannot exceed 1. At least 60% of the week is always easy.</li>
@@ -307,7 +307,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     7: { 0: "E", 1: "Q", 2: "E", 3: "Q", 4: "E", 5: "Q", 6: "L" }
   };
   var DAYN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  var LONG_W = 1.6, LONG_MAX_MIN = 150, LONG_SHARE = 0.35, WCD_MIN = 20, WCD_MAX_MIN = 40, QDAY_FRAC = 0.8, SUBT_SLOW = 1.04;
+  var LONG_W = 1.6, LONG_MAX_MIN = 150, LONG_SHARE = 0.35, WCD_MIN = 20, WCD_MAX_MIN = 40, QDAY_FRAC = 0.8;
   var KC = 1 - Math.exp(-1 / 42), KA = 1 - Math.exp(-1 / 7);
 
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("detail").hidden = true; }
@@ -348,7 +348,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     var easyP = raceP(5) / 0.625, wcTxt = ($("wcp").value || "").trim();
     $("wcp").placeholder = mmss(easyP);
     if (wcTxt !== "") { easyP = parseTime(wcTxt); if (easyP === null || easyP < 120 || easyP > 900) return fail("Enter the easy pace like 6:30, between 2:00 and 15:00 per km, or leave it blank."); }
-    var PACE = { E: easyP, subT: thr * SUBT_SLOW, T: thr, I: raceP(4), R: raceP(MILE), M: mp };
+    var PACE = { E: easyP, subT: raceP(21), T: thr, I: raceP(4), R: raceP(MILE), M: mp };
     var tK = function (p) { return thr * thr / (36 * p); };
 
     var days = parseInt($("days").value, 10), layout = LAYOUT[days];
