@@ -48,6 +48,10 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; let
 @media (max-width: 720px) { .top { grid-template-columns: minmax(0, 1fr); } }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; display: grid; gap: 14px; align-content: start; }
 .panel h2 { margin: 0; }
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: end; }
+.grid4 .span2 { grid-column: span 2; }
+.combo { display: grid; grid-template-columns: minmax(0, 1fr) 4.5rem; gap: 6px; }
+@media (max-width: 720px) { .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: end; }
 .fields .full { grid-column: 1 / -1; }
 label { display: grid; gap: 4px; align-content: start; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
@@ -89,7 +93,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
   <header class="head">
     <div>
       <h1>Plan Builder</h1>
-      <p class="sub">Enter a race result, your run days and a target rate of fitness gain. Get weekly distance, quality sessions and easy running for a block, kept inside volume and fatigue limits.</p>
+      <p class="sub">Weekly distance, quality sessions and easy running for a block, from a race result and a target CTL ramp.</p>
     </div>
     <div class="themes" role="group" aria-label="Theme">
       <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
@@ -98,83 +102,72 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     </div>
   </header>
 
-  <section class="top">
-    <div class="panel">
-      <h2>Runner</h2>
-      <div class="fields">
-        <label>Race distance
-          <select id="dist">
-            <option value="1.5">1500m</option>
-            <option value="1.609344">Mile</option>
-            <option value="3">3km</option>
-            <option value="5" selected>5km</option>
-            <option value="10">10km</option>
-            <option value="21.0975">Half marathon</option>
-          </select>
-        </label>
-        <label>Race time
-          <input id="time" type="text" inputmode="numeric" autocomplete="off" value="20:00" placeholder="39:43 or 3943">
-        </label>
-        <label>Current weekly distance
+  <section class="panel">
+    <h2>Inputs</h2>
+    <div class="grid4">
+      <label>Race
+        <select id="dist">
+          <option value="1.5">1500m</option>
+          <option value="1.609344">Mile</option>
+          <option value="3">3km</option>
+          <option value="5" selected>5km</option>
+          <option value="10">10km</option>
+          <option value="21.0975">Half marathon</option>
+        </select>
+      </label>
+      <label>Race time
+        <input id="time" type="text" inputmode="numeric" autocomplete="off" value="20:00" placeholder="39:43 or 3943">
+      </label>
+      <label>Weekly distance
+        <span class="combo">
           <input id="week" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="e.g. 60">
-        </label>
-        <label>Unit
-          <select id="wunit">
+          <select id="wunit" aria-label="Unit">
             <option value="km" selected>km</option>
-            <option value="mi">miles</option>
+            <option value="mi">mi</option>
           </select>
-        </label>
-        <label>Run days a week
-          <select id="days">
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5" selected>5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-          </select>
-        </label>
-        <label>Current CTL (optional)
-          <input id="ctl" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="estimated">
-        </label>
-      </div>
-      <p class="note">Blank CTL is estimated from your weekly distance, run as this plan's week.</p>
-    </div>
-    <div class="panel">
-      <h2>Block</h2>
-      <div class="fields">
-        <label class="full">Quality focus
-          <select id="focus"></select>
-        </label>
-        <label>Weeks (race in last week)
-          <input id="weeks" type="text" inputmode="numeric" autocomplete="off" value="8" placeholder="4 to 16">
-        </label>
-        <label>Taper
-          <select id="taper">
-            <option value="0" selected>None</option>
-            <option value="7">Race week only (7 days)</option>
-            <option value="14">Hold week + race week (14 days)</option>
-          </select>
-        </label>
-        <label class="full">Race-day TSB (taper only)
-          <input id="rtsb" type="text" inputmode="decimal" autocomplete="off" value="10">
-        </label>
-      </div>
-      <div class="three">
-        <label>Ramp target (CTL/week, max 2)
-          <input id="rt" type="text" inputmode="decimal" autocomplete="off" value="1">
-        </label>
-        <label>Easy pace /km
-          <input id="wcp" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="-">
-        </label>
-      </div>
-      <p class="note">The ramp minimum is fixed at 0.1.</p>
+        </span>
+      </label>
+      <label>Run days
+        <select id="days">
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5" selected>5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+        </select>
+      </label>
+      <label>CTL (optional)
+        <input id="ctl" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="estimated">
+      </label>
+      <label>Easy pace /km
+        <input id="wcp" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="from race">
+      </label>
+      <label>Block length (weeks)
+        <input id="weeks" type="text" inputmode="numeric" autocomplete="off" value="8" placeholder="4 to 16">
+      </label>
+      <label>Ramp target (max 2)
+        <input id="rt" type="text" inputmode="decimal" autocomplete="off" value="1">
+      </label>
+      <label class="span2">Quality focus
+        <select id="focus"></select>
+      </label>
+      <label>Taper
+        <select id="taper">
+          <option value="0" selected>None</option>
+          <option value="7">Race week</option>
+          <option value="14">Hold + race week</option>
+        </select>
+      </label>
+      <label id="rtsbl" style="visibility:hidden">Race-day TSB (max 10)
+        <input id="rtsb" type="text" inputmode="decimal" autocomplete="off" value="10">
+      </label>
     </div>
   </section>
 
   <p class="warn" id="err" hidden></p>
 
   <section id="resbox">
-    <h2>Block</h2>
+    <h2>Weekly plan</h2>
     <div class="panel">
       <div class="res">
         <div><span>Starting CTL</span><b id="o-c0">-</b><small id="o-c0s"></small></div>
@@ -215,16 +208,14 @@ td.num, th.num { text-align: right; padding-right: 14px; }
   <section class="method">
     <h2>How this is calculated</h2>
     <ul>
-      <li><b>Pace base.</b> The same model as the Race Prediction Calculator, with the marathon pace set by your weekly distance. Easy pace is 62.5% of 5km speed unless you change it. Sub-threshold is race(21), about 1.7% slower than threshold: the average of sub-threshold paces, since longer reps run a little slower and shorter reps a little quicker. Threshold is the predicted 16km pace, intervals are race(4), mile pace is the predicted mile pace.</li>
-      <li><b>Quality sessions per week.</b> Set by run days: 3 days gives 1, 4 and 5 give 2, 6 and 7 give 3. The week layout is a placeholder. A focus with intervals or mile pace puts one such session in the week, always the last.</li>
-      <li><b>Session size.</b> Each quality session gets an equal share of the week's quality budget. Daniels' per-session limits apply as read from secondary summaries, not checked against the book: threshold up to 10% of weekly distance, intervals the lesser of 10km or 8%, repetitions the lesser of 5 miles or 5%, marathon pace up to 110 minutes. Sub-threshold has no Daniels limit, so it uses 12%: Daniels' 10% for threshold, raised a little because sub-threshold sessions are easier (lower lactate).</li>
-      <li><b>Weekly limits.</b> Distance at each pace is capped as a share of weekly distance: mile pace 10%, intervals 16%, threshold 20%, sub-threshold 30%, marathon pace 40%. Mixed weeks share one budget: each km of a type uses 1 ÷ its limit, and the total cannot exceed 1. At least 60% of the week is always easy.</li>
-      <li><b>Easy and long runs.</b> Quality days include warm-up and cool-down, counted as easy. They are 20 minutes together at least and grow up to 40, so a quality day takes about 80% of an easy day's time. The 80% and the 40 are my choices. The rest of the week is split between easy days and one long run, which counts 1.6 times an easy day. The long run is capped at 35% of weekly distance (your rule, since Daniels' 25% is too low for 3 and 4 run days) and at 150 minutes, and no easy run is longer than it. If the week cannot fit in the run days, the distance falls short and the table says so. The 1.6 is my choice. Easy days under 20 minutes are flagged.</li>
-      <li><b>Load.</b> TSS per km = threshold pace² ÷ (36 × pace). CTL and ATL are daily exponential averages with 42-day and 7-day constants (new = old × e^(−1/n) + TSS × (1 − e^(−1/n))). TSB is CTL minus ATL at the end of each day, as in the Run Load Planner.</li>
-      <li><b>Ramp.</b> Each week the distance is solved so CTL rises by the target. Two limits can hold it back: TSB should stay at or above -10, and never reach -20. If the -10 limit would push the ramp below 0.1, the ramp floor wins down to the -20 limit. The target is capped at 2 a week; the useful range is 0.1 to 1.9.</li>
-      <li><b>Taper.</b> With a taper of 14 days, the penultimate week holds CTL (ramp 0) and the last week is the taper. With 7 days only the last week is the taper. The race week is solved so TSB on the morning of race day (end of the day before) hits your target, but is kept between 50% and 80% of the peak week (my placeholders). The target is capped at +10; more is overkill. Race day replaces the long run. If the 50% floor stops the target being reached, the table says so.</li>
-      <li><b>Time first.</b> Tables lead with time. Easy running should be done by time, which removes the temptation to push the pace on easy days. Distance follows from the easy pace entered, and any error in that pace shifts the km but not the minutes.</li>
-      <li>The rules come from your guidelines. The constants and week layouts are mine. This is a prototype: check each week against how you feel. It does not yet adapt to what you actually ran.</li>
+      <li><b>Paces.</b> Race model as in the Race Prediction Calculator. Threshold race(16), sub-threshold race(21), intervals race(4), mile pace as predicted, easy 62.5% of 5km speed.</li>
+      <li><b>Quality days.</b> Run days set the count: 3 gives 1, 4 and 5 give 2, 6 and 7 give 3. Warm-up and cool-down add 20 to 40 min.</li>
+      <li><b>Limits.</b> Per session: Daniels' caps, and 12% of the week for sub-threshold. Per week: mile pace 10%, intervals 16%, threshold 20%, sub-threshold 30%, marathon pace 40%, on a shared budget. At least 60% stays easy.</li>
+      <li><b>Easy and long runs.</b> The long run is at most 35% of the week and 150 min. No easy run is longer.</li>
+      <li><b>Load.</b> TSS per km = threshold pace&sup2; &divide; (36 &times; pace). CTL 42-day, ATL 7-day, TSB at the end of each day.</li>
+      <li><b>Ramp.</b> Each week's distance is solved for the ramp target, held back to keep TSB at or above -10 and never -20. The ramp stays at 0.1 or more.</li>
+      <li><b>Taper.</b> An optional hold week (ramp 0), then a race week at 50 to 80% of the peak week, solved for the race-day TSB.</li>
+      <li>Constants and week layouts are placeholders. This is a prototype and does not adapt to what you actually ran.</li>
     </ul>
   </section>
 </main>
@@ -476,8 +467,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     $("o-types").textContent = raceInfo ? sgn(raceInfo.tsb, 10) : used.join(" + ");
     $("o-lab6").textContent = raceInfo ? "Race-day TSB" : "Pace types";
     var nts = [];
-    nts.push("Paces: easy " + mmss(PACE.E) + ", sub-threshold " + mmss(PACE.subT) + ", threshold " + mmss(PACE.T) + ", marathon " + mmss(PACE.M) + ", intervals " + mmss(PACE.I) + ", mile " + mmss(PACE.R) + " per km.");
-    nts.push("Week 1 is the first step above your current load, so it carries the largest increase.");
+    nts.push("Paces /km: easy " + mmss(PACE.E) + ", sub-threshold " + mmss(PACE.subT) + ", threshold " + mmss(PACE.T) + ", marathon " + mmss(PACE.M) + ", intervals " + mmss(PACE.I) + ", mile " + mmss(PACE.R) + ".");
     $("notes").innerHTML = nts.map(function (n) { return '<p class="note">' + n + "</p>"; }).join("");
 
     var sel = $("wk"), cur = sel.value;
@@ -501,7 +491,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     });
     $("drows").innerHTML = h;
     var tt = 0; r.wk.days.forEach(function (d) { tt += d.time; });
-    $("dnote").textContent = "Week " + r.w + ": " + hm(tt) + " h, " + km1(r.V) + ", TSS " + Math.round(r.wk.total) + ". Easy and long runs are best run by time, not distance: the km are an estimate at the easy pace entered. Quality pace is shown first, then the easy pace for the warm-up and cool-down. Build the reps in the session generators.";
+    $("dnote").textContent = "Week " + r.w + ": " + hm(tt) + " h, " + km1(r.V) + ", TSS " + Math.round(r.wk.total) + ". Km are estimated from the easy pace; run easy days by time.";
   }
 
   function save() {
@@ -538,7 +528,9 @@ td.num, th.num { text-align: right; padding-right: 14px; }
   })();
 
   $("focus").innerHTML = FOCUS.map(function (f) { return '<option value="' + f.key + '">' + f.label + "</option>"; }).join("");
-  restore();
+  function syncTaper() { $("rtsbl").style.visibility = parseInt($("taper").value, 10) > 0 ? "visible" : "hidden"; }
+  restore(); syncTaper();
+  $("taper").addEventListener("change", syncTaper);
   ["dist", "time", "week", "wunit", "days", "focus", "weeks", "taper", "rtsb", "rt", "ctl", "wcp"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
