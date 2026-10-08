@@ -35,6 +35,8 @@ def scenarios():
         out.append(('hard-workout-predictor','3km x '+n,lambda pg,n=n:[fill(pg,'rep','3000'),fill(pg,'reps',n),fill(pg,'target','10'),fill(pg,'splits','3:25/km')]))
     for rep,u,n,rest,sp,tg in [('400','m','5','60','80,80,80,80,80','1.609344'),('400','m','18','60','3:10/km','1.609344'),('2000','m','2','120','7:15/km','10'),('1.2','km','10','90','3:45/km','10'),('1000','m','50','60','3:34','5'),('5','km','3','180','3:20/km','42.195'),('5','km','6','180','3:20/km','42.195')]:
         out.append(('hard-workout-predictor','slide %sx%s%s'%(n,rep,u),lambda pg,rep=rep,u=u,n=n,rest=rest,sp=sp,tg=tg:[fill(pg,'unit',u),fill(pg,'rep',rep),fill(pg,'rest',rest),fill(pg,'reps',n),fill(pg,'target',tg),fill(pg,'splits',sp)]))
+    for lab,u,d,tm,rp,tg in [('5k TT 20:00 RPE10','km','5','20:00','10','5'),('8k tempo 4:50/km RPE7','km','8','4:50/km','7','10'),('HM 1:20:00 RPE10 to M','km','21.0975','1:20:00','10','42.195')]:
+        out.append(('hard-workout-predictor','continuous '+lab,lambda pg,u=u,d=d,tm=tm,rp=rp,tg=tg:[fill(pg,'mode','cont'),fill(pg,'unit',u),fill(pg,'rep',d),fill(pg,'rpe',rp),fill(pg,'target',tg),fill(pg,'splits',tm)]))
     return out
 def tracker(pg):
     for d,reps,rep,u,pace in [('2026-09-01','4','10','min','4:05'),('2026-09-08','6','1','km','3:58'),('2026-09-15','5','8','min','3:55'),('2026-09-29','3','12','min','4:08'),('2026-10-06','4','10','min','4:00')]:

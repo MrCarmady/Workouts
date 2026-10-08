@@ -19,9 +19,12 @@ Predicts a race from a hard interval session. It is a prototype. The anchors are
 | Limits: total work up to 25km (refused above), an equivalent race under 400m (refused), and an equivalent race beyond the marathon (capped at marathon pace, with a note) | My placeholders |
 | Anchors apply at RPE 8 and standard rest | Author's assumption |
 | Pace used = pace × (1 + 0.01 × (RPE − 8)) | My placeholder |
+| Continuous mode: pace × (1 + 0.01 × (RPE − 10)) × (1 − 0.025), then the race model | My placeholders. No source for the 2.5% race-day effect |
 | Band of 1% in pace around each anchor (5000m: marathon pace to 2% faster) | My placeholder |
 | Pace for other rep lengths: linear interpolation between anchors by rep distance | My choice |
 | Race model: Riegel 1.06, adjustment below 5km, marathon offset at 70 miles a week | My estimates, not validated |
+
+Continuous mode accepts 1.5 to 30km (a solo effort longer than that is not supported).
 
 Not adjusted: rest, heat, surface, wind, hills. The tool warns when rest is more than 20% shorter or 25% longer than standard, when RPE is below 6 or above 9.5, and when the second half of the reps differs from the first by more than 2%.
 
