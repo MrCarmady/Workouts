@@ -130,6 +130,12 @@ S_flat = S * (1 + 4.5 * G)
 <li>At faster speeds and steeper inclines the sign flips and it overstates the credit, for example by 16s/km at 14km/h and 9%.</li>
 <li>It has no published source. Check results against the equation.</li>
 </ul>
+<h2>Hold the flat-equivalent pace</h2>
+<p>With the box ticked, you enter the flat pace you want. Changing the incline sets the belt speed, and changing the belt speed sets the incline:</p>
+<pre><code>true belt speed = flat speed / (1 + 4.5 * grade)
+display speed   = true belt speed * (1 + display error)
+</code></pre>
+<p>Speeds are rounded to 0.1 and inclines to 0.1, so the flat pace shown in the result can differ from the target by a second or two. A belt speed faster than the flat pace, or one needing more than 20% incline, is refused.</p>
   </article>
 </main>
 <script>

@@ -50,6 +50,11 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 .result { display: grid; gap: 10px; align-content: center; }
 .big { font-family: var(--font-display); font-weight: 700; font-size: 5.5rem; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; line-height: 1; font-variant-numeric: tabular-nums; color: var(--accent); }
 .big small { font-size: 1.6rem; font-weight: 600; color: var(--muted); }
+.chk { display: flex; align-items: center; gap: 10px; min-height: 2.75rem; font-size: .95rem; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--fg); }
+.chk input { width: 1.2rem; height: 1.2rem; min-height: 0; accent-color: var(--accent); }
+.lockrow { margin-bottom: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: end; }
+.lockrow .chk { grid-column: span 2; }
+@media (max-width: 480px) { .lockrow { grid-template-columns: minmax(0, 1fr); } .lockrow .chk { grid-column: auto; } }
 .kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
 .kv div { background: var(--surface-2); border-radius: 2px; padding: 8px 10px; }
 .kv b { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -72,6 +77,10 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 
   <section class="panel">
     <h2>Treadmill</h2>
+    <div class="lockrow">
+      <label class="chk"><input type="checkbox" id="lock"> Hold the flat-equivalent pace</label>
+      <label id="lbTarget" hidden>Flat pace, /km <input id="target" inputmode="text" autocomplete="off" value="4:09" placeholder="4:09"></label>
+    </div>
     <div class="fields">
       <label>Belt speed
         <input id="speed" type="number" inputmode="decimal" min="5" max="25" step="0.1" value="10.9">
@@ -113,7 +122,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 
   function save() {
     try { localStorage.setItem("tt-tread-cal", $("cal").value); } catch (e) {}
-    try { localStorage.setItem("acsmwidget", JSON.stringify({ speed: $("speed").value, unit: $("unit").value, grade: $("grade").value })); } catch (e) {}
+    try { localStorage.setItem("acsmwidget", JSON.stringify({ speed: $("speed").value, unit: $("unit").value, grade: $("grade").value, lock: $("lock").checked, target: $("target").value })); } catch (e) {}
   }
   function restore() {
     try { var c = localStorage.getItem("tt-tread-cal"); if (c !== null && c !== "") $("cal").value = c; } catch (e) {}
@@ -123,9 +132,38 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
       if (o.unit === "kmh" || o.unit === "mph") $("unit").value = o.unit;
       if (o.speed !== undefined) $("speed").value = o.speed;
       if (o.grade !== undefined) $("grade").value = o.grade;
+      if (o.target) $("target").value = o.target;
+      if (o.lock === true) $("lock").checked = true;
     } catch (e) {}
   }
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("res").hidden = true; }
+
+  function parsePace(x) {
+    var p = x.trim().split(":");
+    if (p.length !== 2 || p.some(function (v) { return v === "" || isNaN(v); })) return null;
+    var s = Number(p[0]) * 60 + Number(p[1]);
+    return s > 0 ? s : null;
+  }
+  // With the pace held, flat speed = true belt speed x (1 + 4.5 x grade). Editing one of incline and speed sets the other.
+  function sync(src) {
+    $("lbTarget").hidden = !$("lock").checked;
+    if (!$("lock").checked) return null;
+    var cal = parseFloat($("cal").value), tp = parsePace($("target").value);
+    if (isNaN(cal) || cal < -10 || cal > 10) return null;
+    if (tp === null) return "Enter the flat pace as mm:ss, for example 4:09.";
+    var flat = 3600 / tp, unit = $("unit").value, k = 1 + cal / 100;
+    if (src === "speed") {
+      var v = parseFloat($("speed").value); if (isNaN(v) || v <= 0) return null;
+      var kmh = (unit === "mph" ? v * MILE : v) / k, g = (flat / kmh - 1) / 4.5 * 100;
+      if (g < 0 || g > 20) return g < 0 ? "That belt speed is faster than the flat pace. Lower it." : "That belt speed needs more than 20% incline.";
+      $("grade").value = (Math.round(g * 10) / 10).toString();
+    } else {
+      var g2 = parseFloat($("grade").value); if (isNaN(g2) || g2 < 0 || g2 > 20) return null;
+      var disp = flat / (1 + 4.5 * g2 / 100) * k;
+      $("speed").value = (Math.round((unit === "mph" ? disp / MILE : disp) * 10) / 10).toString();
+    }
+    return null;
+  }
 
   function update() {
     $("err").hidden = true;
@@ -148,10 +186,18 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   }
 
   restore();
-  ["speed", "unit", "grade", "cal"].forEach(function (id) {
-    $(id).addEventListener("input", function () { save(); update(); });
-    $(id).addEventListener("change", function () { save(); update(); });
+  $("lock").addEventListener("change", function () {
+    if ($("lock").checked) {   // start from the pace shown now
+      var u = $("unit").value, v = parseFloat($("speed").value), g = parseFloat($("grade").value), c = parseFloat($("cal").value);
+      if (!isNaN(v) && !isNaN(g) && !isNaN(c) && v > 0) { var fl = (u === "mph" ? v * MILE : v) / (1 + c / 100) * (1 + 4.5 * g / 100); $("target").value = mmss(3600 / fl); }
+    }
+    $("lbTarget").hidden = !$("lock").checked; save(); update();
   });
+  ["speed", "unit", "grade", "cal", "target"].forEach(function (id) {
+    var h = function () { var m = sync(id === "speed" ? "speed" : "other"); save(); update(); if (m) fail(m); };
+    $(id).addEventListener("input", h); $(id).addEventListener("change", h);
+  });
+  $("lbTarget").hidden = !$("lock").checked;
   update();
 })();
 

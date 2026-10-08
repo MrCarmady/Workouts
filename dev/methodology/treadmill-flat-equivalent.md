@@ -75,3 +75,14 @@ These comparisons come from calculations I ran over belt speeds of about 5 to 12
   - At slower belt speeds it understates the incline credit by more. The gap reaches about 63s/mile at 5 mph and 10%.
   - At faster speeds and steeper inclines the sign flips and it overstates the credit, for example by 16s/km at 14km/h and 9%.
   - It has no published source. Check results against the equation.
+
+## Hold the flat-equivalent pace
+
+With the box ticked, you enter the flat pace you want. Changing the incline sets the belt speed, and changing the belt speed sets the incline:
+
+```
+true belt speed = flat speed / (1 + 4.5 * grade)
+display speed   = true belt speed * (1 + display error)
+```
+
+Speeds are rounded to 0.1 and inclines to 0.1, so the flat pace shown in the result can differ from the target by a second or two. A belt speed faster than the flat pace, or one needing more than 20% incline, is refused.
