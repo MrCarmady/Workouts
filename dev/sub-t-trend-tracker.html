@@ -87,6 +87,8 @@ svg.chart { width: 100%; height: auto; display: block; }
 svg.chart text { fill: var(--muted); font-family: var(--font-body); font-size: 11px; }
 svg.chart .grid { stroke: var(--line); stroke-width: 1; }
 svg.chart .pt { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+svg.chart .pt.old { opacity: .35; }
+svg.chart .wh.old { opacity: .2; }
 svg.chart .wh { stroke: var(--accent); stroke-width: 1.5; opacity: .55; }
 svg.chart .tr { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
 .btn { font: inherit; font-size: .85rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-fg); background: var(--accent); border: 0; border-radius: 2px; height: 2.75rem; padding: 0 18px; cursor: pointer; }
@@ -94,6 +96,7 @@ svg.chart .tr { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; 
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .xbtn { font: inherit; background: transparent; border: 0; color: var(--muted); cursor: pointer; padding: 4px 8px; }
 tr.out td { color: var(--muted); }
+tr.old td { color: var(--muted); }
 textarea { box-sizing: border-box; width: 100%; min-height: 6rem; font: inherit; font-size: .8rem; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 8px; }
 details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
 .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
@@ -127,7 +130,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       <label>Session avg HR, % of max (optional) <input id="hra" inputmode="decimal" placeholder="80"></label>
       <div class="row"><button class="btn" id="add" type="button">Add</button></div>
     </div>
-    <p class="note">Log only sessions that ended at RPE 7 or lower. RPE is for your own record and does not change the estimate. HR is optional: a session is excluded if peak HR (last minute or two of the last rep) is above 90% of max, or whole-session average HR (warm-up and cool-down included) is above 82%. The 82% is my placeholder.</p>
+    <p class="note">Log sessions that ended at RPE 7 or lower. HR is optional. Sessions are excluded if peak HR (last 1–2 minutes of the last rep) is above 90% of max, or average HR (warm-up and cool-down included) is above 82%.</p>
     <p class="warn" id="err" hidden></p>
   </section>
 
@@ -145,6 +148,10 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   <section class="panel">
     <h2>Sessions</h2>
     <div class="tablewrap"><table id="tbl"></table></div>
+    <div class="row" id="clearrow" style="margin-top:8px">
+      <button class="btn ghost" id="clear" type="button">Clear all sessions</button>
+      <span id="sure" hidden><span class="flag" id="surelab"></span> <button class="btn" id="yes" type="button">Yes, delete all</button> <button class="btn ghost" id="no" type="button">Cancel</button></span>
+    </div>
     <details>
       <summary>Back up or move your data</summary>
       <p class="note">Data is stored in this browser only. Copy the text to keep it or paste it into another browser.</p>
@@ -157,9 +164,9 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     <h2>How it works</h2>
     <ul>
       <li><b>Implied threshold.</b> The pace and rep length are matched to the same rep-to-race-pace table as the Sub-Threshold Session Generator, run backwards: it finds the 5km pace for which that rep length would be paced as entered. Threshold is the pace for a 16km race at that fitness. The range runs from the fast to the slow end of the table for that rep length.</li>
-      <li><b>Estimate.</b> The median of the last 6 counted sessions.</li>
-      <li><b>Confidence.</b> Fewer than 3 counted sessions: indicative only. 3–5: low. 6–9: moderate. 10 or more: good. These cut-offs are placeholders, not validated.</li>
-      <li><b>Trend.</b> Straight-line fit to the counted sessions, shown from 4 sessions spanning 14 days. Pace noise, heat, hills and fatigue are not corrected for.</li>
+      <li><b>Estimate.</b> The median of the last 6 counted sessions within the past 6 weeks. With fewer than 3 in that window, it uses the last 6 counted sessions and is marked stale.</li>
+      <li><b>Confidence.</b> Counted sessions in the last 6 weeks. Fewer than 3: stale. 3–5: low. 6–9: moderate. 10 or more: good. These cut-offs and the windows are placeholders, not validated.</li>
+      <li><b>Trend.</b> Straight-line fit to the counted sessions in the last 12 weeks, shown from 4 sessions spanning 14 days. Pace noise, heat, hills and fatigue are not corrected for.</li>
     </ul>
   </section>
 </main>
@@ -315,6 +322,9 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     save(); render();
   }
 
+  // Recency windows (placeholders). Estimate: last 6 counted sessions within 6 weeks; stale fallback below 3. Trend: counted sessions within 12 weeks.
+  var EST_DAYS = 42, TREND_DAYS = 84, EST_MIN = 3, EST_N = 6;
+  function age(s) { return dayNum(today()) - dayNum(s.date); }
   function valid(s) { return (s.hr === null || s.hr <= 90) && (s.ha == null || s.ha <= 82); }
   function why(s) { var r = []; if (s.hr !== null && s.hr > 90) r.push("peak HR " + s.hr + "%"); if (s.ha != null && s.ha > 82) r.push("avg HR " + s.ha + "%"); return r.join(", "); }
   function repText(s) { return s.reps + " × " + (s.lbl ? s.lbl : s.t >= 120 ? Math.round(s.t / 6) / 10 + " min" : Math.round(s.t) + "s"); }
@@ -326,25 +336,30 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       est.innerHTML = "<div><span>Threshold pace</span><b>–</b><small>No counted sessions yet</small></div>";
       $("estnote").textContent = "";
     } else {
-      var last = V.slice(-6), thr = median(last.map(function (s) { return s.thr; })), lo = median(last.map(function (s) { return s.lo; })), hi = median(last.map(function (s) { return s.hi; }));
+      var win = V.filter(function (s) { return age(s) <= EST_DAYS; }), stale = win.length < EST_MIN, nw = win.length;
+      var last = (stale ? V : win).slice(-EST_N), thr = median(last.map(function (s) { return s.thr; })), lo = median(last.map(function (s) { return s.lo; })), hi = median(last.map(function (s) { return s.hi; }));
       var p5 = median(last.map(function (s) { return s.p5; }));
       var race = model(p5, null);
-      var conf = n < 3 ? "Indicative only" : n < 6 ? "Low" : n < 10 ? "Moderate" : "Good";
-      var tr = trend(V), dd = V.map(function (s) { return dayNum(s.date); }), span = n ? Math.max.apply(null, dd) - Math.min.apply(null, dd) : 0, trTxt = tr === null ? "Needs 4 sessions spanning 14 days (you have " + n + " over " + span + " day" + (span === 1 ? "" : "s") + ")" : (tr <= 0 ? "" : "+") + (Math.round(tr * 10) / 10) + " s/km per 4 weeks";
+      var conf = stale ? "Stale" : nw < 6 ? "Low" : nw < 10 ? "Moderate" : "Good";
+      var Vt = V.filter(function (s) { return age(s) <= TREND_DAYS; }), nt = Vt.length;
+      var tr = trend(Vt), dd = Vt.map(function (s) { return dayNum(s.date); }), span = nt ? Math.max.apply(null, dd) - Math.min.apply(null, dd) : 0, trTxt = tr === null ? "Needs 4 sessions spanning 14 days in the last 12 weeks (you have " + nt + " over " + span + " day" + (span === 1 ? "" : "s") + ")" : (tr <= 0 ? "" : "+") + (Math.round(tr * 10) / 10) + " s/km per 4 weeks";
       est.innerHTML =
         "<div><span>Threshold pace</span><b class=\"pace\">" + mmss(thr) + "</b><small>" + mmss(lo) + "–" + mmss(hi) + " /km</small></div>" +
-        "<div><span>Confidence</span><b>" + conf + "</b><small>" + n + " counted session" + (n === 1 ? "" : "s") + "</small></div>" +
+        "<div><span>Confidence</span><b>" + conf + "</b><small>" + nw + " counted session" + (nw === 1 ? "" : "s") + " in the last 6 weeks</small></div>" +
         "<div><span>Trend</span><b>" + (tr === null ? "–" : (tr <= 0 ? "" : "+") + (Math.round(tr * 10) / 10)) + "</b><small>" + (tr === null ? trTxt : "s/km per 4 weeks (negative = faster)") + "</small></div>" +
         "<div><span>Implied 5km</span><b>" + hmmss(race(5) * 5) + "</b></div>" +
         "<div><span>Implied 10km</span><b>" + hmmss(race(10) * 10) + "</b></div>" +
         "<div><span>Implied half</span><b>" + hmmss(race(HM) * HM) + "</b></div>";
-      $("estnote").textContent = "Median of the last " + last.length + " counted sessions. Race times are equivalents from that fitness, not predictions." + (n < 3 ? " Too few sessions to rely on." : "");
+      var latest = Math.round(age(last[last.length - 1]));
+      $("estnote").textContent = stale
+        ? "Stale: fewer than " + EST_MIN + " counted sessions in the last 6 weeks, so this is the median of the last " + last.length + " counted session" + (last.length === 1 ? "" : "s") + " (latest " + latest + " day" + (latest === 1 ? "" : "s") + " ago)."
+        : "Median of the last " + last.length + " counted sessions within 6 weeks.";
     }
     chart(V);
     var h = "<thead><tr><th>Date</th><th>Session</th><th class=\"num\">Avg pace</th><th class=\"num\">RPE</th><th class=\"num hr\">Peak HR</th><th class=\"num\">Threshold</th><th></th></tr></thead><tbody>";
     S.slice().reverse().forEach(function (s) {
       var ok = valid(s);
-      h += "<tr class=\"" + (ok ? "" : "out") + "\"><td>" + fmtDate(s.date) + "</td><td>" + repText(s) + (ok ? "" : "<br><span class=\"flag\">Excluded: " + why(s) + "</span>") + "</td><td class=\"num\">" + mmss(s.p) + "</td><td class=\"num\">" + (s.rpe == null ? "–" : s.rpe) + "</td><td class=\"num hr\">" + (s.hr === null ? "–" : s.hr + "%") + "</td><td class=\"num pace\">" + mmss(s.thr) + "</td><td><button class=\"xbtn\" data-id=\"" + s.id + "\" aria-label=\"Delete session\">✕</button></td></tr>";
+      h += "<tr class=\"" + (ok ? (age(s) > TREND_DAYS ? "old" : "") : "out") + "\"><td>" + fmtDate(s.date) + "</td><td>" + repText(s) + (ok ? "" : "<br><span class=\"flag\">Excluded: " + why(s) + "</span>") + "</td><td class=\"num\">" + mmss(s.p) + "</td><td class=\"num\">" + (s.rpe == null ? "–" : s.rpe) + "</td><td class=\"num hr\">" + (s.hr === null ? "–" : s.hr + "%") + "</td><td class=\"num pace\">" + mmss(s.thr) + "</td><td><button class=\"xbtn\" data-id=\"" + s.id + "\" aria-label=\"Delete session\">✕</button></td></tr>";
     });
     $("tbl").innerHTML = S.length ? h + "</tbody>" : "<tbody><tr><td>No sessions logged.</td></tr></tbody>";
     $("json").value = JSON.stringify({ sessions: S });
@@ -375,14 +390,25 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var xt = [x0, (x0 + x1) / 2, x1];
     xt.forEach(function (d, i) { var dt = new Date(d * 864e5), s = dt.getUTCFullYear() + "-" + ("0" + (dt.getUTCMonth() + 1)).slice(-2) + "-" + ("0" + dt.getUTCDate()).slice(-2); g += "<text x=\"" + sx(d) + "\" y=\"" + (H - 8) + "\" text-anchor=\"" + (i === 0 ? "start" : i === 2 ? "end" : "middle") + "\">" + fmtDate(s) + "</text>"; });
     var tr = "";
-    if (V.length >= 4 && x1 - x0 >= 14) { var f = fit(x, V.map(function (s) { return s.thr; })); tr = "<line class=\"tr\" x1=\"" + sx(x0) + "\" x2=\"" + sx(x1) + "\" y1=\"" + sy(f.a + f.b * x0) + "\" y2=\"" + sy(f.a + f.b * x1) + "\"/>"; }
+    var Vt = V.filter(function (s) { return age(s) <= TREND_DAYS; });
+    if (Vt.length >= 4) {
+      var xt2 = Vt.map(function (s) { return dayNum(s.date); }), t0 = Math.min.apply(null, xt2), t1 = Math.max.apply(null, xt2);
+      if (t1 - t0 >= 14) { var f = fit(xt2, Vt.map(function (s) { return s.thr; })); tr = "<line class=\"tr\" x1=\"" + sx(t0) + "\" x2=\"" + sx(t1) + "\" y1=\"" + sy(f.a + f.b * t0) + "\" y2=\"" + sy(f.a + f.b * t1) + "\"/>"; }
+    }
     var pts = "";
     V.forEach(function (s, i) {
-      pts += "<line class=\"wh\" x1=\"" + sx(x[i]) + "\" x2=\"" + sx(x[i]) + "\" y1=\"" + sy(s.lo) + "\" y2=\"" + sy(s.hi) + "\"/><circle class=\"pt\" cx=\"" + sx(x[i]) + "\" cy=\"" + sy(s.thr) + "\" r=\"5\"><title>" + fmtDate(s.date) + ": " + repText(s) + " at " + mmss(s.p) + " gives threshold " + mmss(s.thr) + " /km (" + mmss(s.lo) + "–" + mmss(s.hi) + ")</title></circle>";
+      pts += "<line class=\"wh" + (age(s) > TREND_DAYS ? " old" : "") + "\" x1=\"" + sx(x[i]) + "\" x2=\"" + sx(x[i]) + "\" y1=\"" + sy(s.lo) + "\" y2=\"" + sy(s.hi) + "\"/><circle class=\"pt" + (age(s) > TREND_DAYS ? " old" : "") + "\" cx=\"" + sx(x[i]) + "\" cy=\"" + sy(s.thr) + "\" r=\"5\"><title>" + fmtDate(s.date) + ": " + repText(s) + " at " + mmss(s.p) + " gives threshold " + mmss(s.thr) + " /km (" + mmss(s.lo) + "–" + mmss(s.hi) + ")</title></circle>";
     });
-    el.innerHTML = "<svg class=\"chart\" viewBox=\"0 0 " + W + " " + H + "\" role=\"img\" aria-label=\"Implied threshold pace per counted session over time, faster pace upward\">" + g + tr + pts + "</svg><p class=\"note\">Implied threshold pace per counted session, faster upward. Bars show the range. Dashed line is the trend.</p>";
+    el.innerHTML = "<svg class=\"chart\" viewBox=\"0 0 " + W + " " + H + "\" role=\"img\" aria-label=\"Implied threshold pace per counted session over time, faster pace upward\">" + g + tr + pts + "</svg><p class=\"note\">Implied threshold pace per counted session, faster upward. Bars show the range. Dashed line is the trend over the last 12 weeks. Faded points are older than that.</p>";
   }
 
+  function askClear(on) {
+    if (on) $("surelab").textContent = "Delete all " + S.length + " logged session" + (S.length === 1 ? "" : "s") + "? This cannot be undone. Copy the backup text first to keep them.";
+    $("sure").hidden = !on; $("clear").hidden = on;
+  }
+  $("clear").addEventListener("click", function () { if (S.length) askClear(true); });
+  $("no").addEventListener("click", function () { askClear(false); });
+  $("yes").addEventListener("click", function () { S = []; save(); render(); askClear(false); });
   load();
   $("date").value = today();
   $("add").addEventListener("click", add);

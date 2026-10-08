@@ -57,10 +57,10 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - Excluded if peak HR (last minute or two of the last rep) is above 90% of max (P).
 - Excluded if whole-session average HR (warm-up and cool-down included) is above 82% of max (P said about 81 to 82%; 82 is my placeholder).
 - Threshold = race(16) (P). Each rep length maps to a race pace through the Sub-Threshold Session Generator table, run backwards.
-- Estimate: median of the last 6 counted sessions (my choice).
-- Confidence by session count: under 3 indicative, 3 to 5 low, 6 to 9 moderate, 10+ good (my placeholders).
-- Trend: straight-line fit, shown from 4 sessions spanning at least 14 days (my choice).
-- Open: recency window (8 weeks for the estimate, 12 for the trend; my placeholders) and a "Recalculate all" button.
+- Estimate: median of the last 6 counted sessions within the past 6 weeks (P: 2 to 3 sessions a week expected). With fewer than 3 in that window it falls back to the last 6 counted sessions and is flagged stale (my choice).
+- Confidence by counted sessions in the last 6 weeks: under 3 stale, 3 to 5 low, 6 to 9 moderate, 10+ good (my placeholders).
+- Trend: straight-line fit to counted sessions within the past 12 weeks (P), shown from 4 sessions spanning at least 14 days (my choice). Older sessions stay visible, faded.
+- Open: a "Recalculate all" button, to recompute stored implied thresholds from raw inputs after a model change.
 
 ## 9. Hard Workout Predictor
 - Anchors (P): 400m with 60s rest = mile pace (8 to 10 reps); 800m, 90s = 3k; 1000m, 60s = 5k; 1600m, 2 min = 8k (4x1600m); 3000m, 3 min = 10k; 5000m, 3 min = marathon pace to 2% faster. Placeholders: 600m = 2k, 1200m = 5k, 2000m = 8k.

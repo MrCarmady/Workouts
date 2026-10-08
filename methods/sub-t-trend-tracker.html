@@ -86,20 +86,20 @@ a { color:var(--accent); }
 <td>Follows from the table</td>
 </tr>
 <tr>
-<td>Estimate = median of the last 6 counted sessions</td>
-<td>My choice</td>
+<td>Estimate = median of the last 6 counted sessions within the past 6 weeks (42 days). With fewer than 3 in that window it uses the last 6 counted sessions regardless of age and is marked stale</td>
+<td>Window and minimum of 3 are my placeholders; 6 weeks is the author's (2–3 sessions a week expected)</td>
 </tr>
 <tr>
-<td>Confidence: &lt;3 indicative, 3–5 low, 6–9 moderate, 10+ good</td>
+<td>Confidence from counted sessions in the last 6 weeks: &lt;3 stale, 3–5 low, 6–9 moderate, 10+ good</td>
 <td>My placeholders, not validated. Author to set n</td>
 </tr>
 <tr>
-<td>Trend: straight-line fit, shown from 4 sessions spanning 14 days, in s/km per 4 weeks</td>
-<td>My choice</td>
+<td>Trend: straight-line fit to counted sessions within the past 12 weeks (84 days), shown from 4 sessions spanning 14 days, in s/km per 4 weeks. Older sessions stay in the table and chart, faded</td>
+<td>12 weeks is the author's; the rest is my choice</td>
 </tr>
 </tbody>
 </table>
-<p>Not corrected for: heat, hills, wind, fatigue, pacing errors. Data is stored in the browser only (key <code>stt</code>).</p>
+<p>Not corrected for: heat, hills, wind, fatigue, pacing errors. Data is stored in the browser only (key <code>stt</code>). "Clear all sessions" deletes every logged session after a second confirmation click; the backup text box can be copied first.</p>
   </article>
 </main>
 <script>
