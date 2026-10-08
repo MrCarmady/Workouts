@@ -140,9 +140,9 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 
   <section class="method">
     <h2>How this is calculated</h2>
-    <p>Each part of the session scores hours × (threshold pace ÷ average pace)² × 100. A full hour at threshold pace is 100. The two parts are added.</p>
-    <p>If you enter a race instead of a threshold pace, the race is converted to a 5km equivalent with Riegel's formula (time × distance ratio ^ 1.06). A result shorter than 5km is slowed by 8s/km × ln(5 ÷ distance in km) (about 9s/km for the mile). Threshold pace is then taken as the pace for 16km, using the same formula. These are estimates.</p>
-    <p>One hour at threshold pace scores 100. Sessions longer than an hour can score more. Inputs outside realistic ranges are rejected: paces outside 2:00–15:00 per km, and sessions that work out to more than 120 TSS per hour of total time. A short all-out effort entered with no warm-up can hit that limit.</p>
+    <p>Each part scores hours × (threshold pace ÷ average pace)² × 100. One hour at threshold pace is 100. The two parts are added. Longer sessions can score more.</p>
+    <p>If you enter a race instead of a threshold pace, it is converted to a 5km equivalent with Riegel's formula (time × distance ratio ^ 1.06). Results under 5km are slowed by 8s/km × ln(5 ÷ km). Threshold pace is the pace for 16km from that. These are estimates.</p>
+    <p>Inputs are rejected if the pace is outside 2:00–15:00 per km, or the session exceeds 120 TSS per hour of total time. A short all-out effort with no warm-up can hit that limit.</p>
     <p>Recoveries between reps are not counted. To include them, add their minutes to the warm-up and cool-down line and enter an average pace for the combined time.</p>
   </section>
 </main>
