@@ -71,6 +71,7 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - RPE moves the estimate (P): pace used = pace x (1 + 0.01 x (RPE - 8)). The 1% is a placeholder.
 - Continuous mode (tempo or time trial, 1.5 to 30km): pace x (1 + 0.01 x (RPE - 10)) x (1 - 0.025). The 2.5% race-day effect is P's conservative pick from a recalled 2.3 to 4% range. Cross-checks: 5k pace = solo 3.25 to 3.75km pace implies 2.7 to 4.0%; 5k time = solo 4800m time implies 4.4%. Published evidence is mixed (one running study about 4% over 3km, some cycling studies show no effect).
 - Pfitzinger 18-mile run with 14 miles at marathon pace fits continuous mode: 22.5km at marathon pace at RPE 7 predicts about 0.6% faster than that pace.
+- Race model reliability (my judgement, untested): the 5km to half marathon relationship holds best for intermediate runners on moderate mileage. It may be less reliable for beginners and low mileage.
 - Check case: 6x800 averaging 2:38.5 gives a 5k of 17:22 (17:12 to 17:32); the poster ran 17:07. One case, not a calibration.
 
 ## Simulation notes

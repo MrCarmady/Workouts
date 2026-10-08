@@ -26,6 +26,8 @@ Predicts a race from a hard interval session. It is a prototype. The anchors are
 
 Continuous mode accepts 1.5 to 30km (a solo effort longer than that is not supported).
 
+The 2.5% race-day effect is a placeholder. It is the author's conservative pick from a recalled 2.3 to 4% range. Published evidence is mixed: one running study found about 4% over 3km, and some cycling studies found little or no effect. Cross-checks against the 3.25 to 3.75km solo pace and 4800m solo time rules of thumb imply roughly 2.7 to 4.4%.
+
 Not adjusted: rest, heat, surface, wind, hills. The tool warns when rest is more than 20% shorter or 25% longer than standard, when RPE is below 6 or above 9.5, and when the second half of the reps differs from the first by more than 2%.
 
 Check against posted cases: 6×800 averaging 2:38.5 gives a 5k of 17:22 (range 17:12–17:32); the poster ran 17:07. One case, not a calibration.
