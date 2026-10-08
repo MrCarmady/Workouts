@@ -7,3 +7,6 @@ The `dev` folder holds the sources and tools that build the site. GitHub Pages a
 - **Tests:** `tests/run_tests.sh` checks the copies are in sync, runs the unit tests (`tests/core.test.js`) and the page snapshots (`tests/snapshot.py check`, 49 scenarios). The build stops if any fail.
 - **After an intended output change:** run `python3 tests/snapshot.py write` to accept the new outputs.
 - **Needs:** Python 3 with `markdown` and `playwright` (plus its Chromium), and Node.
+
+## Parkrun Converter
+Course scores live in data/parkrun-sss.txt (name | SSS). After editing that file or data/parkrun-converter.tpl, run make_parkrun.py to rebuild parkrun-converter.html.

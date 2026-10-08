@@ -1,0 +1,161 @@
+<title>Parkrun Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root {
+  --bg: #f2f2f1; --surface: #ffffff; --surface-2: #f0f0ee; --fg: #17181a; --muted: #6a6d72; --line: #deded9;
+  --accent: #c8372d; --accent-fg: #ffffff; --warn: #a35a00;
+  --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2; --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --warn: #f0a35a; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2; --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --warn: #f0a35a; color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 20px; }
+.wrap > * { min-width: 0; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 2rem; letter-spacing: .02em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: .06em; text-transform: uppercase; margin: 0; color: var(--muted); }
+.head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.themes { display: inline-flex; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; background: var(--surface); }
+.themes button { font: inherit; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: transparent; border: 0; padding: 7px 12px; cursor: pointer; }
+.themes button + button { border-left: 1px solid var(--line); }
+.themes button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.themes button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 62ch; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; display: grid; gap: 14px; align-content: start; }
+.fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.fields .full { grid-column: 1 / -1; }
+@media (max-width: 600px) { .fields { grid-template-columns: minmax(0, 1fr); } }
+label { display: grid; gap: 4px; align-content: start; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+input { box-sizing: border-box; width: 100%; height: 2.75rem; font: inherit; font-size: 1.05rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 0 10px; }
+input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+small.info { font-size: .8rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); min-height: 1.1em; }
+.btn { font: inherit; font-size: .85rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 2px; height: 2.75rem; padding: 0 18px; cursor: pointer; justify-self: start; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.note { font-size: .85rem; color: var(--muted); margin: 0; }
+.warn { color: var(--warn); font-size: .88rem; margin: 0; }
+.res { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 600px) { .res { grid-template-columns: repeat(2, minmax(0, 1fr)); } .res div:first-child { grid-column: 1 / -1; } }
+.res div { background: var(--surface-2); border-radius: 2px; padding: 10px 12px; min-width: 0; }
+.res b { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.res b.pace { color: var(--accent); }
+.res span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.res small { display: block; font-size: .78rem; color: var(--muted); margin-top: 2px; }
+.method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
+.method ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.method b { color: var(--fg); font-weight: 600; }
+[hidden] { display: none !important; }
+</style>
+
+<main class="wrap">
+  <header class="head">
+    <div>
+      <h1>Parkrun Converter</h1>
+      <p class="sub">Convert a parkrun time to another course, using course difficulty scores.</p>
+    </div>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2>Your run</h2>
+    <div class="fields">
+      <label class="full">Time <input id="t" inputmode="text" autocomplete="off" value="20:00" placeholder="20:00"></label>
+      <label>Course you ran <input id="from" list="courses" autocomplete="off" spellcheck="false" value="Gunnersbury" placeholder="Start typing a course"><small class="info" id="fromInfo"></small></label>
+      <label>Course to attempt <input id="to" list="courses" autocomplete="off" spellcheck="false" value="Battersea" placeholder="Start typing a course"><small class="info" id="toInfo"></small></label>
+      <button type="button" class="btn" id="swap">Swap courses</button>
+    </div>
+    <datalist id="courses"></datalist>
+    <p class="note">Time as mm:ss, or h:mm:ss. Type part of a course name and pick it from the list.</p>
+    <p class="warn" id="err" hidden></p>
+  </section>
+
+  <section class="panel">
+    <h2>Prediction</h2>
+    <div class="res" id="res"></div>
+    <p class="note" id="flags"></p>
+  </section>
+
+  <section class="panel method">
+    <h2>How it works</h2>
+    <ul>
+      <li><b>Scores.</b> Each course has a Standard Scratch Score (SSS) from The Running Channel, built from Tim Grose's work and Power of 10 data (list dated 29 April 2026). 0 is fastest and 12 is slowest.</li>
+      <li><b>Conversion.</b> Each point is 30 seconds over 5km, from median finish times in average conditions. Predicted time = your time + 30s × (score of the new course − score of the old one).</li>
+      <li><b>Limits.</b> The 30s is fixed for everyone. Weather, surface on the day, crowding and your own strengths are not adjusted for. Treat gaps of 2 points or more with caution.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  var COURSES = [["Pegwell Bay",0.8],["Walsall Arboretum",1.0],["Battersea",1.2],["Isabel Trail (Main)",1.2],["Bromley (Winter)",1.2],["Belfast Victoria",1.2],["Widnes",1.2],["Elder Park",1.2],["Aberbeeg",1.2],["Marine Parade (Main)",1.2],["Yarborough Leisure Centre",1.3],["Dulwich",1.3],["Five Arches",1.3],["Rother Valley",1.3],["Alexandra",1.3],["Storeys Field",1.3],["Selby",1.3],["Victoria Dock",1.3],["Strathclyde",1.3],["Somerdale Pavilion",1.3],["Isabel Trail (Alternative)",1.4],["Long Eaton",1.4],["Hove Promenade",1.4],["Torbay Velopark",1.4],["Worthing",1.4],["Brooklands",1.4],["Market Rasen Racecourse",1.4],["Watermead Country Park",1.4],["Pont y Bala",1.4],["Hartlepool",1.4],["Poole",1.5],["Riverfront",1.5],["Doddington Hall",1.5],["Southampton",1.5],["Keswick",1.5],["Alvaston",1.5],["Eden Project",1.5],["Worcester Pitchcroft",1.5],["Northampton",1.5],["Victoria",1.5],["Albert",1.5],["Rickmansworth",1.5],["South Manchester",1.5],["St Andrews",1.5],["Morecambe Prom",1.5],["Stretford",1.5],["Burgess",1.6],["Abbey Park",1.6],["Blandford",1.6],["Swansea Bay",1.6],["Great Denham",1.6],["The Wammy",1.6],["Springburn",1.6],["Beacon",1.6],["Southport",1.6],["Bideford",1.6],["Gunpowder",1.6],["Edinburgh",1.6],["Oaklands",1.6],["Ruthin Memorial Playing Fields",1.6],["Severn Bridge",1.6],["The Old Showfield",1.6],["Riverside",1.6],["Southend",1.6],["Sixmilewater",1.6],["Rutland Water",1.6],["Knockbracken Reservoir",1.6],["Groe",1.6],["Fleetwood Promenade",1.6],["Perth",1.6],["Hastings",1.6],["Exmouth",1.6],["Maryport Prom",1.6],["Cardiff",1.7],["Bushy Park",1.7],["Heslington",1.7],["Congleton",1.7],["Sutcliffe",1.7],["Southwark",1.7],["Stratford-upon-Avon",1.7],["Lordship Recreation Ground",1.7],["Hull",1.7],["Peel",1.7],["Market Harborough",1.7],["Blyth Links",1.7],["Norwich",1.8],["Raphael",1.8],["Burnham and Highbridge",1.8],["Pymmes",1.8],["Berkeley Green",1.8],["Buckingham",1.8],["Penallta",1.8],["Citypark",1.8],["Arrow Valley",1.8],["Cassiobury",1.8],["Millennium Country",1.8],["Chipping Sodbury",1.8],["Barking",1.8],["King’s Lynn",1.8],["Croxteth Hall",1.8],["Ormskirk",1.8],["Sixfields Upton",1.8],["Bryn Bach",1.8],["Sandy Water",1.8],["Rogiet",1.8],["Gorleston Cliffs",1.8],["Ancholme Valley Way",1.8],["Felixstowe",1.8],["Y Promenâd, Abermaw",1.8],["MUSA Cookstown",1.8],["Southsea",1.8],["York",1.8],["Greenock",1.8],["Chalkwell Beach",1.8],["Dover Waterfront",1.8],["Harwich",1.8],["Walmer and Deal Seafront",1.8],["Fountains Abbey",1.9],["Birkenhead",1.9],["Darlington South Park",1.9],["Thames Path, Woolwich",1.9],["Whiteley",1.9],["Edgbaston Reservoir",1.9],["University Parks",1.9],["Roberts Park",1.9],["The Cinder Track",1.9],["Highbury Fields",1.9],["Penrose",1.9],["Salisbury",1.9],["Huddersfield",1.9],["Woodley",1.9],["Littlehampton Prom",1.9],["Aberdeen",1.9],["Lee-on-the-Solent",1.9],["Oxford",2.0],["Clevedon Salthouse Fields",2.0],["Clumber Park",2.0],["Three Brooks",2.0],["Paisley Park",2.0],["Rushcliffe",2.0],["Sloughbottom",2.0],["Grangemoor",2.0],["Wisbech",2.0],["Pontypridd",2.0],["Osterley",2.0],["Ury Riverside",2.0],["Eastbourne (Main)",2.0],["Bedford",2.0],["East Park",2.0],["Stevenage",2.0],["Cyclopark",2.0],["Normanby Hall",2.0],["Wolverhampton",2.0],["Tremorfa",2.0],["Crinan Canal",2.0],["Southall",2.0],["Aberdare",2.0],["Perry Hall",2.0],["Quakers Walk",2.0],["North Yorkshire Water Park",2.0],["Erskine Waterfront",2.0],["Mansfield",2.0],["Watermeadows",2.0],["Newtown",2.0],["Ecos",2.0],["Aberystwyth",2.0],["Limavady",2.0],["Comber",2.0],["Maidstone",2.0],["Charlton",2.0],["Kingston",2.0],["The Leas",2.0],["Brueton",2.0],["Northala Fields",2.0],["Troon",2.0],["Workington",2.0],["Ferry Meadows",2.0],["Agnew",2.0],["Elgin",2.0],["West Links",2.0],["The Fisherman‘s Walk",2.0],["Dunleath Playing Fields",2.0],["Aviemore",2.0],["Millom",2.0],["Linwood",2.0],["Tyne Green",2.0],["Seaford Beach",2.0],["Teignmouth Promenade",2.0],["Leicester Victoria",2.0],["Millhouses",2.1],["Bug Hunter Waters",2.1],["Cannon Hill",2.1],["Coventry",2.1],["Preston Park",2.1],["Rushmoor",2.1],["University of Northampton",2.1],["Telford",2.1],["Poolsbrook",2.1],["Penrith",2.1],["Shrewsbury",2.1],["Ormeau",2.1],["Warwick Racecourse",2.1],["Auldcathie District",2.1],["Bicester (Winter)",2.1],["Brighouse",2.1],["Weymouth",2.1],["Heaton Park",2.1],["Brighton & Hove",2.2],["Mile End",2.2],["Valentines",2.2],["Hillsborough",2.2],["Old Railway Trail, Llangollen",2.2],["Peckham Rye",2.2],["Gloucester City",2.2],["Portsmouth Lakeside",2.2],["Cross Flatts",2.2],["Redcar",2.2],["Stormont",2.2],["Monsal Trail",2.2],["Colwick",2.2],["Worsley Woods",2.2],["Antrim",2.2],["Concord",2.2],["Jersey",2.2],["Malling (now called Leybourne Lakes)",2.2],["Houghton Hall",2.2],["Higginson, Marlow",2.2],["Tamworth Castle Grounds",2.2],["Bicester (Summer)",2.2],["Folkestone",2.2],["Shepton Mallet",2.2],["Denton Dene",2.2],["Cleethorpes",2.2],["Cycle Route 43, Ystalyfera",2.2],["Oak Hill",2.2],["Cannock Chase",2.2],["Chelmsford Central",2.2],["Minehead",2.2],["Markshall Estate",2.2],["Scunthorpe",2.2],["Rotherham",2.2],["Chasewater",2.2],["Wickford Memorial",2.2],["Kingsway",2.2],["Newbury",2.2],["Seaton",2.2],["Hereford",2.2],["Heartlands",2.2],["Hackney Marshes",2.2],["Town Moor",2.2],["Mildenhall Hub",2.2],["Llanishen Park",2.2],["Rothwell",2.2],["Kettering",2.2],["Kingsbury Water",2.2],["Alness",2.2],["Newbiggin-by-the-Sea",2.2],["Chippenham Playing Fields, Monmouth",2.2],["Lowestoft",2.2],["Catford",2.2],["Aylesbury",2.2],["Ellon",2.2],["Downham Market Academy",2.2],["Reading",2.2],["Lingwood",2.2],["Wycombe Rye",2.2],["Ingrebourne Hill",2.3],["Gunnersbury",2.3],["Markeaton",2.3],["Moors Valley",2.3],["Endcliffe",2.3],["Woodhouse Moor",2.3],["Porthcawl",2.3],["Pontefract",2.3],["Lincoln",2.3],["Didcot",2.3],["The Great Field",2.3],["Maldon Prom",2.3],["Forfar Loch",2.3],["Leazes",2.3],["Wakehurst",2.4],["Brockenhurst (Winter – Wilverley)",2.4],["Milton Keynes",2.4],["Princes",2.4],["Edenbrook Country",2.4],["Salcey Forest",2.4],["Ashford",2.4],["Pavilion Gardens",2.4],["Beeston",2.4],["Warrington",2.4],["Babbs Mill",2.4],["Mallards Pike",2.4],["Braunstone",2.4],["Harrow",2.4],["California Country",2.4],["Horsham (Main)",2.4],["Woking",2.4],["Wallace",2.4],["Bramshall Road",2.4],["Bangor",2.4],["Crichton",2.4],["Derry City",2.4],["Lydiard",2.4],["Muncaster Castle",2.4],["Longrun Meadow",2.4],["Herrington Country",2.4],["Littleport",2.4],["Dalby Forest",2.4],["Luton Wardown",2.4],["Clacton Seafront",2.4],["Silksworth",2.4],["Fulbourn Hospital",2.4],["Hay Lodge",2.4],["Ashington Community Woodland",2.4],["Penistone",2.4],["Fulwell Quarry",2.4],["Pocket",2.4],["Cwmbran",2.4],["Seven Fields (Winter)",2.4],["Lancing Beach Green",2.4],["Dereham",2.4],["Sharpham Road Playing Fields",2.4],["Hunstanton Promenade (Winter)",2.4],["Street",2.4],["Llanerchaeron",2.4],["Livingston",2.4],["Goole",2.4],["Great Lines",2.4],["Largs Prom",2.4],["Exeter Riverside",2.4],["Silloth Promenade",2.4],["Armley",2.4],["Bromley (Summer)",2.5],["Black Park",2.5],["Portobello",2.5],["Burnage",2.5],["Tooting Common",2.5],["Birchall Playing Fields",2.5],["Druridge Bay",2.5],["Nova Prestatyn",2.5],["Nonsuch",2.5],["Coldham’s Common",2.5],["Sittingbourne",2.5],["Abingdon",2.5],["Brynaman",2.5],["Andover",2.5],["Montrose",2.5],["Holy Cross College",2.5],["Winchester",2.5],["Carrickfergus",2.5],["Kirkwall",2.5],["Oaklands College",2.5],["Simmons Park",2.6],["Cockermouth Greenway",2.6],["Whitley Bay",2.6],["Linford Wood",2.6],["Cheltenham (Winter)",2.6],["Philips Park",2.6],["Eastbourne (Summer)",2.6],["Lytham Hall",2.6],["Fulham Palace",2.6],["Ifield Mill Pond",2.6],["Penrhyn",2.6],["Hillsborough Forest",2.6],["St Helens",2.6],["Levengrove",2.6],["Crane Park",2.6],["Gateshead",2.6],["Bognor Regis",2.6],["Drumpellier Country",2.6],["Brixworth Country",2.6],["Conwy",2.6],["Holkham",2.6],["Kesgrave",2.6],["Merthyr",2.6],["Sale Water",2.6],["Fareham",2.6],["Hanley",2.6],["Seven Fields (Summer)",2.6],["Castlewellan",2.6],["Blickling",2.6],["Falkirk",2.6],["Wynyard Woodland",2.6],["Newborough Forest",2.6],["Lochore Meadows",2.6],["Newport",2.6],["Cranbrook Country Park",2.6],["University of Stirling",2.6],["Soham Village College",2.6],["Burnley",2.6],["Vogrie",2.6],["Tonbridge",2.6],["Beckton",2.6],["Frimley Lodge",2.6],["Ganger Farm",2.6],["Canons Park",2.6],["Billericay",2.6],["Woodgate Valley Country Park",2.6],["Tamar Lakes",2.6],["Whitehaven",2.6],["Melksham",2.6],["Prudhoe Riverside",2.6],["Cosmeston Lakes",2.6],["Evesham",2.6],["Great Cornard",2.6],["Lydney",2.6],["Upton Court",2.6],["Bolberry Down",2.6],["Stonehouse",2.6],["Brockwell",2.7],["Preston",2.7],["Richmond Park",2.7],["Finsbury Park",2.7],["Fletcher Moss",2.7],["Sherwood Pines",2.7],["Lister Park, Bradford",2.7],["Millfield",2.7],["Grovelands",2.7],["Oldham",2.7],["Wollaton Hall",2.7],["Clapham Common",2.7],["Bracknell",2.7],["Egham Orbit",2.8],["Black Rocks",2.8],["Bramhall Park",2.8],["Southwick Country Park",2.8],["Rising Sun",2.8],["Dewsbury",2.8],["Chester",2.8],["Conkers",2.8],["Alderley Park",2.8],["Bedworth",2.8],["Sheffield Castle",2.8],["Northwich",2.8],["Thetford",2.8],["Netley Abbey",2.8],["Wilmslow",2.8],["Queen’s, Belfast",2.8],["Kirkcaldy",2.8],["Bournemouth",2.8],["Basildon",2.8],["Greenwich",2.8],["Durham",2.8],["Brunswick Park",2.8],["Hazlehead",2.8],["Hanworth",2.8],["Peter Pan",2.8],["Boston",2.8],["Clare Castle",2.8],["Horspath",2.8],["Dolgellau",2.8],["Gloucester North",2.8],["Tewkesbury",2.8],["Omagh",2.8],["Withernsea Promenade",2.8],["Great Salterns",2.8],["Grove Fields",2.8],["Peacehaven",2.8],["Castle Park",2.8],["Sizewell",2.8],["Waterworks",2.8],["Central, Plymouth",2.8],["Carlingwark Loch",2.8],["Thurrock",2.8],["Tetbury Goods Shed",2.8],["Sence Valley Forest Park",2.8],["Jersey Farm (Summer)",2.9],["Eastville",2.9],["Trentham Gardens",2.9],["Pomphrey Hill",2.9],["Colney Lane",2.9],["Y Promenâd",2.9],["Milton Country",2.9],["Tilgate",2.9],["Catton",2.9],["Colchester Castle",2.9],["Wythenshawe",2.9],["Holbrooks",2.9],["Crystal Palace",3.0],["Baysgarth Park",3.0],["Skipton",3.0],["Horsham (Winter – Southwater)",3.0],["Fell Foot (Summer)",3.0],["Blackpool",3.0],["Bedfont Lakes",3.0],["Daventry",3.0],["Margate",3.0],["Dinton Pastures",3.0],["Rothay Park",3.0],["Knowsley",3.0],["Delamere",3.0],["Great Notley",3.0],["Harleston Magpies",3.0],["Colby",3.0],["Sutton Park",3.0],["Aberfields",3.0],["Bexley",3.0],["Harcourt Hill",3.0],["Orangefield",3.0],["New Earswick",3.0],["Bury St Edmunds",3.0],["Gnoll",3.0],["Milford Waterfront",3.0],["Lymington Woodside",3.0],["South Norwood",3.0],["Mersea Island",3.0],["Corby",3.0],["Melton Mowbray",3.0],["Panshanger",3.0],["Chipping Norton School",3.0],["St Mary’s",3.0],["Basingstoke",3.0],["Barrow",3.0],["Old Deer Park",3.0],["Cusworth Hall",3.0],["Flegg High",3.0],["Whitstable",3.0],["Sandall Park",3.0],["Macclesfield",3.0],["Tidworth",3.0],["Limepark Playing Fields",3.0],["Bower Park",3.0],["Chichester",3.0],["Bartley Park",3.0],["Hastings High School",3.0],["March",3.0],["Wanstead Flats",3.0],["Harrogate",3.0],["Chippenham",3.0],["Derrynoid Forest",3.0],["North Walsham",3.0],["Huntingdon",3.0],["Burnham-on-Crouch",3.0],["South Woodham Ferrers",3.0],["Girvan Prom",3.0],["Battlestead Croft",3.0],["Brockenhurst (Summer)",3.0],["St Albans",3.0],["Sandhurst Memorial",3.0],["Enniskillen",3.0],["Banbury",3.0],["Bressay",3.0],["Mount Stuart (Winter)",3.0],["Hazelwood",3.0],["Thurso",3.0],["Ross-on-Wye",3.0],["Cheltenham (Summer)",3.1],["Banstead Woods",3.1],["Guildford",3.1],["Holyrood",3.2],["Nostell",3.2],["Torvean",3.2],["Gladstone",3.2],["Pollok",3.2],["Forest Rec",3.2],["Shorne Woods",3.2],["Irchester Country",3.2],["Dartford",3.2],["Harlow",3.2],["Armagh",3.2],["Dunfermline",3.2],["Glossop",3.2],["Falls",3.2],["Ally Pally",3.2],["Hackworth",3.2],["Greenfield Valley",3.2],["Belton House",3.2],["Bramley",3.2],["Llyn Llech Owain",3.2],["Hunstanton Promenade (Summer)",3.2],["Dartford Heath",3.2],["Swanley",3.2],["Barnstaple",3.2],["Haigh Woodland",3.2],["Brierley Forest",3.2],["Leavesden Country",3.2],["Horton Park",3.2],["Garvagh Forest",3.2],["Meadowmill",3.2],["Marple",3.2],["Sewerby",3.2],["Loch Leven",3.2],["Crosby",3.2],["Killerton",3.2],["Cirencester",3.2],["Roundshaw Downs",3.2],["Orpington",3.2],["Rugby",3.2],["Bury Field",3.2],["Thornbury",3.2],["Halifax",3.3],["Upton House",3.4],["Oriam",3.4],["Hilly Fields",3.4],["Crewe",3.4],["Sedgefield",3.4],["Rosliston",3.4],["Newark",3.4],["Brandon Country Park",3.4],["Potternewton",3.4],["Bowling Park",3.4],["Fell Foot (Winter)",3.4],["Hyde",3.4],["Barnsley",3.4],["Ruchill",3.4],["Frickley Country",3.4],["Northallerton",3.4],["Maidenhead",3.4],["Ipswich",3.4],["Brundall",3.4],["Carlisle Park",3.4],["Guernsey",3.4],["Haverfordwest",3.4],["Talkin Tarn Country Park",3.4],["Maesteg",3.4],["Frogmary Green Farm",3.4],["Henlow Bridge Lakes",3.4],["Eglinton",3.4],["Loch Neaton",3.4],["Thomas Mills",3.4],["King George V Playing Field",3.4],["Alton Water (Winter)",3.4],["Harrow Lodge",3.4],["Roding Valley",3.4],["Tollcross",3.4],["Worcester",3.4],["Wakefield Thornes",3.4],["Swaffham",3.4],["Myrtle",3.4],["Worden",3.4],["Wetherby",3.4],["Chilton Fields",3.4],["Prospect",3.4],["Ashbourne Recreation Ground",3.4],["Squerryes Winery",3.4],["Polkemmet Country",3.5],["Barclay",3.5],["Leamington",3.5],["Centre Vale",3.5],["South Shields",3.5],["Dungannon Park",3.5],["Great Dunmow",3.5],["Manor Field, Whittlesey",3.5],["Woodbank",3.6],["Havant",3.6],["Kew Woods",3.6],["Wimpole Estate",3.6],["Dudley",3.6],["Hogmoor Inclosure",3.6],["Pontypool",3.6],["Tawd Valley",3.6],["Rendlesham Forest",3.6],["Land’s End",3.6],["Teifi Marshes Nature Reserve",3.6],["Valley",3.6],["Medina I.O.W. (Summer)",3.6],["Market Bosworth Country Park",3.6],["Pennington Flash",3.6],["Epworth Equestrian",3.6],["Alice Holt",3.6],["Jubilee",3.6],["Dean Castle Country Park",3.6],["Morden",3.6],["Dishley, Loughborough",3.6],["Medina I.O.W. (Winter)",3.6],["Aldenham",3.6],["Walthamstow",3.6],["Broadwater",3.6],["Roundhay",3.6],["Witney",3.6],["Wimbledon Common",3.6],["Ford",3.6],["Barry Island",3.6],["Cranleigh",3.6],["Wormwood Scrubs",3.6],["Ashton Court",3.7],["Vermuyden Way",3.8],["Mote Park",3.8],["Gedling",3.8],["Shipley Country",3.8],["Stamford Park",3.8],["Haldon Forest",3.8],["Sandringham",3.8],["Foots Cray Meadows (Winter)",3.8],["Foots Cray Meadows (Summer)",3.8],["Plymvalley",3.8],["Wallaceneuk",3.8],["Nant y Pandy",3.8],["Palacerigg Country",3.8],["Carlisle",3.8],["Phoenix",3.8],["Beverley Westwood",3.8],["Stockley Country",3.8],["Snowden Field",3.8],["Sandwell Valley",3.8],["Blaise Castle",3.8],["Reigate Priory",3.8],["Thonock Lane Farm",3.8],["Eastleigh",3.8],["Alton Water (Summer)",3.8],["Riddlesdown",3.8],["Haverhill",3.8],["The Plens",3.9],["Bath Skyline",3.9],["Graves",4.0],["Temple Newsam",4.0],["Jersey Farm (Winter)",4.0],["Belvoir Castle (Winter)",4.0],["Middleton Woods",4.0],["Clair",4.0],["Tamar Trails",4.0],["Erddig",4.0],["Camperdown",4.0],["Westmill",4.0],["Cotsford Fields",4.0],["Nobles (Main)",4.0],["Forest of Dean",4.0],["Bethlem Royal Hospital",4.0],["Trelai Park",4.0],["Mount Stuart (Summer)",4.0],["Humber Bridge",4.0],["Letchworth",4.0],["Portrush",4.0],["Ellesmere Port",4.0],["Beacon Hill Country Park",4.1],["Beckenham Place",4.1],["Bedgebury Pinetum",4.2],["Conyngham Hall",4.2],["Stewart",4.2],["Clitheroe Castle",4.2],["Sunny Hill",4.2],["Kingdom",4.2],["Marlborough Common",4.2],["East Brighton (Summer)",4.2],["East Brighton (Winter)",4.2],["Lochend Woods",4.2],["Clifton",4.2],["Aston Hall",4.2],["Ganavan Sands",4.2],["Canterbury",4.2],["Dunstable Downs",4.2],["Wotton",4.2],["Hampstead Heath",4.3],["Itchen Valley Country",4.3],["Jesmond Dene",4.4],["Sharpham Estate",4.4],["Oakwell Hall",4.4],["Sheringham",4.4],["Thornham Walks",4.4],["Alderford Lake",4.4],["Malling Rec",4.4],["Lews Castle",4.4],["Royal Tunbridge Wells",4.4],["Colin Glen",4.5],["Crathes Castle",4.5],["Rostrevor",4.5],["Nobles (Alternative)",4.5],["Larne",4.5],["Cliffe Castle",4.6],["Queen’s, Glasgow",4.6],["Witton",4.6],["Highwoods",4.6],["Hockley Woods",4.6],["Rushmere",4.6],["Wyre Forest",4.6],["Chopwell Wood",4.6],["Penryn Campus",4.6],["Mole Valley",4.6],["Henley Wood, Oswestry",4.6],["Severn Valley Country",4.6],["Stonehaven",4.6],["Fort William",4.6],["Lloyd",4.6],["The Pastures",4.6],["South Oxhey",4.6],["Wolford Wood",4.6],["Vicar Water Country Park",4.7],["Clarence",4.7],["Crawfordsburn Country",4.8],["Bolton",4.8],["Homewood",4.8],["Newent",4.8],["Hoblingwell",4.8],["Plean",4.8],["Brentwood",4.8],["Thorp Perrow",4.8],["Gadebridge",4.8],["Lancaster",5.0],["Trelissick",5.0],["Wendover Woods",5.0],["Windy Nook",5.0],["Riverside Walk",5.0],["Stratford Park, Stroud",5.0],["Marshall Drive",5.0],["Whitekirk Hill",5.0],["Chevin Forest",5.2],["Queen Elizabeth",5.2],["Marine Parade (Summer)",5.2],["Ayr",5.4],["Blackhill",5.4],["Parke",5.5],["Skinadin",5.5],["Montalto Estate",5.6],["Sutton Manor",5.6],["Hadleigh",5.6],["Hyndburn",5.6],["Belvoir Castle (Summer)",5.6],["Pendle",5.6],["Bestwood Village",5.7],["Henley-on-Thames",5.8],["Ludlow",5.8],["Faskally Forest",5.8],["Wepre",6.0],["Hamsterley Forest",6.0],["Chadderton Hall",6.2],["Drumchapel",6.2],["Lanark Moor",6.2],["Church Mead",6.2],["Uckfield",6.2],["Bevendean Down",6.4],["Watergrove",6.4],["Lullingstone",6.4],["East Grinstead",6.4],["Coed Cefn-pwll-du",6.6],["Lyme Park",6.6],["Lanhydrock",6.8],["Flatts Lane",6.8],["Greendale Farm Shop",6.8],["Cheadle Hulme",6.8],["Hafan Pwllheli",7.2],["Mount Edgcumbe",7.6],["Woolacombe Dunes",9.0],["Durlston Country Park",9.4],["Whinlatter Forest",10.0],["Great Yarmouth North Beach",11.6]];
+  var SEC_PER_POINT = 30, BIG_GAP = 2;
+  var $ = function (id) { return document.getElementById(id); };
+  var byName = {};
+  COURSES.forEach(function (c) { byName[norm(c[0])] = c; });
+  var dl = $("courses");
+  COURSES.slice().sort(function (a, b) { return a[0].localeCompare(b[0]); }).forEach(function (c) {
+    var o = document.createElement("option"); o.value = c[0]; o.label = "SSS " + c[1].toFixed(1); dl.appendChild(o);
+  });
+  function norm(s) { return s.toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, " ").trim(); }
+  // Exact name first, then a single course whose name contains the text.
+  function find(q) {
+    var n = norm(q); if (!n) return null;
+    if (byName[n]) return byName[n];
+    var hits = COURSES.filter(function (c) { return norm(c[0]).indexOf(n) >= 0; });
+    return hits.length === 1 ? hits[0] : null;
+  }
+  function parseTime(x) {
+    var p = x.trim().split(":");
+    if (p.length < 2 || p.length > 3 || p.some(function (v) { return v === "" || isNaN(v); })) return null;
+    var s = p.reduce(function (a, v) { return a * 60 + Number(v); }, 0);
+    return s > 0 ? s : null;
+  }
+  function fmt(s) {
+    s = Math.round(s);
+    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
+    return h ? h + ":" + (m < 10 ? "0" : "") + m + ":" + (r < 10 ? "0" : "") + r : m + ":" + (r < 10 ? "0" : "") + r;
+  }
+  function info(id, q) {
+    var c = find(q), el = $(id);
+    el.textContent = c ? c[0] + ", SSS " + c[1].toFixed(1) : (q.trim() ? "Not found. Pick a course from the list." : "");
+    return c;
+  }
+  function update() {
+    $("err").hidden = true;
+    var a = info("fromInfo", $("from").value), b = info("toInfo", $("to").value);
+    var t = parseTime($("t").value);
+    $("res").innerHTML = ""; $("flags").textContent = "";
+    if (t === null) { $("err").hidden = false; $("err").textContent = "Enter the time as mm:ss, for example 20:00."; return; }
+    if (!a || !b) { $("err").hidden = false; $("err").textContent = "Pick both courses from the list."; return; }
+    var gap = b[1] - a[1], delta = Math.round(gap * SEC_PER_POINT), out = t + delta;
+    var chg = delta === 0 ? "No change" : (delta < 0 ? "−" : "+") + Math.abs(delta) + "s";
+    $("res").innerHTML =
+      "<div><span>Predicted at " + b[0] + "</span><b class=\"pace\">" + fmt(out) + "</b><small>from " + fmt(t) + " at " + a[0] + "</small></div>" +
+      "<div><span>Change</span><b>" + chg + "</b><small>" + (delta < 0 ? "faster course" : delta > 0 ? "slower course" : "same score") + "</small></div>" +
+      "<div><span>Scores</span><b>" + a[1].toFixed(1) + " → " + b[1].toFixed(1) + "</b><small>" + Math.abs(gap).toFixed(1) + " points apart</small></div>";
+    if (Math.abs(gap) >= BIG_GAP) $("flags").textContent = "These courses are " + Math.abs(gap).toFixed(1) + " points apart. Large gaps are less reliable, so treat the estimate with caution.";
+  }
+  $("swap").addEventListener("click", function () { var f = $("from"), g = $("to"), x = f.value; f.value = g.value; g.value = x; update(); });
+  ["t", "from", "to"].forEach(function (id) { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
+  update();
+})();
+
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>
