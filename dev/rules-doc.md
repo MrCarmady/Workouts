@@ -1,6 +1,6 @@
-# Plan Builder: rules (updated 2026-10-07)
+# Plan Builder, Trend Tracker and Hard Predictor: rules (updated 2026-10-08)
 
-Status: prototype built (Plan Builder page). (P) = Pavel's rule. (D) = Daniels cap, checked by Pavel. Placeholders are listed in the page's methodology.
+Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workout Predictor). (P) = Pavel's rule. (D) = Daniels cap, checked by Pavel. Placeholders are listed in the page's methodology.
 
 ## 1. Quality sessions per week
 - Set by run days, not by an 80/20 split.
@@ -52,6 +52,27 @@ Status: prototype built (Plan Builder page). (P) = Pavel's rule. (D) = Daniels c
 - Long run: capped at 35% of weekly distance (P; Daniels' 25% is too low for 3 and 4 run days) and 150 min. No easy run longer than the long run.
 - Time first (P): tables lead with time. Easy running is done by minutes, which reduces the temptation to push easy days. Distance follows from the easy pace entered.
 
+## 8. Sub-Threshold Trend Tracker
+- Only sessions that ended at RPE 7 or lower are logged (P). RPE is logged in the table but does not change the estimate.
+- Excluded if peak HR (last minute or two of the last rep) is above 90% of max (P).
+- Excluded if whole-session average HR (warm-up and cool-down included) is above 82% of max (P said about 81 to 82%; 82 is my placeholder).
+- Threshold = race(16) (P). Each rep length maps to a race pace through the Sub-Threshold Session Generator table, run backwards.
+- Estimate: median of the last 6 counted sessions (my choice).
+- Confidence by session count: under 3 indicative, 3 to 5 low, 6 to 9 moderate, 10+ good (my placeholders).
+- Trend: straight-line fit, shown from 4 sessions spanning at least 14 days (my choice).
+- Open: recency window (8 weeks for the estimate, 12 for the trend; my placeholders) and a "Recalculate all" button.
+
+## 9. Hard Workout Predictor
+- Anchors (P): 400m with 60s rest = mile pace (8 to 10 reps); 800m, 90s = 3k; 1000m, 60s = 5k; 1600m, 2 min = 8k (4x1600m); 3000m, 3 min = 10k; 5000m, 3 min = marathon pace to 2% faster. Placeholders: 600m = 2k, 1200m = 5k, 2000m = 8k.
+- Anchors apply at RPE 8 and standard rest (P).
+- Rep count must change the answer (P). Short-distance predictors carry more volume than the race, long ones less; the crossover is about 5 to 10km. Equivalent race = anchor race x (reps / typical reps)^1.25 above the typical count, ^0.8 below. Exponents and typical counts are my placeholders, fitted to P's examples.
+- Show the nearest common race distance, preferring the shorter, rounder one (P). The 5% round-up and the distance list are mine.
+- Limits (placeholders): 25km of work; equivalent race under 400m refused; beyond the marathon capped at marathon pace.
+- RPE moves the estimate (P): pace used = pace x (1 + 0.01 x (RPE - 8)). The 1% is a placeholder.
+- Continuous mode (tempo or time trial, 1.5 to 30km): pace x (1 + 0.01 x (RPE - 10)) x (1 - 0.025). The 2.5% race-day effect is P's conservative pick from a recalled 2.3 to 4% range. Cross-checks: 5k pace = solo 3.25 to 3.75km pace implies 2.7 to 4.0%; 5k time = solo 4800m time implies 4.4%. Published evidence is mixed (one running study about 4% over 3km, some cycling studies show no effect).
+- Pfitzinger 18-mile run with 14 miles at marathon pace fits continuous mode: 22.5km at marathon pace at RPE 7 predicts about 0.6% faster than that pace.
+- Check case: 6x800 averaging 2:38.5 gives a 5k of 17:22 (17:12 to 17:32); the poster ran 17:07. One case, not a calibration.
+
 ## Simulation notes
 - 100 to 109 km, extra 9 km easy: TSB about -3. Extra 9 km sub-T: about -4 to -5.
 - 40 to 45 km, extra 5 km easy: about -2.
@@ -60,6 +81,7 @@ Status: prototype built (Plan Builder page). (P) = Pavel's rule. (D) = Daniels c
 - 10-week block to CTL 60 and TSB +10 from CTL 41 (constant build TSS, one taper week): build about 494 TSS a week, taper about 266. The 1.9 ramp cap and -10 TSB limit stop this, so it is not reachable.
 
 ## Open questions
+- Hard Workout Predictor: confirm the RPE slope, the 1% band, typical rep counts, exponents, the 2000m anchor (reads about 5k for 2 reps; P earlier said 6 to 8k).
 - Goal race and phases: race date, phase-specific focus.
 - Graded taper shape (not built).
 - Whether TSB misses structural load from big km jumps at high mileage.

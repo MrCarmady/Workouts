@@ -138,7 +138,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       </label>
       <label class="span2"><span id="splitLab">Rep times or average, comma separated</span> <input id="splits" placeholder="3:38, 3:32, 3:33, 3:31, 3:34, 3:35"></label>
     </div>
-    <p class="note" id="hint">Times as mm:ss, or seconds if over 60. If you enter several times, the number of reps is taken from them. A single value is read as the average rep time and uses the Reps box. Enter the pace in /km instead by adding "/km" (for example 3:20/km).</p>
+    <p class="note" id="hint">Times as mm:ss or seconds. Several times set the rep count. One time is the average and uses Reps. Add /km to enter pace, e.g. 3:20/km.</p>
     <p class="warn" id="err" hidden></p>
   </section>
 
@@ -163,7 +163,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       <li><b>Continuous.</b> The pace is sped up by 1% for each RPE point below 10, then by a 2.5% race-day effect, and converted to a 5km pace with the race model. Both numbers are placeholders.</li>
       <li><b>Range.</b> Each anchor has a 1% pace band (5000m: marathon pace to 2% faster). The band is a placeholder.</li>
       <li><b>Not adjusted.</b> Rest, heat, surface, wind and hills. The tool warns when rest is far from standard.</li>
-      <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. These are my estimates, not validated.</li>
+      <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. These are my estimates, not validated. The 5km to half marathon part is most reliable for intermediate runners on moderate mileage, and may be less reliable for beginners and low mileage.</li>
     </ul>
   </section>
 </main>
@@ -337,7 +337,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     $("repLab").textContent = c ? "Distance" : "Rep distance";
     $("splitLab").textContent = c ? "Time" : "Rep times or average, comma separated";
     $("splits").placeholder = c ? "20:00" : "3:38, 3:32, 3:33, 3:31, 3:34, 3:35";
-    $("hint").textContent = c ? "Time as mm:ss or h:mm:ss. Enter the pace in /km instead by adding \"/km\" (for example 4:00/km)." : HINT_REPS;
+    $("hint").textContent = c ? "Time as mm:ss or h:mm:ss. Add /km to enter pace, e.g. 4:00/km." : HINT_REPS;
   }
 
   function update() {

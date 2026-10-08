@@ -102,6 +102,7 @@ The page shows an error when the time can't be read, when the VDOT check above f
 
 - Riegel and these adjustments are rules of thumb for a trained runner with a comparable preparation for each distance. They do not account for course, weather, pacing or distance-specific training.
 - Predictions are most reliable close to the input distance, and least reliable at the extremes (for example 1500m from a marathon time).
+- The 5km to half marathon relationship is most reliable for intermediate runners on moderate mileage. It may be less reliable for beginners and for runners on low mileage. This is the author's judgement, not tested here. Vickers & Vertosick (2016) found Riegel reasonable up to the half marathon in a mostly recreational sample (median 30 miles a week), but the main text does not report that by runner type.
 - The marathon adjustment is small and is a guess. Long runs, fuelling and heat dominate real marathon outcomes.
 
 ## Shared race result
