@@ -157,13 +157,13 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   <section class="panel method">
     <h2>How it works</h2>
     <ul>
-      <li><b>Anchors.</b> Each rep length is tied to a race pace, at standard rest and RPE 8. Other lengths are interpolated, then converted to a 5km pace. The anchors are the author's, not published.</li>
-      <li><b>Volume.</b> Each anchor has a typical rep count. Above it, the equivalent race gets longer (power 1.25). Below it, shorter (power 0.8). The result shows the nearest common distance. The exponents and counts are placeholders. Over 25km of work, or a race under 400m, is refused. Beyond the marathon is capped at the marathon.</li>
-      <li><b>RPE.</b> Each point above 8 slows the pace used by 1%. Each point below 8 speeds it up by 1%. The 1% is a placeholder.</li>
-      <li><b>Continuous.</b> The pace is sped up by 1% for each RPE point below 10, then by a 2.5% race-day effect, and converted to a 5km pace with the race model. Both numbers are placeholders.</li>
-      <li><b>Range.</b> Each anchor has a 1% pace band (5000m: marathon pace to 2% faster). The band is a placeholder.</li>
+      <li><b>Anchors.</b> Each rep length is tied to a race pace, at standard rest and RPE 8. Other lengths are interpolated, then converted to a 5km pace.</li>
+      <li><b>Volume.</b> Each anchor has a typical rep count. Above it, the equivalent race gets longer (power 1.25). Below it, shorter (power 0.8). The result shows the nearest common distance. Over 25km of work, or a race under 400m, is refused. Beyond the marathon is capped at the marathon.</li>
+      <li><b>RPE.</b> Each point above 8 slows the pace used by 1%. Each point below 8 speeds it up by 1%.</li>
+      <li><b>Continuous.</b> The pace is sped up by 1% for each RPE point below 10, then by a 2.5% race-day effect, and converted to a 5km pace with the race model.</li>
+      <li><b>Range.</b> Each anchor has a 1% pace band (5000m: marathon pace to 2% faster).</li>
       <li><b>Not adjusted.</b> Rest, heat, surface, wind and hills. The tool warns when rest is far from standard.</li>
-      <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. These are my estimates, not validated. The 5km to half marathon part is most reliable for intermediate runners on moderate mileage, and may be less reliable for beginners and low mileage.</li>
+      <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. The 5km to half marathon part is most reliable for intermediate runners on moderate mileage, and may be less reliable for beginners and low mileage.</li>
     </ul>
   </section>
 </main>

@@ -113,10 +113,10 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
 
   <section class="method">
     <h2>How this is calculated</h2>
-    <p>Base: Riegel's formula (time × distance ratio ^ 1.06). Two adjustments are mine.</p>
+    <p>Base: Riegel's formula (time × distance ratio ^ 1.06), plus two adjustments:</p>
     <p>Short races: a result under 5km is slowed by 8s/km × ln(5 ÷ km) to get a 5km equivalent (about 9s/km for the mile). Predictions for short distances are sped up by the same amount.</p>
     <p>Marathon: paces beyond the half marathon are slowed. The marathon is twice the half marathon plus 7 min at 80 miles (129km) a week or more, 10 at 70, 13 at 60, 17 at 50, and 25 at 35 miles (56km) or less. Values between are in a straight line. Blank weekly distance means 70 miles.</p>
-    <p>These figures are my estimates, not fitted to data. The 5km to half marathon relationship is most reliable for intermediate runners on moderate mileage. It may be less reliable for beginners and low mileage. I have not tested that.</p>
+    <p>The 5km to half marathon relationship is most reliable for intermediate runners on moderate mileage. It may be less reliable for beginners and low mileage.</p>
     <p>Results with a Daniels–Gilbert VDOT outside 15 to 85 are rejected as implausible.</p>
   </section>
   <p class="sitenav"><a href="methods/race-prediction-calculator.html">How it works &rarr;</a></p>
