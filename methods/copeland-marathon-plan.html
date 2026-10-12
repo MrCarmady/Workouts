@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Copeland Marathon Plan: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
+.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
+.themes button + button { border-left:1px solid var(--line); }
+.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../copeland-marathon-plan.html">Open Copeland Marathon Plan</a></nav>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+  <article class="doc">
+<h1>Copeland Marathon Plan: methodology</h1>
+<p>Lays out the 15-week Copeland marathon add-on ("My Marathon Build") from a race result, with paces, recoveries and load. The weekly layout was transcribed from the book's table.</p>
+<h2>Plan</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Weekly sessions, weeks 1 to 15</td>
+<td>As printed in the book</td>
+</tr>
+<tr>
+<td>Week 14 Thursday</td>
+<td>Printed as a different session; read as 8 x 1000m, as confirmed by the author</td>
+</tr>
+<tr>
+<td>Week 14 Tuesday</td>
+<td>3 x 27.5 min progressive at 92%, 93% and 100% of marathon speed, as given</td>
+</tr>
+<tr>
+<td>Distance-based easy runs ("8 km E")</td>
+<td>Converted to time at the easy pace</td>
+</tr>
+</tbody>
+</table>
+<h2>Paces</h2>
+<table>
+<thead>
+<tr>
+<th>Rep</th>
+<th>Time</th>
+<th>Pace</th>
+<th>Recovery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1000m</td>
+<td>3 min</td>
+<td>race(16)</td>
+<td>60 s</td>
+</tr>
+<tr>
+<td>1600m</td>
+<td>6 min</td>
+<td>race(21)</td>
+<td>75 s</td>
+</tr>
+<tr>
+<td>2000m</td>
+<td>8 min</td>
+<td>race(30)</td>
+<td>90 s</td>
+</tr>
+<tr>
+<td>3000m</td>
+<td>10 min</td>
+<td>race(32)</td>
+<td>90 s</td>
+</tr>
+<tr>
+<td>3200m</td>
+<td>12 min</td>
+<td>race(32)</td>
+<td>120 s</td>
+</tr>
+<tr>
+<td>5000m</td>
+<td>15 to 18 min (default 16.5)</td>
+<td>marathon pace, 1.5% faster</td>
+<td>180 s</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Reps are set by time at current fitness, with the book's rep counts. The 2000m pace is slightly slower than half marathon pace, by the author's choice.</li>
+<li>Marathon pace: the Race Prediction Calculator's marathon, assuming 70 miles a week.</li>
+<li>Easy and long runs: 65% of 5km speed, a cap.</li>
+<li>Warm-up and cooldown: 10 min each at the easy pace. 5km and 10km races use a 20 min warm-up (easy, 2 x 2 min at half marathon pace, 4 strides of 17 s at mile pace).</li>
+</ul>
+<h2>Load</h2>
+<ul>
+<li>Recoveries are walked at 6 km/h. They count for time and TSS, not distance.</li>
+<li>TSS per segment = hours x (threshold pace / pace)^2 x 100, threshold = race(16).</li>
+<li>Races are scored at race pace. The marathon on the last Sunday is not scored.</li>
+<li>CTL has a 42-day and ATL a 7-day time constant. Starting CTL is entered, or estimated as week 1's TSS divided by 7. The plan has no ramp-in, so the estimate is high; enter your own CTL to see the real ramp and form.</li>
+</ul>
+<h2>Limits</h2>
+<ul>
+<li>Only the marathon add-on is built, not the base NSA weeks.</li>
+<li>The page does not adapt to what you actually ran.</li>
+</ul>
+  </article>
+</main>
+<script>
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>

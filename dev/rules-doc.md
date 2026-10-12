@@ -105,6 +105,11 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - Slower runners (Daniels): 5-6 min T = 1 mile, 10-15 min = 2 miles, 16-20 min = 3 miles; page caps 1, 2, 3-mile T segments at 6, 15, 20 min (option).
 ## Hansons Advanced Plan (running)
 - Book's Advanced program (Table 4.4), 18 weeks, 6 days a week, mileage as printed (26 to 63 mi), not scaled. Tue: speed weeks 2-10, strength weeks 11-17. Thu: tempo. Sun: long run every other week from week 3. Totals include 1.5 mi warm-up and cooldown on speed, strength and tempo days.
-- Paces: marathon = goal (or predicted, 70 mi a week; the book's 18:30 -> 3:00:21, page gives 3:00:12), tempo = MP, strength = MP - 10 s/mi, speed = 5km pace, easy and recoveries = 65% of 5km speed.
+- Paces: marathon = predicted from the race result (70 mi a week; the book's 18:30 -> 3:00:21, page gives 3:00:12), no goal-time input because sessions run at current fitness, not goal pace (P), tempo = MP, strength = MP - 10 s/mi, speed = 5km pace, easy and recoveries = 65% of 5km speed.
 - Load: same TSS rule as the Daniels page; race day not scored; start CTL = week 1 TSS / 7 if blank.
-- Backlog: Beginner program (same book), Copeland and Pfitzinger marathon plans.
+- Backlog: Beginner program (same book), Pfitzinger marathon plan.
+## Copeland Marathon Plan (running)
+- 15-week marathon add-on, weekly layout as printed in the book. Reps set by time at current fitness: 1000m = 3 min at race(16), 1600m = 6 min at race(21), 2000m = 8 min at race(30), 3000m = 10 min and 3200m = 12 min at race(32), 5000m = 15-18 min (default 16.5) at MP, 1.5% faster. Recoveries 60/75/90/90/120/180 s, walked at 6 km/h (TSS and time, not distance).
+- Warm-up and cooldown 10 min each; 5km/10km races 20 min warm-up with 2 x 2 min at HM pace and 4 strides. Week 14 Tue progressive 92/93/100% of MP speed; week 14 Thu typo read as 8 x 1000m.
+- Marathon pace = site prediction at 70 mi a week, no goal input. Easy = 65% of 5km speed (cap). Load as other plan pages; race day not scored; start CTL = week 1 TSS / 7 if blank (high, no ramp-in).
+

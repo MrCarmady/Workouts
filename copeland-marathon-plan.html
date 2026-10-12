@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
+<title>Copeland Marathon Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+/* Inputs, paces, 18-week table, one week in detail. Same track-red system as the other running tools. */
+:root {
+  --bg: #f2f2f1;
+  --surface: #ffffff;
+  --surface-2: #f0f0ee;
+  --fg: #17181a;
+  --muted: #6a6d72;
+  --line: #deded9;
+  --accent: #c8372d;
+  --accent-fg: #ffffff;
+  --accent-soft: #f6dcd9;
+  --warn: #a35a00;
+  --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+    --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+  --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 20px; }
+.wrap > * { min-width: 0; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 2rem; letter-spacing: .02em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 12px; color: var(--muted); }
+.head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.themes { display: inline-flex; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; background: var(--surface); }
+.themes button { font: inherit; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: transparent; border: 0; padding: 7px 12px; cursor: pointer; }
+.themes button + button { border-left: 1px solid var(--line); }
+.themes button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.themes button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 62ch; }
+.top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 720px) { .top { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; display: grid; gap: 14px; align-content: start; }
+.panel h2 { margin: 0; }
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: end; }
+.grid4 .span2 { grid-column: span 2; }
+.combo { display: grid; grid-template-columns: minmax(0, 1fr) 4.5rem; gap: 6px; }
+@media (max-width: 720px) { .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: end; }
+.fields .full { grid-column: 1 / -1; }
+label { display: grid; gap: 4px; align-content: start; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+input, select { box-sizing: border-box; height: 2.75rem; font: inherit; font-size: 1.05rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 0 10px; width: 100%; min-width: 0; }
+input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+label.chk { display: flex; align-items: center; gap: 10px; min-height: 2.75rem; text-transform: none; letter-spacing: 0; font-size: .95rem; font-weight: 500; color: var(--fg); }
+label.chk input { width: 1.2rem; height: 1.2rem; accent-color: var(--accent); }
+.note { font-size: .85rem; color: var(--muted); margin: 0; }
+.warn { color: var(--warn); font-size: .88rem; margin: 0; }
+.res { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 600px) { .res { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.res div { background: var(--surface-2); border-radius: 2px; padding: 10px 12px; min-width: 0; }
+.res b { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.res b.pace { color: var(--accent); }
+.res span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.res small { display: block; font-size: .78rem; color: var(--muted); margin-top: 2px; }
+.struct { margin: 0; font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; letter-spacing: .02em; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.pace { font-weight: 600; white-space: nowrap; }
+tr.hard td:first-child { border-left: 3px solid var(--accent); padding-left: 8px; }
+tr.easy td:first-child { padding-left: 11px; }
+.notes { display: grid; gap: 6px; }
+.method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
+.method ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.method b { color: var(--fg); font-weight: 600; }
+.flag { color: var(--warn); font-size: .85rem; }
+.flag.red { color: var(--accent); font-weight: 600; }
+tr.cur td { color: var(--muted); }
+td.num, th.num { text-align: right; padding-right: 14px; }
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: end; }
+@media (max-width: 520px) { .three { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.num { text-align: right; }
+th.num, td.num { padding-right: 0; padding-left: 10px; }
+td.q { min-width: 14rem; }
+.q1 { padding-left: 28px; }
+td.q small { display: block; color: var(--muted); }
+tr.rest td { color: var(--muted); }
+tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
+.paces { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 12px; }
+@media (max-width: 600px) { .paces { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.paces div { background: var(--surface-2); border-radius: 2px; padding: 10px 12px; min-width: 0; }
+.paces b { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.paces span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.paces small { display: block; font-size: .78rem; color: var(--muted); margin-top: 2px; }
+</style>
+
+<main class="wrap">
+  <p class="sitenav"><a href="index.html">&larr; All tools</a></p>
+  <header class="head">
+    <div>
+      <h1>Copeland Marathon Plan</h1>
+      <p class="sub">The 15-week Copeland marathon add-on from a race result, with paces, load and recoveries.</p>
+    </div>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2>Inputs</h2>
+    <div class="grid4">
+      <label>Race
+        <select id="dist">
+          <option value="1.5">1500m</option>
+          <option value="1.609344">Mile</option>
+          <option value="3">3km</option>
+          <option value="5" selected>5km</option>
+          <option value="10">10km</option>
+          <option value="21.0975">Half marathon</option>
+        </select>
+      </label>
+      <label>Race time
+        <input id="time" type="text" inputmode="numeric" autocomplete="off" value="20:00" placeholder="39:43 or 3943">
+      </label>
+      <label>Units
+        <select id="wunit" aria-label="Unit">
+          <option value="km" selected>Kilometres</option>
+          <option value="mi">Miles</option>
+        </select>
+      </label>
+      <label>5km reps (15-18 min)
+        <input id="rep5" type="text" inputmode="decimal" autocomplete="off" value="16.5">
+      </label>
+      <label>Starting CTL (optional)
+        <input id="ctl" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="estimated">
+      </label>
+    </div>
+  </section>
+
+  <p class="warn" id="err" hidden></p>
+
+  <section id="resbox">
+    <h2>Paces</h2>
+    <div class="panel">
+      <div class="paces" id="paces"></div>
+    </div>
+    <h2 style="margin-top:20px">15 weeks</h2>
+    <div class="panel">
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Week</th><th class="num">Time</th><th class="num">Distance</th><th class="num">TSS</th><th class="num">CTL</th><th class="num">ATL</th><th class="num">Ramp</th><th class="q1">Tue</th><th>Thu</th><th>Sat</th><th>Sun</th></tr></thead>
+          <tbody id="wrows"></tbody>
+        </table>
+      </div>
+      <p class="note" id="wnote"></p>
+    </div>
+  </section>
+
+  <section id="detail">
+    <h2>One week in detail</h2>
+    <div class="panel">
+      <div class="fields">
+        <label>Week
+          <select id="wk"></select>
+        </label>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Session</th><th>Pace</th><th class="num">Distance</th><th class="num">Time</th><th class="num">TSS</th></tr></thead>
+          <tbody id="drows"></tbody>
+        </table>
+      </div>
+      <p class="note" id="dnote"></p>
+    </div>
+  </section>
+
+  <section class="panel method">
+    <h2>Notes</h2>
+    <ul>
+      <li><b>Reps.</b> Reps are run by time, with the book's rep counts: 1000m = 3 min at race(16), 1600m = 6 min at race(21), 2000m = 8 min at race(30), 3000m = 10 min and 3200m = 12 min at race(32), 5000m = 15 to 18 min at 1.5% faster than marathon pace. Reps are set from current fitness, not goal pace.</li>
+      <li><b>Recoveries.</b> Walked at 6 km/h: 60 s after 1000m, 75 s after 1600m, 90 s after 2000m and 3000m, 120 s after 3200m and 180 s after 5000m reps. They count for time and TSS but not distance.</li>
+      <li><b>Warm-up and cooldown.</b> 10 min each at the easy cap. Races use 10 min, but 5km and 10km races add a 20 min warm-up with 2 &times; 2 min at half-marathon pace and 4 strides. Easy running is at 65% of 5km speed, as a cap.</li>
+      <li><b>Marathon pace.</b> The Race Prediction Calculator's marathon (70 miles a week). Week 13's 10km and week 14's 3 &times; 10 min are at that pace, and week 14's 3 &times; 27.5 min is progressive at 92%, 93% and 100% of marathon speed.</li>
+      <li><b>Load.</b> TSS = hours &times; (threshold pace &divide; pace)&sup2; &times; 100, with threshold as race(16). CTL has a 42-day and ATL a 7-day time constant. Start CTL, if blank, is week 1's TSS divided by 7. The marathon is not scored, so week 15 is Monday to Saturday.</li>
+    </ul>
+  </section>
+  <p class="sitenav"><a href="methods/copeland-marathon-plan.html">How it works &rarr;</a></p>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  /*@@CORE-BEGIN@@ Shared code. Edit shared/core.js and run sync_core.py; do not edit between these markers. */
+  var K = 1.06, HM = 21.0975, MAR = 42.195, MILE = 1.609344;
+  // Slowing applied to the 5km equivalent when the input race is shorter than 5km, in s/km (my estimate).
+  function adj(km) { return km < 5 ? 6.5 * Math.log(5 / km) : 0; }
+  var offM = 5;   // marathon slow-down in s/km, set per page from the weekly distance
+  function off(km) { return km <= HM ? 0 : offM * (Math.min(km, MAR) - HM) / (MAR - HM); }
+  function marathonExtraMin(weekKm) {
+    var mi = weekKm / 1.609344;
+    var P = [[80, 7], [70, 10], [60, 13], [50, 17], [35, 25]];   // [miles per week, minutes added to 2 x half marathon]
+    if (mi >= P[0][0]) return P[0][1];
+    for (var i = 1; i < P.length; i++) {
+      if (mi >= P[i][0]) { var f = (P[i - 1][0] - mi) / (P[i - 1][0] - P[i][0]); return P[i - 1][1] + f * (P[i][1] - P[i - 1][1]); }
+    }
+    return P[P.length - 1][1];
+  }
+  // p5r = 5km-equivalent pace from Riegel (s/km). Returns the marathon slow-down in s/km.
+  function marathonOff(p5r, weekKm) {
+    if (weekKm === null) weekKm = 70 * 1.609344;
+    var H0 = p5r * Math.pow(HM / 5, K - 1) * HM, M0 = p5r * Math.pow(MAR / 5, K - 1) * MAR;
+    return Math.max(0, (marathonExtraMin(weekKm) * 60 - (M0 - 2 * H0)) / MAR);
+  }
+  function parseTime(str) {
+    str = (str || "").trim();
+    if (!str) return null;
+    if (/^\d{3,6}$/.test(str)) {                                       // digits only: read from the right
+      var sec = str.slice(-2), rest = str.slice(0, -2);
+      if (Number(sec) >= 60) return null;
+      if (rest.length > 2) { if (Number(rest.slice(-2)) >= 60) return null; str = rest.slice(0, -2) + ":" + rest.slice(-2) + ":" + sec; }
+      else str = rest + ":" + sec;
+    }
+    var parts = str.split(":");
+    if (parts.length > 3) return null;
+    var nums = parts.map(function (p) { return p === "" ? NaN : Number(p); });
+    if (nums.some(function (x) { return isNaN(x) || x < 0; })) return null;
+    if (parts.length === 1) return nums[0] * 60;                       // plain number = minutes
+    if (parts.length === 2) return nums[0] * 60 + nums[1];
+    return nums[0] * 3600 + nums[1] * 60 + nums[2];
+  }
+  function mmss(sec) {
+    sec = Math.round(sec);
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+  function hmmss(sec) {
+    sec = Math.round(sec);
+    var h = Math.floor(sec / 3600), r = sec - h * 3600;
+    return h > 0 ? h + ":" + (Math.floor(r / 60) < 10 ? "0" : "") + mmss(r) : mmss(r);
+  }
+  // Daniels-Gilbert VDOT for a race of `min` minutes over `m` metres.
+  function vdot(min, m) {
+    var v = m / min;
+    var vo2 = -4.60 + 0.182258 * v + 0.000104 * v * v;
+    var pct = 0.8 + 0.1894393 * Math.exp(-0.012778 * min) + 0.2989558 * Math.exp(-0.1932605 * min);
+    return vo2 / pct;
+  }
+  /*@@CORE-END@@*/
+
+  function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
+  function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
+
+  // Copeland marathon add-on, as given by the author. Days Mon to Sun. Easy runs by time or distance, S = sub-threshold session by rep distance.
+  function e(min) { return { k: "E", min: min, book: min + " min E" }; }
+  function ek(km) { return { k: "EK", km: km, book: km + "km E" }; }
+  function ss(n, m) { return { k: "S", n: n, m: m, book: n + "x" + m + "m S" }; }
+  var PARK = { k: "PARK", book: "Parkrun" }, R10 = { k: "R10", book: "10km race" }, RHM = { k: "RHM", book: "HM race" };
+  var MP10 = { k: "MP10", book: "10km at MP" }, MP3 = { k: "MP3", book: "3x3000 at MP" }, PROG = { k: "PROG", book: "3x8000 progressive" }, LON = { k: "MAR", book: "Marathon" };
+  var PLAN = [
+    [e(60), ss(3, 3200), e(60), ss(6, 1600), e(60), ss(10, 1000), e(110)],
+    [e(60), ss(4, 3000), e(60), ss(6, 1600), e(60), ss(10, 1000), e(115)],
+    [e(60), ss(3, 3200), e(60), ss(6, 1600), e(60), ss(10, 1000), e(120)],
+    [e(60), ss(3, 3200), e(60), ss(6, 1600), e(60), ss(10, 1000), e(125)],
+    [e(60), ss(3, 5000), e(60), ss(6, 1600), e(45), PARK, e(130)],
+    [e(60), ss(3, 3200), e(75), ss(6, 1600), e(60), PARK, e(130)],
+    [e(60), ss(3, 3200), e(60), ss(3, 3200), e(45), ss(3, 5000), e(135)],
+    [e(60), ss(3, 3200), e(75), ss(10, 1000), e(45), ss(4, 5000), e(90)],
+    [e(60), ss(3, 3200), e(60), ss(3, 5000), e(45), ss(10, 1000), e(140)],
+    [e(75), ss(4, 3000), e(60), ss(8, 1000), e(45), ek(10), R10],
+    [e(60), ss(4, 3000), e(60), ss(10, 1000), e(45), ss(3, 5000), e(140)],
+    [e(75), ss(5, 2000), e(75), ss(8, 1000), e(60), ek(8), RHM],
+    [e(60), e(75), e(90), e(60), ss(5, 5000), ek(10), MP10],
+    [e(45), PROG, e(45), ss(8, 1000), e(60), ek(10), MP3],
+    [e(45), ss(1, 5000), e(45), ss(1, 5000), e(40), e(25), LON]
+  ];
+  var DAYN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  // Rep specs: minutes per rep, pace key, walked recovery in seconds
+  var REP = { 1000: { t: 3, p: "T16", rec: 60 }, 1600: { t: 6, p: "T21", rec: 75 }, 2000: { t: 8, p: "T30", rec: 90 }, 3000: { t: 10, p: "T32", rec: 90 }, 3200: { t: 12, p: "T32", rec: 120 }, 5000: { t: 16.5, p: "F5", rec: 180 } };
+
+  var U = "km", P = {}, THR = 0, WALK = 600, REP5 = 16.5;   // P: seconds per km
+  var KC = 1 - Math.exp(-1 / 42), KA = 1 - Math.exp(-1 / 7);
+  function tssOf(sec, pace) { return sec / 3600 * Math.pow(THR / pace, 2) * 100; }
+  function dv(km) { return U === "km" ? km : km / MILE; }
+  function ds(km) { return String(Math.round(dv(km) * 10) / 10); }
+  function pc(sec) { return mmss(U === "km" ? sec : sec * MILE); }
+  function tm(sec) { sec = Math.round(sec / 5) * 5; return sec >= 3600 ? hmmss(sec) : mmss(sec); }
+  function ht(sec) { var m = Math.round(sec / 60); return Math.floor(m / 60) + ":" + (m % 60 < 10 ? "0" : "") + (m % 60); }
+  function sgn(x) { var v = Math.round(x * 10) / 10; return (v > 0 ? "+" : "") + v.toFixed(1); }
+  function mn(x) { return String(Math.round(x * 10) / 10); }
+
+  function seg(lbl, sec, pace, ptxt) { return { lbl: lbl, sec: sec, km: sec / pace, tss: tssOf(sec, pace), pt: ptxt || pc(pace) }; }
+  function segKm(lbl, km, pace, ptxt) { return seg(lbl, km * pace, pace, ptxt); }
+  function easy(lbl, min) { return seg(lbl, min * 60, P.E, "Easy " + pc(P.E)); }
+  function sum(parts, lbl, pt) { var s = 0, k = 0, t = 0; parts.forEach(function (r) { s += r.sec; k += r.km; t += r.tss; }); return { lbl: lbl, sec: s, km: k, tss: t, pt: pt }; }
+  function wc(min) { return [easy("Warm-up " + min + " min", min)]; }
+
+  function day(d) {
+    var r = [];
+    if (d.k === "E") r = [easy("Easy " + d.min + " min", d.min)];
+    else if (d.k === "EK") r = [segKm("Easy " + d.km + " km", d.km, P.E, "Easy " + pc(P.E))];
+    else if (d.k === "S") {
+      var sp = REP[d.m], t = d.m === 5000 ? REP5 : sp.t, pace = P[sp.p], rec = d.n > 1 ? sp.rec : 0;
+      var work = seg(d.n + " \u00d7 " + mn(t) + " min (" + d.m + "m)" + (rec ? " w/ " + rec + " s walk" : ""), d.n * t * 60, pace, ({ T16: "Race(16) ", T21: "Race(21) ", T30: "Race(30) ", T32: "Race(32) ", F5: "MP+1.5% " }[sp.p]) + pc(pace));
+      if (rec) { var rs = (d.n - 1) * rec; work.sec += rs; work.tss += tssOf(rs, WALK); }
+      r = wc(10).concat([work, easy("Cooldown 10 min", 10)]);
+    }
+    else if (d.k === "MP10") r = wc(25).concat([segKm("10 km at marathon pace", 10, P.M, "MP " + pc(P.M)), easy("Cooldown 25 min", 25)]);
+    else if (d.k === "MP3") {
+      var w3 = seg("3 \u00d7 10 min at MP w/ 2 min rests", 1800, P.M, "MP " + pc(P.M)); w3.sec += 240; w3.tss += tssOf(240, WALK);
+      r = wc(30).concat([w3, easy("Cooldown 30 min", 30)]);
+    }
+    else if (d.k === "PROG") {
+      var f = [0.92, 0.93, 1], pr = f.map(function (x) { return P.M / x; }), parts = pr.map(function (p) { return seg("", 27.5 * 60, p); });
+      r = wc(10).concat([sum(parts, "3 \u00d7 27.5 min progressive, no rest", "MP/0.92 " + pc(pr[0]) + ", MP/0.93 " + pc(pr[1]) + ", MP " + pc(pr[2])), easy("Cooldown 10 min", 10)]);
+    }
+    else if (d.k === "PARK" || d.k === "R10") {
+      var easyMin = 20 - 4 - 4 * 17 / 60, st = [easy("Easy " + mn(easyMin) + " min", easyMin), seg("2 \u00d7 2 min at half-marathon pace", 240, P.HM, "HM " + pc(P.HM)), seg("4 strides, about 17 s", 68, P.MILE, "Mile " + pc(P.MILE))];
+      var wu = sum(st, "Warm-up 20 min incl. 2 \u00d7 2 min at HM pace and 4 strides", "Mixed");
+      var km = d.k === "PARK" ? 5 : 10, rp = d.k === "PARK" ? P.R5 : P.R10;
+      r = [wu, segKm(d.k === "PARK" ? "Parkrun, 5 km" : "10 km race", km, rp, "Race " + pc(rp)), easy("Cooldown 10 min", 10)];
+    }
+    else if (d.k === "RHM") r = wc(10).concat([segKm("Half marathon", HM, P.HM, "Race " + pc(P.HM)), easy("Cooldown 10 min", 10)]);
+    else if (d.k === "MAR") return { rows: [{ lbl: "Marathon", sec: MAR * P.M, km: MAR, tss: 0, pt: "MP " + pc(P.M) }], km: 0, sec: 0, tss: 0, race: true, book: d.book };
+    var o = { rows: r, km: 0, sec: 0, tss: 0, book: d.book };
+    r.forEach(function (x) { o.km += x.km; o.sec += x.sec; o.tss += x.tss; });
+    return o;
+  }
+  function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("detail").hidden = true; }
+  var out = null;
+
+  function update() {
+    $("err").hidden = true; $("resbox").hidden = false; $("detail").hidden = false;
+    var D = parseFloat($("dist").value), t = parseTime($("time").value);
+    if (t === null || t <= 0) return fail("Enter a race time like 18:54, 1854 or 1:32:10.");
+    var vd = vdot(t / 60, D * 1000);
+    if (vd < 15 || vd > 85) return fail("That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of 15 to 85. Check the distance and time.");
+    U = $("wunit").value;
+    var r5 = Number(($("rep5").value || "").trim().replace(",", "."));
+    if (!isFinite(r5) || r5 < 15 || r5 > 18) return fail("5km rep length must be a number from 15 to 18 minutes.");
+    REP5 = r5; REP[5000].t = r5;
+    var ctlIn = null, craw = ($("ctl").value || "").trim().replace(",", ".");
+    if (craw !== "") { ctlIn = Number(craw); if (!isFinite(ctlIn) || ctlIn < 5 || ctlIn > 200) return fail("Starting CTL must be a number from 5 to 200, or blank."); }
+    var riegel5 = t * Math.pow(5 / D, K) / 5, p5 = riegel5 + adj(D);
+    offM = marathonOff(riegel5, null);   // 70 miles a week
+    var raceP = function (km) { return (p5 - adj(km)) * Math.pow(km / 5, K - 1) + off(km) - off(D); };
+    var mp = raceP(MAR);
+    THR = raceP(16);
+    P = { E: raceP(5) / 0.65, T16: raceP(16), T21: raceP(21), T30: raceP(30), T32: raceP(32), M: mp, F5: mp / 1.015, HM: raceP(HM), MILE: raceP(MILE / 1), R5: raceP(5), R10: raceP(10) };
+    $("paces").innerHTML = [["E", "Easy cap"], ["T16", "3 min reps"], ["T21", "6 min reps"], ["T30", "8 min reps"], ["T32", "10 to 12 min reps"], ["F5", "5km reps"], ["M", "Marathon"]].map(function (x) {
+      return "<div><span>" + x[1] + "</span><b>" + pc(P[x[0]]) + "</b><small>/" + U + "</small></div>";
+    }).join("");
+    var weeks = [];
+    PLAN.forEach(function (w, i) { var ds7 = w.map(day); weeks.push({ n: i + 1, days: ds7 }); });
+    var c0 = ctlIn !== null ? ctlIn : weeks[0].days.reduce(function (a, d) { return a + d.tss; }, 0) / 7;
+    var c = c0, a = c0;
+    weeks.forEach(function (w) {
+      var c1 = c;
+      w.days.forEach(function (d) { c += (d.tss - c) * KC; a += (d.tss - a) * KA; });
+      w.tss = w.days.reduce(function (p, d) { return p + d.tss; }, 0); w.sec = w.days.reduce(function (p, d) { return p + d.sec; }, 0); w.km = w.days.reduce(function (p, d) { return p + d.km; }, 0);
+      w.ctl = c; w.atl = a; w.ramp = c - c1;
+    });
+    out = { weeks: weeks, c0: c0 };
+    var h = "";
+    weeks.forEach(function (w) {
+      h += "<tr><td>" + w.n + "</td><td class='num'>" + ht(w.sec) + "</td><td class='num'>" + ds(w.km) + " " + U + "</td><td class='num'>" + Math.round(w.tss) + "</td><td class='num'>" + w.ctl.toFixed(1) + "</td><td class='num'>" + w.atl.toFixed(1) + "</td><td class='num'>" + sgn(w.ramp) + "</td>"
+        + "<td class='q q1'>" + w.days[1].book + "</td><td class='q'>" + w.days[3].book + "</td><td class='q'>" + w.days[5].book + "</td><td class='q'>" + w.days[6].book + "</td></tr>";
+    });
+    $("wrows").innerHTML = h;
+    $("wnote").textContent = "Start CTL " + c0.toFixed(1) + (ctlIn !== null ? " (entered)" : " (estimated)") + ". CTL, ATL and ramp are at the end of each week; week 15 ends on the morning of the marathon. Time and distance are for the six days before it in week 15. Distances are estimated from times at the paces above, and walked recoveries add no distance.";
+    var sel = $("wk"), cur = sel.value;
+    if (!sel.options.length) { var o = ""; for (var i = 1; i <= 15; i++) o += "<option value='" + i + "'>Week " + i + (i === 15 ? " (race week)" : "") + "</option>"; sel.innerHTML = o; }
+    if (cur) sel.value = cur;
+    renderDetail();
+  }
+
+  function rowHtml(r) {
+    return "<tr><td>" + r.lbl + "</td><td class='pace'>" + (r.pt || "") + "</td><td class='num'>" + (r.km > 0 ? ds(r.km) + " " + U : "") + "</td><td class='num'>" + (r.sec > 0 ? tm(r.sec) : "") + "</td><td class='num'>" + (r.tss > 0 ? Math.round(r.tss) : "") + "</td></tr>";
+  }
+  function renderDetail() {
+    if (!out) return;
+    var n = parseInt($("wk").value, 10) || 1, w = out.weeks[n - 1], h = "";
+    w.days.forEach(function (d, i) {
+      h += "<tr class='tot'><td colspan='5'>" + DAYN[i] + "</td></tr>";
+      d.rows.forEach(function (r) { h += rowHtml(r); });
+      if (d.rows.length > 1) h += "<tr class='rest'><td>Total</td><td></td><td class='num'>" + ds(d.km) + " " + U + "</td><td class='num'>" + tm(d.sec) + "</td><td class='num'>" + Math.round(d.tss) + "</td></tr>";
+    });
+    $("drows").innerHTML = h;
+    $("dnote").textContent = "Week " + n + ": " + ht(w.sec) + " h, about " + ds(w.km) + " " + U + ", TSS " + Math.round(w.tss) + (n === 15 ? " for the six days before the marathon. The marathon is not scored." : ".");
+  }
+
+  function save() {
+    try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("wunit", $("wunit").value); } catch (e) {}
+    try { localStorage.setItem("cm", JSON.stringify({ r: $("rep5").value, c: $("ctl").value })); } catch (e) {}
+  }
+  function restore() {
+    try { var s = JSON.parse(localStorage.getItem("cm") || "null"); if (s) { if (typeof s.r === "string") $("rep5").value = s.r; if (typeof s.c === "string") $("ctl").value = s.c; } } catch (e) {}
+    var pr = profGet();
+    if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km;
+    if (pr.time) $("time").value = pr.time;
+    if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit;
+  }
+
+  (function () {
+    function norm(t) { var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.round(t % 60); return (h ? h + ":" + (m < 10 ? "0" : "") + m : m) + ":" + (s < 10 ? "0" : "") + s; }
+    var el = $("time");
+    el.addEventListener("change", function () {
+      if (!/^\d{3,6}$/.test(el.value.trim())) return;
+      var t = parseTime(el.value);
+      if (t !== null) { el.value = norm(t); el.dispatchEvent(new Event("input", { bubbles: true })); }
+    });
+  })();
+
+  restore();
+  ["dist", "time", "wunit", "rep5", "ctl"].forEach(function (id) {
+    $(id).addEventListener("input", function () { save(); update(); });
+    $(id).addEventListener("change", function () { save(); update(); });
+  });
+  $("wk").addEventListener("change", renderDetail);
+  update();
+})();
+
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var t = b.getAttribute("data-theme-set");
+      apply(t);
+      try { localStorage.setItem("theme-pref", t); } catch (e) {}
+    });
+  });
+})();
+</script>

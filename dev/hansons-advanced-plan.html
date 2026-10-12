@@ -125,9 +125,6 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       <label>Race time
         <input id="time" type="text" inputmode="numeric" autocomplete="off" value="20:00" placeholder="39:43 or 3943">
       </label>
-      <label>Goal marathon (optional)
-        <input id="goal" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="predicted">
-      </label>
       <label>Units
         <select id="wunit" aria-label="Unit">
           <option value="mi" selected>Miles</option>
@@ -182,7 +179,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     <h2>Notes</h2>
     <ul>
       <li><b>Mileage.</b> Distances and weekly totals are the book's. Totals include a 1.5-mile warm-up and cooldown on speed, strength and tempo days. The detail adds up to within a mile or two of the printed total.</li>
-      <li><b>Paces.</b> Marathon pace is the goal pace: the goal time if entered, otherwise the Race Prediction Calculator's marathon (70 miles a week). Tempo is marathon pace, strength is 10 s/mile faster, and speed is 5km pace. Easy and recovery jogs are at 65% of 5km speed, as a cap.</li>
+      <li><b>Paces.</b> Marathon pace is the Race Prediction Calculator's marathon (70 miles a week), so every session is set from your current fitness rather than a goal. Tempo is marathon pace, strength is 10 s/mile faster, and speed is 5km pace. Easy and recovery jogs are at 65% of 5km speed, as a cap.</li>
       <li><b>Load.</b> TSS = hours &times; (threshold pace &divide; pace)&sup2; &times; 100, with threshold as race(16). CTL has a 42-day and ATL a 7-day time constant. Start CTL, if blank, is week 1's TSS divided by 7. The marathon on the last Sunday is not scored, so week 18 is Monday to Saturday and CTL and ATL are for the morning of the race.</li>
     </ul>
   </section>
@@ -332,14 +329,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     var riegel5 = t * Math.pow(5 / D, K) / 5, p5 = riegel5 + adj(D);
     offM = marathonOff(riegel5, null);   // 70 miles a week
     var raceP = function (km) { return (p5 - adj(km)) * Math.pow(km / 5, K - 1) + off(km) - off(D); };
-    var mpPred = raceP(MAR), mp = mpPred, graw = ($("goal").value || "").trim();
-    $("goal").placeholder = hmmss(mpPred * MAR);
-    if (graw !== "") { var gt = parseTime(graw); if (gt === null || gt < 7200 || gt > 28800) return fail("Goal marathon time should be between 2:00:00 and 8:00:00, or blank."); mp = gt / MAR; }
+    var mp = raceP(MAR);
     THR = raceP(16) * MILE;
     P = { E: raceP(5) / 0.65 * MILE, T: mp * MILE, K: (mp * MILE) - 10, S: raceP(5) * MILE };
     $("paces").innerHTML = [["E", "Easy cap"], ["S", "Speed"], ["K", "Strength"], ["T", "Tempo and marathon"]].map(function (x) {
       return "<div><span>" + x[1] + "</span><b>" + pc(P[x[0]]) + "</b><small>/" + U + "</small></div>";
-    }).join("") + "<div><span>Marathon</span><b>" + hmmss(mp * MAR) + "</b><small>" + (graw !== "" ? "goal" : "predicted") + "</small></div>";
+    }).join("") + "<div><span>Marathon</span><b>" + hmmss(mp * MAR) + "</b><small>" + "predicted" + "</small></div>";
     var weeks = [], diffs = [];
     PLAN.forEach(function (w, i) {
       var ds7 = w.slice(0, 7).map(day), q = ds7.reduce(function (a, d) { return a + d.mi; }, 0);
@@ -386,10 +381,10 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 
   function save() {
     try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("wunit", $("wunit").value === "km" ? "km" : "mi"); } catch (e) {}
-    try { localStorage.setItem("hm", JSON.stringify({ g: $("goal").value, c: $("ctl").value })); } catch (e) {}
+    try { localStorage.setItem("hm", JSON.stringify({ c: $("ctl").value })); } catch (e) {}
   }
   function restore() {
-    try { var s = JSON.parse(localStorage.getItem("hm") || "null"); if (s) { if (typeof s.g === "string") $("goal").value = s.g; if (typeof s.c === "string") $("ctl").value = s.c; } } catch (e) {}
+    try { var s = JSON.parse(localStorage.getItem("hm") || "null"); if (s) { if (typeof s.c === "string") $("ctl").value = s.c; } } catch (e) {}
     var pr = profGet();
     if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km;
     if (pr.time) $("time").value = pr.time;
@@ -398,7 +393,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 
   (function () {
     function norm(t) { var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.round(t % 60); return (h ? h + ":" + (m < 10 ? "0" : "") + m : m) + ":" + (s < 10 ? "0" : "") + s; }
-    ["time", "goal"].forEach(function (id) {
+    ["time"].forEach(function (id) {
       var el = $(id);
       el.addEventListener("change", function () {
         if (!/^\d{3,6}$/.test(el.value.trim())) return;
@@ -409,7 +404,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
 
   restore();
-  ["dist", "time", "goal", "wunit", "ctl"].forEach(function (id) {
+  ["dist", "time", "wunit", "ctl"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });
