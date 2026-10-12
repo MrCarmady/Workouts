@@ -147,6 +147,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
           <option value="7">7</option>
         </select>
       </label>
+      <label>Starting CTL (optional)
+        <input id="ctl" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="estimated">
+      </label>
       <label class="chk span2"><input id="adjt" type="checkbox" checked> Shorten threshold reps for slower runners</label>
     </div>
   </section>
@@ -163,7 +166,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     <div class="panel">
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Week</th><th class="num">Total</th><th class="q1">Q1</th><th>Q2</th><th class="num">Easy days</th></tr></thead>
+          <thead><tr><th>Week</th><th class="num">Total</th><th class="num">TSS</th><th class="num">CTL</th><th class="num">ATL</th><th class="num">Ramp</th><th class="q1">Q1</th><th>Q2</th><th class="num">Easy days</th></tr></thead>
           <tbody id="wrows"></tbody>
         </table>
       </div>
@@ -181,7 +184,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       </div>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Session</th><th>Pace</th><th class="num">Distance</th><th class="num">Time</th></tr></thead>
+          <thead><tr><th>Session</th><th>Pace</th><th class="num">Distance</th><th class="num">Time</th><th class="num">TSS</th></tr></thead>
           <tbody id="drows"></tbody>
         </table>
       </div>
@@ -195,6 +198,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       <li><b>Shorthand.</b> A number before E, M or T is miles (4M = 4 miles at marathon pace). I and R reps are timed. Jogs and easy segments are at easy pace and count towards the distance.</li>
       <li><b>Paces.</b> Marathon pace is the Riegel prediction. Threshold is race(17), intervals race(4), repetition race(1.7). Easy is a cap at 65% of 5km speed, not a target.</li>
       <li><b>Weekly total.</b> Peak distance times the week's fraction of peak. Easy days share what is left after the two quality sessions.</li>
+      <li><b>Load.</b> TSS = hours &times; (threshold pace &divide; pace)&sup2; &times; 100, with threshold as race(16). Standing rests score 0. CTL has a 42-day and ATL a 7-day time constant. Q2 falls on Wednesday and Q1 on Sunday, so day order affects ATL slightly. Ranges (steady runs) use the midpoint. Start CTL, if blank, is week 1's TSS divided by 7. Race day itself is not scored.</li>
       <li><b>Slower runners.</b> Daniels treats 5 to 6 min of threshold as 1 mile, 10 to 15 min as 2 miles and 16 to 20 min as 3 miles. With the box ticked, threshold segments are capped at 6, 15 and 20 min.</li>
     </ul>
   </section>
@@ -285,6 +289,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     [0.9, "1E+2x(2T w/ 2 min rest)+60 min E", "4E+1T+2M+1E+1T+2M+1E"]
   ];
   var RACEWEEK = [["7", "90 min E"], ["6", "60 min E"], ["5", "2E+5x(800m T w/ 2 min jog)+1E"], ["4", "50 min E"], ["3", "30-40 min E"], ["2", "0-20 min E"], ["1", "20-30 min E"], ["0", "Race"]];
+  // Day 0 = Monday. "1" Q1 (long or steady run), "2" Q2, E easy.
+  var LAYOUT = {
+    5: { 1: "E", 2: "2", 3: "E", 5: "E", 6: "1" },
+    6: { 1: "E", 2: "2", 3: "E", 4: "E", 5: "E", 6: "1" },
+    7: { 0: "E", 1: "E", 2: "2", 3: "E", 4: "E", 5: "E", 6: "1" }
+  };
   var TCAP = { 1: 360, 2: 900, 3: 1200 };   // seconds: 5-6, 10-15 and 16-20 min of threshold (upper ends)
 
   function parseSeg(s) {
@@ -306,13 +316,17 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   }
   function parseSession(str) { return str.split("+").map(parseSeg); }
 
-  var U = "mi", P = {}, adjOn = true, usedAdj = false;   // P: seconds per mile
+  var U = "mi", P = {}, THR = 0, adjOn = true, usedAdj = false;   // P: seconds per mile; THR: threshold pace for TSS, s per mile
+  var KC = 1 - Math.exp(-1 / 42), KA = 1 - Math.exp(-1 / 7);
+  function tssOf(sec, pace) { return sec / 3600 * Math.pow(THR / pace, 2) * 100; }
   function dv(mi) { return U === "mi" ? mi : mi * MILE; }
   function ds(mi) { var v = Math.round(dv(mi) * 10) / 10; return String(v); }
   function dr(lo, hi) { return Math.abs(hi - lo) < 0.05 ? ds(lo) : ds(lo) + "-" + ds(hi); }
   function pc(sec) { return mmss(U === "mi" ? sec : sec / MILE); }
   function tm(sec) { sec = Math.round(sec / 5) * 5; return sec >= 3600 ? hmmss(sec) : mmss(sec); }
   function trange(lo, hi) { return Math.abs(hi - lo) < 3 ? tm(lo) : tm(lo) + "-" + tm(hi); }
+  function sgn(x) { var v = Math.round(x * 10) / 10; return (v > 0 ? "+" : "") + v.toFixed(1); }
+  function tr(lo, hi) { return Math.abs(hi - lo) < 1 ? String(Math.round(lo)) : Math.round(lo) + "-" + Math.round(hi); }
   function ptxt(p) { return p + " " + pc(P[p]); }
   function tcap(mi) {   // threshold miles after the slower-runner cap
     if (adjOn && TCAP[mi] && mi * P.T > TCAP[mi]) { usedAdj = true; return { mi: TCAP[mi] / P.T, star: true }; }
@@ -320,24 +334,24 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   }
   // One segment to a row: label, pace letter, distance range (miles), time range (s)
   function row(sg) {
-    if (sg.k === "race") return { lbl: "Race", p: "", dlo: 0, dhi: 0, tlo: 0, thi: 0, race: true };
+    if (sg.k === "race") return { lbl: "Race", p: "", dlo: 0, dhi: 0, tlo: 0, thi: 0, slo: 0, shi: 0, race: true };
     if (sg.k === "d") {
       var c = sg.p === "T" ? tcap(sg.mi) : { mi: sg.mi, star: false };
-      return { lbl: ds(c.mi) + " " + U + " " + sg.p + (c.star ? "*" : ""), p: sg.p, dlo: c.mi, dhi: c.mi, tlo: c.mi * P[sg.p], thi: c.mi * P[sg.p] };
+      return { lbl: ds(c.mi) + " " + U + " " + sg.p + (c.star ? "*" : ""), p: sg.p, dlo: c.mi, dhi: c.mi, tlo: c.mi * P[sg.p], thi: c.mi * P[sg.p], slo: tssOf(c.mi * P[sg.p], P[sg.p]), shi: tssOf(c.mi * P[sg.p], P[sg.p]) };
     }
-    if (sg.k === "t") return { lbl: (sg.lo === sg.hi ? sg.lo : sg.lo + "-" + sg.hi) + " min E", p: "E", dlo: sg.lo * 60 / P.E, dhi: sg.hi * 60 / P.E, tlo: sg.lo * 60, thi: sg.hi * 60 };
-    if (sg.k === "rest") return { lbl: sg.min + " min rest", p: "", dlo: 0, dhi: 0, tlo: sg.min * 60, thi: sg.min * 60 };
+    if (sg.k === "t") return { lbl: (sg.lo === sg.hi ? sg.lo : sg.lo + "-" + sg.hi) + " min E", p: "E", dlo: sg.lo * 60 / P.E, dhi: sg.hi * 60 / P.E, tlo: sg.lo * 60, thi: sg.hi * 60, slo: tssOf(sg.lo * 60, P.E), shi: tssOf(sg.hi * 60, P.E) };
+    if (sg.k === "rest") return { lbl: sg.min + " min rest", p: "", dlo: 0, dhi: 0, tlo: sg.min * 60, thi: sg.min * 60, slo: 0, shi: 0 };
     var w = sg.w, wm, ws, wl, star = false;
     if (w.mi !== undefined) { var c2 = w.p === "T" ? tcap(w.mi) : { mi: w.mi, star: false }; wm = c2.mi; ws = wm * P[w.p]; star = c2.star; wl = ds(wm) + " " + U + " " + w.p; }
     else if (w.min !== undefined) { ws = w.min * 60; wm = ws / P[w.p]; wl = w.min + " min " + w.p; }
     else { wm = w.m / 1609.344; ws = wm * P.T; wl = w.m + "m " + w.p; }
     var rm = sg.jog ? sg.rec / P.E : 0, n = sg.n;
-    var d = n * wm + (n - 1) * rm, t = n * ws + (n - 1) * sg.rec;
-    return { lbl: n + " \u00d7 " + wl + (star ? "*" : "") + " w/ " + sg.rec / 60 + " min " + (sg.jog ? "jog" : "rest"), p: w.p, dlo: d, dhi: d, tlo: t, thi: t };
+    var d = n * wm + (n - 1) * rm, t = n * ws + (n - 1) * sg.rec, ts = tssOf(n * ws, P[w.p]) + (sg.jog ? tssOf((n - 1) * sg.rec, P.E) : 0);
+    return { lbl: n + " \u00d7 " + wl + (star ? "*" : "") + " w/ " + sg.rec / 60 + " min " + (sg.jog ? "jog" : "rest"), p: w.p, dlo: d, dhi: d, tlo: t, thi: t, slo: ts, shi: ts };
   }
   function session(str) {
-    var rows = parseSession(str).map(row), o = { rows: rows, dlo: 0, dhi: 0, tlo: 0, thi: 0 };
-    rows.forEach(function (r) { o.dlo += r.dlo; o.dhi += r.dhi; o.tlo += r.tlo; o.thi += r.thi; });
+    var rows = parseSession(str).map(row), o = { rows: rows, dlo: 0, dhi: 0, tlo: 0, thi: 0, slo: 0, shi: 0 };
+    rows.forEach(function (r) { o.dlo += r.dlo; o.dhi += r.dhi; o.tlo += r.tlo; o.thi += r.thi; o.slo += r.slo; o.shi += r.shi; });
     return o;
   }
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("detail").hidden = true; }
@@ -357,6 +371,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     var riegel5 = t * Math.pow(5 / D, K) / 5, p5 = riegel5 + adj(D);
     offM = 0;   // marathon pace is the plain Riegel prediction
     var raceP = function (km) { return (p5 - adj(km)) * Math.pow(km / 5, K - 1) + off(km) - off(D); };
+    THR = raceP(16) * MILE;
+    var ctlIn = null, craw = ($("ctl").value || "").trim().replace(",", ".");
+    if (craw !== "") { ctlIn = Number(craw); if (!isFinite(ctlIn) || ctlIn < 5 || ctlIn > 200) return fail("Starting CTL must be a number from 5 to 200, or blank."); }
     P = { E: raceP(5) / 0.65 * MILE, M: raceP(MAR) * MILE, T: raceP(17) * MILE, I: raceP(4) * MILE, R: raceP(1.7) * MILE };
     $("paces").innerHTML = [["E", "Easy cap"], ["M", "Marathon"], ["T", "Threshold"], ["I", "Intervals"], ["R", "Repetition"]].map(function (x) {
       return "<div><span>" + x[1] + "</span><b>" + pc(P[x[0]]) + "</b><small>/" + U + "</small></div>";
@@ -366,21 +383,34 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       var q1 = session(w[1]), q2 = session(w[2]), total = peakMi * w[0], rem = total - (q1.dhi + q2.dhi);
       if (rem < 0) warns.push(i + 1);
       var per = Math.max(0, rem) / easyDays;
-      weeks.push({ n: i + 1, f: w[0], q1: q1, q2: q2, s1: w[1], s2: w[2], total: Math.max(total, q1.dhi + q2.dhi), per: per });
+      var et = tssOf(per * P.E, P.E), q1m = (q1.slo + q1.shi) / 2, q2m = (q2.slo + q2.shi) / 2;
+      var day = [0, 0, 0, 0, 0, 0, 0], lay = LAYOUT[days];
+      for (var d = 0; d < 7; d++) day[d] = lay[d] === "1" ? q1m : lay[d] === "2" ? q2m : lay[d] === "E" ? et : 0;
+      weeks.push({ n: i + 1, f: w[0], q1: q1, q2: q2, s1: w[1], s2: w[2], total: Math.max(total, q1.dhi + q2.dhi), per: per, day: day });
     });
     var rw = RACEWEEK.map(function (d) { var s = session(d[1]); return { d: d[0], s: d[1], x: s }; });
-    out = { weeks: weeks, rw: rw, easyDays: easyDays, peakMi: peakMi };
+    var rday = rw.slice(0, 7).map(function (d) { return (d.x.slo + d.x.shi) / 2; });
+    var c0 = ctlIn !== null ? ctlIn : weeks[0].day.reduce(function (a, b) { return a + b; }, 0) / 7;
+    var c = c0, a = c0;
+    var rwk = { day: rday, race: true };
+    weeks.concat([rwk]).forEach(function (w) {
+      var c1 = c;
+      w.day.forEach(function (x) { c += (x - c) * KC; a += (x - a) * KA; });
+      w.tss = w.day.reduce(function (p, q) { return p + q; }, 0); w.ctl = c; w.atl = a; w.ramp = c - c1;
+    });
+
+    out = { weeks: weeks, rw: rw, rwk: rwk, c0: c0, easyDays: easyDays, peakMi: peakMi };
     var h = "";
     weeks.forEach(function (w) {
-      h += "<tr><td>" + w.n + "</td><td class='num'>" + ds(w.total) + " " + U + "</td>"
+      h += "<tr><td>" + w.n + "</td><td class='num'>" + ds(w.total) + " " + U + "</td><td class='num'>" + Math.round(w.tss) + "</td><td class='num'>" + w.ctl.toFixed(1) + "</td><td class='num'>" + w.atl.toFixed(1) + "</td><td class='num'>" + sgn(w.ramp) + "</td>"
         + "<td class='q q1'>" + w.s1 + "<small>" + dr(w.q1.dlo, w.q1.dhi) + " " + U + "</small></td>"
         + "<td class='q'>" + w.s2 + "<small>" + dr(w.q2.dlo, w.q2.dhi) + " " + U + "</small></td>"
         + "<td class='num'>" + easyDays + " &times; " + ds(w.per) + "</td></tr>";
     });
     var rlo = 0, rhi = 0; rw.forEach(function (d) { rlo += d.x.dlo; rhi += d.x.dhi; });
-    h += "<tr><td>18</td><td class='num'>" + dr(rlo, rhi) + " " + U + "</td><td class='q q1' colspan='3'>Race week: see the detail below</td></tr>";
+    h += "<tr><td>18</td><td class='num'>" + dr(rlo, rhi) + " " + U + "</td><td class='num'>" + Math.round(rwk.tss) + "</td><td class='num'>" + rwk.ctl.toFixed(1) + "</td><td class='num'>" + rwk.atl.toFixed(1) + "</td><td class='num'>" + sgn(rwk.ramp) + "</td><td class='q q1' colspan='3'>Race week: see the detail below</td></tr>";
     $("wrows").innerHTML = h;
-    $("wnote").textContent = "Quality sessions are in miles as written, so Q1 and Q2 are shown in " + U + " here. Numbers in the shorthand are miles." + (warns.length ? " In week " + warns.join(", ") + " the quality sessions alone exceed the weekly total, so the total is raised to match." : "");
+    $("wnote").textContent = "Start CTL " + c0.toFixed(1) + (ctlIn !== null ? " (entered)" : " (estimated)") + ". CTL, ATL and ramp are at the end of each week; week 18 ends on the morning of race day. Quality sessions are in miles as written, so Q1 and Q2 are shown in " + U + " here. Numbers in the shorthand are miles." + (warns.length ? " In week " + warns.join(", ") + " the quality sessions alone exceed the weekly total, so the total is raised to match." : "");
     $("notes").innerHTML = usedAdj ? "<p class='note'>* Threshold segment shortened to Daniels' time cap for a slower runner.</p>" : "";
     var sel = $("wk"), cur = sel.value;
     if (!sel.options.length) { var o = ""; for (var i = 1; i <= 18; i++) o += "<option value='" + i + "'>Week " + i + (i === 18 ? " (race week)" : "") + "</option>"; sel.innerHTML = o; }
@@ -389,12 +419,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   }
 
   function rowHtml(r) {
-    return "<tr><td>" + r.lbl + "</td><td class='pace'>" + (r.p ? ptxt(r.p) : "") + "</td><td class='num'>" + (r.dhi > 0 ? dr(r.dlo, r.dhi) + " " + U : "") + "</td><td class='num'>" + (r.thi > 0 ? trange(r.tlo, r.thi) : "") + "</td></tr>";
+    return "<tr><td>" + r.lbl + "</td><td class='pace'>" + (r.p ? ptxt(r.p) : "") + "</td><td class='num'>" + (r.dhi > 0 ? dr(r.dlo, r.dhi) + " " + U : "") + "</td><td class='num'>" + (r.thi > 0 ? trange(r.tlo, r.thi) : "") + "</td><td class='num'>" + (r.shi > 0 ? tr(r.slo, r.shi) : "") + "</td></tr>";
   }
   function sessionHtml(title, x, str) {
-    var h = "<tr class='tot'><td colspan='4'>" + title + "</td></tr>";
+    var h = "<tr class='tot'><td colspan='5'>" + title + "</td></tr>";
     x.rows.forEach(function (r) { h += rowHtml(r); });
-    h += "<tr class='rest'><td>Total</td><td></td><td class='num'>" + dr(x.dlo, x.dhi) + " " + U + "</td><td class='num'>" + trange(x.tlo, x.thi) + "</td></tr>";
+    h += "<tr class='rest'><td>Total</td><td></td><td class='num'>" + dr(x.dlo, x.dhi) + " " + U + "</td><td class='num'>" + trange(x.tlo, x.thi) + "</td><td class='num'>" + tr(x.slo, x.shi) + "</td></tr>";
     return h;
   }
   function renderDetail() {
@@ -402,28 +432,28 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     var n = parseInt($("wk").value, 10) || 1, h = "";
     if (n === 18) {
       out.rw.forEach(function (d) {
-        h += "<tr class='tot'><td colspan='4'>" + (d.d === "0" ? "Race day" : "Day " + d.d + " before the race") + "</td></tr>";
-        if (d.x.rows.length === 1 && d.x.rows[0].race) h += "<tr><td>Race</td><td></td><td></td><td></td></tr>";
+        h += "<tr class='tot'><td colspan='5'>" + (d.d === "0" ? "Race day" : "Day " + d.d + " before the race") + "</td></tr>";
+        if (d.x.rows.length === 1 && d.x.rows[0].race) h += "<tr><td>Race</td><td></td><td></td><td></td><td></td></tr>";
         else d.x.rows.forEach(function (r) { h += rowHtml(r); });
       });
-      $("dnote").textContent = "Race week is by day, counting down, with no fraction of peak. Easy days are by time.";
+      $("dnote").textContent = "Race week is by day, counting down, with no fraction of peak. Easy days are by time. TSS " + Math.round(out.rwk.tss) + " for the seven days before the race.";
     } else {
       var w = out.weeks[n - 1];
       h += sessionHtml("Q1", w.q1, w.s1) + sessionHtml("Q2", w.q2, w.s2);
-      h += "<tr class='tot'><td colspan='4'>Easy days</td></tr><tr><td>" + out.easyDays + " &times; easy</td><td class='pace'>" + ptxt("E") + "</td><td class='num'>" + ds(w.per) + " " + U + " each</td><td class='num'>" + tm(w.per * P.E) + " each</td></tr>";
-      $("dnote").textContent = "Week " + n + ": " + ds(w.total) + " " + U + " (" + w.f.toFixed(1) + " of peak). Long runs count as quality sessions and are run at easy pace.";
+      h += "<tr class='tot'><td colspan='5'>Easy days</td></tr><tr><td>" + out.easyDays + " &times; easy</td><td class='pace'>" + ptxt("E") + "</td><td class='num'>" + ds(w.per) + " " + U + " each</td><td class='num'>" + tm(w.per * P.E) + " each</td><td class='num'>" + Math.round(tssOf(w.per * P.E, P.E)) + " each</td></tr>";
+      $("dnote").textContent = "Week " + n + ": " + ds(w.total) + " " + U + " (" + w.f.toFixed(1) + " of peak), TSS " + Math.round(w.tss) + ". Long runs count as quality sessions and are run at easy pace.";
     }
     $("drows").innerHTML = h;
   }
 
   function save() {
     try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {}
-    try { localStorage.setItem("dq", JSON.stringify({ d: $("days").value, a: $("adjt").checked })); } catch (e) {}
+    try { localStorage.setItem("dq", JSON.stringify({ d: $("days").value, a: $("adjt").checked, c: $("ctl").value })); } catch (e) {}
   }
   function restore() {
     try {
       var s = JSON.parse(localStorage.getItem("dq") || "null");
-      if (s) { if (s.d && $("days").querySelector('option[value="' + s.d + '"]')) $("days").value = s.d; if (typeof s.a === "boolean") $("adjt").checked = s.a; }
+      if (s) { if (s.d && $("days").querySelector('option[value="' + s.d + '"]')) $("days").value = s.d; if (typeof s.a === "boolean") $("adjt").checked = s.a; if (typeof s.c === "string") $("ctl").value = s.c; }
     } catch (e) {}
     var pr = profGet();
     if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km;
@@ -443,7 +473,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
 
   restore();
-  ["dist", "time", "week", "wunit", "days", "adjt"].forEach(function (id) {
+  ["dist", "time", "week", "wunit", "days", "adjt", "ctl"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });

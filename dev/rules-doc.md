@@ -101,5 +101,6 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - 18 weeks, 2 quality sessions (Q1, Q2) plus 3-5 easy days (5-7 run days). Sessions and fraction of peak as given by the author, not checked against the book. Long runs are Q sessions at easy pace. Plan name 2QA; 2QB, 2QC etc. to follow.
 - Paces: M = plain Riegel (no weekly-distance slowdown), T = race(17), I = race(4), R = race(1.7), E = 65% of 5km speed (cap).
 - Weekly total = peak x fraction of peak; easy days share the remainder after Q1 and Q2. Race week (18) is by day.
+- Load: TSS from pace vs race(16) threshold (same as Run TSS Calculator), CTL 42d / ATL 7d, Q2 Wed and Q1 Sun (placeholder), start CTL = week 1 TSS / 7 if blank, race day not scored.
 - Slower runners (Daniels): 5-6 min T = 1 mile, 10-15 min = 2 miles, 16-20 min = 3 miles; page caps 1, 2, 3-mile T segments at 6, 15, 20 min (option).
 - Backlog: Hanson's Marathon Method planner (separate page).
