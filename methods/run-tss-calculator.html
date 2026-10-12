@@ -71,7 +71,7 @@ a { color:var(--accent); }
 <td>A rule of thumb used by the author</td>
 </tr>
 <tr>
-<td>Slow-down for short-race inputs (8 × ln(5 / km) s/km below 5km, the same rule as in the Race Prediction Calculator)</td>
+<td>Slow-down for short-race inputs (6.5 × ln(5 / km) s/km below 5km, the same rule as in the Race Prediction Calculator)</td>
 <td><strong>Author's estimate</strong></td>
 </tr>
 <tr>
@@ -90,7 +90,7 @@ TSS       = round(TSS_warmup) + round(TSS_efforts)
 <p>Pace is used as the intensity measure with no grade or terrain correction. Recoveries between reps are not counted. To include them, add their minutes to the warm-up/cool-down line with a combined average pace.</p>
 <h2>Estimating threshold from a race</h2>
 <pre><code>riegel5 = time * (5 / distance_km) ^ 1.06 / 5          // s per km at 5km
-adj     = 8 * ln(5 / distance_km)  for distance &lt; 5km, else 0   // s/km
+adj     = 6.5 * ln(5 / distance_km)  for distance &lt; 5km, else 0   // s/km
 p5      = riegel5 + adj
 threshold pace = p5 * (16 / 5) ^ 0.06                  // pace at about 16km
 </code></pre>

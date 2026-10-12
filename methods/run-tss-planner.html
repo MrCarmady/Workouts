@@ -52,7 +52,7 @@ a { color:var(--accent); }
 <h2>Why the warm-up pace is an input</h2>
 <p>One target TSS cannot fix two unknown paces. The warm-up and cool-down score is worked out from the pace you enter. Whatever is left of the target is assigned to the efforts, and their pace is solved from that.</p>
 <h2>What is published and what is an estimate</h2>
-<p>Same as the TSS calculator: the TSS formula and Riegel formula are standard, while the threshold rule of thumb (about 16km pace), the short-race slow-down (8 × ln(5 / km) s/km below 5km) and the 120 TSS per hour cap are the author's choices.</p>
+<p>Same as the TSS calculator: the TSS formula and Riegel formula are standard, while the threshold rule of thumb (about 16km pace), the short-race slow-down (6.5 × ln(5 / km) s/km below 5km) and the 120 TSS per hour cap are the author's choices.</p>
 <h2>The algebra</h2>
 <pre><code>TSS_warmup = (wMin / 60) * (thr / wPace)^2 * 100       // 0 if wMin = 0
 rest       = target - TSS_warmup                       // what the efforts must supply
@@ -64,7 +64,7 @@ effortPace = thr / q
 <p><code>q</code> is effort speed as a fraction of threshold speed, and the page shows it as a percentage. Speed in km/h is <code>3600 / effortPace</code>.</p>
 <h2>Estimating threshold from a race</h2>
 <pre><code>riegel5 = time * (5 / distance_km) ^ 1.06 / 5          // s per km at 5km
-adj     = 8 * ln(5 / distance_km)  for distance &lt; 5km, else 0   // s/km
+adj     = 6.5 * ln(5 / distance_km)  for distance &lt; 5km, else 0   // s/km
 p5      = riegel5 + adj
 thr     = p5 * (16 / 5) ^ 0.06                         // pace at about 16km
 </code></pre>

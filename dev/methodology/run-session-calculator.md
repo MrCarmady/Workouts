@@ -23,11 +23,11 @@ Treat every pace as a starting point and check it against heart rate or feel.
 
 ```
 riegel5 = time * (5 / distance_km) ^ 1.06 / 5          // s per km at 5km
-adj(km) = 8 * ln(5 / km)  for km < 5, else 0           // s/km
+adj(km) = 6.5 * ln(5 / km)  for km < 5, else 0           // s/km
 p5      = riegel5 + adj(input distance)
 ```
 
-The `adj` slows 5km equivalents that come from short races, because the formula is too optimistic from there. It is the same adjustment as in the Race Prediction Calculator. The coefficient (8) is an estimate.
+The `adj` slows 5km equivalents that come from short races, because the formula is too optimistic from there. It is the same adjustment as in the Race Prediction Calculator. The coefficient (6.5) is an estimate, set halfway between an earlier 8 and the value implied by the Daniels-Gilbert equations. See the Race Prediction Calculator methodology.
 
 ## VDOT display
 

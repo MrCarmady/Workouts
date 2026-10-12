@@ -103,10 +103,10 @@ a { color:var(--accent); }
 <p>Treat every pace as a starting point and check it against heart rate or feel.</p>
 <h2>Step 1: 5km pace from the race result</h2>
 <pre><code>riegel5 = time * (5 / distance_km) ^ 1.06 / 5          // s per km at 5km
-adj(km) = 8 * ln(5 / km)  for km &lt; 5, else 0           // s/km
+adj(km) = 6.5 * ln(5 / km)  for km &lt; 5, else 0           // s/km
 p5      = riegel5 + adj(input distance)
 </code></pre>
-<p>The <code>adj</code> slows 5km equivalents that come from short races, because the formula is too optimistic from there. It is the same adjustment as in the Race Prediction Calculator. The coefficient (8) is an estimate.</p>
+<p>The <code>adj</code> slows 5km equivalents that come from short races, because the formula is too optimistic from there. It is the same adjustment as in the Race Prediction Calculator. The coefficient (6.5) is an estimate, set halfway between an earlier 8 and the value implied by the Daniels-Gilbert equations. See the Race Prediction Calculator methodology.</p>
 <h2>VDOT display</h2>
 <p>The result shows the VDOT of the 5km equivalent (<code>p5 * 5</code> seconds over 5000m), using the Daniels–Gilbert formulas. <code>v</code> is speed in m/min and <code>t</code> is time in minutes:</p>
 <pre><code>VO2   = -4.60 + 0.182258 * v + 0.000104 * v^2

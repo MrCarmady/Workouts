@@ -8,7 +8,7 @@ One target TSS cannot fix two unknown paces. The warm-up and cool-down score is 
 
 ## What is published and what is an estimate
 
-Same as the TSS calculator: the TSS formula and Riegel formula are standard, while the threshold rule of thumb (about 16km pace), the short-race slow-down (8 × ln(5 / km) s/km below 5km) and the 120 TSS per hour cap are the author's choices.
+Same as the TSS calculator: the TSS formula and Riegel formula are standard, while the threshold rule of thumb (about 16km pace), the short-race slow-down (6.5 × ln(5 / km) s/km below 5km) and the 120 TSS per hour cap are the author's choices.
 
 ## The algebra
 
@@ -27,7 +27,7 @@ effortPace = thr / q
 
 ```
 riegel5 = time * (5 / distance_km) ^ 1.06 / 5          // s per km at 5km
-adj     = 8 * ln(5 / distance_km)  for distance < 5km, else 0   // s/km
+adj     = 6.5 * ln(5 / distance_km)  for distance < 5km, else 0   // s/km
 p5      = riegel5 + adj
 thr     = p5 * (16 / 5) ^ 0.06                         // pace at about 16km
 ```

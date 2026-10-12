@@ -9,7 +9,7 @@ Takes a threshold pace (or a race result to estimate one), plus the minutes and 
 | Running TSS formula (hours × intensity² × 100) | Standard definition, simplified here to use pace |
 | Riegel formula for estimating threshold from a race | Published |
 | "Threshold is about 16km race pace" | A rule of thumb used by the author |
-| Slow-down for short-race inputs (8 × ln(5 / km) s/km below 5km, the same rule as in the Race Prediction Calculator) | **Author's estimate** |
+| Slow-down for short-race inputs (6.5 × ln(5 / km) s/km below 5km, the same rule as in the Race Prediction Calculator) | **Author's estimate** |
 | Input limits and the 120 TSS per hour cap | **Author's choices** |
 
 ## The formula
@@ -30,7 +30,7 @@ Pace is used as the intensity measure with no grade or terrain correction. Recov
 
 ```
 riegel5 = time * (5 / distance_km) ^ 1.06 / 5          // s per km at 5km
-adj     = 8 * ln(5 / distance_km)  for distance < 5km, else 0   // s/km
+adj     = 6.5 * ln(5 / distance_km)  for distance < 5km, else 0   // s/km
 p5      = riegel5 + adj
 threshold pace = p5 * (16 / 5) ^ 0.06                  // pace at about 16km
 ```

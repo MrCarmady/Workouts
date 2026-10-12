@@ -7,7 +7,7 @@ Takes one race result (distance and time) and predicts times, paces per km and p
 | Item | Status |
 |---|---|
 | Riegel formula, exponent 1.06 | Published, widely used |
-| Slowing the 5km equivalent from a result shorter than 5km by 8 × ln(5 / km) s/km | My estimate. The coefficient was lowered from 10.6 to 8 because the 5km PB it was first set from is thought to be soft |
+| Slowing the 5km equivalent from a result shorter than 5km by 6.5 × ln(5 / km) s/km | My estimate. The coefficient was lowered from 10.6 to 8 because the 5km PB it was first set from is thought to be soft, then to 6.5 as a halfway point between 8 and what the Daniels-Gilbert (VDOT) equations imply, which is about 3 to 6 s/km depending on distance and fitness (see below) |
 | No adjustment between 5km and the half marathon | Chosen here |
 | Marathon = 2 × half marathon + 7 min at 80+ miles a week, + 10 at 70, + 13 at 60, + 17 at 50, + 25 at 35 or less; 70 miles assumed when blank | My estimate, set by judgement. Not fitted to data |
 | Distances offered | Chosen here |
@@ -27,9 +27,11 @@ riegel5 = t * (5 / D) ^ 1.06 / 5       (s/km)
 Riegel from a short race is optimistic about the 5km, so the 5km equivalent is slowed:
 
 ```
-adj(km) = 8 * ln(5 / km)   for km < 5      adj(km) = 0   otherwise
-(1500m: 9.7s/km, mile: 9.1, 3km: 4.1)
+adj(km) = 6.5 * ln(5 / km)   for km < 5      adj(km) = 0   otherwise
+(1500m: 7.8s/km, mile: 7.4, 3km: 3.3)
 p5 = riegel5 + adj(D)
+
+Where 6.5 comes from: plain Riegel gives a 5km that is too fast from a mile or 3km, so the 5km equivalent is slowed. For a runner with a VDOT of about 55, the Daniels-Gilbert equations imply a coefficient of about 6 from a mile or 1500m, 5 from 2km and 3 from 3km (about 5 to 6 at 800m and 1000m, and falling at 4km and with lower fitness). The earlier value of 8 was slower than VDOT at every distance. The author asked for a value halfway between 8 and VDOT, and 6.5 sits within about 1 s/km of that halfway point at 1500m to 3km. For an 18:54 5km runner entering a mile of 5:23.4, the predicted 5km is now 18:32 (VDOT 18:29, previously 18:41). From a 3k of 10:44.80 it is 18:45 (VDOT 18:35, previously 18:49). A single logarithmic coefficient cannot follow VDOT's curve at all distances.
 ```
 
 ## Step 3: beyond the half marathon
@@ -79,7 +81,7 @@ time(T) = pace(T) * T
 ```
 
 - `(T/5)^0.06` is the pace form of Riegel: exponent 1.06 on time becomes 0.06 on pace.
-- `adj(T)` is subtracted for short targets, so the same adjustment works in both directions. A 5km runner's 1500m is predicted 9.7s/km faster (before the distance scaling) than plain Riegel would give.
+- `adj(T)` is subtracted for short targets, so the same adjustment works in both directions. A 5km runner's 1500m is predicted 7.8s/km faster (before the distance scaling) than plain Riegel would give.
 - `- off(D)` removes the long-distance slowing already in the input when the input is a marathon.
 - The input race always reproduces its own time exactly.
 
@@ -88,7 +90,7 @@ time(T) = pace(T) * T
 - `riegel5` = 240s/km, `adj` = 0, so `p5` = 240.
 - Half marathon: 240 × (21.0975 / 5) ^ 0.06 = 262s/km, which is 4:22/km and 1:32:00.
 - Marathon: 240 × (42.195 / 5) ^ 0.06 + 5 = 278s/km, which is 4:38/km and 3:15:20.
-- 1500m: (240 − 9.7) × (1.5 / 5) ^ 0.06 = 214.3s/km, which is a time of 5:21.
+- 1500m: (240 − 7.8) × (1.5 / 5) ^ 0.06 = 216.0s/km, which is a time of 5:24.
 
 ## Plausibility check
 

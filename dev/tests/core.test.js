@@ -19,8 +19,8 @@ t("mmss and hmmss", () => {
   assert.strictEqual(a.mmss(65), "1:05"); assert.strictEqual(a.mmss(59.6), "1:00"); assert.strictEqual(a.mmss(1134), "18:54");
   assert.strictEqual(a.hmmss(5530), "1:32:10"); assert.strictEqual(a.hmmss(1134), "18:54"); assert.strictEqual(a.hmmss(3600), "1:00:00");
 });
-t("adj: short-race slowing is 8 ln(5/km) below 5km, zero above", () => {
-  near(a.adj(5), 0, 0); near(a.adj(10), 0, 0); near(a.adj(3), 8 * Math.log(5 / 3), 1e-12); near(a.adj(1.5), 8 * Math.log(5 / 1.5), 1e-12);
+t("adj: short-race slowing is 6.5 ln(5/km) below 5km, zero above", () => {
+  near(a.adj(5), 0, 0); near(a.adj(10), 0, 0); near(a.adj(3), 6.5 * Math.log(5 / 3), 1e-12); near(a.adj(1.5), 6.5 * Math.log(5 / 1.5), 1e-12);
 });
 t("marathonExtraMin: author's points, flat outside, linear between", () => {
   const mi = x => x * 1.609344;
