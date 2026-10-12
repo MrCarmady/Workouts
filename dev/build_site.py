@@ -5,19 +5,19 @@ HERE=os.path.dirname(os.path.abspath(__file__)); SRC=HERE
 OUT=os.environ.get('SITE_OUT') or (os.path.dirname(HERE) if os.path.basename(HERE)=='dev' else os.path.join(HERE,'site'))
 os.makedirs(OUT+'/methods',exist_ok=True)
 tools=[ # (src file, out file, title, desc, method md, method slug, group)
- ("run-session-calculator.html","run-session-generator.html","Sub-Threshold Session Generator","Rep pace, recovery, rep count and TSS for a session, from a race result and a rep length.","run-session-calculator.md","run-session-generator","Sessions"),
+ ("run-session-calculator.html","run-session-generator.html","Sub-Threshold Session Generator","Rep pace, recovery, rep count and TSS from a race result and rep length.","run-session-calculator.md","run-session-generator","Sessions"),
  ("race-prediction-calculator.html","race-prediction-calculator.html","Race Prediction Calculator","Predicted times for 1500m to the marathon from one race result.","race-prediction-calculator.md","race-prediction-calculator","Race and pace"),
- ("classic-session-generator.html","classic-session-generator.html","Classic Session Generator","Paces for tempo runs, ladders, Aussie quarters, Mona fartlek, Yasso and Rosario 800s and more, from a race result.","classic-session-generator.md","classic-session-generator","Sessions"),
+ ("classic-session-generator.html","classic-session-generator.html","Classic Session Generator","Paces for tempo, ladders, Aussie quarters, Yasso 800s and more.","classic-session-generator.md","classic-session-generator","Sessions"),
  ("sub-t-trend-tracker.html","sub-t-trend-tracker.html","Sub-Threshold Trend Tracker","Log classic sub-threshold sessions and track the implied threshold pace over time.","sub-t-trend-tracker.md","sub-t-trend-tracker","Sessions"),
 ("hard-workout-predictor.html","hard-workout-predictor.html","Hard Workout Predictor","Predict a race from a hard interval session, using rep length, rest and RPE.","hard-workout-predictor.md","hard-workout-predictor","Race and pace"),
 ("parkrun-converter.html","parkrun-converter.html","Parkrun Converter","Convert a parkrun time to another course, using course difficulty scores.","parkrun-converter.md","parkrun-converter","Race and pace"),
-("plan-builder.html","plan-builder.html","Plan Builder","Weekly distance, quality sessions and easy running for a block, from a race result, run days and a target CTL ramp.","plan-builder.md","plan-builder","Planning and load"),
- ("run-load-planner.html","run-load-planner.html","Run Load Planner","Fitness, fatigue and form (CTL, ATL, TSB) from a planned week, or the TSS needed for a target.","run-load-planner.md","run-load-planner","Planning and load"),
+("plan-builder.html","plan-builder.html","Plan Builder","Weekly distance, quality and easy running for a block, from a race result.","plan-builder.md","plan-builder","Planning and load"),
+ ("run-load-planner.html","run-load-planner.html","Run Load Planner","CTL, ATL and TSB from a planned week, or the TSS needed for a target.","run-load-planner.md","run-load-planner","Planning and load"),
  ("run-tss-calculator.html","run-tss-calculator.html","Run TSS Calculator","Training stress score for a run, from your threshold pace and what you ran.","run-tss-calculator.md","run-tss-calculator","Planning and load"),
  ("run-tss-planner.html","run-tss-planner.html","Run TSS Planner","The workout pace that hits a target TSS.","run-tss-planner.md","run-tss-planner","Sessions"),
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace for a treadmill belt speed and incline.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","Lift Scheme Calculator","Estimated 1RM and working weights for common set and rep schemes, from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
- ("tactical-barbell-planner.html","tactical-barbell-planner.html","Tactical Barbell Planner","The six-week Tactical Barbell Operator and Fighter cycles with weights, plus a higher-rep version for single-leg work.","tactical-barbell-planner.md","tactical-barbell-planner","Lifting"),
+ ("tactical-barbell-planner.html","tactical-barbell-planner.html","Tactical Barbell Planner","Tactical Barbell Operator, Fighter and Zulu cycles, with a high-rep mode.","tactical-barbell-planner.md","tactical-barbell-planner","Lifting"),
 ]
 HEAD='<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>\n'
 for src,out,title,desc,md,slug,grp in tools:
