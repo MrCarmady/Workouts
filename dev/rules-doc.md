@@ -103,4 +103,8 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - Weekly total = peak x fraction of peak; easy days share the remainder after Q1 and Q2. Race week (18) is by day.
 - Load: TSS from pace vs race(16) threshold (same as Run TSS Calculator), CTL 42d / ATL 7d, Q2 Wed and Q1 Sun (placeholder), start CTL = week 1 TSS / 7 if blank, race day not scored.
 - Slower runners (Daniels): 5-6 min T = 1 mile, 10-15 min = 2 miles, 16-20 min = 3 miles; page caps 1, 2, 3-mile T segments at 6, 15, 20 min (option).
-- Backlog: Hanson's Marathon Method planner (separate page).
+## Hansons Advanced Plan (running)
+- Book's Advanced program (Table 4.4), 18 weeks, 6 days a week, mileage as printed (26 to 63 mi), not scaled. Tue: speed weeks 2-10, strength weeks 11-17. Thu: tempo. Sun: long run every other week from week 3. Totals include 1.5 mi warm-up and cooldown on speed, strength and tempo days.
+- Paces: marathon = goal (or predicted, 70 mi a week; the book's 18:30 -> 3:00:21, page gives 3:00:12), tempo = MP, strength = MP - 10 s/mi, speed = 5km pace, easy and recoveries = 65% of 5km speed.
+- Load: same TSS rule as the Daniels page; race day not scored; start CTL = week 1 TSS / 7 if blank.
+- Backlog: Beginner program (same book), Copeland and Pfitzinger marathon plans.

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hansons Advanced Plan: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
+.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
+.themes button + button { border-left:1px solid var(--line); }
+.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../hansons-advanced-plan.html">Open Hansons Advanced Plan</a></nav>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+  <article class="doc">
+<h1>Hansons Advanced Plan: methodology</h1>
+<p>Lays out the 18-week Hansons Marathon Method Advanced program (Table 4.4) from a race result. Distances and weekly totals are the book's, not scaled to your own mileage. The session list was transcribed from the book's table.</p>
+<h2>Plan</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daily sessions and weekly totals, weeks 1 to 18</td>
+<td>As printed in the book</td>
+</tr>
+<tr>
+<td>Weekly totals include a 1.5-mile warm-up and cooldown on speed, strength and tempo days</td>
+<td>As stated in the book</td>
+</tr>
+<tr>
+<td>Tuesdays are speed work in weeks 2 to 10 and strength work in weeks 11 to 17</td>
+<td>As given by the author</td>
+</tr>
+<tr>
+<td>Thursday tempo runs are at marathon pace</td>
+<td>Hansons' rule, confirmed by the author</td>
+</tr>
+<tr>
+<td>Strength is 10 s per mile faster than marathon pace</td>
+<td>Hansons' rule, confirmed by the author</td>
+</tr>
+<tr>
+<td>Speed reps run at 5km pace</td>
+<td>Author's reading of the book's pace chart; the book's rep paces vary by about 2 s per 400m depending on rep length, which the page ignores</td>
+</tr>
+<tr>
+<td>Easy running and recovery jogs at 65% of 5km speed</td>
+<td>Author's choice, a cap rather than a target</td>
+</tr>
+</tbody>
+</table>
+<h2>Paces</h2>
+<ul>
+<li>Marathon pace: the goal time if entered. Otherwise the Race Prediction Calculator's marathon, assuming 70 miles a week (2 × half marathon + 10 min). The book quotes 3:00:21 for an 18:30 5km; the page gives 3:00:12 for the same result.</li>
+<li>Tempo: marathon pace. Strength: marathon pace minus 10 s per mile. Speed: race(5).</li>
+<li>Easy, long runs and recoveries: the 5km pace divided by 0.65.</li>
+</ul>
+<h2>Load</h2>
+<ul>
+<li>TSS per segment = hours × (threshold pace ÷ pace)² × 100, with threshold as race(16), as in the Run TSS Calculator.</li>
+<li>CTL has a 42-day and ATL a 7-day time constant. Ramp is the change in CTL over the week.</li>
+<li>Daily sessions are as in the book, Monday to Sunday, so day order is not assumed.</li>
+<li>Starting CTL is entered, or estimated as week 1's TSS divided by 7. Because week 1 is only 26 miles, the estimate is low and the first weeks show large ramps.</li>
+<li>The marathon on the last Sunday is not scored, so week 18 covers Monday to Saturday and CTL and ATL are for the morning of the race.</li>
+</ul>
+<h2>Limits</h2>
+<ul>
+<li>Only the Advanced program is built. The Beginner program is in the same book.</li>
+<li>Easy and long runs are listed by distance, as the book gives them; the time follows from the easy cap.</li>
+<li>The page does not adapt to what you actually ran.</li>
+</ul>
+  </article>
+</main>
+<script>
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>
