@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
+<title>Operator Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+/* Layout: bodyweight panel, then one panel per lift (inputs, 1RM, six-week table). Track-red accent on white, same system as the Lift Scheme Calculator. */
+:root {
+  --bg: #f2f2f1;
+  --surface: #ffffff;
+  --surface-2: #f0f0ee;
+  --fg: #17181a;
+  --muted: #6a6d72;
+  --line: #deded9;
+  --accent: #c8372d;
+  --accent-fg: #ffffff;
+  --accent-soft: #f6dcd9;
+  --warn: #a35a00;
+  --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+    --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+  --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 20px; }
+.wrap > * { min-width: 0; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 2rem; letter-spacing: .02em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 12px; color: var(--muted); }
+.head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.themes { display: inline-flex; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; background: var(--surface); }
+.themes button { font: inherit; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: transparent; border: 0; padding: 7px 12px; cursor: pointer; }
+.themes button + button { border-left: 1px solid var(--line); }
+.themes button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.themes button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 62ch; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; display: grid; gap: 14px; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; }
+label { display: grid; gap: 4px; align-content: start; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+input, select { box-sizing: border-box; height: 2.75rem; font: inherit; font-size: 1.05rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 9px 10px; width: 100%; min-width: 0; font-variant-numeric: tabular-nums; }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.lifthead { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; justify-content: space-between; }
+.lifthead label { flex: 1 1 220px; }
+.btn { font: inherit; font-size: .85rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 0 14px; height: 2.75rem; cursor: pointer; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn[disabled] { opacity: .45; cursor: default; }
+.btn[disabled]:hover { border-color: var(--line); color: var(--fg); }
+.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.kv div { background: var(--surface-2); border-radius: 2px; padding: 8px 10px; }
+.kv b { display: block; font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kv span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.note { font-size: .85rem; color: var(--muted); margin: 0; }
+.warn { color: var(--warn); font-size: .88rem; margin: 0; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 440px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-family: var(--font-display); font-size: .85rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); }
+tr:last-child td { border-bottom: 0; }
+td.wk { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+td.kg { font-weight: 600; color: var(--accent); }
+td.ref { color: var(--muted); }
+.method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
+.method p { margin: 0; }
+@media (max-width: 560px) { table { min-width: 0; } th, td { padding: 9px 8px; white-space: normal; } th { letter-spacing: .03em; font-size: .72rem; vertical-align: bottom; } }
+</style>
+
+<main class="wrap">
+  <p class="sitenav"><a href="index.html">&larr; All tools</a></p>
+  <header class="head">
+    <div>
+      <h1>Operator Planner</h1>
+      <p class="sub">Enter your lifts. Get the six-week Operator cycle with weights, or a higher-rep version for single-leg work. Do the same sets on each of your three lifting days, with a day or two off between.</p>
+    </div>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2 style="margin:0">You</h2>
+    <div class="fields">
+      <label>Bodyweight (kg)
+        <input id="bw" type="number" inputmode="decimal" min="30" max="250" step="0.1" value="76">
+      </label>
+    </div>
+    <p class="note">Used for weighted pull-ups and dips. Values shown are examples. Replace them with your own.</p>
+  </section>
+
+  <div id="lifts" style="display:grid; gap:20px"></div>
+
+  <div><button type="button" class="btn" id="add">Add a lift</button></div>
+
+  <section class="method">
+    <h2>How this is calculated</h2>
+    <p>Enter a tested 1RM, or a set to estimate one. The estimate is the average of the Brzycki and Epley formulas applied to reps plus reps in reserve, and is most reliable for sets of about 3–5 reps taken to failure. The training max is a percentage of that 1RM, and the Operator percentages apply to it. Leave it at 100% to use the 1RM directly.</p>
+    <p>Standard mode applies the Operator percentage to that 1RM. High-rep mode keeps each week's reps in reserve and changes the reps to 10, 8 or 6, which lowers the percentage. Reps in reserve are estimated from the same two formulas, so treat them as a guide. They get less reliable above about 10 reps.</p>
+  </section>
+  <p class="sitenav"><a href="methods/operator-planner.html">How it works &rarr;</a></p>
+</main>
+
+<script>
+(function () {
+  // Operator weeks: sets, reps, percentage of 1RM, and the reps used in high-rep mode.
+  // rl = reps used to work out reps in reserve (the middle of 1-2 for week 6).
+  var CYCLE = [
+    { sets: "3–5", reps: "5",   rl: 5,   p: 0.70, hr: 10 },
+    { sets: "3–5", reps: "5",   rl: 5,   p: 0.80, hr: 10 },
+    { sets: "3–4", reps: "3",   rl: 3,   p: 0.90, hr: 8 },
+    { sets: "3–5", reps: "5",   rl: 5,   p: 0.75, hr: 10 },
+    { sets: "3–5", reps: "3",   rl: 3,   p: 0.85, hr: 8 },
+    { sets: "3–4", reps: "1–2", rl: 1.5, p: 0.95, hr: 6 }
+  ];
+  var LIFTS = {
+    squat:    { name: "Squat",                       bw: false, hand: false, ex: [100, 1], mode: "std", step: 2.5, src: "max" },
+    bench:    { name: "Bench press",                 bw: false, hand: false, ex: [70, 1],  mode: "std", step: 2.5, src: "max" },
+    deadlift: { name: "Deadlift",                    bw: false, hand: false, ex: [140, 1], mode: "std", step: 2.5, src: "max", dl: true },
+    ohp:      { name: "Overhead press",              bw: false, hand: false, ex: [45, 1],  mode: "std", step: 2.5, src: "max" },
+    pullup:   { name: "Weighted pull-up",            bw: true,  hand: false, ex: [40, 1],  mode: "std", step: 2.5, src: "max" },
+    dip:      { name: "Weighted dip",                bw: true,  hand: false, ex: [35, 1],  mode: "std", step: 2.5, src: "max" },
+    incdb:    { name: "Incline dumbbell bench",     bw: false, hand: true,  ex: [26, 10], mode: "std", step: 2, src: "set" },
+    bss:      { name: "Bulgarian split squat",       bw: false, hand: true,  ex: [22, 10], mode: "hr",  step: 2, src: "set" }
+  };
+  var DEFAULT_ROWS = ["squat", "bench", "pullup"];
+  var MAX_ROWS = 4;
+
+  function brz(n) { return (37 - n) / 36; }
+  function epl(n) {                                       // true single pinned to 1, blended to normal Epley by 2 reps
+    var raw = function (m) { return 1 / (1 + m / 30); };
+    if (n <= 1) return 1;
+    if (n < 2) return 1 + (raw(2) - 1) * (n - 1);
+    return raw(n);
+  }
+  function pct(n) { return (brz(n) + epl(n)) / 2; }
+  function nFail(p) {                                     // reps to failure at a fraction of 1RM
+    var lo = 1, hi = 36;
+    for (var i = 0; i < 80; i++) { var m = (lo + hi) / 2; if (pct(m) > p) lo = m; else hi = m; }
+    return lo;
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  function fmt(x, d) { return (Math.round(x * Math.pow(10, d)) / Math.pow(10, d)).toString(); }
+  function snap(x, step) { return Math.round(x / step) * step; }
+  function kg(x) { return fmt(x, 2); }
+  function numOf(el) { var v = parseFloat(el.value); return isNaN(v) ? null : v; }
+
+  var rows = [];   // { lift, mode, w, reps, rir, step }
+  function newRow(key) {
+    var L = LIFTS[key];
+    return { lift: key, mode: L.mode, src: L.src, freq: "once", tm: 100, w: L.ex[0], reps: L.ex[1], rir: 0, step: L.step };
+  }
+
+  function save() {
+    try { localStorage.setItem("opp", JSON.stringify({ bw: $("bw").value, rows: rows })); } catch (e) {}
+  }
+  function restore() {
+    try {
+      var s = JSON.parse(localStorage.getItem("opp") || "null");
+      if (!s) return false;
+      if (s.bw) $("bw").value = s.bw;
+      if (Array.isArray(s.rows) && s.rows.length) {
+        rows = s.rows.filter(function (r) { return r && LIFTS[r.lift] && (r.mode === "std" || r.mode === "hr"); }).slice(0, MAX_ROWS);
+        rows.forEach(function (r) { if (r.src !== "max" && r.src !== "set") r.src = LIFTS[r.lift].src; if (r.freq !== "once" && r.freq !== "three") r.freq = "once"; if (!(r.tm >= 50 && r.tm <= 100)) r.tm = 100; });
+        return rows.length > 0;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function opt(v, label, sel) { return '<option value="' + v + '"' + (sel ? " selected" : "") + ">" + label + "</option>"; }
+
+  function buildRow(r, i) {
+    var L = LIFTS[r.lift];
+    var lifts = Object.keys(LIFTS).map(function (k) { return opt(k, LIFTS[k].name, k === r.lift); }).join("");
+    var steps = [1, 2, 2.5, 5].map(function (s) { return opt(s, s + " kg", s === r.step); }).join("");
+    return '<section class="panel" data-i="' + i + '">' +
+      '<div class="lifthead"><label>Lift<select data-f="lift">' + lifts + '</select></label>' +
+      '<button type="button" class="btn" data-remove="1"' + (rows.length < 2 ? " disabled" : "") + '>Remove</button></div>' +
+      '<div class="fields">' +
+      '<label>Mode<select data-f="mode">' + opt("std", "Standard", r.mode === "std") + opt("hr", "High-rep", r.mode === "hr") + '</select></label>' +
+      '<label>Max<select data-f="src">' + opt("max", "Tested 1RM", r.src === "max") + opt("set", "Estimated from a set", r.src === "set") + '</select></label>' +
+      '<label><span data-r="wlabel"></span><input data-f="w" type="number" inputmode="decimal" min="0" max="500" step="0.5" value="' + r.w + '"></label>' +
+      '<label data-r="repsl">Reps<input data-f="reps" type="number" inputmode="numeric" min="1" max="12" step="1" value="' + r.reps + '"></label>' +
+      '<label data-r="rirl">Reps in reserve<input data-f="rir" type="number" inputmode="decimal" min="0" max="5" step="0.5" value="' + r.rir + '"></label>' +
+      '<label>Training max (% of 1RM)<input data-f="tm" type="number" inputmode="decimal" min="50" max="100" step="1" value="' + r.tm + '"></label>' +
+      '<label>Round to<select data-f="step">' + steps + '</select></label>' +
+      (L.dl ? '<label>Schedule<select data-f="freq">' + opt("once", "One day a week", r.freq === "once") + opt("three", "One set on each of 3 days", r.freq === "three") + '</select></label>' : '') +
+      '</div>' +
+      '<div class="kv"><div><b data-r="e1">-</b><span data-r="e1label">1RM</span></div><div data-r="tmbox"><b data-r="tmv">-</b><span data-r="tmlabel">Training max</span></div></div>' +
+      '<p class="warn" data-r="warn" hidden></p>' +
+      (L.dl ? '<p class="note" data-r="dlnote"></p>' : '') +
+      '<div class="tablewrap"><table><thead><tr><th>Week</th><th>Sets × reps</th><th data-r="pcthead">% of 1RM</th><th data-r="kghead">Weight (kg)</th><th>Reps in reserve</th><th data-r="refhead" hidden>Standard Operator</th></tr></thead>' +
+      '<tbody data-r="body"></tbody></table></div>' +
+      '</section>';
+  }
+
+  function renderAll() {
+    $("lifts").innerHTML = rows.map(buildRow).join("");
+    $("add").disabled = rows.length >= MAX_ROWS;
+    update();
+  }
+
+  function q(panel, name) { return panel.querySelector('[data-r="' + name + '"]'); }
+
+  function update() {
+    var bw = parseFloat($("bw").value);
+    var panels = $("lifts").children;
+    for (var i = 0; i < panels.length; i++) {
+      var p = panels[i], r = rows[i], L = LIFTS[r.lift];
+      var hr = r.mode === "hr";
+      q(p, "wlabel").textContent = L.bw ? "Added weight (kg)" : (L.hand ? "Weight per hand (kg)" : "Weight (kg)");
+      q(p, "kghead").textContent = L.bw ? "Added weight (kg)" : (L.hand ? "Weight per hand (kg)" : "Weight (kg)");
+      q(p, "refhead").hidden = !hr;
+      var warn = q(p, "warn"), body = q(p, "body");
+      warn.hidden = true;
+      var tested = r.src === "max";
+      q(p, "repsl").hidden = tested; q(p, "rirl").hidden = tested;
+      var reps0 = tested ? 1 : r.reps, rir0 = tested ? 0 : (r.rir || 0);
+      var bwOk = !L.bw || (bw > 0);
+      var load = L.bw ? bw + r.w : r.w;
+      var n = reps0 + rir0;
+      if (L.dl) q(p, "dlnote").textContent = r.freq === "three" ? "Deadlift: one set on each of the three days." : "Deadlift: one day a week, with the sets listed.";
+      if (!bwOk || r.w === null || r.w < 0 || !(reps0 >= 1) || !(load > 0)) {
+        q(p, "e1").textContent = "-"; body.innerHTML = "";
+        warn.hidden = false; warn.textContent = "Enter " + (L.bw ? "bodyweight, " : "") + "weight and reps to see the cycle.";
+        continue;
+      }
+      if (n >= 36) {
+        q(p, "e1").textContent = "-"; body.innerHTML = "";
+        warn.hidden = false; warn.textContent = "Rep count is too high for these formulas. Use a set of 12 or fewer.";
+        continue;
+      }
+      var e1 = load / pct(n);
+      var tmPct = (r.tm >= 50 && r.tm <= 100) ? r.tm : 100, useTm = tmPct < 100, base = e1 * tmPct / 100;
+      var unitTxt = L.bw ? ", total load" : (L.hand ? ", per hand" : "");
+      q(p, "e1").textContent = fmt(e1, 1) + " kg";
+      q(p, "e1label").textContent = (tested ? "1RM" : "Estimated 1RM") + unitTxt;
+      q(p, "tmbox").hidden = !useTm; q(p, "tmv").textContent = fmt(base, 1) + " kg"; q(p, "tmlabel").textContent = "Training max" + unitTxt;
+      q(p, "pcthead").textContent = useTm ? "% of training max" : "% of 1RM";
+      if (n > 10) { warn.hidden = false; warn.textContent = "Above about 10 reps the estimate gets less reliable. A heavier set gives a better 1RM."; }
+      var html = "";
+      CYCLE.forEach(function (c, k) {
+        var rirOp = nFail(c.p) - c.rl;
+        var pe = hr ? pct(c.hr + rirOp) : c.p;
+        var reps = hr ? String(c.hr) : c.reps;
+        var total = base * pe, shown;
+        if (L.bw) {
+          var added = snap(total - bw, r.step);
+          shown = added < 0 ? "−" + kg(-added) + " assist" : (added === 0 ? "BW" : "+" + kg(added));
+        } else shown = kg(snap(total, r.step));
+        html += "<tr><td class='wk'>" + (k + 1) + "</td><td>" + (L.dl && r.freq === "three" ? "1" : c.sets) + " × " + reps + "</td><td>" + Math.round(pe * 100) + "%</td>" +
+          "<td class='kg'>" + shown + "</td><td>" + fmt(Math.max(0, rirOp), 0) + "</td>" +
+          (hr ? "<td class='ref'>" + c.sets + " × " + c.reps + " at " + Math.round(c.p * 100) + "%</td>" : "") + "</tr>";
+      });
+      body.innerHTML = html;
+    }
+  }
+
+  // Events
+  $("lifts").addEventListener("input", function (ev) { onChange(ev, false); });
+  $("lifts").addEventListener("change", function (ev) { onChange(ev, true); });
+  function onChange(ev, isChange) {
+    var el = ev.target, panel = el.closest("[data-i]");
+    if (!panel || !el.getAttribute("data-f")) return;
+    var r = rows[+panel.getAttribute("data-i")], f = el.getAttribute("data-f");
+    if (f === "lift") {
+      if (!isChange) return;
+      var L = LIFTS[el.value];
+      r.lift = el.value; r.mode = L.mode; r.src = L.src; r.freq = "once"; r.tm = 100; r.w = L.ex[0]; r.reps = L.ex[1]; r.rir = 0; r.step = L.step;
+      save(); renderAll(); return;
+    }
+    if (f === "mode" || f === "src" || f === "freq") { r[f] = el.value; save(); update(); return; }
+    if (f === "step") { r.step = parseFloat(el.value); save(); update(); return; }
+    r[f] = numOf(el);
+    save(); update();
+  }
+  $("lifts").addEventListener("click", function (ev) {
+    if (!ev.target.closest("[data-remove]")) return;
+    var panel = ev.target.closest("[data-i]");
+    if (rows.length < 2) return;
+    rows.splice(+panel.getAttribute("data-i"), 1);
+    save(); renderAll();
+  });
+  $("add").addEventListener("click", function () {
+    if (rows.length >= MAX_ROWS) return;
+    var used = rows.map(function (r) { return r.lift; });
+    var pick = Object.keys(LIFTS).filter(function (k) { return used.indexOf(k) < 0; })[0] || "squat";
+    rows.push(newRow(pick));
+    save(); renderAll();
+  });
+  $("bw").addEventListener("input", function () { save(); update(); });
+
+  if (!restore()) rows = DEFAULT_ROWS.map(newRow);
+  renderAll();
+})();
+
+  (function () {
+    var btns = document.querySelectorAll("[data-theme-set]");
+    function apply(t) {
+      if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+      else document.documentElement.removeAttribute("data-theme");
+      btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+    }
+    var saved = "system";
+    try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+    apply(saved);
+    btns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = b.getAttribute("data-theme-set");
+        apply(t);
+        try { localStorage.setItem("theme-pref", t); } catch (e) {}
+      });
+    });
+  })();
+</script>

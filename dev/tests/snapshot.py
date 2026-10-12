@@ -26,6 +26,8 @@ def scenarios():
     out.append(('run-session-calculator','3 min reps',lambda pg:[fill(pg,'dist','3'),fill(pg,'time','10:44.80'),fill(pg,'unit','min'),fill(pg,'rep','3')]))
     out.append(('plan-builder','block 4 days',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'week','60'),fill(pg,'wunit','mi'),fill(pg,'days','4'),fill(pg,'ctl','50'),fill(pg,'weeks','10')]))
     out.append(('plan-builder','block 6 days taper',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','39:10'),fill(pg,'week','50'),fill(pg,'wunit','mi'),fill(pg,'days','6'),fill(pg,'weeks','8'),fill(pg,'taper','14')]))
+    out.append(('operator-planner','defaults',lambda pg:None))
+    out.append(('operator-planner','bulgarian high-rep',lambda pg:[pg.click('#add'),pg.select_option('#lifts > section:nth-of-type(4) select[data-f=lift]','bss')]))
     for page in ['run-tss-calculator','run-tss-planner']:
         out.append((page,'race mode',lambda pg:[fill(pg,'mode','race'),fill(pg,'thr','3:58'),fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'wmin','30'),fill(pg,'wpace','4:00'),fill(pg,'target','60'),fill(pg,'emin','20'),fill(pg,'epace','5:00')]))
     out.append(('hard-workout-predictor','6x1k',lambda pg:[fill(pg,'rep','1000'),fill(pg,'splits','3:38, 3:32, 3:33, 3:31, 3:34, 3:35')]))

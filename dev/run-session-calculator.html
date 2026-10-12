@@ -182,7 +182,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
   <section class="method">
     <h2>How this is calculated</h2>
     <ul>
-      <li><b>Pace base.</b> Your race becomes a 5km equivalent with Riegel (time × distance ratio ^ 1.06). Results under 5km are slowed by 8s/km × ln(5 ÷ km). Paces beyond the half marathon are slowed, rising linearly to a marathon slow-down that depends on weekly distance: the marathon is twice the half marathon plus 7 min at 80 miles (129km) a week or more, plus 10 min at 70 miles (113km), 13 at 60, 17 at 50, and 25 at 35 miles (56km) or less. With no weekly distance, 70 miles is assumed.</li>
+      <li><b>Pace base.</b> Your race becomes a 5km equivalent with Riegel (time × distance ratio ^ 1.06). Results under 5km are slowed by 8s/km × ln(5 ÷ km). Marathon pace is slowed for low weekly distance: twice the half marathon plus 7 min at 80 miles a week or more, 10 at 70, 13 at 60, 17 at 50 and 25 at 35 or less. Blank assumes 70 miles a week.</li>
       <li><b>Rep pace.</b> Set by rep length and interpolated between anchors: 200m at 91–96% of 5km pace time, 300m at 5km pace ±2s/km, 400m at 8–10km pace, 3 min at 14–16km pace, 6 min at 20–21km, 10 min at 25–30km, tempo reps of 15–20km at 3–6% slower than marathon pace. The 3, 6 and 10 minute anchors follow Copeland's book.</li>
       <li><b>Recovery.</b> From the rule at each anchor (90s at 200m, 45s at 300–400m, 60s at 3–6 min, 75–90s at 8–10 min, 120s at 12 min, 150–240s at 15–20 min), interpolated. Beyond 20 min it rises from 195s to 300s at 40 min.</li>
       <li><b>Suggested reps.</b> My estimate: total work at each anchor ÷ rep time. Sessions are capped at 25km, and at 5km of mile-paced work, 10km of 5km-paced or 400m work, 1 hour of 3–12 min reps and 2 hours of marathon-paced work.</li>
@@ -253,9 +253,13 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     return vo2 / pct;
   }
   /*@@CORE-END@@*/
-  // Marathon slow-down beyond the half marathon, in s/km at the marathon (my estimate, see the method notes).
-  // The marathon is set to 2 x half marathon + X minutes, where X is 7 min at 80 miles a week, 10 at 70, 13 at 60, 17 at 50 and 25 at 35 (linear between, flat outside).
-  // With no weekly distance, 70 miles a week is assumed.
+  // Rep length in minutes: a plain number is minutes (100 = 100 min, not 1:00). Colons give mm:ss.
+  function parseRepMin(str) {
+    str = (str || "").trim().replace(",", ".");
+    if (/^\d+(\.\d+)?$/.test(str)) return Number(str) * 60;
+    return parseTime(str);
+  }
+  // Marathon slow-down from the weekly distance (see the Race Prediction Calculator notes). Blank assumes 70 miles a week.
 
   // Anchor reps. kind: "d" distance (m), "t" timed (min), "c" continuous tempo (km).
   // basis: "x" multiple of 5km pace, "r" Riegel race distance km, "p5" 5km pace +/- s, "m" multiple of marathon pace.
@@ -348,8 +352,9 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 
     var riegel5 = t * Math.pow(5 / D, K) / 5;
     var p5r = riegel5 + adj(D);
-    var wkEarly = parseFloat(($("week").value || "").trim().replace(",", "."));
-    offM = marathonOff(riegel5, isFinite(wkEarly) && wkEarly > 0 ? ($("wunit").value === "mi" ? wkEarly * 1.609344 : wkEarly) : null);
+    var wkEarly = null, wkRaw = Number((($("week").value || "").trim()).replace(",", "."));
+    if (isFinite(wkRaw) && wkRaw > 0) wkEarly = $("wunit").value === "mi" ? wkRaw * 1.609344 : wkRaw;
+    offM = marathonOff(riegel5, wkEarly);   // marathon slow-down by weekly distance; blank = 70 miles
     var race = function (km) { return p5r * Math.pow(km / 5, K - 1) + off(km) - off(D); };
     var p5 = race(5);
     var pm = race(MAR);
@@ -370,7 +375,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 
     var rep = ($("rep").value || "").trim(), tRep, dKm = null;
     if (unit === "min") {
-      tRep = parseTime(rep);
+      tRep = parseRepMin(rep);
       if (tRep === null || tRep <= 0) return fail("Enter a rep length like 6, 2.5 or 2:30 minutes.");
     } else {
       var v = Number(rep.replace(",", "."));

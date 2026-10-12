@@ -11,7 +11,8 @@ Takes a recent race result and a rep length (a time or a distance) and returns t
 | Rep length → race-pace distance mapping at 3, 6 and 10 minutes | Copeland's book, **as relayed to the author; not checked against the book**. The book revises his earlier online guidance, which the "Source check" compares with the page (the page's fast ends are faster) |
 | 8, 12, 15, 20 minute anchors | **Interpolated or extrapolated** from the three above |
 | 200m, 300m and 400m pace rules, 15km tempo rule | **Author's estimates** |
-| Slow-downs for short-race inputs and for marathon pace | **Author's estimates** |
+| Slow-down for short-race inputs | **Author's estimate** |
+| Marathon slow-down by weekly distance (same table as the Race Prediction Calculator; blank means 70 miles) | **Author's judgement**, see the Race Prediction Calculator methodology |
 | Interpolation between anchors (linear in rep time) | **Chosen here** |
 | Recoveries at the anchors | Rules given by the author |
 | Suggested rep counts | **Author's estimates**, not sourced |
@@ -53,7 +54,7 @@ off(km) = 0                                              for km <= 21.0975
         = 5 * (min(km, 42.195) - 21.0975) / (42.195 - 21.0975)   above that
 ```
 
-`off` slows paces beyond the half marathon, rising linearly to `offM` s/km at the marathon. `offM` is set so the marathon equals twice the half marathon plus 7 min at 80 miles (129km) a week or more, plus 10 min at 70 miles (113km), 13 at 60, 17 at 50, and 25 at 35 miles (56km) or less, in straight lines between those points (never negative). With no weekly distance, 70 miles is assumed. This is the same rule as the Race Prediction Calculator, whose methodology gives the formula and its status as my estimate. It changes the marathon pace anchor and the long tempo paces. Subtracting `off(input distance)` makes a 10km or half marathon input reproduce itself.
+`offM` is set from the weekly distance with the same table as the Race Prediction Calculator: the marathon is twice the half marathon plus 7 min at 80 miles a week or more, 10 at 70, 13 at 60, 17 at 50 and 25 at 35 or less, in straight lines between those points. A blank field means 70 miles. `off(km)` rises linearly from 0 at the half marathon to that value at the marathon, so it affects the marathon pace anchor and the long tempo paces. For a 20:00 5km at 70 miles a week the marathon is about 3:14:00, against 3:11:49 for plain Riegel and 3:11:17 from the Daniels-Gilbert equations (the same VDOT the page uses for its plausibility check). The weekly distance field also sets the volume cap below.
 
 ## Step 3: anchor reps
 

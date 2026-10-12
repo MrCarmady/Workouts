@@ -89,3 +89,8 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - Low mileage and beginner handling (easy pace, very short weeks).
 - Feedback loop (logging what was run) and sync across devices.
 - Lifting load: measure (session RPE x minutes), conversion to TSS-equivalent (needs an anchor chosen by P), and whether lifting counts in full toward the TSB limits.
+
+## Operator Planner (lifting)
+- Cycle (as given by the author, not checked against the book): W1 3-5x5 @70%, W2 3-5x5 @80%, W3 3-4x3 @90%, W4 3-5x5 @75%, W5 3-5x3 @85%, W6 3-4x1-2 @95%.
+- High-rep mode (P): 10 reps in W1, W2, W4; 8 in W3, W5; 6 in W6. Reps in reserve kept from the standard week (Epley and Brzycki averaged), percentage re-derived. Week 6 uses 1.5 reps for the reps in reserve.
+- Backlog: Hanson's Marathon Method planner (separate page).
