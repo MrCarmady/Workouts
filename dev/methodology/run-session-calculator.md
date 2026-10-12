@@ -135,7 +135,7 @@ TSS       = round(warm-up and cool-down) + round(reps) + round(recoveries)
 
 | Part | Time | Pace |
 |---|---|---|
-| Warm-up and cool-down | minutes entered (default 10 + 10) | the pace entered, or by default 62.5% of 5km speed, the middle of 55–70% (**author's rule**); the page shows the default as the placeholder. On a treadmill, enter the flat-equivalent pace |
+| Warm-up and cool-down | minutes entered (default 10 + 10) | the pace entered, or by default 65% of 5km speed (**author's rule**). It is a cap rather than a target. For an 18:54 5k it is 5:49/km, about 60% of a max aerobic speed taken from a 7.5 min race, inside the 65% of MAS ceiling the author attributes to an earlier Copeland recommendation (not checked against the book). Earlier versions used 62.5%; the page shows the default as the placeholder. On a treadmill, enter the flat-equivalent pace |
 | Reps | reps × rep time | middle of the rep pace range; the flat-equivalent pace on a treadmill |
 | Recoveries | (reps − 1) × recovery time | walking at 6km/h, which is 600s/km (**author's rule**) |
 

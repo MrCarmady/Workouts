@@ -180,7 +180,7 @@ tr.easy td:first-child { padding-left: 11px; }
       <li><b>Rosario 800s.</b> 800m at 5k pace with an 800m float at 5k pace plus 25s per 800m, which is about +31s/km.</li>
       <li><b>1km repeats, mile repeats, 30/30.</b> 1km at 4.5k pace, 1 mile at 10k pace, and 30s at 3k pace with a 30s jog.</li>
       <li><b>Marathon-pace long run.</b> Easy running first, then the chosen distance at marathon pace.</li>
-      <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Warm-up, cool-down and jogs run at 62.5% of 5km speed unless you change the pace.</li>
+      <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Warm-up, cool-down and jogs run at 65% of 5km speed unless you change the pace.</li>
       <li>This page does not apply weekly-volume limits. Check the numbers against heart rate or feel.</li>
     </ul>
   </section>
@@ -345,7 +345,7 @@ tr.easy td:first-child { padding-left: 11px; }
     var raceP = function (km) { return (p5 - adj(km)) * Math.pow(km / 5, K - 1) + off(km) - off(D); };
     var thr = raceP(16), p5e = raceP(5), mp = raceP(MAR);
     var mpFl = p5 * Math.pow(MAR / 5, K - 1) + marathonOff(riegel5, null) - off(D), mpFast = mpFl * 0.97;   // float pace ignores weekly distance (70-mile default)
-    var wcSug = p5e / 0.625;
+    var wcSug = p5e / 0.65;
     $("wcp").placeholder = mmss(wcSug);
     var wcPace = wcSug, wcTxt = ($("wcp").value || "").trim();
     if (wcTxt !== "") {

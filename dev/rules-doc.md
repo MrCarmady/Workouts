@@ -25,7 +25,7 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 
 ## 4. Paces
 - Sub-T pace is race(21) (P): the average of sub-T paces, since longer reps run a little slower and shorter reps a little quicker. About 1.7% slower than threshold (race(16)). The earlier placeholder of 1.04 x threshold was about race(31), too slow.
-- Threshold race(16). Intervals race(4). R is the predicted mile pace. Easy is 62.5% of 5km speed, editable.
+- Threshold race(16). Intervals race(4). R is the predicted mile pace. Easy is 65% of 5km speed (a cap, not a target), editable.
 
 ## 5. Load progression (P)
 - Replaces the 10% mileage rule. Target weekly TSS, simulate daily CTL, ATL, TSB.

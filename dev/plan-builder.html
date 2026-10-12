@@ -202,7 +202,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
   <section class="method">
     <h2>How this is calculated</h2>
     <ul>
-      <li><b>Paces.</b> Race model as in the Race Prediction Calculator. Threshold race(16), sub-threshold race(21), intervals race(4), mile pace as predicted, easy 62.5% of 5km speed.</li>
+      <li><b>Paces.</b> Race model as in the Race Prediction Calculator. Threshold race(16), sub-threshold race(21), intervals race(4), mile pace as predicted, easy 65% of 5km speed.</li>
       <li><b>Quality days.</b> Run days set the count: 3 gives 1, 4 and 5 give 2, 6 and 7 give 3. Warm-up and cool-down add 20 to 40 min.</li>
       <li><b>Limits.</b> Per session: Daniels' caps, and 12% of the week for sub-threshold. Per week: mile pace 10%, intervals 16%, threshold 20%, sub-threshold 30%, marathon pace 40%, on a shared budget. At least 60% stays easy.</li>
       <li><b>Easy and long runs.</b> The long run is at most 35% of the week and 150 min. No easy run is longer.</li>
@@ -340,7 +340,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     offM = marathonOff(riegel5, W0);
     var raceP = function (km) { return (p5 - adj(km)) * Math.pow(km / 5, K - 1) + off(km) - off(D); };
     var thr = raceP(16), mp = raceP(MAR);
-    var easyP = raceP(5) / 0.625, wcTxt = ($("wcp").value || "").trim();
+    var easyP = raceP(5) / 0.65, wcTxt = ($("wcp").value || "").trim();
     $("wcp").placeholder = mmss(easyP);
     if (wcTxt !== "") { easyP = parseTime(wcTxt); if (easyP === null || easyP < 120 || easyP > 900) return fail("Enter the easy pace like 6:30, between 2:00 and 15:00 per km, or leave it blank."); }
     var PACE = { E: easyP, subT: raceP(21), T: thr, I: raceP(4), R: raceP(MILE), M: mp };

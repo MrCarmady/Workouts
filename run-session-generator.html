@@ -193,7 +193,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
       <li><b>Recovery.</b> From the rule at each anchor (90s at 200m, 45s at 300–400m, 60s at 3–6 min, 75–90s at 8–10 min, 120s at 12 min, 150–240s at 15–20 min), interpolated. Beyond 20 min it rises from 195s to 300s at 40 min.</li>
       <li><b>Suggested reps.</b> My estimate: total work at each anchor ÷ rep time. Sessions are capped at 25km, and at 5km of mile-paced work, 10km of 5km-paced or 400m work, 1 hour of 3–12 min reps and 2 hours of marathon-paced work.</li>
       <li><b>Weekly distance (optional).</b> Caps the top of the range at a share of weekly distance: 5% for 200m, 8% for 300m, 10% for 400m, 12% for 3–12 min reps, 20% for 15 min and longer. These are Daniels' figures, except 12% for 3–12 min reps (his is 10%). The lower share applies between anchors. Floors: 2km mile-paced, 4km 5km-paced, 6km slower work.</li>
-      <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Threshold is the predicted 16km pace. Warm-up and cool-down default to 62.5% of 5km speed (editable), reps run at the middle of the pace range and recoveries are walked at 6km/h.</li>
+      <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Threshold is the predicted 16km pace. Warm-up and cool-down default to 65% of 5km speed (editable), reps run at the middle of the pace range and recoveries are walked at 6km/h.</li>
       <li><b>Treadmill.</b> ACSM running equation: belt speed = flat speed ÷ (1 + 4.5 × grade). Rep times stay the same. It ignores air resistance and treadmill calibration.</li>
       <li>Treat all numbers as starting points and check them against heart rate or feel. Keep the last rep within 1–2s per 200m, or 3s per 400m, of the first.</li>
     </ul>
@@ -464,7 +464,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     var wuMin = Number(($("wu").value || "").trim().replace(",", ".")), cdMin = Number(($("cd").value || "").trim().replace(",", "."));
     if (($("wu").value || "").trim() === "" || ($("cd").value || "").trim() === "" || !isFinite(wuMin) || !isFinite(cdMin) || wuMin < 0 || cdMin < 0 || wuMin > 60 || cdMin > 60) return fail("Enter warm-up and cool-down as minutes from 0 to 60.");
     var inten = function (pace) { return thr / pace; };
-    var wcSug = p5 / 0.625;                                   // suggested warm-up and cool-down pace: 62.5% of 5km speed, the middle of 55-70%
+    var wcSug = p5 / 0.65;                                    // suggested warm-up and cool-down pace: 65% of 5km speed, a cap rather than a target
     $("wcp").placeholder = mmss(wcSug);
     var wcPace = wcSug, wcTxt = ($("wcp").value || "").trim();
     if (wcTxt !== "") {

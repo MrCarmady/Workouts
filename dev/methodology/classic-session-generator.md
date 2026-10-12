@@ -52,7 +52,7 @@ The float pace is race(5) + 25s per 800m. The page shows how far that float is f
 
 ## Session load
 
-- Warm-up and cool-down default to 10 + 10 min at 62.5% of 5km speed. The pace is editable and also sets the jog pace.
+- Warm-up and cool-down default to 10 + 10 min at 65% of 5km speed, a cap rather than a target (see the Sub-Threshold Session Generator methodology). The pace is editable and also sets the jog pace.
 - Hard parts use their stated paces. Floats use the mid-point of their range.
 - The marathon-pace long run has no separate warm-up or cool-down.
 - TSS = hours × (threshold pace ÷ pace)² × 100, summed over every part.
