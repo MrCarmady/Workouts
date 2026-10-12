@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tactical Barbell Planner: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
+.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
+.themes button + button { border-left:1px solid var(--line); }
+.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../tactical-barbell-planner.html">Open Tactical Barbell Planner</a></nav>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+  <article class="doc">
+<h1>Tactical Barbell Planner: methodology</h1>
+<p>Pick a programme (Operator, Fighter or Zulu). The page takes up to four lifts, each with a tested 1RM or a set (weight, reps, reps in reserve) that gives an estimated 1RM, and an optional training max percentage, and returns the six-week Tactical Barbell cycle as weights. A second mode keeps the same effort but uses more reps, for single-leg work.</p>
+<p><strong>Operator</strong> is three lifting days a week, with a day or two off between them. <strong>Fighter</strong> is two days a week, with two or three days off between them. In both, the days are identical, so the page lists one day's sets and you repeat them. <strong>Zulu</strong> is four days a week in the pattern A, B, rest, A, B, rest, rest. The lifts are split between the A and B days, with 1–2 lifts on each. This is the author's description of the programmes and I have not checked it against the book.</p>
+<h2>What is published and what is an estimate</h2>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The Operator and Fighter cycles (weeks, sets, reps, percentages) below</td>
+<td>As given by the author from Tactical Barbell. <strong>Not checked against the book by me</strong></td>
+</tr>
+<tr>
+<td>Epley and Brzycki formulas, averaged</td>
+<td>Published formulas. The averaging and the single-rep fix are the same as in the Lift Scheme Calculator</td>
+</tr>
+<tr>
+<td>High-rep mode (10, 8 and 6 reps, matched reps in reserve)</td>
+<td><strong>Author's design.</strong> The reps were set by the author. The percentages follow from them</td>
+</tr>
+<tr>
+<td>Week 6 reps in reserve worked out at 1.5 reps</td>
+<td><strong>My choice</strong>, the middle of 1–2</td>
+</tr>
+<tr>
+<td>Reps in reserve from the formulas</td>
+<td><strong>Estimates.</strong> The formulas are least reliable above about 10 reps</td>
+</tr>
+</tbody>
+</table>
+<h2>The cycles (standard mode)</h2>
+<h3>Operator</h3>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Sets × reps</th>
+<th>% of 1RM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>3–5 × 5</td>
+<td>70%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3–5 × 5</td>
+<td>80%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3–4 × 3</td>
+<td>90%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3–5 × 5</td>
+<td>75%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3–5 × 3</td>
+<td>85%</td>
+</tr>
+<tr>
+<td>6</td>
+<td>3–4 × 1–2</td>
+<td>95%</td>
+</tr>
+</tbody>
+</table>
+<h3>Fighter</h3>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Sets × reps</th>
+<th>% of max</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>3–5 × 5</td>
+<td>75%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3–5 × 5</td>
+<td>80%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3–5 × 3</td>
+<td>90%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3–5 × 5</td>
+<td>75%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3–5 × 5</td>
+<td>80%</td>
+</tr>
+<tr>
+<td>6</td>
+<td>3–5 × 3</td>
+<td>90%</td>
+</tr>
+</tbody>
+</table>
+<p>Weeks 4–6 repeat weeks 1–3.</p>
+<h3>Zulu</h3>
+<p>Every set is 3 sets of 5 or 3 reps. The first percentage is the first A or B session of the week (A1, B1) and the second is the second (A2, B2).</p>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Sets × reps</th>
+<th>% of max, 1st session</th>
+<th>% of max, 2nd session</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>3 × 5</td>
+<td>70%</td>
+<td>75%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3 × 5</td>
+<td>80%</td>
+<td>80%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3 × 3</td>
+<td>90%</td>
+<td>90%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3 × 5</td>
+<td>70%</td>
+<td>75%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3 × 5</td>
+<td>80%</td>
+<td>80%</td>
+</tr>
+<tr>
+<td>6</td>
+<td>3 × 3</td>
+<td>90%</td>
+<td>90%</td>
+</tr>
+</tbody>
+</table>
+<p>Weeks 4–6 repeat weeks 1–3. Each lift is assigned to day A or day B and the table shows its first and second session, so a lift on day A shows A1 and A2. The page warns if more than two lifts are on one day.</p>
+<p>Weight = training max × percentage, rounded to the chosen step (1, 2, 2.5 or 5 kg). With the training max at 100% that is the 1RM × percentage.</p>
+<h2>Estimated 1RM</h2>
+<p>Each lift takes either a tested 1RM or one set, which the page converts to an estimated 1RM. The author describes Tactical Barbell's default recommendation as an estimate from a low-rep set of about 3–5 reps, because it is fairly accurate and easier to do to failure without spotters, with a tested 1RM as a fine alternative. I have not checked this against the book. Both formulas get less reliable as reps rise, which is why the page warns above about 10 reps.</p>
+<pre><code>n     = reps + RIR
+pct(n)= average of Brzycki (37 - n) / 36 and Epley 1 / (1 + n / 30)    // Epley pinned to 1 at n &lt;= 1
+e1RM  = load / pct(n)
+</code></pre>
+<p><code>load</code> is the weight lifted. For weighted pull-ups and dips it is bodyweight + added weight, and the table shows added weight. For dumbbell lifts (Bulgarian split squat, incline dumbbell bench) it is the weight per hand. A tested 1RM is the same calculation with 1 rep and 0 reps in reserve.</p>
+<h2>Training max</h2>
+<p>The training max is separate from the 1RM. It is a percentage of the 1RM (tested or estimated), and the programme percentages are applied to it. The author describes it as a guardrail on intensity and fatigue, mainly useful to advanced lifters, for whom 90% of their max is still heavy enough to give a good stimulus while working more sub-maximally than the standard programme. The default is 100%, which means the 1RM is used directly.</p>
+<p>The author borrows the idea for estimates from higher-rep sets: an endurance background may make a high-rep set overstate the true 1RM, so the author uses 90% for deadlifts and 95% for weighted pull-ups to standardise the weights without testing low-rep sets to failure. These figures are the author's judgement. The page does not set them for you.</p>
+<p>For weighted pull-ups and dips the percentage applies to total load (bodyweight + added weight), and the table shows added weight.</p>
+<p>Example: 22 kg per hand for 10 reps to failure. Both formulas give a fraction of 0.75, so the estimated 1RM is 29.3 kg per hand.</p>
+<h2>Reps in reserve for each week</h2>
+<p>At a fraction p of the 1RM, the reps to failure <code>nFail(p)</code> solve <code>pct(n) = p</code>. The reps in reserve for a programme week are <code>nFail(p) - reps</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>%</th>
+<th>Reps to failure</th>
+<th>Reps</th>
+<th>Reps in reserve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>70%</td>
+<td>12.2</td>
+<td>5</td>
+<td>7</td>
+</tr>
+<tr>
+<td>2</td>
+<td>80%</td>
+<td>7.9</td>
+<td>5</td>
+<td>3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>90%</td>
+<td>4.0</td>
+<td>3</td>
+<td>1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>75%</td>
+<td>10.0</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>85%</td>
+<td>5.9</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>6</td>
+<td>95%</td>
+<td>2.2</td>
+<td>1.5</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<h2>High-rep mode</h2>
+<p>The idea is to keep each week's reps in reserve and change the reps, so the effort stays what the programme intends while the set gets longer. This suits single-leg work such as Bulgarian split squats, where balance and set-up make sets of 1–5 awkward.</p>
+<pre><code>reps (high-rep) = 10 where the programme has 5 reps;  8 where it has 3;  6 where it has 1–2
+RIR             = nFail(p) - programmeReps
+percentage      = pct(highRepReps + RIR)
+</code></pre>
+<p>Zulu uses the same mapping as Fighter (10 reps for the 5-rep weeks, 8 for the 3-rep weeks), and Zulu's two sessions each get their own percentage. In Operator that is 10 reps in weeks 1, 2 and 4, 8 in weeks 3 and 5, and 6 in week 6. Fighter and Zulu have no 1–2 rep week, so they use 10 in weeks 1, 2, 4 and 5 and 8 in weeks 3 and 6. That mapping is my extension of the author's rule.</p>
+<p>Operator example, for a 29.3 kg estimated 1RM (22 kg × 10 to failure), with rounding to 2 kg:</p>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Sets × reps</th>
+<th>% of 1RM</th>
+<th>Weight per hand</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>3–5 × 10</td>
+<td>59%</td>
+<td>18 kg</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3–5 × 10</td>
+<td>68%</td>
+<td>20 kg</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3–4 × 8</td>
+<td>77%</td>
+<td>22 kg</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3–5 × 10</td>
+<td>64%</td>
+<td>18 kg</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3–5 × 8</td>
+<td>73%</td>
+<td>22 kg</td>
+</tr>
+<tr>
+<td>6</td>
+<td>3–4 × 6</td>
+<td>83%</td>
+<td>24 kg</td>
+</tr>
+</tbody>
+</table>
+<p>The formulas lose accuracy as reps rise, so the percentages are a starting point to adjust against how the sets feel.</p>
+<h2>Limits</h2>
+<ul>
+<li><strong>Deadlift schedule.</strong> In all three programmes the author deadlifts 1–3 sets a day on 1–2 days a week, so 1 to 6 sets a week. The author's reasoning is that Tactical Barbell treats one set a week as enough and three as standard, and that with less volume elsewhere and more recovery time six is the most that is reasonable. The page defaults to 3 sets on 1 day. In Zulu, a deadlift on one day a week shows only the lift's first session of the week.</li>
+<li><strong>Lifts.</strong> Squat, bench press, deadlift, overhead press, weighted pull-up, weighted dip, incline dumbbell bench and Bulgarian split squat. Incline dumbbell bench is an alternative pressing movement and uses the standard cycle per hand.</li>
+<li>Sets (3–5 or 3–4) are the ranges from the plan. The page does not choose a number within them.</li>
+<li>Standard weeks 1–5 assume the formulas hold at 1–12 reps. Week 6 uses a pinned Epley at one rep, so its reps in reserve are rough.</li>
+<li>The formulas assume sets near the stated percentage of a true maximum. A 1RM entered from a tired or untested set will carry through every week.</li>
+</ul>
+  </article>
+</main>
+<script>
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>
