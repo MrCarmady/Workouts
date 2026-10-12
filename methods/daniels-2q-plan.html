@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daniels 2Q Plan: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
+.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
+.themes button + button { border-left:1px solid var(--line); }
+.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../daniels-2q-plan.html">Open Daniels 2Q Plan</a></nav>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+  <article class="doc">
+<h1>Daniels 2Q Plan: methodology</h1>
+<p>Lays out the 18-week 2QA plan from a race result. Two quality sessions a week (Q1, Q2), the rest easy. The week-by-week sessions and fractions of peak are as given by the author, not checked against the book.</p>
+<h2>Plan</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Session contents and fraction of peak for weeks 1 to 17, and the day-by-day race week</td>
+<td>As given by the author</td>
+</tr>
+<tr>
+<td>Long runs count as quality sessions and are run at easy pace</td>
+<td>Author's rule</td>
+</tr>
+<tr>
+<td>Numbers before E, M and T are miles</td>
+<td>Daniels' notation</td>
+</tr>
+<tr>
+<td>I and R reps are timed; distance follows from pace</td>
+<td>Daniels' notation</td>
+</tr>
+<tr>
+<td>Jogs and easy segments count towards distance; standing rests do not</td>
+<td>My choice</td>
+</tr>
+<tr>
+<td>Run days 5 to 7, so 3 to 5 easy days</td>
+<td>Author's rule</td>
+</tr>
+</tbody>
+</table>
+<h2>Paces</h2>
+<ul>
+<li>Easy: 65% of 5km speed. This is a cap rather than a target.</li>
+<li>Marathon: plain Riegel prediction (exponent 1.06), with no extra slowdown for weekly distance. The Race Prediction Calculator's marathon pace is slower.</li>
+<li>Threshold: race(17).</li>
+<li>Intervals: race(4).</li>
+<li>Repetition: race(1.7).</li>
+</ul>
+<p>The short-race slowdown is the one in the Race Prediction Calculator.</p>
+<h2>Weekly distance</h2>
+<p>Weekly total = peak weekly distance × the week's fraction of peak. Easy days share what remains after Q1 and Q2 equally. If the quality sessions alone exceed the total, the total is raised to match and the page says so. Week 18 has no fraction; it is listed by day, counting down to the race, and easy days there are by time.</p>
+<h2>Slower runners</h2>
+<p>Daniels: 5 to 6 min of threshold counts as 1 mile, 10 to 15 min as 2 miles, 16 to 20 min as 3 miles. With the option on, a threshold segment of 1, 2 or 3 miles is cut to 6, 15 or 20 min if the runner's pace would take longer. Segments of other lengths, and the 800m reps in race week, are not changed. Shortened segments are starred.</p>
+<h2>Limits</h2>
+<ul>
+<li>Only the 2QA plan is built. </li>
+<li>Time-based easy runs are converted to distance at the easy cap, so the distance is the shortest likely.</li>
+<li>The page does not adapt to what you actually ran.</li>
+</ul>
+  </article>
+</main>
+<script>
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>
