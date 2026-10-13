@@ -90,13 +90,19 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - Feedback loop (logging what was run) and sync across devices.
 - Lifting load: measure (session RPE x minutes), conversion to TSS-equivalent (needs an anchor chosen by P), and whether lifting counts in full toward the TSB limits.
 
-## Tactical Barbell Planner (lifting)
+## Lifting Programme Planner (lifting)
 - Cycle (as given by the author, not checked against the book): W1 3-5x5 @70%, W2 3-5x5 @80%, W3 3-4x3 @90%, W4 3-5x5 @75%, W5 3-5x3 @85%, W6 3-4x1-2 @95%.
 - High-rep mode (P): 10 reps in W1, W2, W4; 8 in W3, W5; 6 in W6. Reps in reserve kept from the standard week (Epley and Brzycki averaged), percentage re-derived. Week 6 uses 1.5 reps for the reps in reserve.
 - Fighter: 2 days a week, 2-3 days between, days identical. W1 3-5x5 @75%, W2 3-5x5 @80%, W3 3-5x3 @90%, W4-6 repeat W1-3.
 - Training max (author): % of 1RM, default 100%; the author uses 90% for deadlifts and 95% for weighted pull-ups from high-rep estimates.
 - Zulu: 4 days a week, A/B/rest/A/B/rest/rest, 1-2 lifts per day. 3x5 @70% then 75% (W1), 3x5 @80% both (W2), 3x3 @90% both (W3), W4-6 repeat W1-3.
 - Deadlift (all programmes): 1-3 sets a day on 1-2 days a week (max 6 sets a week); default 3 sets on 1 day.
+- Other programmes (from thefitness.wiki; wiki pages, not a book): r/Fitness Basic Beginner, GZCLP stage 1, 5/3/1 for Beginners, 6-day linear progression PPL (Metallicdpa), Dumbbell Stopgap, Dumbbell PPL. Summarised in our own words, source link under each table, no licence stated on the wiki.
+- Linear tables project weight by the routine's per-session step if every session is completed; stage changes and deloads are listed as rules, not projected. Dumbbell routines are a workout sheet only (progression is by rule).
+- Pounds converted to kg: 2.5 lb = 1.25 kg, 5 lb = 2.5 kg, 10 lb = 5 kg. Example start weights are placeholders.
+- 5/3/1 for Beginners: training max = 90% of the estimated 1RM; +2.5 kg (upper) or +5 kg (lower) per three-week cycle; the wiki applies 3 core sets plus 5 x 5 to every appearance of a lift.
+- nSuns LP (4-day, 5-day, 6-day deadlift focus, 6-day squat focus): from the spreadsheet bundle P supplied. One week set by set; TM = 90% of 1RM rounded up to the step (or typed in); progression by the 1+ set (0-1 none, 2-3 +5 lb, 4-5 +5-10 lb, over 5 +10-15 lb), not projected. The sheet's 6-day press TM uses the wrong 1RM; the page uses the press 1RM.
+- Backlog: other external programmes once P sends them (BBB, Monolith, Westside for Skinny Bastards, PHAT etc. were listed, none requested yet).
 ## Marathon Plans (running)
 One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then a plan selector. Race, time, units and starting CTL are shared; author-specific fields show only for that author. The weekly table has a uniform Sessions column (key sessions only). Load rules are identical across authors. The marathon is scored at marathon pace (same TSS formula) and added to the race week's TSS, time and distance; CTL/ATL stay at race morning, with the post-marathon values in the table note. Replaces the four separate plan pages.
 

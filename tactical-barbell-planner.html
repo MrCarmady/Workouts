@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
-<title>Tactical Barbell Planner</title>
+<title>Lifting Programme Planner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
 <style>
@@ -69,8 +69,17 @@ tr:last-child td { border-bottom: 0; }
 td.wk { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
 td.kg { font-weight: 600; color: var(--accent); }
 td.ref { color: var(--muted); }
+[hidden] { display: none !important; }
 .method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
 .method p { margin: 0; }
+.rules { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; font-size: .88rem; color: var(--muted); }
+.rules a { color: var(--accent); }
+td.wk2 { color: var(--muted); }
+#other th, #other td { padding-inline: 10px; }
+#other td.kg { white-space: normal; min-width: 9ch; }
+td.ex { white-space: normal; min-width: 11ch; }
+td.sub2 { font-size: .8rem; color: var(--muted); }
+small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
 @media (max-width: 560px) { table { min-width: 0; } th, td { padding: 9px 8px; white-space: normal; } th { letter-spacing: .03em; font-size: .72rem; vertical-align: bottom; } }
 </style>
 
@@ -78,8 +87,8 @@ td.ref { color: var(--muted); }
   <p class="sitenav"><a href="index.html">&larr; All tools</a></p>
   <header class="head">
     <div>
-      <h1>Tactical Barbell Planner</h1>
-      <p class="sub">Pick a programme and enter your lifts. Get the six-week cycle with weights, or a higher-rep version for single-leg work. <span id="daysnote"></span></p>
+      <h1>Lifting Programme Planner</h1>
+      <p class="sub">Pick a programme and enter your lifts. Get the six-week Tactical Barbell cycle with weights, or the set-by-set plan for ten other routines and variants. <span id="daysnote"></span></p>
     </div>
     <div class="themes" role="group" aria-label="Theme">
       <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
@@ -93,28 +102,56 @@ td.ref { color: var(--muted); }
     <div class="fields">
       <label>Programme
         <select id="prog">
-          <option value="operator">Operator</option>
-          <option value="fighter">Fighter</option>
-          <option value="zulu">Zulu</option>
+          <optgroup label="Tactical Barbell">
+            <option value="operator">Operator</option>
+            <option value="fighter">Fighter</option>
+            <option value="zulu">Zulu</option>
+          </optgroup>
+          <optgroup label="Other programmes">
+            <option value="rbeg">r/Fitness Basic Beginner</option>
+            <option value="gzclp">GZCLP</option>
+            <option value="w531">5/3/1 for Beginners</option>
+            <option value="nsuns4">nSuns LP, 4-day</option>
+            <option value="nsuns5">nSuns LP, 5-day</option>
+            <option value="nsuns6d">nSuns LP, 6-day deadlift focus</option>
+            <option value="nsuns6s">nSuns LP, 6-day squat focus</option>
+            <option value="ppl6">Linear progression PPL, 6-day</option>
+            <option value="dbs">Dumbbell Stopgap</option>
+            <option value="dbppl">Dumbbell PPL</option>
+          </optgroup>
         </select>
       </label>
-      <label>Bodyweight (kg)
+      <label id="bwl">Bodyweight (kg)
         <input id="bw" type="number" inputmode="decimal" min="30" max="250" step="0.1" value="76">
       </label>
     </div>
-    <p class="note">Used for weighted pull-ups and dips. Values shown are examples. Replace them with your own.</p>
+    <p class="note" id="bwnote">Used for weighted pull-ups and dips. Values shown are examples. Replace them with your own.</p>
   </section>
 
   <p class="warn" id="zwarn" hidden>Zulu uses 1–2 lifts on each of day A and day B.</p>
 
   <div id="lifts" style="display:grid; gap:20px"></div>
 
-  <div><button type="button" class="btn" id="add">Add a lift</button></div>
+  <div id="addwrap"><button type="button" class="btn" id="add">Add a lift</button></div>
 
-  <section class="method">
+  <section class="panel" id="other" hidden>
+    <h2 style="margin:0" id="otitle"></h2>
+    <div class="fields" id="ofields"></div>
+    <p class="warn" id="owarn" hidden></p>
+    <div class="tablewrap"><table><thead id="ohead"></thead><tbody id="obody"></tbody></table></div>
+    <ul class="rules" id="onotes"></ul>
+  </section>
+
+  <section class="method" id="mtb">
     <h2>How this is calculated</h2>
     <p>Enter a tested 1RM, or a set to estimate one. The estimate is the average of the Brzycki and Epley formulas applied to reps plus reps in reserve, and is most reliable for sets of about 3–5 reps taken to failure. The training max is a percentage of that 1RM, and the Operator percentages apply to it. Leave it at 100% to use the 1RM directly.</p>
     <p>Standard mode applies the programme percentage to the max. High-rep mode keeps each week's reps in reserve and changes the reps to 10, 8 or 6, which lowers the percentage. Reps in reserve are estimated from the same two formulas, so treat them as a guide. They get less reliable above about 10 reps.</p>
+  </section>
+
+  <section class="method" id="mot" hidden>
+    <h2>How the other programmes are calculated</h2>
+    <p>The tables show the sessions you would do if every one went as written. Weights start from the numbers you enter and rise by each routine's own per-session step. Stalls, deloads and stage changes depend on your reps, so a table is a projection, not a prescription. Weights marked * move by a rule, not by session.</p>
+    <p>The sources give pounds. Steps are converted to practical kilograms: 2.5 lb becomes 1.25 kg, 5 lb becomes 2.5 kg and 10 lb becomes 5 kg. The 5/3/1 training max is 90% of a 1RM estimated from your set, using the same Brzycki and Epley average as above. Rules are summarised in our own words. Check each source for the full text.</p>
   </section>
   <p class="sitenav"><a href="methods/tactical-barbell-planner.html">How it works &rarr;</a></p>
 </main>
@@ -210,7 +247,7 @@ td.ref { color: var(--muted); }
       var s = JSON.parse(localStorage.getItem("opp") || "null");
       if (!s) return false;
       if (s.bw) $("bw").value = s.bw;
-      if (PROGRAMS[s.prog]) prog = s.prog;
+      if (PROGRAMS[s.prog] || OTHER[s.prog]) prog = s.prog;
       if (Array.isArray(s.rows) && s.rows.length) {
         rows = s.rows.filter(function (r) { return r && LIFTS[r.lift] && (r.mode === "std" || r.mode === "hr"); }).slice(0, MAX_ROWS);
         rows.forEach(function (r) { if (r.src !== "max" && r.src !== "set") r.src = LIFTS[r.lift].src; if (r.ddays !== 1 && r.ddays !== 2) r.ddays = 1; if (!(r.dsets >= 1 && r.dsets <= 3)) r.dsets = 3; if (r.zday !== "A" && r.zday !== "B") r.zday = "A"; if (!(r.tm >= 50 && r.tm <= 100)) r.tm = 100; });
@@ -252,6 +289,10 @@ td.ref { color: var(--muted); }
 
   function renderAll() {
     $("prog").value = prog;
+    var isO = !!OTHER[prog];
+    ["lifts", "addwrap", "mtb", "bwl", "bwnote"].forEach(function (id) { $(id).hidden = isO; });
+    $("other").hidden = !isO; $("mot").hidden = !isO;
+    if (isO) { $("zwarn").hidden = true; $("daysnote").textContent = OTHER[prog].days; renderOther(); return; }
     $("daysnote").textContent = PROGRAMS[prog].days;
     $("lifts").innerHTML = rows.map(buildRow).join("");
     $("add").disabled = rows.length >= MAX_ROWS;
@@ -261,6 +302,7 @@ td.ref { color: var(--muted); }
   function q(panel, name) { return panel.querySelector('[data-r="' + name + '"]'); }
 
   function update() {
+    if (OTHER[prog]) return;
     var bw = parseFloat($("bw").value);
     var cnt = { A: 0, B: 0 };
     rows.forEach(function (r) { cnt[r.zday] = (cnt[r.zday] || 0) + 1; });
@@ -323,6 +365,368 @@ td.ref { color: var(--muted); }
     }
   }
 
+  // nSuns LP (from the supplied spreadsheet). Each set is [fraction of the training max, reps, 1 if AMRAP].
+  var NSS = {
+    bmon: [[.65,8],[.75,6],[.85,4],[.85,4],[.85,4],[.8,5],[.75,6],[.7,7],[.65,8,1]],
+    sq:   [[.75,5],[.85,3],[.95,1,1],[.9,3],[.85,3],[.8,3],[.75,5],[.7,5],[.65,5,1]],
+    dl:   [[.75,5],[.85,3],[.95,1,1],[.9,3],[.85,3],[.8,3],[.75,3],[.7,3],[.65,3,1]],
+    bth:  [[.75,5],[.85,3],[.95,1,1],[.9,3],[.85,5],[.8,3],[.75,5],[.7,3],[.65,5,1]],
+    ohp2: [[.5,6],[.6,5],[.7,3],[.7,5],[.7,7],[.7,4],[.7,6],[.7,8]],
+    sumo: [[.5,5],[.6,5],[.7,3],[.7,5],[.7,7],[.7,4],[.7,6],[.7,8]],
+    cg:   [[.4,6],[.5,5],[.6,3],[.6,5],[.6,7],[.6,4],[.6,6],[.6,8]],
+    fs:   [[.35,5],[.45,5],[.55,3],[.55,5],[.55,7],[.55,4],[.55,6],[.55,8]],
+    sat:  [[.725,3],[.725,3],[.725,3],[.725,3],[.725,3],[.725,3],[.725,3]]
+  };
+  var X = {
+    bench: { n: "Bench press",         lift: "bench", sets: "bmon" }, ohp2: { n: "Overhead press", lift: "ohp", sets: "ohp2" },
+    squat: { n: "Squat",               lift: "squat", sets: "sq" },   sumo: { n: "Sumo deadlift",  lift: "dl",  sets: "sumo" },
+    bench2: { n: "Bench press",        lift: "bench", sets: "bth" },  cg: { n: "Close-grip bench", lift: "bench", sets: "cg" },
+    dl: { n: "Deadlift",               lift: "dl",    sets: "dl" },   fs: { n: "Front squat",      lift: "squat", sets: "fs" },
+    ohp1: { n: "Overhead press",       lift: "ohp",   sets: "sq" },   inc: { n: "Incline bench",    lift: "bench", sets: "cg" },
+    dlsat: { n: "Deadlift",            lift: "dl",    sets: "sat" },  sqsat: { n: "Squat",          lift: "squat", sets: "sat" }
+  };
+  function nsDay(n, keys, assist) { return { n: n, ex: keys.map(function (k) { return X[k]; }), assist: assist }; }
+  var NSLIFTS = [
+    { id: "squat", n: "Squat",          w: 120 }, { id: "bench", n: "Bench press", w: 90 },
+    { id: "dl",    n: "Deadlift",       w: 150 }, { id: "ohp",   n: "Overhead press", w: 55 }
+  ];
+  var MON = nsDay("Mon", ["bench", "ohp2"], "Chest, arms, back"), FRI = nsDay("Fri", ["bench2", "cg"], "Arms, other"), WED = nsDay("Wed", ["ohp1", "inc"], "Shoulders, chest");
+  var NSRULES = [
+    "Each day has a main lift (nine sets) and a second lift (eight sets). Weights are fractions of the training max. A + marks a set taken to as many reps as possible, and the 1+ set is the one that decides progression.",
+    "The training max starts at 90% of your 1RM, rounded up to the step. Type a training max to override it. The sheet asks you to overwrite it by hand each week.",
+    "After the week, change each lift's training max by its 1+ set: 0–1 reps no change, 2–3 reps +5 lb (2.5 kg), 4–5 reps +5–10 lb (2.5–5 kg), more than 5 reps +10–15 lb (5–7.5 kg). Only raise it if you completed all the reps.",
+    "Assistance is bodybuilding work of your choice for the muscle groups listed. The sheet gives no sets or reps for it.",
+    "The 6-day sheets compute the press training max from the wrong lift. This page uses your press 1RM."
+  ];
+  // ---- Other programmes (thefitness.wiki). n name, s sets x reps, w example start (kg), inc kg per time performed.
+  // nw: no weight tracked. fixed: weight moves by a rule, not by session. bw: added weight. hand: per hand.
+  var ACC = function (n, s) { return { n: n, s: s, nw: true }; };
+  var OTHER = {
+    rbeg: {
+      name: "r/Fitness Basic Beginner Routine", kind: "lin", per: 3, weeksOpts: [2, 4, 8, 12], weeksDef: 4,
+      days: "Three days a week, A and B alternating, with a rest day between.",
+      src: "https://thefitness.wiki/routines/r-fitness-basic-beginner-routine/",
+      slots: {
+        row:   { n: "Barbell row",    s: "3 × 5+", w: 40, inc: 1.25 },
+        bench: { n: "Bench press",    s: "3 × 5+", w: 40, inc: 1.25 },
+        squat: { n: "Squat",          s: "3 × 5+", w: 50, inc: 2.5 },
+        chin:  { n: "Chin-up (added weight)", s: "3 × 5+", w: 0, inc: 1.25, bw: true },
+        ohp:   { n: "Overhead press", s: "3 × 5+", w: 25, inc: 1.25 },
+        dl:    { n: "Deadlift",       s: "3 × 5+", w: 60, inc: 2.5 }
+      },
+      sched: [{ n: "A", s: ["row", "bench", "squat"] }, { n: "B", s: ["chin", "ohp", "dl"] }],
+      rules: [
+        "The last set of each lift is as many reps as possible. Rest 2–3 minutes between sets.",
+        "Add the step each time you do the lift. If the AMRAP set goes past 10 reps, use bigger steps.",
+        "If the three sets total under 15 reps, drop that lift by 10% next time.",
+        "Plan for at least two cardio days a week, one easy and one hard.",
+        "Run it for three months at most, then move to a fuller programme."
+      ]
+    },
+    gzclp: {
+      name: "GZCLP", kind: "lin", per: 3, weeksOpts: [2, 4, 8, 12], weeksDef: 4,
+      days: "Four workouts that rotate across three sessions a week, so the weekdays shift. Stage 1 shown.",
+      src: "https://thefitness.wiki/routines/gzclp/",
+      slots: {
+        sq1: { n: "Squat (T1)",           s: "5 × 3+",  w: 60, inc: 5 },
+        bn2: { n: "Bench press (T2)",     s: "3 × 10",  w: 30, inc: 2.5 },
+        lat: { n: "Lat pulldown (T3)",    s: "3 × 15+", w: 30, inc: 0, fixed: true },
+        oh1: { n: "Overhead press (T1)",  s: "5 × 3+",  w: 30, inc: 2.5 },
+        dl2: { n: "Deadlift (T2)",        s: "3 × 10",  w: 50, inc: 5 },
+        dbr: { n: "Dumbbell row (T3)",    s: "3 × 15+", w: 14, inc: 0, fixed: true, hand: true },
+        bn1: { n: "Bench press (T1)",     s: "5 × 3+",  w: 45, inc: 2.5 },
+        sq2: { n: "Squat (T2)",           s: "3 × 10",  w: 45, inc: 5 },
+        dl1: { n: "Deadlift (T1)",        s: "5 × 3+",  w: 70, inc: 5 },
+        oh2: { n: "Overhead press (T2)",  s: "3 × 10",  w: 20, inc: 2.5 }
+      },
+      sched: [
+        { n: "Day 1", s: ["sq1", "bn2", "lat"] }, { n: "Day 2", s: ["oh1", "dl2", "dbr"] },
+        { n: "Day 3", s: ["bn1", "sq2", "lat"] }, { n: "Day 4", s: ["dl1", "oh2", "dbr"] }
+      ],
+      rules: [
+        "A trailing + means the last set is as many reps as possible, stopping with one or two reps left.",
+        "Tiers rest 3–5 min (T1), 2–3 min (T2) and 1–1.5 min (T3).",
+        "Miss the prescribed total and that tier moves to the next stage: T1 goes 5×3+, 6×2+, 10×1+, and T2 goes 3×10, 3×8, 3×6.",
+        "Fail the last stage and restart at stage 1. T1 restarts at 85% of a new 5-rep max. T2 restarts at the last stage 1 weight plus 15–20 lb.",
+        "T3 weight goes up once you reach 25 reps on the final set.",
+        "The projection assumes no missed stage."
+      ]
+    },
+    w531: {
+      name: "5/3/1 for Beginners", kind: "wave", per: 3, weeksOpts: [3, 6, 9, 12], weeksDef: 6,
+      days: "Three days a week, on a three-week wave. Training max is 90% of your estimated 1RM.",
+      src: "https://thefitness.wiki/routines/5-3-1-for-beginners/",
+      lifts: [
+        { id: "squat", n: "Squat",          w: 100, reps: 3, lower: true },
+        { id: "bench", n: "Bench press",    w: 70,  reps: 3 },
+        { id: "dl",    n: "Deadlift",       w: 130, reps: 3, lower: true },
+        { id: "ohp",   n: "Overhead press", w: 45,  reps: 3 }
+      ],
+      sched: [{ n: "Day 1", s: ["squat", "bench"] }, { n: "Day 2", s: ["dl", "ohp"] }, { n: "Day 3", s: ["bench", "squat"] }],
+      rules: [
+        "Each main lift is three core sets (the third is as many reps as possible) plus 5 × 5 at the first set's percentage. The wiki applies this to every appearance of a lift.",
+        "After each three-week cycle the training max rises by 5 lb (2.5 kg) for bench and press and 10 lb (5 kg) for squat and deadlift, whatever your AMRAP reps were.",
+        "Assistance: one push, one pull and one single-leg or core exercise each day, 50–100 reps each.",
+        "If a lift is missed for a whole cycle, cut its training max by 15 lb (upper) or 30 lb (lower).",
+        "A training-max test week is suggested about every tenth week. It is not shown."
+      ]
+    },
+    nsuns4: {
+      name: "nSuns LP, 4-day", kind: "nsuns", sheet: true, per: 4, lifts: NSLIFTS,
+      days: "Four days: Monday, Tuesday, Thursday, Friday. Weights are for one week.",
+      src: "https://thefitness.wiki/routines/nsuns-lp/", srcNote: "Tables from the nSuns LP spreadsheet bundle (LiftVault).",
+      sched: [MON, nsDay("Tue", ["squat", "sumo"], "Legs, abs"), nsDay("Thu", ["bench2", "cg"], "Arms, other"), nsDay("Fri", ["dl", "fs"], "Back, abs")],
+      rules: NSRULES
+    },
+    nsuns5: {
+      name: "nSuns LP, 5-day", kind: "nsuns", sheet: true, per: 5, lifts: NSLIFTS,
+      days: "Five days, Monday to Friday. Weights are for one week.",
+      src: "https://thefitness.wiki/routines/nsuns-lp/", srcNote: "Tables from the nSuns LP spreadsheet bundle (LiftVault).",
+      sched: [MON, nsDay("Tue", ["squat", "sumo"], "Legs, abs"), WED, nsDay("Thu", ["dl", "fs"], "Back, abs"), FRI],
+      rules: NSRULES
+    },
+    nsuns6d: {
+      name: "nSuns LP, 6-day deadlift focus", kind: "nsuns", sheet: true, per: 6, lifts: NSLIFTS,
+      days: "Six days, Monday to Saturday, with deadlift twice (Tuesday and Saturday). Weights are for one week.",
+      src: "https://thefitness.wiki/routines/nsuns-lp/", srcNote: "Tables from the nSuns LP spreadsheet bundle (LiftVault).",
+      sched: [MON, nsDay("Tue", ["dl", "fs"], "Back, abs"), WED, nsDay("Thu", ["squat", "sumo"], "Legs, abs"), FRI, nsDay("Sat", ["dlsat"], "")],
+      rules: NSRULES.concat(["Saturday is 7 × 3 deadlift at 72.5% of the training max."])
+    },
+    nsuns6s: {
+      name: "nSuns LP, 6-day squat focus", kind: "nsuns", sheet: true, per: 6, lifts: NSLIFTS,
+      days: "Six days, Monday to Saturday, with squat twice (Tuesday and Saturday). Weights are for one week.",
+      src: "https://thefitness.wiki/routines/nsuns-lp/", srcNote: "Tables from the nSuns LP spreadsheet bundle (LiftVault).",
+      sched: [MON, nsDay("Tue", ["squat", "sumo"], "Legs, abs"), WED, nsDay("Thu", ["dl", "fs"], "Back, abs"), FRI, nsDay("Sat", ["sqsat"], "")],
+      rules: NSRULES.concat(["Saturday is 7 × 3 squat at 72.5% of the training max. The sheet leaves that row's name blank, so it is labelled Squat here."])
+    },
+    ppl6: {
+      name: "Linear progression PPL, 6-day", kind: "lin", per: 6, weeksOpts: [2, 4, 8, 12], weeksDef: 4,
+      days: "Pull, push, legs, twice a week. Rest day placement is up to you.",
+      src: "https://thefitness.wiki/reddit-archive/a-linear-progression-based-ppl-program-for-beginners/",
+      slots: {
+        dl:    { n: "Deadlift",       s: "1 × 5+", w: 60, inc: 5 },
+        row:   { n: "Barbell row",    s: "4 × 5, then 1 × 5+", w: 40, inc: 2.5 },
+        bench: { n: "Bench press",    s: "4 × 5, then 1 × 5+", w: 40, inc: 2.5 },
+        ohp:   { n: "Overhead press", s: "4 × 5, then 1 × 5+", w: 25, inc: 2.5 },
+        squat: { n: "Squat",          s: "2 × 5, then 1 × 5+", w: 50, inc: 2.5 },
+        pd: ACC("Pulldown, pull-up or chin-up", "3 × 8–12"), cr: ACC("Seated cable or chest-supported row", "3 × 8–12"),
+        fp: ACC("Face pull", "5 × 15–20"), hc: ACC("Hammer curl", "4 × 8–12"), dc: ACC("Dumbbell curl", "4 × 8–12"),
+        ohpa: ACC("Overhead press", "3 × 8–12"), bna: ACC("Bench press", "3 × 8–12"), idb: ACC("Incline dumbbell press", "3 × 8–12"),
+        ss1: ACC("Triceps pushdown + lateral raise", "3 × 8–12 / 3 × 15–20"), ss2: ACC("Overhead triceps extension + lateral raise", "3 × 8–12 / 3 × 15–20"),
+        rdl: ACC("Romanian deadlift", "3 × 8–12"), lp: ACC("Leg press", "3 × 8–12"), lc: ACC("Leg curl", "3 × 8–12"), cf: ACC("Calf raise", "5 × 8–12")
+      },
+      sched: [
+        { n: "Pull", s: ["dl", "pd", "cr", "fp", "hc", "dc"] },
+        { n: "Push", s: ["bench", "ohpa", "idb", "ss1", "ss2"] },
+        { n: "Legs", s: ["squat", "rdl", "lp", "lc", "cf"] },
+        { n: "Pull", s: ["row", "pd", "cr", "fp", "hc", "dc"] },
+        { n: "Push", s: ["ohp", "bna", "idb", "ss1", "ss2"] },
+        { n: "Legs", s: ["squat", "rdl", "lp", "lc", "cf"] }
+      ],
+      rules: [
+        "The first lift alternates between the two pull days (deadlift, then row) and the two push days (bench, then press).",
+        "Main lifts add the step each session: 2.5 kg for bench, press, row and squat, and 5 kg for the deadlift.",
+        "Accessories: add weight once you reach 3 × 12 with good form. Drop the weight if you leave the rep range.",
+        "Start with the bar and add weight until the bar slows, then back off one step. Rest 3–5 min before the first lift, 1–3 min between the rest.",
+        "Miss the same session three times in a row and the weight drops by 10%. A miss caused by sleep or food does not count.",
+        "Graduate when linear progress stalls. The author suggests Texas Method, Madcow 5×5, 5/3/1, PHAT or PHUL.",
+        "The source is a 6-day program. It does not give a 3-day version."
+      ]
+    },
+    dbs: {
+      name: "Dumbbell Stopgap", kind: "lin", sheet: true, per: 3,
+      days: "Three days a week, A and B alternating (A B A, then B A B). Meant as a short-term bridge.",
+      src: "https://thefitness.wiki/reddit-archive/dumbbell-stopgap/",
+      slots: {
+        split: { n: "Bulgarian split squat or lunge", s: "3 × max reps, up to 10", w: 8,  fixed: true, hand: true },
+        floor: { n: "Dumbbell floor press",           s: "3 × max reps, up to 10", w: 14, fixed: true, hand: true },
+        sldl:  { n: "Straight-leg deadlift",          s: "3 × max reps, up to 10", w: 14, fixed: true, hand: true },
+        plank: ACC("Plank", "3 × longest hold"),
+        sps:   { n: "Seated shoulder press",          s: "3 × max reps, up to 10", w: 10, fixed: true, hand: true },
+        bor:   { n: "Bent-over row",                  s: "3 × max reps, up to 10", w: 12, fixed: true, hand: true }
+      },
+      sched: [{ n: "A", s: ["split", "floor", "sldl", "plank"] }, { n: "B", s: ["split", "sps", "bor", "plank"] }],
+      rules: [
+        "Rest 1 minute between sets. Start with the lightest dumbbells to learn the movement.",
+        "Once you reach 3 × 10 on an exercise, go up one dumbbell step next time.",
+        "If reps and weight do not change for three sessions, drop back two steps and build up again.",
+        "Dips and pull-ups can be added on the same 3 × max reps scheme if you have access.",
+        "It needs a graduated dumbbell set and ends when the dumbbells run out. The author says to move on as soon as you can."
+      ]
+    },
+    dbppl: {
+      name: "Dumbbell PPL", kind: "lin", sheet: true, per: 3,
+      days: "Push, pull, legs. Run it PPL PPL rest weekly, or as a four-day push, pull, legs, rest cycle.",
+      src: "https://thefitness.wiki/reddit-archive/dumbbell-stopgap-ppl/",
+      slots: {
+        cp:  { n: "Chest press",                    s: "3 × max reps, up to 12", w: 14, fixed: true, hand: true },
+        ifl: { n: "Incline fly",                    s: "3 × max reps, up to 12", w: 8,  fixed: true, hand: true },
+        arn: { n: "Arnold press",                   s: "3 × max reps, up to 12", w: 8,  fixed: true, hand: true },
+        ote: { n: "Overhead triceps extension",     s: "3 × max reps, up to 12", w: 10, fixed: true },
+        pu:  { n: "Pull-up (added weight)",         s: "3 × max reps, up to 12", w: 0,  fixed: true, bw: true },
+        bor: { n: "Bent-over row",                  s: "3 × max reps, up to 12", w: 12, fixed: true, hand: true },
+        rfl: { n: "Reverse fly",                    s: "3 × max reps, up to 12", w: 6,  fixed: true, hand: true },
+        shr: { n: "Shrug",                          s: "3 × max reps, up to 12", w: 16, fixed: true, hand: true },
+        cur: { n: "Biceps curl",                    s: "3 × max reps, up to 12", w: 8,  fixed: true, hand: true },
+        gsq: { n: "Goblet squat",                   s: "3 × max reps, up to 12", w: 16, fixed: true },
+        lun: { n: "Lunge",                          s: "3 × max reps, up to 12", w: 10, fixed: true, hand: true },
+        sld: { n: "Single-leg deadlift",            s: "3 × max reps, up to 12", w: 10, fixed: true },
+        cal: { n: "Calf raise",                     s: "3 × max reps, up to 12", w: 16, fixed: true, hand: true }
+      },
+      sched: [
+        { n: "Push", s: ["cp", "ifl", "arn", "ote"] },
+        { n: "Pull", s: ["pu", "bor", "rfl", "shr", "cur"] },
+        { n: "Legs", s: ["gsq", "lun", "sld", "cal"] }
+      ],
+      rules: [
+        "Rest 90 seconds between sets. Count a one-sided set after both sides are done.",
+        "Once you reach 12 reps on all 3 sets, go up one weight next session.",
+        "No progress across three sessions at the same weight and reps: drop two steps, then work back up.",
+        "Add hanging leg raises at the end of every other workout.",
+        "Pull-ups start at bodyweight. Add load by holding a dumbbell between the feet, or use negatives if you cannot do one.",
+        "Needs a range of dumbbells, a pull-up bar and ideally an adjustable bench (use flat fly if the bench is flat)."
+      ]
+    }
+  };
+  var WAVE = [
+    { reps: ["5", "5", "5+"], p: [0.65, 0.75, 0.85], fsl: 0.65 },
+    { reps: ["3", "3", "3+"], p: [0.70, 0.80, 0.90], fsl: 0.70 },
+    { reps: ["5", "3", "1+"], p: [0.75, 0.85, 0.95], fsl: 0.75 }
+  ];
+  var oth = {};
+  function othState(key) {
+    var D = OTHER[key];
+    if (!oth[key]) oth[key] = { w: {}, reps: {}, tm: {}, weeks: D.weeksDef || 1, step: 2.5 };
+    if (!oth[key].tm) oth[key].tm = {};
+    var s = oth[key];
+    if (D.slots) Object.keys(D.slots).forEach(function (id) { if (!D.slots[id].nw && s.w[id] === undefined) s.w[id] = D.slots[id].w; });
+    if (D.lifts) D.lifts.forEach(function (l) { if (s.w[l.id] === undefined) s.w[l.id] = l.w; if (s.reps[l.id] === undefined) s.reps[l.id] = l.reps; });
+    return s;
+  }
+  function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+  function otherFields(D, s) {
+    var h = "", v = function (x) { return x === null || x === undefined ? "" : x; };
+    if (D.kind === "wave") {
+      D.lifts.forEach(function (l) {
+        h += '<label>' + l.n + ' weight (kg)<input data-o="w:' + l.id + '" type="number" inputmode="decimal" min="0" max="500" step="0.5" value="' + v(s.w[l.id]) + '"></label>' +
+             '<label>' + l.n + ' reps<input data-o="r:' + l.id + '" type="number" inputmode="numeric" min="1" max="10" step="1" value="' + v(s.reps[l.id]) + '"></label>';
+      });
+      h += '<label>Round to<select data-o="step">' + [1.25, 2.5, 5].map(function (x) { return opt(x, x + " kg", x === s.step); }).join("") + '</select></label>';
+    } else if (D.kind === "nsuns") {
+      D.lifts.forEach(function (l) {
+        h += '<label>' + l.n + ' 1RM (kg)<input data-o="w:' + l.id + '" type="number" inputmode="decimal" min="0" max="500" step="0.5" value="' + v(s.w[l.id]) + '"></label>' +
+             '<label>' + l.n + ' training max (kg)<input data-o="t:' + l.id + '" type="number" inputmode="decimal" min="0" max="500" step="0.5" placeholder="90% of 1RM" value="' + v(s.tm[l.id]) + '"></label>';
+      });
+      h += '<label>Round to<select data-o="step">' + [1.25, 2.5, 5].map(function (x) { return opt(x, x + " kg", x === s.step); }).join("") + '</select></label>';
+    } else {
+      var seen = {};
+      D.sched.forEach(function (d) { d.s.forEach(function (id) {
+        var S = D.slots[id]; if (S.nw || seen[id]) return; seen[id] = 1;
+        h += '<label>' + S.n + (S.bw ? '' : (S.hand ? ' per hand (kg)' : ' (kg)')) + (S.bw ? ' (kg)' : '') + '<input data-o="w:' + id + '" type="number" inputmode="decimal" min="0" max="500" step="0.5" value="' + v(s.w[id]) + '"></label>';
+      }); });
+    }
+    if (!D.sheet) h += '<label>Weeks shown<select data-o="weeks">' + D.weeksOpts.map(function (x) { return opt(x, x, x === s.weeks); }).join("") + '</select></label>';
+    return h;
+  }
+  function loadText(S, w, c) {
+    if (S.nw) return "—";
+    var val = w + (S.fixed ? 0 : S.inc * c);
+    var t = S.bw ? (val === 0 ? "BW" : "+" + kg(val)) : kg(val);
+    return t + (S.hand ? " /hand" : "") + (S.fixed ? " *" : "");
+  }
+  function waveItem(D, s, id, wk) {
+    var l = D.lifts.filter(function (x) { return x.id === id; })[0];
+    var tm0 = 0.9 * s.w[id] / pct(s.reps[id]), cyc = Math.floor(wk / 3), tm = tm0 + (l.lower ? 5 : 2.5) * cyc, W = WAVE[wk % 3];
+    var ws = W.p.map(function (x) { return kg(snap(tm * x, s.step)); }), f = kg(snap(tm * W.fsl, s.step));
+    return { n: l.n + '<small class="tm">TM ' + kg(snap(tm, s.step)) + '</small>', sch: W.reps.join(" / ") + ", then 5 × 5",
+      pct: W.p.map(function (x) { return Math.round(x * 100); }).join(" / ") + ", then " + Math.round(W.fsl * 100), load: ws.join(" / ") + ", then " + f };
+  }
+  function updateOther() {
+    var D = OTHER[prog], s = othState(prog), warn = $("owarn"), head = $("ohead"), body = $("obody"), i, ok = true;
+    head.innerHTML = ""; body.innerHTML = ""; warn.hidden = true;
+    var ids = (D.kind === "wave" || D.kind === "nsuns") ? D.lifts.map(function (l) { return l.id; }) : Object.keys(D.slots).filter(function (id) { return !D.slots[id].nw; });
+    ids.forEach(function (id) { if (s.w[id] === null || !(s.w[id] >= 0)) ok = false; });
+    if (D.kind === "nsuns") D.lifts.forEach(function (l) { if (!(s.w[l.id] > 0)) ok = false; });
+    if (D.kind === "wave") D.lifts.forEach(function (l) {
+      if (!(s.w[l.id] > 0) || !(s.reps[l.id] >= 1 && s.reps[l.id] <= 10)) ok = false;
+    });
+    if (!ok) { warn.hidden = false; warn.textContent = D.kind === "wave" ? "Enter a weight and 1–10 reps for each lift." : (D.kind === "nsuns" ? "Enter a 1RM for each lift." : "Enter a weight for each lift."); return; }
+    if (D.kind === "wave" && D.lifts.some(function (l) { return s.reps[l.id] > 5; })) { warn.hidden = false; warn.textContent = "The 1RM estimate is less reliable above 5 reps. Use a set of 3–5 reps with good bar speed."; }
+    var html = "";
+    if (D.kind === "nsuns") {
+      var tmOf = function (id) { var t = s.tm[id]; return t > 0 ? t : Math.ceil(0.9 * s.w[id] / s.step - 1e-9) * s.step; };
+      head.innerHTML = "<tr><th>Day</th><th>Exercise</th><th>% of TM</th><th>Sets (kg × reps)</th></tr>";
+      D.sched.forEach(function (d) {
+        d.ex.forEach(function (e, j) {
+          var tm = tmOf(e.lift), sets = NSS[e.sets];
+          var pc = sets.map(function (x) { return +(x[0] * 100).toFixed(1); }).join(" / ");
+          var st = sets.map(function (x) { return kg(snap(tm * x[0], s.step)) + " × " + x[1] + (x[2] ? "+" : ""); }).join(", ");
+          html += "<tr>" + (j === 0 ? "<td class='wk' rowspan='" + (d.ex.length + (d.assist ? 1 : 0)) + "'>" + d.n + "</td>" : "") +
+            "<td class='ex'>" + esc(e.n) + "<small class='tm'>TM " + kg(snap(tm, s.step)) + "</small></td><td class='ex'>" + pc + "</td><td class='ex kg'>" + st + "</td></tr>";
+        });
+        if (d.assist) html += "<tr><td class='sub2' colspan='3'>Assistance: " + esc(d.assist) + "</td></tr>";
+      });
+      body.innerHTML = html; return;
+    }
+    if (D.sheet) {
+      head.innerHTML = "<tr><th>Workout</th><th>Exercise</th><th>Sets × reps</th><th>Start weight (kg)</th></tr>";
+      D.sched.forEach(function (d) {
+        d.s.forEach(function (id, j) {
+          var S = D.slots[id];
+          html += "<tr>" + (j === 0 ? "<td class='wk' rowspan='" + d.s.length + "'>" + d.n + "</td>" : "") + "<td class='ex'>" + esc(S.n) + "</td><td>" + S.s + "</td><td class='kg'>" + loadText(S, s.w[id], 0) + "</td></tr>";
+        });
+      });
+      body.innerHTML = html; return;
+    }
+    var hasPct = D.kind === "wave", cnt = {}, n = s.weeks * D.per, ses = [], k, wkRows = {};
+    for (k = 0; k < n; k++) {
+      var day = D.sched[k % D.sched.length], wk = Math.floor(k / D.per), items = [];
+      day.s.forEach(function (id) {
+        if (D.kind === "wave") { items.push(waveItem(D, s, id, wk)); return; }
+        var S = D.slots[id], c = cnt[id] || 0; cnt[id] = c + 1;
+        items.push({ n: esc(S.n), sch: S.s, load: loadText(S, s.w[id], c) });
+      });
+      ses.push({ wk: wk + 1, ses: k % D.per + 1, day: day.n, items: items });
+      wkRows[wk + 1] = (wkRows[wk + 1] || 0) + items.length;
+    }
+    head.innerHTML = "<tr><th>Week</th><th>Workout</th><th>Exercise</th><th>Sets × reps</th>" + (hasPct ? "<th>% of TM</th>" : "") + "<th>Weight (kg)</th></tr>";
+    var lastWk = 0;
+    ses.forEach(function (x) {
+      x.items.forEach(function (it, j) {
+        html += "<tr>" +
+          (j === 0 && x.wk !== lastWk ? "<td class='wk' rowspan='" + wkRows[x.wk] + "'>" + x.wk + "</td>" : "") +
+          (j === 0 ? "<td class='wk2' rowspan='" + x.items.length + "'>" + esc(x.day) + "</td>" : "") +
+          "<td class='ex'>" + it.n + "</td><td>" + it.sch + "</td>" + (hasPct ? "<td>" + it.pct + "</td>" : "") + "<td class='kg'>" + it.load + "</td></tr>";
+        if (j === 0) lastWk = x.wk;
+      });
+    });
+    body.innerHTML = html;
+  }
+  function renderOther() {
+    var D = OTHER[prog], s = othState(prog);
+    $("otitle").textContent = D.name;
+    $("ofields").innerHTML = otherFields(D, s);
+    var notes = D.rules.map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("");
+    $("onotes").innerHTML = notes + '<li>Source: ' + (D.srcNote ? esc(D.srcNote) + ' Wiki page: ' : '') + '<a href="' + D.src + '" target="_blank" rel="noopener">' + D.src.replace("https://", "") + '</a></li>';
+    updateOther();
+  }
+  function saveOther() { try { localStorage.setItem("opo", JSON.stringify(oth)); } catch (e) {} }
+  function restoreOther() {
+    try {
+      var s = JSON.parse(localStorage.getItem("opo") || "null");
+      if (s && typeof s === "object") Object.keys(OTHER).forEach(function (k) {
+        var t = s[k]; if (!t || typeof t !== "object") return;
+        var D = OTHER[k], o = { w: {}, reps: {}, tm: {}, weeks: D.weeksDef || 1, step: 2.5 };
+        Object.keys(t.w || {}).forEach(function (id) { var x = t.w[id]; if (x === null || (typeof x === "number" && isFinite(x))) o.w[id] = x; });
+        Object.keys(t.reps || {}).forEach(function (id) { var x = t.reps[id]; if (x === null || (typeof x === "number" && isFinite(x))) o.reps[id] = x; });
+        Object.keys(t.tm || {}).forEach(function (id) { var x = t.tm[id]; if (x === null || (typeof x === "number" && isFinite(x))) o.tm[id] = x; });
+        if (D.weeksOpts && D.weeksOpts.indexOf(t.weeks) >= 0) o.weeks = t.weeks;
+        if ([1.25, 2.5, 5].indexOf(t.step) >= 0) o.step = t.step;
+        oth[k] = o;
+      });
+    } catch (e) {}
+  }
+
   // Events
   $("lifts").addEventListener("input", function (ev) { onChange(ev, false); });
   $("lifts").addEventListener("change", function (ev) { onChange(ev, true); });
@@ -355,9 +759,21 @@ td.ref { color: var(--muted); }
     rows.push(newRow(pick));
     save(); renderAll();
   });
+  function onOther(ev) {
+    var el = ev.target, f = el.getAttribute && el.getAttribute("data-o");
+    if (!f) return;
+    var s = othState(prog);
+    if (f === "weeks") s.weeks = parseInt(el.value, 10);
+    else if (f === "step") s.step = parseFloat(el.value);
+    else { var pr = f.split(":"); s[{ r: "reps", t: "tm" }[pr[0]] || "w"][pr[1]] = numOf(el); }
+    saveOther(); updateOther();
+  }
+  $("ofields").addEventListener("input", onOther);
+  $("ofields").addEventListener("change", onOther);
   $("bw").addEventListener("input", function () { save(); update(); });
   $("prog").addEventListener("change", function () { prog = $("prog").value; save(); renderAll(); });
 
+  restoreOther();
   if (!restore()) { rows = DEFAULT_ROWS.map(newRow); rows.forEach(function (r, i) { r.zday = i % 2 ? "B" : "A"; }); }
   renderAll();
 })();

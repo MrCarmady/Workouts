@@ -1,4 +1,4 @@
-# Tactical Barbell Planner: methodology
+# Lifting Programme Planner: methodology
 
 Pick a programme (Operator, Fighter or Zulu). The page takes up to four lifts, each with a tested 1RM or a set (weight, reps, reps in reserve) that gives an estimated 1RM, and an optional training max percentage, and returns the six-week Tactical Barbell cycle as weights. A second mode keeps the same effort but uses more reps, for single-leg work.
 
@@ -124,3 +124,22 @@ The formulas lose accuracy as reps rise, so the percentages are a starting point
 - Sets (3–5 or 3–4) are the ranges from the plan. The page does not choose a number within them.
 - Standard weeks 1–5 assume the formulas hold at 1–12 reps. Week 6 uses a pinned Epley at one rep, so its reps in reserve are rough.
 - The formulas assume sets near the stated percentage of a true maximum. A 1RM entered from a tired or untested set will carry through every week.
+
+
+## Other programmes (from thefitness.wiki)
+
+The same page also lays out six routines from The Fitness Wiki. They are summarised in our own words from the wiki pages, and each page's source link is shown under its table. The wiki states no licence on these pages. The nSuns LP tables come from a spreadsheet bundle (LiftVault) that P supplied, because the wiki page only links to it.
+
+| Programme | Layout | What the table shows |
+|---|---|---|
+| r/Fitness Basic Beginner Routine | 3 days a week, A and B alternating, 3 × 5+ on each lift | Weight rising by the step each time a lift is done (upper 1.25 kg, lower 2.5 kg) |
+| GZCLP (stage 1) | 4 workouts rotating across 3 sessions a week; T1 5 × 3+, T2 3 × 10, T3 3 × 15+ | Weight rising per session (bench and press 2.5 kg, squat and deadlift 5 kg); T3 weight is fixed and moves at 25 reps |
+| 5/3/1 for Beginners | 3 days a week, three-week wave, 3 core sets plus 5 × 5 first-set percentage | Weights from a training max set at 90% of the estimated 1RM; training max +2.5 kg (upper) or +5 kg (lower) per cycle |
+| Linear progression PPL, 6-day | Pull, push, legs twice a week, first lift alternating between the two sessions | Main lifts rising per session (deadlift 5 kg, others 2.5 kg); accessories have no weight |
+| nSuns LP, 4-day, 5-day, 6-day deadlift focus, 6-day squat focus | Main lift (9 sets) plus second lift (8 sets) each day, set by set as a fraction of the training max | One week, set by set (kg × reps), from a training max of 90% of 1RM rounded up. Progression is by the 1+ set each week and is not projected |
+| Dumbbell Stopgap | 3 days a week, A and B alternating | Workout sheet, start weights only |
+| Dumbbell PPL | Push, pull, legs | Workout sheet, start weights only |
+
+**Not published or chosen by me:** The sources give pounds. Steps are converted to kg as 2.5 lb to 1.25 kg, 5 lb to 2.5 kg and 10 lb to 5 kg. Example start weights are placeholders. Tables assume no missed sessions and no stage changes. The 5/3/1 page lists each lift's day and the three-week percentages separately and applies the same sets to every appearance of a lift (squat and bench appear twice a week). The estimated 1RM uses the same Brzycki and Epley average as above.
+
+**nSuns LP specifics:** the sheet's 6-day versions compute the press training max from the wrong 1RM (bench in the deadlift-focus sheet, deadlift in the squat-focus sheet). The page uses the press 1RM. The sheet leaves the 6-day squat-focus Saturday row name blank, so it is labelled Squat. The sheet's weight rounding is 5 lb or 2.5 kg, the page uses a choice of 1.25, 2.5 or 5 kg. The sheet does not give assistance sets or reps.
