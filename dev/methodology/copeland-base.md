@@ -1,0 +1,74 @@
+# Copeland Base: methodology
+
+Builds a week-by-week ramp from a starting CTL to week 1 of the Copeland marathon plan. It has no taper and no goal race. Race, time and units are shared with the other running tools.
+
+### Week
+
+| Day | Session |
+|---|---|
+| Mon, Wed, Fri | Easy |
+| Tue | Sub-threshold, long |
+| Thu | Sub-threshold, medium |
+| Sat | Sub-threshold, short |
+| Sun | Long easy |
+
+Each sub-threshold day has a 10 min warm-up and cooldown at the easy cap (65% of 5km speed).
+
+### Target
+
+Plan week 1 is the first week of the Copeland marathon add-on: Tue 3 x 12 min, Thu 6 x 6 min, Sat 10 x 3 min, Sun 110 min, other days 60 min. It is the same week as on Marathon Plans (about 7:51 h and 451 TSS at an 18:45 5km). The table stops at this week.
+
+### Ramp
+
+- Each week is the largest total time (steps of 5 min, down to 4 hours) whose end-of-week CTL ramp stays at or under the target.
+- Target default 1 CTL per week. The input accepts 0.1 to 2.
+- Start ATL is set equal to start CTL.
+- The plan row is added as soon as its own ramp from the current CTL is at or under the target.
+- If the start CTL already supports plan week 1, only that row is shown.
+- Below about 30 CTL the 4 hour floor ramps faster than the target. Those weeks are flagged.
+
+### Time split
+
+- Long easy run: about 25% of the week.
+- Sub-threshold days: work, walked recoveries and 20 min of warm-up and cooldown.
+- The three easy days share the rest equally, at least 30 min each. Runs are rounded to 5 min.
+
+### Sub-threshold sessions
+
+Sub-threshold work is kept at or under 25% of running time. Walked recoveries are not running time. The session set is the furthest rung of one ladder that meets that rule.
+
+| Step | Long | Medium | Short |
+|---|---|---|---|
+| Minimum | 2 x 10 | 2 x 6 | 4 x 3 |
+| Build to the basic week | 3 x 10 | 3, 4, 5 x 6 | 6, 8, 10 x 3 |
+| Extend long | 3 x 11, 3 x 12, 4 x 10 | | |
+| Extend medium | | 7 x 5, 5 x 7, 6 x 6 | |
+| Extend short | | | 8 x 4, 10 x 3.5, 9 x 4, 10 x 4 |
+
+- The ladder is climbed long first, then medium, then short. Scaling down is the reverse: short is cut first, then medium, then long.
+- 10 x 4 needs a week over 8 hours.
+- Plan week 1 (3 x 12, 6 x 6, 10 x 3) is not a rung of the ladder. The last base week can have more sub-threshold minutes than it.
+
+### Pace and recovery
+
+| Rep | Pace | Recovery |
+|---|---|---|
+| 3 min | race(16) | 60 s |
+| 6 min | race(21) | 75 s |
+| 8 min | race(30) | 90 s |
+| 10 min | race(32) | 90 s |
+| 12 min | race(32) | 120 s |
+
+These are the Copeland plan's values. Other rep lengths (3.5, 4, 5, 7, 9, 11 min) are interpolated between them, in race distance and in recovery (rounded to 5 s). The interpolation and the ladder minimums are my choices, not the author's.
+
+### Load
+
+- TSS per segment = hours x (threshold pace / pace)^2 x 100, threshold = race(16).
+- Recoveries are walked at 6 km/h (100 m per minute). They count for time, TSS and distance.
+- CTL has a 42-day and ATL a 7-day time constant. CTL, ATL and ramp are at the end of each week.
+- Marathon pace for the 70-mile slow-down is only used to keep race(32) the same as on Marathon Plans.
+
+### Limits
+
+- Does not adapt to what you actually ran.
+- Only the first week of the marathon add-on is a target.

@@ -125,6 +125,13 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Marathon pace = site prediction at 70 mi a week, no goal input. Easy = 65% of 5km speed (cap). Load as other plan pages; race day not scored; start CTL = week 1 TSS / 7 if blank (high, no ramp-in).
 
 
+### Copeland Base (running)
+- Ramp from a start CTL to week 1 of the Copeland marathon add-on (Tue 3x12, Thu 6x6, Sat 10x3, Sun 110, other days 60). No taper, no goal race.
+- Week: Mon/Wed/Fri easy, Tue long, Thu medium, Sat short sub-T, Sun long easy (about 25% of the week). Sub-T work at or under 25% of running time (recoveries excluded).
+- Ladder (P): min 2x10, 2x6, 4x3; basic 3x10, 5x6, 10x3; extend long (3x11, 3x12, 4x10), then medium (7x5, 5x7, 6x6), then short (8x4, 10x3.5, 9x4, 10x4 only over 8 h). Scale down in reverse: short, medium, long.
+- Ramp: largest weekly time (5 min steps, floor 4 h) with CTL ramp at or under target (default 1, input 0.1 to 2). Start ATL = CTL.
+- My choices, not confirmed: interpolated rep pace and recovery for 3.5, 4, 5, 7, 9, 11 min; ladder minimums; 30 min easy-run floor; plan week 1 is not a ladder rung.
+
 ### Pfitzinger Marathon Plan
 - 18/85 and 12/85 (70-85 mi) added; marathon pace at 85 mi/week; 12/85 week 7 (recovery) days sum to 74, book prints 70, built as printed. 18/55, 12/55, 18/70 and 12/70 ("up to 55" and "55 to 70 miles per week"), distances as printed, not scaled; weeks labelled by weeks to goal. 12/70 week 7 days sum to 62, the book prints 59: days used.
 - Paces: recovery 60% and GA 70% of 5km speed; medium-long and long = 85% of MP speed (input, 80-90%); LT = race(21); V reps = race(5) with jogs of 70% of rep time at recovery pace; MP = site prediction at the plan's weekly mileage (70 or 55), no goal input.
