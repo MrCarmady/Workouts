@@ -51,7 +51,7 @@ Lays out the 15-week Copeland marathon add-on ("My Marathon Build") from a race 
 
 ---
 
-## Daniels 2Q Plans (2QA, 2QB, 2QC)
+## Daniels 2Q Plans (2QA to 2QD)
 
 Lays out the 18-week 2QA plan from a race result. Two quality sessions a week (Q1, Q2), the rest easy. The week-by-week sessions and fractions of peak are as given by the author, not checked against the book.
 
@@ -78,10 +78,11 @@ The short-race slowdown is the one in the Race Prediction Calculator.
 
 ### Plans B and C
 
-- 2QA is the up-to-40-miles table, 2QB the 41 to 55 miles table and 2QC the 56 to 70 miles table. You enter your own peak distance for all three, so the label only picks the sessions.
-- Weeks 18 to 2 until the race are transcribed from the book's tables as given by the author; race week is by day, as for 2QA. The 71 to 85 table (2QD) is not built.
+- 2QA is the up-to-40-miles table, 2QB the 41 to 55 miles table, 2QC the 56 to 70 miles table and 2QD the 71 to 85 miles table. You enter your own peak distance for all three, so the label only picks the sessions.
+- Weeks 18 to 2 until the race are transcribed from the book's tables as given by the author; race week is by day, as for 2QA. 2QD is the 71 to 85 miles table. The 86 to 100 table is not built.
 - New shorthand: "lesser 17 mi/120 min E" is a steady run of the shorter of the two at the easy pace; reps of 1 km I, 400m R and 200m R are run at I and R pace, with jogs by time or by distance (400m, 200m) at the easy pace.
 - 2QC week 8 Q1 gives two options (2E+2T+60 min E+2T+2E or 60 min E+8M+1E); the first is built.
+- 2QD weeks 14 and 8 give two options for one session (week 14 Q2: 8E+8x(1 km I) or 8E+5x(1 mile I w/ 4 min jog); week 8 Q1: 1E+3T+10E+3T+1E or 4E+13M+1E); the first is built. Steady runs given as a distance (for example 20 miles) are run at that distance at your easy pace.
 - 2QB week 11 Q1 (10E+2x(2T)+2E) adds to 16 miles against 15 printed; built as written.
 - The book's "miles for Q sessions" column is not used. Timed segments are converted to distance at your own easy pace, and the easy days share what is left of the week's total.
 
@@ -152,7 +153,7 @@ Lays out the 18-week Hansons Marathon Method Beginner (Table 4.3) or Advanced (T
 
 ## Pfitzinger Marathon Plan
 
-Lays out Pfitzinger's 18-week and 12-week "up to 55 miles per week" and "55 to 70 miles per week" marathon plans (18/55, 12/55, 18/70, 12/70) from a race result, with paces and load. Sessions were transcribed from the book's tables. The higher-mileage plans are not built.
+Lays out Pfitzinger's 18-week and 12-week "up to 55 miles per week" and "55 to 70 miles per week" marathon plans (18/55, 12/55, 18/70, 12/70) and the "70 to 85 miles per week" plans (18/85, 12/85) from a race result, with paces and load. Sessions were transcribed from the book's tables. The higher-mileage plans are not built.
 
 ### Plan
 
@@ -192,3 +193,10 @@ Lays out Pfitzinger's 18-week and 12-week "up to 55 miles per week" and "55 to 7
 ### Limits
 
 - The page does not adapt to what you actually ran.
+
+
+### Pfitzinger 85-mile plans
+
+- 18/85 and 12/85 are transcribed from the book's tables as given by the author. Marathon pace is the site's prediction at 85 miles a week (the same as at 80 or more). Mondays are recovery runs, with doubles in several weeks; AM medium-long runs with a PM recovery run appear as one day.
+- 12/85 week 5 (7 to go, a recovery week): the days as printed add to 74 miles, the book prints 70. Built as printed.
+- The recovery block for these plans is the book's 85-mile block (16, 31, 36, 42 and 50 miles).
