@@ -304,8 +304,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 
   // ---------- Daniels 2Q ----------
   var DANIELS = (function () {
-  // The 2QA plan, from Daniels' 2Q. Numbers before E, M, T are miles. "w/" = recovery between reps. Week 18 is by day.
-  var PLAN = [
+  // The 2QA, 2QB and 2QC plans, from Daniels' 2Q. Numbers before E, M, T are miles. "w/" = recovery between reps. Week 18 is by day.
+  var PLAN_A = [
     [0.8, "3E+4M+1T+1M+2E", "5E+2T+2 min rest+1E+2x(1T w/ 1 min rest)+2E"],
     [0.8, "2E+2x(1T w/ 1 min rest)+30 min E+2x(1T w/ 1 min rest)+2E", "3E+6x(2 min I w/ 2 min jog)+4x(1 min R w/ 2 min jog)+2E"],
     [0.9, "90-110 min E", "5E+4x(1T w/ 1 min rest)+2E"],
@@ -324,7 +324,49 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     [0.9, "1E+8M+1E+6M+1E", "6E+4x(1T w/ 1 min rest)+2E"],
     [0.9, "1E+2x(2T w/ 2 min rest)+60 min E", "4E+1T+2M+1E+1T+2M+1E"]
   ];
-  var RACEWEEK = [["7", "90 min E"], ["6", "60 min E"], ["5", "2E+5x(800m T w/ 2 min jog)+1E"], ["4", "50 min E"], ["3", "30-40 min E"], ["2", "0-20 min E"], ["1", "20-30 min E"], ["0", "Race"]];
+  var RACE_A = [["7", "90 min E"], ["6", "60 min E"], ["5", "2E+5x(800m T w/ 2 min jog)+1E"], ["4", "50 min E"], ["3", "30-40 min E"], ["2", "0-20 min E"], ["1", "20-30 min E"], ["0", "Race"]];
+  // 2QB (41 to 55 miles a week) and 2QC (56 to 70), weeks 18 to 2 until the race, from the book's tables as given by the author.
+  var PLAN_B = [
+    [0.8, "4E+8M+1T+1E", "8E+2x(2T w/ 2 min rest)+1T+2E"],
+    [0.8, "2E+3T+40 min E+2T+1E", "6E+5x(3 min I w/ 2 min jog)+6x(1 min R w/ 2 min jog)+2E"],
+    [0.9, "90-120 min E", "6E+2T+2 min E+2T+2 min E+1T+2E"],
+    [0.9, "2E+8M+1E+2M+2E", "40 min E+3x(2T w/ 2 min rest)+2E"],
+    [0.9, "1E+2x(2T w/ 2 min rest)+60 min E+1T+1E", "6E+5x(4 min I w/ 3 min jog)+2E"],
+    [0.9, "100-120 min E", "40 min E+3x(2T w/ 2 min rest)+2E"],
+    [1.0, "2E+6M+1E+6M+1E", "6E+3T+3 min E+2T+2 min E+1T+2E"],
+    [0.9, "10E+2x(2T w/ 2 min rest)+2E", "8E+5x(3 min I w/ 2 min jog)+6x(1 min R w/ 2 min jog)+2E"],
+    [1.0, "120 min E", "2E+12M+2E"],
+    [1.0, "2E+6M+1E+4M+1T+1E", "5E+3x(2T w/ 2 min rest)+1T+2E"],
+    [0.9, "60 min E+8M+1E", "8E+4x(4 min I w/ 3 min jog)+3E"],
+    [0.9, "120-150 min E", "2E+8M+3x(1T w/ 1 min rest)+2E"],
+    [1.0, "2E+14M+1E", "60 min E+3x(2T w/ 2 min rest)+1T+1E"],
+    [1.0, "2E+3T+60 min E+2T+2E", "8E+5x(3 min I w/ 2 min jog)+4x(1 min R w/ 2 min jog)+3E"],
+    [0.9, "150 min E", "6E+5x(3 min I w/ 2 min jog)+4E"],
+    [0.9, "1E+8M+1E+6M+1E", "4E+2x(2T w/ 2 min rest)+3x(1T w/ 1 min rest)+2E"],
+    [0.9, "1E+3x(2T w/ 2 min rest)+60 min E", "4E+1T+2M+1E+1T+2M+2E"]
+  ];
+  var RACE_B = [["7", "90 min E"], ["6", "60 min E"], ["5", "2E+3x(1T w/ 2 min rest)+2E"], ["4", "50 min E"], ["3", "30-40 min E"], ["2", "0-20 min E"], ["1", "20-30 min E"], ["0", "Race"]];
+  var PLAN_C = [
+    [0.8, "1E+6M+1E+6M+2E", "8E+3T+3 min rest+2T+2E"],
+    [0.8, "2E+3T+60 min E+1T+1E", "4E+5x(1 km I w/ 3 min jog)+4x(400m R w/ 400m jog)+2E"],
+    [0.9, "lesser 16 mi/120 min E", "6E+3T+3 min E+2T+2 min E+1T+2E"],
+    [0.9, "2E+8M+1E+3M+2E", "40 min E+3x(2T w/ 2 min rest)+2x(1T w/ 1 min rest)+1E"],
+    [0.9, "1E+2x(2T w/ 2 min rest)+60 min E+2T+1E", "8E+6x(1 km I w/ 3 min jog)+2E"],
+    [0.8, "lesser 17 mi/120 min E", "40 min E+3T+2 min rest+2x(2T w/ 1 min rest)+2E"],
+    [1.0, "1E+8M+1E+6M+1E", "4E+3T+3 min E+2T+2 min E+2T+2 min E+1T+2E"],
+    [0.9, "12E+3T+1E", "8E+5x(1 km I w/ 2 min jog)+4x(400m R w/ 400m jog)+1E"],
+    [0.9, "lesser 18 mi/130 min E", "2E+12M+2E"],
+    [1.0, "3E+6M+1E+4M+1T+1E", "5E+4x(2T w/ 2 min rest)+2E"],
+    [1.0, "2E+2T+60 min E+2T+2E", "8E+6x(1 km I w/ 3 min jog)+2E"],
+    [0.9, "lesser 20 mi/150 min E", "2E+8M+2x(2T w/ 2 min rest)+2E"],
+    [1.0, "3E+12M+2E", "40 min E+4x(2T w/ 2 min rest)+2x(1T w/ 1 min rest)+1E"],
+    [0.9, "6E+2T+6E+2T+1E", "8E+5x(1 km I w/ 3 min jog)+6x(200m R w/ 200m jog)+2E"],
+    [0.9, "lesser 20 mi/150 min E", "6E+5x(1 km I w/ 3 min jog)+4E"],
+    [0.8, "2E+6M+1E+6M+2E", "2E+4x(2T w/ 2 min jog)+2E"],
+    [0.8, "2E+3x(2T w/ 2 min rest)+7E", "3E+1T+2M+1T+2M+2E"]
+  ];
+  var RACE_C = [["7", "90 min E"], ["6", "60 min E"], ["5", "3E+3x(1T w/ 2 min rest)+2E"], ["4", "50 min E"], ["3", "30-40 min E"], ["2", "0-20 min E"], ["1", "20-30 min E"], ["0", "Race"]];
+  var PLANS = { "2qa": [PLAN_A, RACE_A], "2qb": [PLAN_B, RACE_B], "2qc": [PLAN_C, RACE_C] };
   // Day 0 = Monday. "1" Q1 (long or steady run), "2" Q2, E easy.
   var LAYOUT = {
     5: { 1: "E", 2: "2", 3: "E", 5: "E", 6: "1" },
@@ -339,14 +381,16 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     if (s === "Race") return { k: "race" };
     if ((m = /^(\d+(?:\.\d+)?)([EMT])$/.exec(s))) return { k: "d", mi: +m[1], p: m[2] };
     if ((m = /^(\d+)(?:-(\d+))? min E$/.exec(s))) return { k: "t", lo: +m[1], hi: +(m[2] || m[1]) };
+    if ((m = /^lesser (\d+) mi\/(\d+) min E$/.exec(s))) return { k: "l", mi: +m[1], min: +m[2] };
     if ((m = /^(\d+) min rest$/.exec(s))) return { k: "rest", min: +m[1] };
-    if ((m = /^(\d+)x\((.+) w\/ (\d+) min (rest|jog)\)$/.exec(s))) {
+    if ((m = /^(\d+)x\((.+) w\/ (?:(\d+) min|(\d+)m) (rest|jog)\)$/.exec(s))) {
       var w = m[2].trim(), W, mm;
       if ((mm = /^(\d+(?:\.\d+)?)T$/.exec(w))) W = { mi: +mm[1], p: "T" };
       else if ((mm = /^(\d+) min ([IR])$/.exec(w))) W = { min: +mm[1], p: mm[2] };
-      else if ((mm = /^(\d+)m T$/.exec(w))) W = { m: +mm[1], p: "T" };
+      else if ((mm = /^(\d+)m ([TIR])$/.exec(w))) W = { m: +mm[1], p: mm[2] };
+      else if ((mm = /^(\d+) km ([TIR])$/.exec(w))) W = { m: +mm[1] * 1000, p: mm[2] };
       else throw new Error("bad rep " + s);
-      return { k: "r", n: +m[1], w: W, rec: +m[3] * 60, jog: m[4] === "jog" };
+      return { k: "r", n: +m[1], w: W, rec: m[3] ? +m[3] * 60 : 0, recm: m[4] ? +m[4] : 0, jog: m[5] === "jog" };
     }
     throw new Error("bad segment " + s);
   }
@@ -369,14 +413,15 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         return { lbl: ds(c.mi) + " " + U + " " + sg.p + (c.star ? "*" : ""), p: sg.p, dlo: c.mi, dhi: c.mi, tlo: c.mi * P[sg.p], thi: c.mi * P[sg.p], slo: tssOf(c.mi * P[sg.p], P[sg.p]), shi: tssOf(c.mi * P[sg.p], P[sg.p]) };
       }
       if (sg.k === "t") return { lbl: (sg.lo === sg.hi ? sg.lo : sg.lo + "-" + sg.hi) + " min E", p: "E", dlo: sg.lo * 60 / P.E, dhi: sg.hi * 60 / P.E, tlo: sg.lo * 60, thi: sg.hi * 60, slo: tssOf(sg.lo * 60, P.E), shi: tssOf(sg.hi * 60, P.E) };
+      if (sg.k === "l") { var ld = Math.min(sg.mi, sg.min * 60 / P.E), lt = ld * P.E; return { lbl: "Steady E, lesser of " + ds(sg.mi) + " " + U + " and " + sg.min + " min", p: "E", dlo: ld, dhi: ld, tlo: lt, thi: lt, slo: tssOf(lt, P.E), shi: tssOf(lt, P.E) }; }
       if (sg.k === "rest") return { lbl: sg.min + " min rest", p: "", dlo: 0, dhi: 0, tlo: sg.min * 60, thi: sg.min * 60, slo: 0, shi: 0 };
       var w = sg.w, wm, ws, wl, star = false;
       if (w.mi !== undefined) { var c2 = w.p === "T" ? tcap(w.mi) : { mi: w.mi, star: false }; wm = c2.mi; ws = wm * P[w.p]; star = c2.star; wl = ds(wm) + " " + U + " " + w.p; }
       else if (w.min !== undefined) { ws = w.min * 60; wm = ws / P[w.p]; wl = w.min + " min " + w.p; }
-      else { wm = w.m / 1609.344; ws = wm * P.T; wl = w.m + "m " + w.p; }
-      var rm = sg.jog ? sg.rec / P.E : 0, n = sg.n;
-      var d = n * wm + (n - 1) * rm, t = n * ws + (n - 1) * sg.rec, ts = tssOf(n * ws, P[w.p]) + (sg.jog ? tssOf((n - 1) * sg.rec, P.E) : 0);
-      return { lbl: n + " × " + wl + (star ? "*" : "") + " w/ " + sg.rec / 60 + " min " + (sg.jog ? "jog" : "rest"), p: w.p, dlo: d, dhi: d, tlo: t, thi: t, slo: ts, shi: ts };
+      else { wm = w.m / 1609.344; ws = wm * P[w.p]; wl = (w.m % 1000 === 0 && w.m >= 1000 ? w.m / 1000 + " km" : w.m + "m") + " " + w.p; }
+      var rsec = sg.recm ? sg.recm / 1609.344 * P.E : sg.rec, rm = sg.jog ? rsec / P.E : 0, n = sg.n;
+      var d = n * wm + (n - 1) * rm, t = n * ws + (n - 1) * rsec, ts = tssOf(n * ws, P[w.p]) + (sg.jog ? tssOf((n - 1) * rsec, P.E) : 0);
+      return { lbl: n + " × " + wl + (star ? "*" : "") + " w/ " + (sg.recm ? sg.recm + "m" : sg.rec / 60 + " min") + " " + (sg.jog ? "jog" : "rest"), p: w.p, dlo: d, dhi: d, tlo: t, thi: t, slo: ts, shi: ts };
     }
     function session(str) {
       var rows = parseSession(str).map(row), o = { rows: rows, dlo: 0, dhi: 0, tlo: 0, thi: 0, slo: 0, shi: 0 };
@@ -399,8 +444,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       THR = raceP(16) * MILE;
       P = { E: raceP(5) / 0.65 * MILE, M: raceP(MAR) * MILE, T: raceP(17) * MILE, I: raceP(4) * MILE, R: raceP(1.7) * MILE };
       var paces = [["E", "Easy cap"], ["M", "Marathon"], ["T", "Threshold"], ["I", "Intervals"], ["R", "Repetition"]].map(function (x) { return [x[1], pm(P[x[0]]), "/" + U]; });
-      var weeks = [], warns = [];
-      PLAN.forEach(function (w, i) {
+      var weeks = [], warns = [], PL = PLANS[planId] || PLANS["2qa"], RW = PL[1];
+      PL[0].forEach(function (w, i) {
         var q1 = session(w[1]), q2 = session(w[2]), total = peakMi * w[0], rem = total - (q1.dhi + q2.dhi);
         if (rem < 0) warns.push(i + 1);
         var per = Math.max(0, rem) / easyDays, et = tssOf(per * P.E, P.E), q1m = (q1.slo + q1.shi) / 2, q2m = (q2.slo + q2.shi) / 2;
@@ -415,7 +460,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
           detail: detail, dnote: "Week " + (i + 1) + ": " + ds(tot) + " " + U + " (" + w[0].toFixed(1) + " of peak). Long runs count as quality sessions and are run at easy pace."
         });
       });
-      var rw = RACEWEEK.map(function (d) { var s = session(d[1]); return { d: d[0], s: d[1], x: s }; });
+      var rw = RW.map(function (d) { var s = session(d[1]); return { d: d[0], s: d[1], x: s }; });
       var rday = rw.slice(0, 7).map(function (d) { return (d.x.slo + d.x.shi) / 2; });
       var rlo = 0, rhi = 0, rsec = 0, rh = "";
       rw.forEach(function (d) {
@@ -442,7 +487,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
   // ---------- Hansons Advanced ----------
   var HANSONS = (function () {
-  // Hansons Advanced program, Table 4.4, as given. Days Mon to Sun, then the printed weekly total in miles.
+  // Hansons Advanced (Table 4.4) and Beginner (Table 4.3) programs, as given. Days Mon to Sun, then the printed weekly total in miles.
   var MI = 1609.344;
   function E(mi) { return { k: "E", mi: mi }; }
   function L(mi) { return { k: "L", mi: mi }; }
@@ -471,10 +516,30 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     [E(8), ST(6, MI, 400), OFF, T(10), E(7), E(8), E(8), 55],
     [E(6), E(5), OFF, E(6), E(6), E(3), RACE, 52]
   ];
+  var PLANB = [
+    [NONE, NONE, OFF, E(3), OFF, E(3), E(4), 10],
+    [OFF, E(2), OFF, E(3), E(3), E(3), E(4), 15],
+    [OFF, E(4), OFF, E(4), E(4), E(4), E(5), 21],
+    [OFF, E(5), OFF, E(3), E(3), E(5), E(5), 21],
+    [OFF, E(5), OFF, E(4), E(5), E(4), E(6), 24],
+    [E(4), S(12, 400, 400), OFF, T(5), E(4), E(8), E(8), 39],
+    [E(4), S(8, 600, 400), OFF, T(5), E(4), E(6), L(10), 38],
+    [E(6), S(6, 800, 400), OFF, T(5), E(5), E(6), L(10), 41],
+    [E(5), S(5, 1000, 400), OFF, T(8), E(6), E(5), L(15), 47],
+    [E(7), S(4, 1200, 400), OFF, T(8), E(5), E(8), L(10), 46],
+    [E(5), ST(6, MI, 400), OFF, T(8), E(5), E(8), L(16), 54],
+    [E(5), ST(4, 1.5 * MI, 800), OFF, T(9), E(5), E(8), L(10), 49],
+    [E(7), ST(3, 2 * MI, 800), OFF, T(9), E(6), E(6), L(16), 56],
+    [E(5), ST(2, 3 * MI, MI), OFF, T(9), E(5), E(8), L(10), 49],
+    [E(7), ST(3, 2 * MI, 800), OFF, T(10), E(6), E(6), L(16), 57],
+    [E(5), ST(4, 1.5 * MI, 800), OFF, T(10), E(5), E(8), L(10), 50],
+    [E(7), ST(6, MI, 400), OFF, T(10), E(6), E(6), E(8), 49],
+    [E(5), E(5), OFF, E(6), E(5), E(3), RACE, 50]
+  ];
   var DAYN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   var NAME = { E: "Easy", L: "Long", T: "Tempo", S: "Speed", K: "Strength" };
 
-    var P = {}, THR = 0;   // P: seconds per mile; THR: threshold pace for TSS, s per mile
+    var P = {}, THR = 0, WUM = 1.5;   // P: seconds per mile; THR: threshold pace for TSS, s per mile
     function tssOf(sec, pace) { return sec / 3600 * Math.pow(THR / pace, 2) * 100; }
     function mlabel(m) { if (m >= MI - 1 && Math.abs(m / MI - Math.round(m / MI * 2) / 2) < 0.002) return (Math.round(m / MI * 2) / 2) + " mi"; return m + "m"; }
     function pkey(x) { return { E: P.E, L: P.E, T: P.T, S: P.S, K: P.K }[x]; }
@@ -484,8 +549,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       if (d.k === "OFF" || d.k === "NONE" || d.k === "RACE") return { k: d.k, rows: [{ lbl: d.k === "OFF" ? "Off" : d.k === "RACE" ? "Marathon" : "-", p: d.k === "RACE" ? "T" : "", mi: d.k === "RACE" ? 26.2 : 0, sec: d.k === "RACE" ? 26.2 * P.T : 0, tss: 0, race: d.k === "RACE" }], mi: 0, sec: 0, tss: 0, off: true };
       if (d.k === "E" || d.k === "L") { var s = d.mi * P.E; rows.push(rowOf(NAME[d.k] + " " + ds(d.mi) + " " + U, "E", d.mi, s, tssOf(s, P.E))); }
       else {
-        var wu = 1.5 * P.E;
-        rows.push(rowOf("Warm-up " + ds(1.5) + " " + U, "E", 1.5, wu, tssOf(wu, P.E)));
+        var wu = WUM * P.E;
+        rows.push(rowOf("Warm-up " + ds(WUM) + " " + U, "E", WUM, wu, tssOf(wu, P.E)));
         if (d.k === "T") { var st = d.mi * P.T; rows.push(rowOf("Tempo " + ds(d.mi) + " " + U, "T", d.mi, st, tssOf(st, P.T))); }
         else {
           var pk2 = d.k === "S" ? P.S : P.K, wm = 0, n = d.reps.length, recm = d.rec / MI;
@@ -494,7 +559,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
           var lbl = (same ? n + " × " + mlabel(d.reps[0]) : d.reps.map(mlabel).join("-")) + ", " + mlabel(d.rec) + " rec";
           rows.push(rowOf(NAME[d.k] + " " + lbl, d.k, wm + (n - 1) * recm, ws + rs, tssOf(ws, pk2) + tssOf(rs, P.E)));
         }
-        rows.push(rowOf("Cooldown " + ds(1.5) + " " + U, "E", 1.5, wu, tssOf(wu, P.E)));
+        rows.push(rowOf("Cooldown " + ds(WUM) + " " + U, "E", WUM, wu, tssOf(wu, P.E)));
       }
       var o = { k: d.k, rows: rows, mi: 0, sec: 0, tss: 0 };
       rows.forEach(function (r) { o.mi += r.mi; o.sec += r.sec; o.tss += r.tss; });
@@ -505,14 +570,16 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       return trow(r.lbl, r.p ? pn + " " + pm(pkey(r.p)) : "", r.mi > 0 ? ds(r.mi) + " " + U : "", r.sec > 0 ? tm(r.sec) : "", r.tss > 0 ? Math.round(r.tss) : "");
     }
     function build(planId, c) {
-      offM = marathonOff(c.riegel5, null);   // 70 miles a week
+      var BEG = planId === "beg", PL = BEG ? PLANB : PLAN;
+      WUM = BEG ? 1 : 1.5;
+      offM = marathonOff(c.riegel5, BEG ? 55 * 1.609344 : null);   // 55 miles a week (beginner) or 70 (advanced)
       var raceP = mkRaceP(c), mp = raceP(MAR);
       THR = raceP(16) * MILE;
       P = { E: raceP(5) / 0.65 * MILE, T: mp * MILE, K: (mp * MILE) - 10, S: raceP(5) * MILE };
       var paces = [["E", "Easy cap"], ["S", "Speed"], ["K", "Strength"], ["T", "Tempo and marathon"]].map(function (x) { return [x[1], pm(P[x[0]]), "/" + U]; });
       paces.push(["Marathon", hmmss(mp * MAR), "predicted"]);
       var weeks = [], diffs = [];
-      PLAN.forEach(function (w, i) {
+      PL.forEach(function (w, i) {
         var ds7 = w.slice(0, 7).map(day), q = ds7.reduce(function (a, d) { return a + d.mi; }, 0);
         if (Math.abs(q - w[7]) > 2.5 && i < 17) diffs.push(i + 1);
         var sess = [], detail = "", sec = 0, tss7 = [];
@@ -535,8 +602,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         title: "18 weeks", paces: paces, weeks: weeks,
         wnote: "Week 18 ends on the morning of the race. Distances are the book's printed mileage, including the marathon in week 18." + (diffs.length ? " In week " + diffs.join(", ") + " the daily distances differ from the printed total by more than 2 miles." : ""),
         notes: [
-          "<b>Mileage.</b> Distances and weekly totals are the book's. Totals include a 1.5-mile warm-up and cooldown on speed, strength and tempo days. The detail adds up to within a mile or two of the printed total.",
-          "<b>Paces.</b> Marathon pace is the Race Prediction Calculator's marathon (70 miles a week), so every session is set from your current fitness rather than a goal. Tempo is marathon pace, strength is 10 s/mile faster, and speed is 5km pace. Easy and recovery jogs are at 65% of 5km speed, as a cap.",
+          (BEG ? "<b>Program.</b> Beginner, Table 4.3. Speed work is Tuesday in weeks 6 to 10 and strength work in weeks 11 to 17; Thursday is tempo from week 6. Long runs of 10 to 16 miles are on Sundays from week 7." : "<b>Program.</b> Advanced, Table 4.4."),
+          "<b>Mileage.</b> Distances and weekly totals are the book's. Totals include a " + (BEG ? "1" : "1.5") + "-mile warm-up and cooldown on speed, strength and tempo days. The detail adds up to within a mile or two of the printed total.",
+          "<b>Paces.</b> Marathon pace is the Race Prediction Calculator's marathon (" + (BEG ? 55 : 70) + " miles a week), so every session is set from your current fitness rather than a goal. Tempo is marathon pace, strength is 10 s/mile faster, and speed is 5km pace. Easy and recovery jogs are at 65% of 5km speed, as a cap.",
           "<b>Load.</b> " + LOADNOTE + " The marathon on the last Sunday is not scored, so week 18 is Monday to Saturday and CTL and ATL are for the morning of the race."
         ]
       };
@@ -871,8 +939,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   var KC = 1 - Math.exp(-1 / 42), KA = 1 - Math.exp(-1 / 7);
   var AUTH = {
     copeland: { name: "Copeland", fields: ["f-rep5"], mod: COPELAND, plans: [["addon", "Marathon add-on, 15 weeks"]] },
-    daniels: { name: "Daniels", fields: ["f-week", "f-days", "f-adjt"], mod: DANIELS, plans: [["2qa", "2QA, 18 weeks"]] },
-    hansons: { name: "Hansons", fields: [], mod: HANSONS, plans: [["adv", "Advanced, 18 weeks"]] },
+    daniels: { name: "Daniels", fields: ["f-week", "f-days", "f-adjt"], mod: DANIELS, def: "2qa", plans: [["2qa", "2QA, 18 weeks, up to 40 miles"], ["2qb", "2QB, 18 weeks, 41 to 55 miles"], ["2qc", "2QC, 18 weeks, 56 to 70 miles"]] },
+    hansons: { name: "Hansons", fields: [], mod: HANSONS, def: "adv", plans: [["beg", "Beginner, 18 weeks"], ["adv", "Advanced, 18 weeks"]] },
     pfitzinger: { name: "Pfitzinger", fields: ["f-lp", "f-rd", "f-rec"], mod: PFITZ, def: "18/70", plans: [["18/55", "18 weeks, up to 55 miles"], ["12/55", "12 weeks, up to 55 miles"], ["18/70", "18 weeks, 55 to 70 miles"], ["12/70", "12 weeks, 55 to 70 miles"]] }
   };
   var ALLF = ["f-rep5", "f-week", "f-days", "f-adjt", "f-lp", "f-rd", "f-rec"];

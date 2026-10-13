@@ -100,17 +100,19 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 ## Marathon Plans (running)
 One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then a plan selector. Race, time, units and starting CTL are shared; author-specific fields show only for that author. The weekly table has a uniform Sessions column (key sessions only). Load rules are identical across authors. Replaces the four separate plan pages.
 
-### Daniels 2Q Plan
+### Daniels 2Q Plans
+- 2QA up to 40 mi, 2QB 41-55 mi, 2QC 56-70 mi; peak distance is always an input, the band only selects the sessions.
 - 18 weeks, 2 quality sessions (Q1, Q2) plus 3-5 easy days (5-7 run days). Sessions and fraction of peak as given by the author, not checked against the book. Long runs are Q sessions at easy pace. Plan name 2QA; 2QB, 2QC etc. to follow.
 - Paces: M = plain Riegel (no weekly-distance slowdown), T = race(17), I = race(4), R = race(1.7), E = 65% of 5km speed (cap).
 - Weekly total = peak x fraction of peak; easy days share the remainder after Q1 and Q2. Race week (18) is by day.
 - Load: TSS from pace vs race(16) threshold (same as Run TSS Calculator), CTL 42d / ATL 7d, Q2 Wed and Q1 Sun (placeholder), start CTL = week 1 TSS / 7 if blank, race day not scored.
 - Slower runners (Daniels): 5-6 min T = 1 mile, 10-15 min = 2 miles, 16-20 min = 3 miles; page caps 1, 2, 3-mile T segments at 6, 15, 20 min (option).
-### Hansons Advanced Plan
+### Hansons Plans (Beginner, Advanced)
+- Beginner (Table 4.3): same pace rules as Advanced; warm-up/cooldown 1 mile (the book's note, and it fits the totals), Advanced 1.5. Marathon pace at 55 mi/week for Beginner (choice), 70 for Advanced.
 - Book's Advanced program (Table 4.4), 18 weeks, 6 days a week, mileage as printed (26 to 63 mi), not scaled. Tue: speed weeks 2-10, strength weeks 11-17. Thu: tempo. Sun: long run every other week from week 3. Totals include 1.5 mi warm-up and cooldown on speed, strength and tempo days.
 - Paces: marathon = predicted from the race result (70 mi a week; the book's 18:30 -> 3:00:21, page gives 3:00:12), no goal-time input because sessions run at current fitness, not goal pace (P), tempo = MP, strength = MP - 10 s/mi, speed = 5km pace, easy and recoveries = 65% of 5km speed.
 - Load: same TSS rule as the Daniels page; race day not scored; start CTL = week 1 TSS / 7 if blank.
-- Backlog: Beginner program (same book).
+- Backlog: Daniels 2QD.
 ### Copeland Marathon Plan
 - 15-week marathon add-on, weekly layout as printed in the book. Reps set by time at current fitness: 1000m = 3 min at race(16), 1600m = 6 min at race(21), 2000m = 8 min at race(30), 3000m = 10 min and 3200m = 12 min at race(32), 5000m = 15-18 min (default 16.5) at MP, 1.5% faster. Recoveries 60/75/90/90/120/180 s, walked at 6 km/h (TSS and time, not distance).
 - Warm-up and cooldown 10 min each; 5km/10km races 20 min warm-up with 2 x 2 min at HM pace and 4 strides. Week 14 Tue progressive 92/93/100% of MP speed; week 14 Thu typo read as 8 x 1000m.

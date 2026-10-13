@@ -47,7 +47,7 @@ Lays out the 15-week Copeland marathon add-on ("My Marathon Build") from a race 
 
 ---
 
-## Daniels 2Q Plan
+## Daniels 2Q Plans (2QA, 2QB, 2QC)
 
 Lays out the 18-week 2QA plan from a race result. Two quality sessions a week (Q1, Q2), the rest easy. The week-by-week sessions and fractions of peak are as given by the author, not checked against the book.
 
@@ -71,6 +71,15 @@ Lays out the 18-week 2QA plan from a race result. Two quality sessions a week (Q
 - Repetition: race(1.7).
 
 The short-race slowdown is the one in the Race Prediction Calculator.
+
+### Plans B and C
+
+- 2QA is the up-to-40-miles table, 2QB the 41 to 55 miles table and 2QC the 56 to 70 miles table. You enter your own peak distance for all three, so the label only picks the sessions.
+- Weeks 18 to 2 until the race are transcribed from the book's tables as given by the author; race week is by day, as for 2QA. The 71 to 85 table (2QD) is not built.
+- New shorthand: "lesser 17 mi/120 min E" is a steady run of the shorter of the two at the easy pace; reps of 1 km I, 400m R and 200m R are run at I and R pace, with jogs by time or by distance (400m, 200m) at the easy pace.
+- 2QC week 8 Q1 gives two options (2E+2T+60 min E+2T+2E or 60 min E+8M+1E); the first is built.
+- 2QB week 11 Q1 (10E+2x(2T)+2E) adds to 16 miles against 15 printed; built as written.
+- Each session's distance is within about 2 miles of the book's "miles for Q sessions" for a 5km of 15:30, where minute-based segments are comparable; slower runners cover less in timed segments.
 
 ### Weekly distance
 
@@ -97,9 +106,9 @@ Daniels: 5 to 6 min of threshold counts as 1 mile, 10 to 15 min as 2 miles, 16 t
 
 ---
 
-## Hansons Advanced Plan
+## Hansons Plans (Beginner and Advanced)
 
-Lays out the 18-week Hansons Marathon Method Advanced program (Table 4.4) from a race result. Distances and weekly totals are the book's, not scaled to your own mileage. The session list was transcribed from the book's table.
+Lays out the 18-week Hansons Marathon Method Beginner (Table 4.3) or Advanced (Table 4.4) program from a race result. Distances and weekly totals are the book's, not scaled to your own mileage. The session list was transcribed from the book's table.
 
 ### Plan
 
@@ -129,7 +138,9 @@ Lays out the 18-week Hansons Marathon Method Advanced program (Table 4.4) from a
 
 ### Limits
 
-- Only the Advanced program is built. The Beginner program is in the same book.
+- Beginner: weekly totals include a 1-mile warm-up and cooldown (the book's note for that table); the detail then sums to within about a mile of the printed totals. Advanced: 1.5 miles, which is the figure that matches the Advanced totals.
+- Beginner marathon pace is the site's prediction at 55 miles a week (the plan peaks at 57); Advanced uses 70. The 55 is the author's choice for this page, not from the book.
+- Beginner weeks 1 to 5 are easy running only; speed and tempo start in week 6.
 - Easy and long runs are listed by distance, as the book gives them; the time follows from the easy cap.
 - The page does not adapt to what you actually ran.
 
