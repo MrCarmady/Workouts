@@ -130,7 +130,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Run days: 7, or 6 with Friday dropped (P, 2026-10-13); 5 days not built. Plan row keeps Friday.
 - Week: Mon/Wed/Fri easy, Tue long, Thu medium, Sat short sub-T, Sun long easy (about 25% of the week). Sub-T work at or under 25% of running time (recoveries excluded).
 - Ladder (P): min 2x10, 2x6, 4x3; basic 3x10, 5x6, 10x3; extend long (3x11, 3x12, 4x10), then medium (7x5, 5x7, 6x6), then short (8x4, 10x3.5, 9x4, 10x4 only over 8 h). Scale down in reverse: short, medium, long.
-- Ramp: largest weekly time (5 min steps, floor 4 h) with CTL ramp at or under target (default 1, input 0.1 to 2). Start ATL = CTL.
+- Ramp: largest weekly time (1 min steps, floor 4 h) with CTL ramp at or under target (default 1, input 0.1 to 2). Start ATL = CTL.
 - My choices, not confirmed: interpolated rep pace and recovery for 3.5, 4, 5, 7, 9, 11 min; ladder minimums; 30 min easy-run floor; plan week 1 is not a ladder rung.
 
 ### Pfitzinger Marathon Plan

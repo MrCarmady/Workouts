@@ -337,8 +337,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     for (var s = LADDER.length - 1; s >= 0; s--) {
       var st = LADDER[s];
       if (st.gate && H <= st.gate) continue;
-      var sub = subDur(st.L) + subDur(st.M) + subDur(st.S), R = H - sub, lg = r5(0.25 * H), ez = r5((R - lg) / ne);
-      if (ez < MINEASY) { ez = MINEASY; lg = Math.max(MINLONG, r5(R - ne * MINEASY)); }
+      var sub = subDur(st.L) + subDur(st.M) + subDur(st.S), R = H - sub, lg = Math.round(0.25 * H), ez = Math.round((R - lg) / ne);
+      if (ez < MINEASY) { ez = MINEASY; lg = Math.max(MINLONG, Math.round(R - ne * MINEASY)); }
       var w = weekOf([mkDay("E", ez, "Easy"), mkDay("S", st.L), mkDay("E", ez, "Easy"), mkDay("S", st.M), ne === 3 ? mkDay("E", ez, "Easy") : restDay(), mkDay("S", st.S), mkDay("E", lg, "Long easy")]);
       if (w.share <= 0.25 || s === 0) { w.state = s; w.min = s === 0 && w.share > 0.25; return w; }
     }
@@ -370,7 +370,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     $("paces").innerHTML = [["Easy cap", P.E], ["3 min reps", raceP(kmAt(3))], ["6 min reps", raceP(kmAt(6))], ["8 min reps", raceP(kmAt(8))], ["10-12 min reps", raceP(kmAt(10))]]
       .map(function (x) { return "<div><span>" + x[0] + "</span><b>" + pk(x[1]) + "</b><small>/" + U + "</small></div>"; }).join("");
 
-    var plan = planWeek(), planH = Math.floor(plan.sec / 60 / 5) * 5;
+    var plan = planWeek(), planH = Math.floor(plan.sec / 60);
     var weeks = [], c = c0, a = c0, forced = false;
     function add(w, lab, opt, flag, isPlan) {
       var r = run7(w, c, a);
@@ -385,13 +385,13 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         break;
       }
       var pick = null;
-      for (var H = planH; H >= HMIN; H -= 5) {
+      for (var H = planH; H >= HMIN; H -= 1) {
         var w = ladderWeek(H), rr = run7(w, c, a);
         if (rr.c - c <= tgt + 1e-9) { pick = w; break; }
       }
       var fl = "";
       if (!pick) { pick = ladderWeek(HMIN); fl = "minimum week, ramp above target"; }
-      if (pick.sec / 60 >= planH - 5 && !fl) forced = true;
+      if (pick.sec / 60 >= planH - 2 && !fl) forced = true;
       add(pick, String(n), "Week " + n, fl, false);
     }
     out = { weeks: weeks };

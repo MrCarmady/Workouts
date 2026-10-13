@@ -20,7 +20,7 @@ Plan week 1 is the first week of the Copeland marathon add-on: Tue 3 x 12 min, T
 
 ### Ramp
 
-- Each week is the largest total time (steps of 5 min, down to 4 hours) whose end-of-week CTL ramp stays at or under the target.
+- Each week is the largest total time (steps of 1 min, down to 4 hours) whose end-of-week CTL ramp stays at or under the target.
 - Target default 1 CTL per week. The input accepts 0.1 to 2.
 - Start ATL is set equal to start CTL.
 - The plan row is added as soon as its own ramp from the current CTL is at or under the target.
@@ -31,7 +31,7 @@ Plan week 1 is the first week of the Copeland marathon add-on: Tue 3 x 12 min, T
 
 - Long easy run: about 25% of the week.
 - Sub-threshold days: work, walked recoveries and 20 min of warm-up and cooldown.
-- The easy days (three, or two with 6 run days) share the rest equally, at least 30 min each. Runs are rounded to 5 min.
+- The easy days (three, or two with 6 run days) share the rest equally, at least 30 min each. Runs are rounded to the minute.
 - With 6 run days the plan week 1 row still has its Friday run, because it is the book's week.
 
 ### Sub-threshold sessions
