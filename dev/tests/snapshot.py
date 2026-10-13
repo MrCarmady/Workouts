@@ -77,6 +77,8 @@ def scenarios():
     out.append(('copeland-base','18:45 ctl 55 ramp 1.5',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','55'),fill(pg,'ramp','1.5')]))
     out.append(('copeland-base','18:45 ctl 70 plan only',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','70')]))
     out.append(('copeland-base','39:10 10k ctl 45 plan week',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','39:10'),fill(pg,'ctl','45'),fill(pg,'wk','99')]))
+    out.append(('copeland-base','6 days ctl 45',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','45'),fill(pg,'days','6')]))
+    out.append(('copeland-base','6 days ctl 30 week 3',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','30'),fill(pg,'days','6'),fill(pg,'wk','3')]))
     out.append(('copeland-base','bad ramp',lambda pg:[fill(pg,'ramp','3')]))
     out.append(('marathon-plans','pfitz 18/70 18:45',lambda pg:[fill(pg,'author','pfitzinger'),fill(pg,'dist','5'),fill(pg,'time','18:45')]))
     out.append(('marathon-plans','pfitz 12/70 km',lambda pg:[fill(pg,'author','pfitzinger'),fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'plan','12/70'),fill(pg,'wunit','km'),fill(pg,'wk','5')]))

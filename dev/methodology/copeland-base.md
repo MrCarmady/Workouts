@@ -6,7 +6,7 @@ Builds a week-by-week ramp from a starting CTL to week 1 of the Copeland maratho
 
 | Day | Session |
 |---|---|
-| Mon, Wed, Fri | Easy |
+| Mon, Wed, Fri | Easy (Friday is a rest or cross-training day with 6 run days) |
 | Tue | Sub-threshold, long |
 | Thu | Sub-threshold, medium |
 | Sat | Sub-threshold, short |
@@ -31,7 +31,8 @@ Plan week 1 is the first week of the Copeland marathon add-on: Tue 3 x 12 min, T
 
 - Long easy run: about 25% of the week.
 - Sub-threshold days: work, walked recoveries and 20 min of warm-up and cooldown.
-- The three easy days share the rest equally, at least 30 min each. Runs are rounded to 5 min.
+- The easy days (three, or two with 6 run days) share the rest equally, at least 30 min each. Runs are rounded to 5 min.
+- With 6 run days the plan week 1 row still has its Friday run, because it is the book's week.
 
 ### Sub-threshold sessions
 

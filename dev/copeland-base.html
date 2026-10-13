@@ -140,6 +140,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       <label>Start CTL
         <input id="ctl" type="text" inputmode="decimal" autocomplete="off" value="40">
       </label>
+      <label>Run days
+        <select id="days">
+          <option value="7">7</option>
+          <option value="6">6, no Friday run</option>
+        </select>
+      </label>
       <label>Ramp target (CTL per week)
         <input id="ramp" type="text" inputmode="decimal" autocomplete="off" value="1">
       </label>
@@ -324,13 +330,16 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     return weekOf([mkDay("E", 60, "Easy"), mkDay("S", PLANSTATE.L), mkDay("E", 60, "Easy"), mkDay("S", PLANSTATE.M), mkDay("E", 60, "Easy"), mkDay("S", PLANSTATE.S), mkDay("E", 110, "Long easy")]);
   }
   // A week of total time H minutes: the furthest ladder state that keeps work at or under 25% of running time.
+  var ND = 7;
+  function restDay() { return { rows: [], work: 0, rec: 0, book: "Rest", sec: 0, km: 0, tss: 0, kind: "R" }; }
   function ladderWeek(H) {
+    var ne = ND === 6 ? 2 : 3;
     for (var s = LADDER.length - 1; s >= 0; s--) {
       var st = LADDER[s];
       if (st.gate && H <= st.gate) continue;
-      var sub = subDur(st.L) + subDur(st.M) + subDur(st.S), R = H - sub, lg = r5(0.25 * H), ez = r5((R - lg) / 3);
-      if (ez < MINEASY) { ez = MINEASY; lg = Math.max(MINLONG, r5(R - 3 * MINEASY)); }
-      var w = weekOf([mkDay("E", ez, "Easy"), mkDay("S", st.L), mkDay("E", ez, "Easy"), mkDay("S", st.M), mkDay("E", ez, "Easy"), mkDay("S", st.S), mkDay("E", lg, "Long easy")]);
+      var sub = subDur(st.L) + subDur(st.M) + subDur(st.S), R = H - sub, lg = r5(0.25 * H), ez = r5((R - lg) / ne);
+      if (ez < MINEASY) { ez = MINEASY; lg = Math.max(MINLONG, r5(R - ne * MINEASY)); }
+      var w = weekOf([mkDay("E", ez, "Easy"), mkDay("S", st.L), mkDay("E", ez, "Easy"), mkDay("S", st.M), ne === 3 ? mkDay("E", ez, "Easy") : restDay(), mkDay("S", st.S), mkDay("E", lg, "Long easy")]);
       if (w.share <= 0.25 || s === 0) { w.state = s; w.min = s === 0 && w.share > 0.25; return w; }
     }
   }
@@ -348,7 +357,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     if (t === null || t <= 0) return fail("Enter a race time like 18:54, 1854 or 1:32:10.");
     var vd = vdot(t / 60, D * 1000);
     if (vd < 15 || vd > 85) return fail("That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of 15 to 85. Check the distance and time.");
-    U = $("wunit").value;
+    U = $("wunit").value; ND = $("days").value === "6" ? 6 : 7;
     var c0 = Number(($("ctl").value || "").trim().replace(",", "."));
     if (($("ctl").value || "").trim() === "" || !isFinite(c0) || c0 < 5 || c0 > 200) return fail("Start CTL must be a number from 5 to 200.");
     var tgt = Number(($("ramp").value || "").trim().replace(",", "."));
@@ -401,9 +410,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       + (base === 0 ? " This CTL already supports plan week 1 within the ramp target, so no base weeks are needed." : "")
       + (weeks.some(function (r) { return r.flag.indexOf("minimum") >= 0; }) ? " A minimum week is the floor this page builds: 4 hours of time and easy runs of at least 30 min. The start CTL is below what it supports at the ramp target, so the ramp is above target until CTL catches up." : "");
     $("notes").innerHTML = [
-      "<b>Week.</b> Mon, Wed and Fri easy; Tue, Thu and Sat sub-threshold (long, medium, short); Sun long easy. Each sub-threshold day has a 10 min warm-up and cooldown at the easy cap.",
-      "<b>Target.</b> Plan week 1 is the Copeland marathon add-on's first week: Tue 3 &times; 12, Thu 6 &times; 6, Sat 10 &times; 3, Sun 110 min, other days 60 min. The row is the same as Marathon Plans' week 1.",
-      "<b>Time.</b> Each week is the largest total time whose end-of-week CTL ramp stays at or under the target. The long easy run is about 25% of the week; the three easy days share what is left after the sub-threshold days.",
+      "<b>Week.</b> Mon, Wed and Fri easy; Tue, Thu and Sat sub-threshold (long, medium, short); Sun long easy. With 6 run days Friday is a rest or cross-training day and its time goes to the other two easy runs. Each sub-threshold day has a 10 min warm-up and cooldown at the easy cap.",
+      "<b>Target.</b> Plan week 1 is the Copeland marathon add-on's first week: Tue 3 &times; 12, Thu 6 &times; 6, Sat 10 &times; 3, Sun 110 min, other days 60 min. The row is the same as Marathon Plans' week 1, so it has the Friday run even with 6 run days.",
+      "<b>Time.</b> Each week is the largest total time whose end-of-week CTL ramp stays at or under the target. The long easy run is about 25% of the week; the easy days share what is left after the sub-threshold days.",
       "<b>Sessions.</b> Sub-threshold work stays at or under 25% of running time. Basic week 3 &times; 10, 5 &times; 6, 10 &times; 3, built from a minimum of 2 &times; 10, 2 &times; 6, 4 &times; 3. Below the basic week the short session is cut first, then the medium, then the long. Above it the long extends first (3 &times; 11, 3 &times; 12, 4 &times; 10), then the medium (7 &times; 5, 5 &times; 7, 6 &times; 6), then the short (8 &times; 4, 10 &times; 3.5, 9 &times; 4, and 10 &times; 4 once the week passes 8 hours).",
       "<b>Pace and recovery.</b> Plan values at 3, 6, 8, 10 and 12 min reps: race(16), 21, 30, 32, 32 and walks of 60, 75, 90, 90, 120 s. Other rep lengths are interpolated between them and the walks rounded to 5 s. This is my interpolation, not the book's.",
       "<b>Load.</b> TSS = hours &times; (threshold pace &divide; pace)&sup2; &times; 100, with threshold as race(16). CTL has a 42-day and ATL a 7-day time constant. Recoveries are walked at 6 km/h and count for time, TSS and distance.",
@@ -420,6 +429,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     var n = parseInt($("wk").value, 10) || 1, r = out.weeks[Math.min(n, out.weeks.length) - 1], w = r.w, dt = "";
     w.days.forEach(function (d, j) {
       dt += thead(DAYN[j]);
+      if (d.kind === "R") dt += trow("Rest or cross-train", "", "", "", "");
       d.rows.forEach(function (x) { dt += trow(x.lbl, x.pt, x.km > 0 ? dk(x.km) + " " + U : "", x.sec > 0 ? tm(x.sec) : "", x.tss > 0 ? Math.round(x.tss) : ""); });
       if (d.rows.length > 1) dt += ttot(dk(d.km) + " " + U, tm(d.sec), Math.round(d.tss));
     });
@@ -429,12 +439,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 
   function save() {
     try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("wunit", $("wunit").value); } catch (e) {}
-    try { localStorage.setItem("cb", JSON.stringify({ c: $("ctl").value, r: $("ramp").value })); } catch (e) {}
+    try { localStorage.setItem("cb", JSON.stringify({ c: $("ctl").value, r: $("ramp").value, d: $("days").value })); } catch (e) {}
   }
   function restore() {
     try {
       var s = JSON.parse(localStorage.getItem("cb") || "null");
-      if (s) { if (typeof s.c === "string") $("ctl").value = s.c; if (typeof s.r === "string") $("ramp").value = s.r; }
+      if (s) { if (typeof s.c === "string") $("ctl").value = s.c; if (typeof s.r === "string") $("ramp").value = s.r; if (s.d === "6" || s.d === "7") $("days").value = s.d; }
     } catch (e) {}
     var pr = profGet();
     if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km;
@@ -453,7 +463,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
 
   restore();
-  ["dist", "time", "wunit", "ctl", "ramp"].forEach(function (id) {
+  ["dist", "time", "wunit", "ctl", "ramp", "days"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });
