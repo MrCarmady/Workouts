@@ -41,6 +41,7 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; let
 .sub { color: var(--muted); margin: 4px 0 0; max-width: 62ch; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; display: grid; gap: 14px; }
 .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; }
+.fields > label { grid-template-rows: 1fr auto; }
 label { display: grid; gap: 4px; align-content: start; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
 input, select { box-sizing: border-box; height: 2.75rem; font: inherit; font-size: 1.05rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 9px 10px; width: 100%; min-width: 0; font-variant-numeric: tabular-nums; }
 input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -261,7 +262,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
       '<button type="button" class="btn" data-remove="1"' + (rows.length < 2 ? " disabled" : "") + '>Remove</button></div>' +
       '<div class="fields">' +
       '<label>Mode<select data-f="mode">' + opt("std", "Standard", r.mode === "std") + opt("hr", "High-rep", r.mode === "hr") + '</select></label>' +
-      '<label>Max<select data-f="src">' + opt("max", "Tested 1RM", r.src === "max") + opt("set", "Estimated from a set", r.src === "set") + '</select></label>' +
+      '<label>Max<select data-f="src">' + opt("max", "Tested 1RM", r.src === "max") + opt("set", "From a set", r.src === "set") + '</select></label>' +
       '<label><span data-r="wlabel"></span><input data-f="w" type="number" inputmode="decimal" min="0" max="500" step="0.5" value="' + r.w + '"></label>' +
       '<label data-r="repsl">Reps<input data-f="reps" type="number" inputmode="numeric" min="1" max="12" step="1" value="' + r.reps + '"></label>' +
       '<label data-r="rirl">Reps in reserve<input data-f="rir" type="number" inputmode="decimal" min="0" max="5" step="0.5" value="' + r.rir + '"></label>' +

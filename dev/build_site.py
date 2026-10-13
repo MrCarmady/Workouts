@@ -18,7 +18,7 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace for a treadmill belt speed and incline.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","Lift Scheme Calculator","Estimated 1RM and working weights for common set and rep schemes, from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
  ("marathon-plans.html","marathon-plans.html","Marathon Plans","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Planning and load"),
- ("lifting-programme-planner.html","lifting-programme-planner.html","Lifting Programme Planner","Tactical Barbell cycles with a high-rep mode, plus GZCLP, 5/3/1 for Beginners and four other routines.","lifting-programme-planner.md","lifting-programme-planner","Lifting"),
+ ("lifting-programme-planner.html","lifting-programme-planner.html","Lifting Programme Planner","Tactical Barbell, GZCLP, 5/3/1, nSuns and other lifting plans.","lifting-programme-planner.md","lifting-programme-planner","Lifting"),
 ]
 HEAD='<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>\n'
 for src,out,title,desc,md,slug,grp in tools:
