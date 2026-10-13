@@ -133,6 +133,13 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Ramp: largest weekly time (1 min steps, floor 4 h) with CTL ramp at or under target (default 1, input 0.1 to 2). Start ATL = CTL.
 - My choices, not confirmed: interpolated rep pace and recovery for 3.5, 4, 5, 7, 9, 11 min; ladder minimums; 30 min easy-run floor; plan week 1 is not a ladder rung.
 
+### Marathon Plan Recommender (running)
+- Separate page (P, 2026-10-13). Inputs: race, start CTL, start ATL (blank = CTL), lowest form (default -20), highest ATL/CTL (default 1.3).
+- Runs all 13 plans from the start values; fits if form never below the floor and ratio never above the limit. Reports week 1 TSS/day, peak 4-week TSS/day, lowest form, highest ratio, with weeks.
+- Plan settings fixed at Marathon Plans defaults (Daniels at band top, 6 days). Plan code is a copy of Marathon Plans'; tests/check_plans_sync.py fails the build if they differ.
+- Floor -20 chosen by P for running (not a research threshold). Ratio 1.3 from TrainerPlan's sweet-spot band.
+- Not built: tests from actual recent weeks, a ranking, a lower ratio bound (0.8).
+
 ### Pfitzinger Marathon Plan
 - 18/85 and 12/85 (70-85 mi) added; marathon pace at 85 mi/week; 12/85 week 7 (recovery) days sum to 74, book prints 70, built as printed. 18/55, 12/55, 18/70 and 12/70 ("up to 55" and "55 to 70 miles per week"), distances as printed, not scaled; weeks labelled by weeks to goal. 12/70 week 7 days sum to 62, the book prints 59: days used.
 - Paces: recovery 60% and GA 70% of 5km speed; medium-long and long = 85% of MP speed (input, 80-90%); LT = race(21); V reps = race(5) with jogs of 70% of rep time at recovery pace; MP = site prediction at the plan's weekly mileage (70 or 55), no goal input.

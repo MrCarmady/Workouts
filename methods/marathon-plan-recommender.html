@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marathon Plan Recommender: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
+.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
+.themes button + button { border-left:1px solid var(--line); }
+.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../marathon-plan-recommender.html">Open Marathon Plan Recommender</a></nav>
+    <div class="themes" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+  <article class="doc">
+<h1>Marathon Plan Recommender: methodology</h1>
+<p>Tests all 13 marathon plans on Marathon Plans against your starting CTL and ATL, and says which fit. It does not rank plans by how good they are for you.</p>
+<h3>Test</h3>
+<ul>
+<li>Each plan's daily TSS is run through CTL (42-day) and ATL (7-day) from your start values.</li>
+<li>Form is CTL minus ATL at the end of each day. The ratio is ATL divided by CTL.</li>
+<li>A plan fits if form never goes below the lowest form allowed (default -20) and the ratio never goes above the limit (default 1.3).</li>
+<li>The test covers the plan up to the last full day before the marathon. The marathon is not scored.</li>
+</ul>
+<h3>Where the defaults come from</h3>
+<ul>
+<li>TrainerPlan's ATL to CTL bands: 0.8 to 1.3 is the sweet spot, above 1.3 is caution, above 1.5 is the highest risk. Its alerts sit at form -10 and -20, and it treats below -30 as high strain.</li>
+<li>The -20 floor is chosen by the user for running, which is higher impact than cycling. It is not a research threshold.</li>
+<li>ATL below 0.8 times CTL (undertraining) is not tested.</li>
+</ul>
+<h3>Start values</h3>
+<ul>
+<li>CTL 5 to 200. ATL blank means the same as CTL (a flat start).</li>
+<li>A start ATL above CTL, as after a hard week, makes early weeks fit worse.</li>
+</ul>
+<h3>Plan settings</h3>
+<p>These are Marathon Plans' defaults, fixed here:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daniels</td>
+<td>Top of each plan's band (40, 55, 70, 85 mi), 6 run days, short threshold reps on</td>
+</tr>
+<tr>
+<td>Pfitzinger</td>
+<td>Long runs at 85% of marathon speed, 10km tune-up, no recovery weeks</td>
+</tr>
+<tr>
+<td>Copeland</td>
+<td>5km reps 16.5 min</td>
+</tr>
+<tr>
+<td>Hansons</td>
+<td>As on Marathon Plans</td>
+</tr>
+</tbody>
+</table>
+<h3>Columns</h3>
+<ul>
+<li>Week 1 TSS/day: the first week's TSS divided by 7.</li>
+<li>Peak 4-week TSS/day: the highest average over four consecutive weeks.</li>
+<li>Lowest form and highest ratio, with the week they occur.</li>
+</ul>
+<h3>Limits</h3>
+<ul>
+<li>A plan that fits is not a plan that suits you. It says nothing about mileage you can absorb, long-run length or injury history.</li>
+<li>The plan code is a copy of Marathon Plans'. A build test fails if the two differ.</li>
+</ul>
+  </article>
+</main>
+<script>
+(function () {
+  var btns = document.querySelectorAll("[data-theme-set]");
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  apply(saved);
+  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
+})();
+</script>
