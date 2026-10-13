@@ -49,6 +49,7 @@ a { color:var(--accent); }
   <article class="doc">
 <h1>Marathon Plans: methodology</h1>
 <p>One page, four authors. Choose the author, then the plan. The race, time, units and starting CTL are shared. Load (TSS, CTL, ATL, ramp) is calculated the same way for all authors; each section below covers what is specific to that author.</p>
+<p>The marathon itself is scored with the same formula at the plan's marathon pace (about 255 to 265 TSS for an 18:45 5km). It is added to the final week's TSS, time and distance. CTL, ATL and ramp for that week are for the morning of the race, so form on race morning is visible; the page notes what CTL and ATL would be after the marathon.</p>
 <hr />
 <h2>Copeland Marathon Plan</h2>
 <p>In the weekly table, sub-threshold sessions are named by rep length in minutes (for example 3 x 12 min), matching the pace cards; the rep distance in metres is kept in the day detail.</p>
@@ -137,9 +138,9 @@ a { color:var(--accent); }
 </ul>
 <h3>Load</h3>
 <ul>
-<li>Recoveries are walked at 6 km/h. They count for time and TSS, not distance.</li>
+<li>Recoveries are walked at 6 km/h (100 m per minute). They count for time, TSS and distance.</li>
 <li>TSS per segment = hours x (threshold pace / pace)^2 x 100, threshold = race(16).</li>
-<li>Races are scored at race pace. The marathon on the last Sunday is not scored.</li>
+<li>Races are scored at race pace. The marathon on the last Sunday is scored at marathon pace and its time, distance and TSS are included in week 15's totals.</li>
 <li>CTL has a 42-day and ATL a 7-day time constant. Starting CTL is entered, or estimated as week 1's TSS divided by 7. The plan has no ramp-in, so the estimate is high; enter your own CTL to see the real ramp and form.</li>
 </ul>
 <h3>Limits</h3>
@@ -214,7 +215,7 @@ a { color:var(--accent); }
 <li>Q2 is on Wednesday, Q1 on Sunday, easy days fill the other run days, and rest days come first in the week. This is my placeholder; the order affects ATL slightly.</li>
 <li>Steady runs given as a range use the midpoint for TSS.</li>
 <li>Starting CTL is entered, or estimated as week 1's TSS divided by 7.</li>
-<li>Week 18 covers the seven days before the race. Race day is not scored, so CTL and ATL are for the morning of the race.</li>
+<li>Week 18 covers the seven days before the race. The marathon is scored and added to the week's TSS, time and distance; CTL and ATL stay at race morning.</li>
 </ul>
 <h3>Limits</h3>
 <ul>
@@ -276,7 +277,7 @@ a { color:var(--accent); }
 <li>CTL has a 42-day and ATL a 7-day time constant. Ramp is the change in CTL over the week.</li>
 <li>Daily sessions are as in the book, Monday to Sunday, so day order is not assumed.</li>
 <li>Starting CTL is entered, or estimated as week 1's TSS divided by 7. Because week 1 is only 26 miles, the estimate is low and the first weeks show large ramps.</li>
-<li>The marathon on the last Sunday is not scored, so week 18 covers Monday to Saturday and CTL and ATL are for the morning of the race.</li>
+<li>The marathon on the last Sunday is scored at marathon pace and added to week 18's TSS.</li>
 </ul>
 <h3>Limits</h3>
 <ul>
@@ -375,7 +376,7 @@ a { color:var(--accent); }
 <ul>
 <li>TSS per segment = hours x (threshold pace / pace)^2 x 100, threshold = race(16).</li>
 <li>CTL has a 42-day and ATL a 7-day time constant. Starting CTL is entered, or estimated as week 1's TSS divided by 7; the plans have no ramp-in, so the estimate is high.</li>
-<li>The marathon is not scored. With the recovery block added it is scored at marathon pace so that the recovery weeks start from the right load.</li>
+<li>The marathon is scored at marathon pace and added to the race week's TSS. With the recovery block added it also feeds CTL and ATL, so that the recovery weeks start from the right load.</li>
 </ul>
 <h3>Limits</h3>
 <ul>

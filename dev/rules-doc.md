@@ -98,7 +98,7 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - Zulu: 4 days a week, A/B/rest/A/B/rest/rest, 1-2 lifts per day. 3x5 @70% then 75% (W1), 3x5 @80% both (W2), 3x3 @90% both (W3), W4-6 repeat W1-3.
 - Deadlift (all programmes): 1-3 sets a day on 1-2 days a week (max 6 sets a week); default 3 sets on 1 day.
 ## Marathon Plans (running)
-One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then a plan selector. Race, time, units and starting CTL are shared; author-specific fields show only for that author. The weekly table has a uniform Sessions column (key sessions only). Load rules are identical across authors. Replaces the four separate plan pages.
+One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then a plan selector. Race, time, units and starting CTL are shared; author-specific fields show only for that author. The weekly table has a uniform Sessions column (key sessions only). Load rules are identical across authors. The marathon is scored at marathon pace (same TSS formula) and added to the race week's TSS, time and distance; CTL/ATL stay at race morning, with the post-marathon values in the table note. Replaces the four separate plan pages.
 
 ### Daniels 2Q Plans
 - 2QA up to 40 mi, 2QB 41-55 mi, 2QC 56-70 mi; peak distance is always an input, the band only selects the sessions.

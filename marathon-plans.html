@@ -102,9 +102,9 @@ tr.rest td { color: var(--muted); }
 tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 .paces { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 12px; }
 @media (max-width: 600px) { .paces { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.paces div { background: var(--surface-2); border-radius: 2px; padding: 10px 12px; min-width: 0; }
+.paces div { background: var(--surface-2); border-radius: 2px; padding: 10px 10px; min-width: 0; }
 .paces b { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
-.paces span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.paces span { font-size: .7rem; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 .paces small { display: block; font-size: .78rem; color: var(--muted); margin-top: 2px; }
 </style>
 
@@ -469,15 +469,16 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       });
       var rw = RW.map(function (d) { var s = session(d[1]); return { d: d[0], s: d[1], x: s }; });
       var rday = rw.slice(0, 7).map(function (d) { return (d.x.slo + d.x.shi) / 2; });
-      var rlo = 0, rhi = 0, rsec = 0, rh = "";
+      var MARMI = 26.2188, rlo = 0, rhi = 0, rsec = 0, rh = "";
       rw.forEach(function (d) {
         rlo += d.x.dlo; rhi += d.x.dhi;
         rh += thead(d.d === "0" ? "Race day" : "Day " + d.d + " before the race");
         if (d.x.rows.length === 1 && d.x.rows[0].race) rh += trow("Race", "", "", "", "");
         else { d.x.rows.forEach(function (r) { rh += rowHtml(r); }); if (d.d !== "0") rsec += (d.x.tlo + d.x.thi) / 2; }
       });
-      weeks.push({ lab: "18", opt: "Week 18 (race week)", d7: rday, dist: dr(rlo, rhi) + " " + U, sec: rsec, sess: ["Race week by day: see the detail"], detail: rh,
-        dnote: "Race week is by day, counting down, with no fraction of peak. Easy days are by time. The seven days before the race are scored; race day is not." });
+      rlo += MARMI; rhi += MARMI; rsec += MARMI * P.M;
+      weeks.push({ lab: "18", opt: "Week 18 (race week)", d7: rday, raceTss: tssOf(MARMI * P.M, P.M), dist: dr(rlo, rhi) + " " + U, sec: rsec, sess: ["Race week by day: see the detail"], detail: rh,
+        dnote: "Race week is by day, counting down, with no fraction of peak. Easy days are by time. The seven days before the race set CTL and ATL for race morning; the marathon is added to the week's time, distance and TSS." });
       return {
         title: "18 weeks", paces: paces, pnote: usedAdj ? "* Threshold segment shortened to Daniels' time cap for a slower runner." : "", weeks: weeks,
         wnote: "Week 18 ends on the morning of race day. Quality sessions are in miles as written. Numbers in the shorthand are miles." + (warns.length ? " In week " + warns.join(", ") + " the quality sessions alone exceed the weekly total, so the total is raised to match." : ""),
@@ -485,7 +486,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
           "<b>Shorthand.</b> A number before E, M or T is miles (4M = 4 miles at marathon pace). I and R reps are timed. Jogs and easy segments are at easy pace and count towards the distance.",
           "<b>Paces.</b> Marathon pace is the Riegel prediction. Threshold is race(17), intervals race(4), repetition race(1.7). Easy is a cap at 65% of 5km speed, not a target.",
           "<b>Weekly total.</b> Peak distance times the week's fraction of peak. Easy days share what is left after the two quality sessions.",
-          "<b>Load.</b> " + LOADNOTE + " Standing rests score 0. Q2 falls on Wednesday and Q1 on Sunday, so day order affects ATL slightly. Ranges (steady runs) use the midpoint. Race day itself is not scored.",
+          "<b>Load.</b> " + LOADNOTE + " Standing rests score 0. Q2 falls on Wednesday and Q1 on Sunday, so day order affects ATL slightly. Ranges (steady runs) use the midpoint. The marathon is scored at marathon pace and added to the race week's TSS; CTL and ATL are for race morning.",
           "<b>Slower runners.</b> Daniels treats 5 to 6 min of threshold as 1 mile, 10 to 15 min as 2 miles and 16 to 20 min as 3 miles. With the box ticked, threshold segments are capped at 6, 15 and 20 min."
         ]
       };
@@ -553,7 +554,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     function rowOf(lbl, p, mi, sec, ts) { return { lbl: lbl, p: p, mi: mi, sec: sec, tss: ts }; }
     function day(d) {
       var rows = [];
-      if (d.k === "OFF" || d.k === "NONE" || d.k === "RACE") return { k: d.k, rows: [{ lbl: d.k === "OFF" ? "Off" : d.k === "RACE" ? "Marathon" : "-", p: d.k === "RACE" ? "T" : "", mi: d.k === "RACE" ? 26.2 : 0, sec: d.k === "RACE" ? 26.2 * P.T : 0, tss: 0, race: d.k === "RACE" }], mi: 0, sec: 0, tss: 0, off: true };
+      if (d.k === "OFF" || d.k === "NONE" || d.k === "RACE") return { k: d.k, rows: [{ lbl: d.k === "OFF" ? "Off" : d.k === "RACE" ? "Marathon" : "-", p: d.k === "RACE" ? "T" : "", mi: d.k === "RACE" ? 26.2 : 0, sec: d.k === "RACE" ? 26.2 * P.T : 0, tss: 0, race: d.k === "RACE" }], mi: 0, sec: d.k === "RACE" ? 26.2 * P.T : 0, tss: 0, off: true };
       if (d.k === "E" || d.k === "L") { var s = d.mi * P.E; rows.push(rowOf(NAME[d.k] + " " + ds(d.mi) + " " + U, "E", d.mi, s, tssOf(s, P.E))); }
       else {
         var wu = WUM * P.E;
@@ -601,8 +602,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
           else if (!d.off && d.sec > 6300) sess.push(DAYN[j] + " " + main + " (" + ht(d.sec) + ")");
         });
         weeks.push({
-          lab: String(i + 1), opt: "Week " + (i + 1) + (i === 17 ? " (race week)" : ""), d7: tss7, dist: ds(w[7]) + " " + U, sec: sec, sess: sess, detail: detail,
-          dnote: "Week " + (i + 1) + ": " + ds(w[7]) + " " + U + " as printed." + (i === 17 ? " The marathon is not scored, so only the six days before it are." : "") + " Easy and long runs are by time and effort; the distance is the book's."
+          lab: String(i + 1), opt: "Week " + (i + 1) + (i === 17 ? " (race week)" : ""), d7: tss7, raceTss: i === 17 ? tssOf(26.2 * P.T, P.T) : 0, dist: ds(w[7]) + " " + U, sec: sec, sess: sess, detail: detail,
+          dnote: "Week " + (i + 1) + ": " + ds(w[7]) + " " + U + " as printed." + (i === 17 ? " The marathon counts in the week's time, distance and TSS, but CTL and ATL are for the morning of the race." : "") + " Easy and long runs are by time and effort; the distance is the book's."
         });
       });
       return {
@@ -612,7 +613,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
           (BEG ? "<b>Program.</b> Beginner, Table 4.3. Speed work is Tuesday in weeks 6 to 10 and strength work in weeks 11 to 17; Thursday is tempo from week 6. Long runs of 10 to 16 miles are on Sundays from week 7." : "<b>Program.</b> Advanced, Table 4.4."),
           "<b>Mileage.</b> Distances and weekly totals are the book's. Totals include a " + (BEG ? "1" : "1.5") + "-mile warm-up and cooldown on speed, strength and tempo days. The detail adds up to within a mile or two of the printed total.",
           "<b>Paces.</b> Marathon pace is the Race Prediction Calculator's marathon (" + (BEG ? 55 : 70) + " miles a week), so every session is set from your current fitness rather than a goal. Tempo is marathon pace, strength is 10 s/mile faster, and speed is 5km pace. Easy and recovery jogs are at 65% of 5km speed, as a cap.",
-          "<b>Load.</b> " + LOADNOTE + " The marathon on the last Sunday is not scored, so week 18 is Monday to Saturday and CTL and ATL are for the morning of the race."
+          "<b>Load.</b> " + LOADNOTE + " The marathon on the last Sunday is added to week 18's TSS, but CTL and ATL are for the morning of the race."
         ]
       };
     }
@@ -662,12 +663,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       else if (d.k === "S") {
         var sp = REP[d.m], t = d.m === 5000 ? REP5 : sp.t, pace = P[sp.p], rec = d.n > 1 ? sp.rec : 0;
         var work = seg(d.n + " × " + mn(t) + " min (" + d.m + "m)" + (rec ? " w/ " + rec + " s walk" : ""), d.n * t * 60, pace, ({ T16: "Race(16) ", T21: "Race(21) ", T30: "Race(30) ", T32: "Race(32) ", F5: "MP+1.5% " }[sp.p]) + pk(pace));
-        if (rec) { var rs = (d.n - 1) * rec; work.sec += rs; work.tss += tssOf(rs, WALK); }
+        if (rec) { var rs = (d.n - 1) * rec; work.sec += rs; work.tss += tssOf(rs, WALK); work.km += rs / WALK; }
         r = wc(10).concat([work, easy("Cooldown 10 min", 10)]);
       }
       else if (d.k === "MP10") r = wc(25).concat([segKm("10 km at marathon pace", 10, P.M, "MP " + pk(P.M)), easy("Cooldown 25 min", 25)]);
       else if (d.k === "MP3") {
-        var w3 = seg("3 × 10 min at MP w/ 2 min rests", 1800, P.M, "MP " + pk(P.M)); w3.sec += 240; w3.tss += tssOf(240, WALK);
+        var w3 = seg("3 × 10 min at MP w/ 2 min rests", 1800, P.M, "MP " + pk(P.M)); w3.sec += 240; w3.tss += tssOf(240, WALK); w3.km += 240 / WALK;
         r = wc(30).concat([w3, easy("Cooldown 30 min", 30)]);
       }
       else if (d.k === "PROG") {
@@ -681,7 +682,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         r = [wu, segKm(d.k === "PARK" ? "Parkrun, 5 km" : "10 km race", km, rp, "Race " + pk(rp)), easy("Cooldown 10 min", 10)];
       }
       else if (d.k === "RHM") r = wc(10).concat([segKm("Half marathon", HM, P.HM, "Race " + pk(P.HM)), easy("Cooldown 10 min", 10)]);
-      else if (d.k === "MAR") return { k: "MAR", rows: [{ lbl: "Marathon", sec: MAR * P.M, km: MAR, tss: 0, pt: "MP " + pk(P.M) }], km: 0, sec: 0, tss: 0, race: true, book: d.book };
+      else if (d.k === "MAR") return { k: "MAR", rows: [{ lbl: "Marathon", sec: MAR * P.M, km: MAR, tss: 0, pt: "MP " + pk(P.M) }], km: MAR, sec: MAR * P.M, tss: 0, race: true, book: d.book };
       var o = { k: d.k, rows: r, km: 0, sec: 0, tss: 0, book: d.k === "S" ? d.n + " × " + mn(d.m === 5000 ? REP5 : REP[d.m].t) + " min S" : d.book };
       r.forEach(function (x) { o.km += x.km; o.sec += x.sec; o.tss += x.tss; });
       return o;
@@ -695,7 +696,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       var raceP = mkRaceP(c), mp = raceP(MAR);
       THR = raceP(16);
       P = { E: raceP(5) / 0.65, T16: raceP(16), T21: raceP(21), T30: raceP(30), T32: raceP(32), M: mp, F5: mp / 1.015, HM: raceP(HM), MILE: raceP(MILE / 1), R5: raceP(5), R10: raceP(10) };
-      var paces = [["E", "Easy cap"], ["T16", "3 min reps"], ["T21", "6 min reps"], ["T30", "8 min reps"], ["T32", "10 to 12 min reps"], ["F5", "5km reps"], ["M", "Marathon"]].map(function (x) { return [x[1], pk(P[x[0]]), "/" + U]; });
+      var paces = [["E", "Easy cap"], ["T16", "3 min reps"], ["T21", "6 min reps"], ["T30", "8 min reps"], ["T32", "10-12 min reps"], ["F5", "5km reps"], ["M", "Marathon"]].map(function (x) { return [x[1], pk(P[x[0]]), "/" + U]; });
       var KEY = { S: 1, PARK: 1, R10: 1, RHM: 1, MP10: 1, MP3: 1, PROG: 1, MAR: 1 };
       var weeks = [];
       PLAN.forEach(function (w, i) {
@@ -708,19 +709,19 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
           if (KEY[d.k] || (d.k === "E" && d.sec > 6300)) sess.push(DAYN[j] + " " + d.book);
         });
         weeks.push({
-          lab: String(i + 1), opt: "Week " + (i + 1) + (i === 14 ? " (race week)" : ""), d7: tss7, dist: dk(km) + " " + U, sec: sec, sess: sess, detail: detail,
-          dnote: "Week " + (i + 1) + ": " + ht(sec) + " h, about " + dk(km) + " " + U + (i === 14 ? " for the six days before the marathon. The marathon is not scored." : ".")
+          lab: String(i + 1), opt: "Week " + (i + 1) + (i === 14 ? " (race week)" : ""), d7: tss7, raceTss: i === 14 ? tssOf(MAR * P.M, P.M) : 0, dist: dk(km) + " " + U, sec: sec, sess: sess, detail: detail,
+          dnote: "Week " + (i + 1) + ": " + ht(sec) + " h, about " + dk(km) + " " + U + (i === 14 ? ", including the marathon at marathon pace. The marathon counts in the week's TSS, but CTL and ATL are for the morning of the race." : ".")
         });
       });
       return {
         title: "15 weeks", paces: paces, weeks: weeks,
-        wnote: "Week 15 ends on the morning of the marathon; its time and distance are for the six days before it. Distances are estimated from times at the paces above, and walked recoveries add no distance.",
+        wnote: "Week 15 ends on the morning of the marathon. Its time, distance and TSS include the marathon at marathon pace; CTL and ATL are for the morning of the race. Distances are estimated from times at the paces above, and walked recoveries count at 100 m per minute (6 km/h).",
         notes: [
           "<b>Reps.</b> Reps are run by time, with the book's rep counts: 1000m = 3 min at race(16), 1600m = 6 min at race(21), 2000m = 8 min at race(30), 3000m = 10 min and 3200m = 12 min at race(32), 5000m = 15 to 18 min at 1.5% faster than marathon pace. Reps are set from current fitness, not goal pace.",
           "<b>Recoveries.</b> Walked at 6 km/h: 60 s after 1000m, 75 s after 1600m, 90 s after 2000m and 3000m, 120 s after 3200m and 180 s after 5000m reps. They count for time and TSS but not distance.",
           "<b>Warm-up and cooldown.</b> 10 min each at the easy cap. Races use 10 min, but 5km and 10km races add a 20 min warm-up with 2 &times; 2 min at half-marathon pace and 4 strides. Easy running is at 65% of 5km speed, as a cap.",
           "<b>Marathon pace.</b> The Race Prediction Calculator's marathon (70 miles a week). Week 13's 10km and week 14's 3 &times; 10 min are at that pace, and week 14's 3 &times; 27.5 min is progressive at 92%, 93% and 100% of marathon speed.",
-          "<b>Load.</b> " + LOADNOTE + " The marathon is not scored, so week 15 is Monday to Saturday.",
+          "<b>Load.</b> " + LOADNOTE + " The marathon is scored at marathon pace and added to week 15's TSS; CTL and ATL are for the morning of the race.",
           "<b>Table.</b> Only the quality sessions and runs over 1:45 are listed; the detail has every run."
         ]
       };
@@ -883,7 +884,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       }
       else if (d.k === "MAR") {
         var ms = MAR * P.M, mt = SCOREMAR ? tssOf(ms, P.M) : 0;
-        return { k: "MAR", rows: [{ lbl: "Marathon", sec: ms, km: MAR, tss: mt, pt: "MP " + pk(P.M) }], km: SCOREMAR ? MAR : 0, sec: SCOREMAR ? ms : 0, tss: mt, book: "Marathon", race: true };
+        return { k: "MAR", rows: [{ lbl: "Marathon", sec: ms, km: MAR, tss: mt, pt: "MP " + pk(P.M) }], km: MAR, sec: ms, tss: mt, book: "Marathon", race: true };
       }
       var o = { k: d.k, rows: r, km: 0, sec: 0, tss: 0, book: book(d) };
       r.forEach(function (x) { o.km += x.km; o.sec += x.sec; o.tss += x.tss; });
@@ -920,20 +921,20 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       pl.weeks.forEach(function (w, i) {
         var togo = n - 1 - i, race = i === n - 1;
         var wk = mkWeek(w, String(i + 1) + "<small>" + (race ? "race week" : togo + " to go") + "</small>", "Week " + (i + 1) + (race ? " (race week)" : " (" + togo + " to go)"), pl.tot[i]);
-        if (race && !SCOREMAR) wk.dnote += " The marathon is not scored.";
+        if (race && !SCOREMAR) { wk.raceTss = tssOf(MAR * P.M, P.M); wk.dnote += " The marathon counts in the week's TSS, but CTL and ATL are for the morning of the race."; }
         weeks.push(wk);
       });
       if (REC) RECOV[pl.fam].weeks.forEach(function (w, i) { weeks.push(mkWeek(w, "Post " + (i + 1), "Recovery week " + (i + 1), RECOV[pl.fam].tot[i])); });
       return {
         title: n + " weeks" + (REC ? " and 5 weeks of recovery" : ""), paces: paces, weeks: weeks,
-        wnote: (REC ? "" : "The race week ends on the morning of the marathon, which is not scored. ") + "Tune-up race weeks use the middle of the book's mileage range." + (planId === "12/70" ? " In the 12/70 plan the days of week 7 add up to 62 miles, while the book prints 59; the days are used." : ""),
+        wnote: (REC ? "" : "The race week ends on the morning of the marathon, which is added to the week's TSS but not to CTL and ATL. ") + "Tune-up race weeks use the middle of the book's mileage range." + (planId === "12/70" ? " In the 12/70 plan the days of week 7 add up to 62 miles, while the book prints 59; the days are used." : ""),
         notes: [
           "<b>Plan.</b> Sessions and distances are as printed in the book and are not scaled. Weeks are numbered from the start, with the book's weeks to goal alongside. Monday is rest or cross-training throughout.",
           "<b>Paces.</b> Recovery is 60% and general aerobic 70% of 5km speed. Medium-long and long runs are at the chosen percentage of marathon-pace speed (80 to 90%). Marathon pace is the Race Prediction Calculator's marathon at the plan's weekly mileage (70 miles for the 55 to 70 plans, 55 for the up-to-55 plans). LT is race(21), and VO2max reps are at race(5) with jogs of 70% of rep time at recovery pace. Everything is set from current fitness, not goal pace.",
           "<b>Splits.</b> The distance not covered by the LT, marathon-pace or rep work is split evenly into warm-up and cooldown at general aerobic pace. Rep jogs count towards the day's distance.",
           "<b>Tune-up races.</b> The book gives a range of total miles. The page uses the middle of that range, with the chosen race distance (week 2 is capped at 10km) scored at race pace and the rest as easy warm-up and cooldown.",
           "<b>Strides and hill sprints.</b> Not scored separately. Counted as easy running, they would add roughly 3 to 4 TSS for 8 to 10 strides.",
-          "<b>Load.</b> " + LOADNOTE + " The marathon is not scored, except when recovery weeks are added, where it is scored at marathon pace so that their load starts from the right place.",
+          "<b>Load.</b> " + LOADNOTE + " The marathon is scored at marathon pace. In the race week it is added to the TSS only, so CTL and ATL are for race morning; when recovery weeks are added it is included in CTL and ATL so that they start from the right place.",
           "<b>Table.</b> R recovery, GA general aerobic, ML medium-long, L long, LT lactate threshold, MP marathon pace, V 5K-pace reps. Only key sessions and runs over 1:45 are listed; the detail has every run.",
           "<b>Recovery.</b> The book's post-marathon block is optional: five weeks of 15 to 41 miles for the 70 plans, 13 to 35 miles for the 55 plans."
         ]
@@ -984,6 +985,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       var c1 = c;
       w.d7.forEach(function (x) { c += (x - c) * KC; at += (x - at) * KA; });
       w.tss = w.d7.reduce(function (s, x) { return s + x; }, 0); w.ctl = c; w.atl = at; w.ramp = c - c1;
+      if (w.raceTss) { w.post = { ctl: c + (w.raceTss - c) * KC, atl: at + (w.raceTss - at) * KA, tss: w.raceTss }; w.tss += w.raceTss; }
     });
     out = { weeks: weeks };
     $("wtitle").textContent = r.title;
@@ -993,7 +995,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         + "<td class='q2'>" + w.sess.map(function (s) { return "<span class='s'>" + s + "</span>"; }).join("") + "</td></tr>";
     });
     $("wrows").innerHTML = h;
-    $("wnote").textContent = "Start CTL " + c0.toFixed(1) + (ctlIn !== null ? " (entered)" : " (estimated)") + ". CTL, ATL and ramp are at the end of each week. " + r.wnote;
+    $("wnote").textContent = "Start CTL " + c0.toFixed(1) + (ctlIn !== null ? " (entered)" : " (estimated)") + ". CTL, ATL and ramp are at the end of each week. " + r.wnote + (function () { var lw = null; for (var k = weeks.length - 1; k >= 0; k--) if (weeks[k].post) { lw = weeks[k]; break; } return lw ? " Race morning: CTL " + lw.ctl.toFixed(1) + ", ATL " + lw.atl.toFixed(1) + ", form " + sgn(lw.ctl - lw.atl) + ". The marathon is estimated at " + Math.round(lw.post.tss) + " TSS (marathon pace against the race(16) threshold), which would leave CTL " + lw.post.ctl.toFixed(1) + " and ATL " + lw.post.atl.toFixed(1) + "." : ""; })();
     $("notes").innerHTML = r.notes.map(function (x) { return "<li>" + x + "</li>"; }).join("");
     $("mtitle").textContent = "Notes: " + a.name;
     var sel = $("wk"), cur = sel.value, o = "";
