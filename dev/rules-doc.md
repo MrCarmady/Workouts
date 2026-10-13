@@ -107,7 +107,7 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - Book's Advanced program (Table 4.4), 18 weeks, 6 days a week, mileage as printed (26 to 63 mi), not scaled. Tue: speed weeks 2-10, strength weeks 11-17. Thu: tempo. Sun: long run every other week from week 3. Totals include 1.5 mi warm-up and cooldown on speed, strength and tempo days.
 - Paces: marathon = predicted from the race result (70 mi a week; the book's 18:30 -> 3:00:21, page gives 3:00:12), no goal-time input because sessions run at current fitness, not goal pace (P), tempo = MP, strength = MP - 10 s/mi, speed = 5km pace, easy and recoveries = 65% of 5km speed.
 - Load: same TSS rule as the Daniels page; race day not scored; start CTL = week 1 TSS / 7 if blank.
-- Backlog: Beginner program (same book), Pfitzinger 18/55 and 12/55, later a single marathon page with an author selector.
+- Backlog: Beginner program (same book), a single marathon page with an author selector.
 ## Copeland Marathon Plan (running)
 - 15-week marathon add-on, weekly layout as printed in the book. Reps set by time at current fitness: 1000m = 3 min at race(16), 1600m = 6 min at race(21), 2000m = 8 min at race(30), 3000m = 10 min and 3200m = 12 min at race(32), 5000m = 15-18 min (default 16.5) at MP, 1.5% faster. Recoveries 60/75/90/90/120/180 s, walked at 6 km/h (TSS and time, not distance).
 - Warm-up and cooldown 10 min each; 5km/10km races 20 min warm-up with 2 x 2 min at HM pace and 4 strides. Week 14 Tue progressive 92/93/100% of MP speed; week 14 Thu typo read as 8 x 1000m.
@@ -115,9 +115,9 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 
 
 ## Pfitzinger Marathon Plan (running)
-- 18/70 and 12/70 ("55 to 70 miles per week"), distances as printed, not scaled; weeks labelled by weeks to goal. 12/70 week 7 days sum to 62, the book prints 59: days used.
-- Paces: recovery 60% and GA 70% of 5km speed; medium-long and long = 85% of MP speed (input, 80-90%); LT = race(21); V reps = race(5) with jogs of 70% of rep time at recovery pace; MP = site prediction at 70 mi a week, no goal input.
+- 18/55, 12/55, 18/70 and 12/70 ("up to 55" and "55 to 70 miles per week"), distances as printed, not scaled; weeks labelled by weeks to goal. 12/70 week 7 days sum to 62, the book prints 59: days used.
+- Paces: recovery 60% and GA 70% of 5km speed; medium-long and long = 85% of MP speed (input, 80-90%); LT = race(21); V reps = race(5) with jogs of 70% of rep time at recovery pace; MP = site prediction at the plan's weekly mileage (70 or 55), no goal input.
 - Rest of a day's distance (not LT, MP or reps) split evenly into warm-up and cooldown at GA pace. Tune-up races: chosen distance (8/10/15 km, week 2 max 10) at race pace, rest of the mid-range total as WU/CD.
 - Weekly table lists key sessions only (LT, MP run, V, long run, races) plus any other single run over 1:45 with its time; full detail in the week view.
 - Strides and hills not scored (about +3-4 TSS per 8-10 strides).
-- Optional 5-week recovery block; when on, the marathon is scored at MP so the recovery load starts correctly. Otherwise as the other plan pages.
+- Optional 5-week recovery block (separate tables for the 55 and 70 plans); when on, the marathon is scored at MP so the recovery load starts correctly. Otherwise as the other plan pages.
