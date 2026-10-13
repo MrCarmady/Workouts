@@ -89,7 +89,8 @@ td.num, th.num { text-align: right; padding-right: 14px; }
 .num { text-align: right; }
 th.num, td.num { padding-right: 0; padding-left: 10px; }
 td.q { min-width: 14rem; }
-td.q2 { min-width: 24rem; font-size: .9rem; }
+td.q2 { min-width: 24rem; font-size: .9rem; padding-left: 36px; }
+th.q2 { padding-left: 36px; }
 .grid4 .span2 { grid-column: span 2; }
 .q1 { padding-left: 28px; }
 td.q small { display: block; color: var(--muted); }
@@ -173,11 +174,11 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     <div class="panel">
       <div class="tablewrap">
         <table>
-          <thead><tr><th>To go</th><th class="num">Time</th><th class="num">Distance</th><th class="num">TSS</th><th class="num">CTL</th><th class="num">ATL</th><th class="num">Ramp</th><th>Sessions</th></tr></thead>
+          <thead><tr><th>To go</th><th class="num">Time</th><th class="num">Distance</th><th class="num">TSS</th><th class="num">CTL</th><th class="num">ATL</th><th class="num">Ramp</th><th class="q2">Sessions</th></tr></thead>
           <tbody id="wrows"></tbody>
         </table>
       </div>
-      <p class="note">R recovery, GA general aerobic, ML medium-long, L long, LT lactate threshold, MP marathon pace, V 5K-pace reps. Distances in the sessions are the book's, in the unit chosen.</p>
+      <p class="note">Key sessions only: LT lactate threshold, MP marathon pace, V 5K-pace reps, L long run, plus any other run over 1:45 (with its time). The rest is in the week-by-week detail below. Distances are the book's, in the unit chosen.</p>
       <p class="note" id="wnote"></p>
     </div>
   </section>
@@ -336,6 +337,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     [REST, R(5), GA(7), REST, GA(8, "8\u00d7100 m"), R(5), ML(11)],
     [REST, R(6), GA(8), REST, GA(9, "8\u00d7100 m"), R(6), ML(12)]
   ] };
+  var KEYK = ["LT", "MP", "V", "RC", "DR", "L", "MAR"];   // sessions listed in the weekly table
   var DAYN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   var U = "mi", P = {}, THR = 0, RP = null, RD = 10, SCOREMAR = false;   // P: seconds per km
@@ -400,9 +402,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     }
     else if (d.k === "MAR") {
       var ms = MAR * P.M;
-      return { rows: [{ lbl: "Marathon", sec: ms, km: MAR, tss: SCOREMAR ? tssOf(ms, P.M) : 0, pt: "MP " + pc(P.M) }], km: SCOREMAR ? MAR : 0, sec: SCOREMAR ? ms : 0, tss: SCOREMAR ? tssOf(ms, P.M) : 0, book: "Marathon", race: true };
+      return { key: "MAR", rows: [{ lbl: "Marathon", sec: ms, km: MAR, tss: SCOREMAR ? tssOf(ms, P.M) : 0, pt: "MP " + pc(P.M) }], km: SCOREMAR ? MAR : 0, sec: SCOREMAR ? ms : 0, tss: SCOREMAR ? tssOf(ms, P.M) : 0, book: "Marathon", race: true };
     }
-    var o = { rows: r, km: 0, sec: 0, tss: 0, book: book(d) };
+    var o = { rows: r, km: 0, sec: 0, tss: 0, book: book(d), key: d.k };
     r.forEach(function (x) { o.km += x.km; o.sec += x.sec; o.tss += x.tss; });
     return o;
   }
@@ -448,9 +450,10 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     var h = "";
     weeks.forEach(function (w) {
       var ss = [];
-      w.days.forEach(function (d, i) { if (!d.rest) ss.push(DAYN[i] + " " + d.book); });
+      w.days.forEach(function (d, i) { if (KEYK.indexOf(d.key) >= 0) ss.push(DAYN[i] + " " + d.book);
+        else if (d.key !== "R2" && !d.rest && d.sec > 6300) ss.push(DAYN[i] + " " + d.book + " (" + ht(d.sec) + ")"); });
       h += "<tr><td>" + w.lab + "</td><td class='num'>" + ht(w.sec) + "</td><td class='num'>" + ds(w.km) + " " + U + "</td><td class='num'>" + Math.round(w.tss) + "</td><td class='num'>" + w.ctl.toFixed(1) + "</td><td class='num'>" + w.atl.toFixed(1) + "</td><td class='num'>" + sgn(w.ramp) + "</td>"
-        + "<td class='q2'>" + ss.join(" \u00b7 ") + "</td></tr>";
+        + "<td class='q2'>" + (ss.length ? ss.join(" \u00b7 ") : "Easy running only") + "</td></tr>";
     });
     $("wrows").innerHTML = h;
     $("wnote").textContent = "Start CTL " + c0.toFixed(1) + (ctlIn !== null ? " (entered)" : " (estimated)") + ". CTL, ATL and ramp are at the end of each week" + (REC ? "." : "; the race week ends on the morning of the marathon, which is not scored.") + " Tune-up race weeks use the middle of the book's mileage range." + ($("plan").value === "12" ? " In the 12-week plan the days of week 7 add up to 62 miles, while the book prints 59; the days are used." : "");

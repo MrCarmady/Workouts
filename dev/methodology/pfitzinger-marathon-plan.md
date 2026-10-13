@@ -27,6 +27,10 @@ Lays out Pfitzinger's 18-week and 12-week "55 to 70 miles per week" marathon pla
 - A tune-up race at the chosen distance (8, 10 or 15 km; week 2 capped at 10 km) is scored at race pace, with easy warm-up and cooldown making up the middle of the range.
 - Strides and hill sprints are counted as easy running. At 18:45, 8 to 10 strides at mile pace would add roughly 3 to 4 TSS, and 6 hill sprints of 10 s about 1.
 
+## Display
+
+- The weekly table lists only key sessions (LT, marathon-pace runs, 5K reps, long runs, races) and any other single run over 1:45, shown with its time. Other runs appear in the week-by-week detail and in the totals.
+
 ## Load
 
 - TSS per segment = hours x (threshold pace / pace)^2 x 100, threshold = race(16).

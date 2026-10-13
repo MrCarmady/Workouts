@@ -118,5 +118,6 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - 18/70 and 12/70 ("55 to 70 miles per week"), distances as printed, not scaled; weeks labelled by weeks to goal. 12/70 week 7 days sum to 62, the book prints 59: days used.
 - Paces: recovery 60% and GA 70% of 5km speed; medium-long and long = 85% of MP speed (input, 80-90%); LT = race(21); V reps = race(5) with jogs of 70% of rep time at recovery pace; MP = site prediction at 70 mi a week, no goal input.
 - Rest of a day's distance (not LT, MP or reps) split evenly into warm-up and cooldown at GA pace. Tune-up races: chosen distance (8/10/15 km, week 2 max 10) at race pace, rest of the mid-range total as WU/CD.
+- Weekly table lists key sessions only (LT, MP run, V, long run, races) plus any other single run over 1:45 with its time; full detail in the week view.
 - Strides and hills not scored (about +3-4 TSS per 8-10 strides).
 - Optional 5-week recovery block; when on, the marathon is scored at MP so the recovery load starts correctly. Otherwise as the other plan pages.
