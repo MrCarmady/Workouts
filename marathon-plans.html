@@ -682,7 +682,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       }
       else if (d.k === "RHM") r = wc(10).concat([segKm("Half marathon", HM, P.HM, "Race " + pk(P.HM)), easy("Cooldown 10 min", 10)]);
       else if (d.k === "MAR") return { k: "MAR", rows: [{ lbl: "Marathon", sec: MAR * P.M, km: MAR, tss: 0, pt: "MP " + pk(P.M) }], km: 0, sec: 0, tss: 0, race: true, book: d.book };
-      var o = { k: d.k, rows: r, km: 0, sec: 0, tss: 0, book: d.book };
+      var o = { k: d.k, rows: r, km: 0, sec: 0, tss: 0, book: d.k === "S" ? d.n + " × " + mn(d.m === 5000 ? REP5 : REP[d.m].t) + " min S" : d.book };
       r.forEach(function (x) { o.km += x.km; o.sec += x.sec; o.tss += x.tss; });
       return o;
     }

@@ -6,6 +6,8 @@ One page, four authors. Choose the author, then the plan. The race, time, units 
 
 ## Copeland Marathon Plan
 
+In the weekly table, sub-threshold sessions are named by rep length in minutes (for example 3 x 12 min), matching the pace cards; the rep distance in metres is kept in the day detail.
+
 Lays out the 15-week Copeland marathon add-on ("My Marathon Build") from a race result, with paces, recoveries and load. The weekly layout was transcribed from the book's table.
 
 ### Plan
@@ -79,7 +81,7 @@ The short-race slowdown is the one in the Race Prediction Calculator.
 - New shorthand: "lesser 17 mi/120 min E" is a steady run of the shorter of the two at the easy pace; reps of 1 km I, 400m R and 200m R are run at I and R pace, with jogs by time or by distance (400m, 200m) at the easy pace.
 - 2QC week 8 Q1 gives two options (2E+2T+60 min E+2T+2E or 60 min E+8M+1E); the first is built.
 - 2QB week 11 Q1 (10E+2x(2T)+2E) adds to 16 miles against 15 printed; built as written.
-- Each session's distance is within about 2 miles of the book's "miles for Q sessions" for a 5km of 15:30, where minute-based segments are comparable; slower runners cover less in timed segments.
+- The book's "miles for Q sessions" column is not used. Timed segments are converted to distance at your own easy pace, and the easy days share what is left of the week's total.
 
 ### Weekly distance
 
