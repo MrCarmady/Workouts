@@ -120,7 +120,6 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
         <input id="bw" type="number" inputmode="decimal" min="30" max="250" step="0.1" value="76">
       </label>
     </div>
-    <p class="note" id="bwnote">Used for weighted pull-ups and dips. Values shown are examples. Replace them with your own.</p>
   </section>
 
   <p class="warn" id="zwarn" hidden>Zulu uses 1–2 lifts on each of day A and day B.</p>
@@ -284,7 +283,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
   function renderAll() {
     $("prog").value = prog;
     var isO = !!OTHER[prog];
-    ["lifts", "addwrap", "mtb", "bwl", "bwnote"].forEach(function (id) { $(id).hidden = isO; });
+    ["lifts", "addwrap", "mtb", "bwl"].forEach(function (id) { $(id).hidden = isO; });
     $("other").hidden = !isO; $("mot").hidden = !isO;
     if (isO) { $("zwarn").hidden = true; $("daysnote").textContent = OTHER[prog].days; renderOther(); return; }
     $("daysnote").textContent = PROGRAMS[prog].days;

@@ -102,6 +102,8 @@ td.kg { font-weight: 600; color: var(--accent); }
             <option value="row">Barbell row</option>
             <option value="pullup">Pull-up (weighted)</option>
             <option value="dip">Dip (weighted)</option>
+            <option value="incdb">Incline dumbbell bench</option>
+            <option value="bss">Bulgarian split squat</option>
           </select>
         </label>
         <label>Bodyweight (kg)
@@ -145,6 +147,7 @@ td.kg { font-weight: 600; color: var(--accent); }
       <label>Round to
         <select id="step">
           <option value="1">1 kg</option>
+          <option value="2">2 kg</option>
           <option value="2.5" selected>2.5 kg</option>
           <option value="5">5 kg</option>
         </select>
@@ -180,7 +183,7 @@ td.kg { font-weight: 600; color: var(--accent); }
     <h2>How this is calculated</h2>
     <p>The 1RM uses the average of the Brzycki and Epley formulas, applied to reps completed plus reps left in tank. Brzycki: weight × 36 / (37 − reps). Epley: weight × (1 + reps / 30), set to exactly 1 for a single and blended in by 2 reps. Both get less reliable above about 10 reps.</p>
     <p>Weights come from a fatigue model. The last set is set to your chosen RIR, and each earlier set costs a fixed number of reps of capacity at 3 min rest (0.75 for sets of 3, 1 for sets of 5–6, 1.2 for 8, 1.35–1.6 for 10–12). Shorter rest scales that loss: 1.25× at 1 min, 1.1× at 2 min. "By rep range" assumes 3 min for sets of 3–5, 2 min for 6–8 and 1 min for 10–12. Set 1's fresh capacity is converted back to % of 1RM with the same two formulas.</p>
-    <p>Calibrate the fatigue and rest values against your own logs. Squat and deadlift use 1.15× the fatigue.</p>
+    <p>Calibrate the fatigue and rest values against your own logs. Squat, deadlift and Bulgarian split squat use 1.15× the fatigue.</p>
   </section>
   <p class="sitenav"><a href="methods/lift-scheme-calculator.html">How it works &rarr;</a></p>
 </main>
@@ -190,12 +193,13 @@ td.kg { font-weight: 600; color: var(--accent); }
   var LIFTS = {
     bench: { bw: false, lower: false }, squat: { bw: false, lower: true }, deadlift: { bw: false, lower: true },
     ohp: { bw: false, lower: false }, row: { bw: false, lower: false },
-    pullup: { bw: true, lower: false }, dip: { bw: true, lower: false }
+    pullup: { bw: true, lower: false }, dip: { bw: true, lower: false },
+    incdb: { bw: false, lower: false, hand: true }, bss: { bw: false, lower: true, hand: true }
   };
   // sets, reps, fatigue (reps of capacity lost per set at 3 min rest)
   // Example sets (weight or added weight, reps) so each lift opens with a realistic starting point.
   var EXAMPLES = {
-    bench: [60, 5], squat: [80, 5], deadlift: [100, 5], ohp: [40, 5], row: [60, 8], pullup: [10, 5], dip: [15, 6]
+    bench: [60, 5], squat: [80, 5], deadlift: [100, 5], ohp: [40, 5], row: [60, 8], pullup: [10, 5], dip: [15, 6], incdb: [24, 8], bss: [20, 8]
   };
   var touched = false;
   function loadExample() {
@@ -255,12 +259,13 @@ td.kg { font-weight: 600; color: var(--accent); }
     var bw = num("bw"), w = num("w"), reps = num("reps"), rir = num("rir") || 0;
     var step = parseFloat($("step").value);
     var restSel = $("rest").value;
-    $("wlabel").textContent = cfg.bw ? "Added weight (kg)" : "Weight lifted (kg)";
-    $("kghead").textContent = cfg.bw ? "Added weight (kg)" : "Weight (kg)";
-    $("kghead2").textContent = cfg.bw ? "Added weight (kg)" : "Weight (kg)";
-    $("ratiolabel").textContent = cfg.bw ? "× bodyweight (total load)" : "× bodyweight";
-    $("bwnote").hidden = !cfg.bw;
+    $("wlabel").textContent = cfg.bw ? "Added weight (kg)" : (cfg.hand ? "Weight per hand (kg)" : "Weight lifted (kg)");
+    $("kghead").textContent = cfg.bw ? "Added weight (kg)" : (cfg.hand ? "Weight per hand (kg)" : "Weight (kg)");
+    $("kghead2").textContent = cfg.bw ? "Added weight (kg)" : (cfg.hand ? "Weight per hand (kg)" : "Weight (kg)");
+    $("ratiolabel").textContent = cfg.bw ? "× bodyweight (total load)" : (cfg.hand ? "× bodyweight (per hand)" : "× bodyweight");
+    $("bwnote").hidden = !(cfg.bw || cfg.hand);
     if (cfg.bw) $("bwnote").textContent = "Total load = bodyweight + added weight. Table weights show added weight only.";
+    if (cfg.hand) $("bwnote").textContent = "Weights are for one dumbbell, not the pair.";
 
     var ok = bw && bw > 0 && w !== null && w >= 0 && reps && reps >= 1;
     var load = ok ? (cfg.bw ? bw + w : w) : null;

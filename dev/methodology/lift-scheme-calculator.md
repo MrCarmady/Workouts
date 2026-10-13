@@ -14,7 +14,7 @@ Takes one set (lift, bodyweight, weight, reps, optional reps in reserve) and ret
 | Averaging the two formulas | A choice made here |
 | Per-set fatigue values by rep range | **Estimates, not published figures** |
 | Rest multipliers (1.25 / 1.1 / 1 / 0.8) | **Estimates.** Only the 1 min value rests on one data point (50 kg bench, 5×5, 60s rest, about 0.5 RIR on the last set) |
-| 1.15× fatigue for squat and deadlift | **Estimate** |
+| 1.15× fatigue for squat, deadlift and Bulgarian split squat | **Estimate.** Applying it to the split squat is my choice, as a lower-body lift |
 
 The fatigue values are the part to calibrate against your own training logs.
 
@@ -70,7 +70,7 @@ Base fatigue per set, at 3 min rest (reps of capacity lost per set):
 
 Rest multipliers: 1 min ×1.25, 2 min ×1.1, 3 min ×1.0. The default "By rep range" assumes 3 min for sets of 3–5, 2 min for 6–8 and 1 min for 10–12. The 5 min option was removed (not used for higher-rep sets; its 0.8 factor was never calibrated).
 
-Lower-body lifts (squat, deadlift) multiply fatigue by 1.15.
+Lower-body lifts (squat, deadlift, Bulgarian split squat) multiply fatigue by 1.15.
 
 Worked example: 3×5 at 3 min rest, upper body, 1–2 RIR, e1RM 68.7 kg.
 - f = 1.0, extra = 2.0, R = 1.
@@ -92,3 +92,5 @@ Worked example: 3×5 at 3 min rest, upper body, 1–2 RIR, e1RM 68.7 kg.
 - Estimates from rep-based formulas are less accurate at high reps and for lifts you rarely test.
 - The fatigue model assumes constant loss per set. Real fatigue depends on the lifter, the lift and the day.
 - Rest changes only the fatigue multiplier. Nothing else in the model uses it.
+
+**Dumbbell lifts (incline dumbbell bench, Bulgarian split squat):** the weight entered and shown is per hand, and the 1RM is per hand. The formulas and fatigue model are unchanged. A true single is rarely tested on these lifts, so the estimate rests on a set of 5–10 reps.

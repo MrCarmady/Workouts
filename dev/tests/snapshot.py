@@ -35,6 +35,8 @@ def scenarios():
     out.append(('lifting-programme-planner','other w531 12 weeks 1.25',lambda pg:[pg.select_option('#prog','w531'),pg.select_option('[data-o=weeks]','12'),pg.select_option('[data-o=step]','1.25')]))
     out.append(('lifting-programme-planner','other rbeg 12 weeks',lambda pg:[pg.select_option('#prog','rbeg'),pg.select_option('[data-o=weeks]','12')]))
     out.append(('lifting-programme-planner','other back to operator',lambda pg:[pg.select_option('#prog','gzclp'),pg.select_option('#prog','operator')]))
+    out.append(('lift-scheme-calculator','incline dumbbell bench',lambda pg:[pg.select_option('#lift','incdb')]))
+    out.append(('lift-scheme-calculator','bulgarian split squat',lambda pg:[pg.select_option('#lift','bss')]))
     for page in ['run-tss-calculator','run-tss-planner']:
         out.append((page,'race mode',lambda pg:[fill(pg,'mode','race'),fill(pg,'thr','3:58'),fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'wmin','30'),fill(pg,'wpace','4:00'),fill(pg,'target','60'),fill(pg,'emin','20'),fill(pg,'epace','5:00')]))
     out.append(('hard-workout-predictor','6x1k',lambda pg:[fill(pg,'rep','1000'),fill(pg,'splits','3:38, 3:32, 3:33, 3:31, 3:34, 3:35')]))
