@@ -23,6 +23,7 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("marathon-plans.html","marathon-plans.html","Marathon Plans","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Planning and load"),
  ("copeland-base.html","copeland-base.html","Copeland Base","A ramp from your CTL to week 1 of the Copeland marathon plan.","copeland-base.md","copeland-base","Planning and load"),
  ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Recommender","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Planning and load"),
+ ("hybrid-load-planner.html","hybrid-load-planner.html","Hybrid Load Planner","CTL, ATL and TSB from a week of runs and lifts, with lifting scored by lift type, sets and reps left.","hybrid-load-planner.md","hybrid-load-planner","Hybrid"),
  ("lifting-programme-planner.html","lifting-programme-planner.html","Lifting Programme Planner","Tactical Barbell, GZCLP, 5/3/1, nSuns and other lifting plans.","lifting-programme-planner.md","lifting-programme-planner","Lifting"),
 ]
 HEAD='<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>\n'
@@ -56,7 +57,7 @@ THEME_JS='<script>'+THEME.JS+'</script>'
 TOGGLE=THEME.HTML
 FONTS='<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">'
 # index
-ORDER=['Planning and load','Sessions','Race and pace','Lifting']
+ORDER=['Planning and load','Sessions','Race and pace','Hybrid','Lifting']
 cards={}
 for src,out,title,desc,md,slug,grp in sorted(tools,key=lambda t:(ORDER.index(t[6]),tools.index(t))):
     cards.setdefault(grp,[]).append(f'''      <li class="card"><div><a class="name" href="{out}">{html.escape(title)}</a><p>{html.escape(desc)}</p></div><a class="meth" href="methods/{slug}.html">How it works</a></li>''')
@@ -69,12 +70,13 @@ def _sec(g,v,lvl):
     </section>
 '''
 RUNNING=['Planning and load','Sessions','Race and pace']
-groups='    <h2 class="big">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in RUNNING if g in cards)+'    <h2 class="big">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3)
+groups='    <h2 class="big">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in RUNNING if g in cards)+'    <h2 class="big">Hybrid</h2>\n'+_sec('Running and lifting together',cards['Hybrid'],3)+'    <h2 class="big">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3)
 START=[ # (question, tool file, tool title); titles must match the tools list
  ("I ran a race. What does it mean for other distances?","race-prediction-calculator.html","Race Prediction Calculator"),
  ("I ran a hard interval session. What race time does it predict?","hard-workout-predictor.html","Hard Workout Predictor"),
  ("I want a marathon plan that fits my current fitness.","marathon-plan-recommender.html","Marathon Plan Recommender"),
  ("I want to see a marathon plan's paces and weekly load.","marathon-plans.html","Marathon Plans"),
+ ("I run and lift. How hard is my week in total?","hybrid-load-planner.html","Hybrid Load Planner"),
  ("I need paces for a threshold or tempo session.","run-session-generator.html","Sub-Threshold Session Generator"),
  ("I want to know if my weekly load is climbing too fast.","run-load-planner.html","Run Load Planner"),
  ("I want to build a training block from a race result.","plan-builder.html","Plan Builder"),

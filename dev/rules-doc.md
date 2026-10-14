@@ -155,3 +155,11 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Landing page is Start here plus a link to tools.html (P, 2026-10-14). tools.html groups Running (planning and load, sessions, race and pace) and Lifting. Hybrid group to come with a lifting TSS tool.
 - Theme switch: one 32 px icon button, top right (auto half-circle, sun, moon; click cycles). Same block on every page via shared/apply_theme.py; the build fails if a page differs.
 - "Start here" list at the top of the index (P, 2026-10-14): 8 plain-language questions, each linking to one tool. Questions and the tool picked for each are my choices; the build fails if a linked tool title is not in the tool list.
+
+### Hybrid Load Planner (running and lifting)
+- Separate page (P, 2026-10-14): one week of runs and lifts, repeated up to 12 weeks, giving CTL, ATL, TSB, ATL:CTL and CTL ramp.
+- Lift score = max(10, 100 x lower 1 / upper 0.33 x compound 1 / isolation 0.5 x (1 - 0.12 x reps left on last set) x sqrt(sets / 3)). All factors are estimates fitted to P's anchors (squat to failure 100, OHP to failure about 33, light curls about 10, Tactical Barbell style about 60). Reps left is for the last set; 3 sets is standard. Sets curve: P agreed it must be concave.
+- Several lifts in a day: pool sets within each type; day total = largest type + 0.5 x the others (my estimate; 3 squat sets plus 3 sets leg curls at 2 reps left = 119, looks high).
+- Lifting counts in full for ATL and at an adjustable weight for CTL, default 0.75 (my guess; P wanted ATL weighted above CTL). A common discount on both was rejected as the same as lowering the anchors. Weight below 1 means steady lifters show lower form by design (running 50 + lifting 30 per day: form -7.5 at 0.75, -15 at 0.5).
+- Same-day hit like running TSS (P: DOMS depends on exercise familiarity; same logic as a hard run). New or returning exercises not modelled.
+- Ramp is CTL-based, with an i button splitting it into running/existing versus lifting (exact, since CTL is a linear sum).
