@@ -210,7 +210,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
       <li><b>Easy and long runs.</b> The long run is at most 35% of the week and 150 min. No easy run is longer.</li>
       <li><b>Load.</b> TSS per km = threshold pace&sup2; &divide; (36 &times; pace). CTL 42-day, ATL 7-day, TSB at the end of each day.</li>
       <li><b>Ramp.</b> Each week's distance is solved for the ramp target, held back to keep TSB at or above -10 and never -20. The ramp stays at 0.1 or more.</li>
-      <li><b>Taper.</b> An optional hold week (ramp 0), then a race week at 50 to 80% of the peak week, solved for the race-day TSB.</li>
+      <li><b>Taper.</b> An optional hold week (ramp 0), then a race week at 50 to 80% of the peak week, solved for the race-day TSB. In the race week, a quality session in the last 2 days before the race is run easy instead.</li>
       <li>This is a prototype and does not adapt to what you actually ran.</li>
     </ul>
   </section>
@@ -305,7 +305,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     7: { 0: "E", 1: "Q", 2: "E", 3: "Q", 4: "E", 5: "Q", 6: "L" }
   };
   var DAYN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  var LONG_W = 1.6, LONG_MAX_MIN = 150, LONG_SHARE = 0.35, WCD_MIN = 20, WCD_MAX_MIN = 40, QDAY_FRAC = 0.8;
+  var LONG_W = 1.6, LONG_MAX_MIN = 150, LONG_SHARE = 0.35, WCD_MIN = 20, WCD_MAX_MIN = 40, QDAY_FRAC = 0.8, RACE_EASY = 2;
   var KC = 1 - Math.exp(-1 / 42), KA = 1 - Math.exp(-1 / 7);
 
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("detail").hidden = true; }
@@ -364,7 +364,15 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     }
     // One week for weekly distance V: returns day list and totals.
     function week(V, race) {
-      var lay = layout, f = dose / nQ, q = types.map(function (ty) { return Math.min(f * CAP[ty] * V, sessCap(ty, V)); });
+      // Race week: race day is the last day (Sunday). Any quality session in the RACE_EASY days before it becomes an easy run, so the last hard session leaves at least that many easy days before the race.
+      var lay = layout, nq = nQ, tys = types, ed = eDays, rm = [];
+      if (race) {
+        lay = {}; for (var kk in layout) lay[kk] = layout[kk];
+        for (var dd = 6 - RACE_EASY; dd <= 5; dd++) if (lay[dd] === "Q") { lay[dd] = "E"; rm.push(dd); }
+        nq = 0; ed = 0; for (var k3 in lay) { if (lay[k3] === "Q") nq++; else if (lay[k3] === "E") ed++; }
+        tys = types.slice(0, nq);
+      }
+      var f = nq ? dose / nq : 0, q = tys.map(function (ty) { return Math.min(f * CAP[ty] * V, sessCap(ty, V)); });
       var qTot = q.reduce(function (a, b) { return a + b; }, 0);
       var wcd = q.map(function () { return wcdKm; }), rem, L, E, warns, Lmax = LONG_MAX_MIN * 60 / easyP;
       // Warm-up and cool-down grow so a quality day takes about QDAY_FRAC of an easy day's time (min 20, max 40 min together).
@@ -373,31 +381,31 @@ td.num, th.num { text-align: right; padding-right: 14px; }
         rem = V - qTot - wcd.reduce(function (a, b) { return a + b; }, 0);
         if (rem < 0) { rem = 0; warns.push("Distance too low for this structure"); }
         var Lcap = Math.min(LONG_SHARE * V, Lmax), capNote = LONG_SHARE * V < Lmax ? "Long run capped at " + Math.round(LONG_SHARE * 100) + "% of the week" : "Long run capped at " + LONG_MAX_MIN + " min";
-        L = race ? 0 : rem * LONG_W / (LONG_W + eDays);
+        L = race ? 0 : rem * LONG_W / (LONG_W + ed);
         if (L > Lcap) { L = Lcap; warns.push(capNote); }
-        E = eDays ? (rem - L) / eDays : 0;
-        if (eDays && !race && E > L) { E = L; warns.push(days + " run days limit the distance: no run is longer than the long run"); }
-        if (!eDays) L = Math.min(rem, Lcap);
+        E = ed ? (rem - L) / ed : 0;
+        if (ed && !race && E > L) { E = L; warns.push(days + " run days limit the distance: no run is longer than the long run"); }
+        if (!ed) L = Math.min(rem, Lcap);
         var nw = wcd.map(function (w0, i) {
-          var tq = q[i] * PACE[types[i]], want = QDAY_FRAC * E * easyP - tq;
+          var tq = q[i] * PACE[tys[i]], want = QDAY_FRAC * E * easyP - tq;
           return Math.min(WCD_MAX_MIN * 60, Math.max(WCD_MIN * 60, want)) / easyP;
         });
         var diff = 0; nw.forEach(function (w1, i) { diff += Math.abs(w1 - wcd[i]); wcd[i] = (wcd[i] + w1) / 2; });
         if (diff < 0.001) break;
       }
-      if (eDays && E * easyP / 60 < 20) warns.push("Easy days under 20 min");
-      if (eDays && E * easyP / 60 > 120) warns.push("Easy days over 2 h: consider doubles or more run days");
+      if (ed && E * easyP / 60 < 20) warns.push("Easy days under 20 min");
+      if (ed && E * easyP / 60 > 120) warns.push("Easy days over 2 h: consider doubles or more run days");
       var out = [], qi = 0, tss = [];
       for (var d = 0; d < 7; d++) {
-        var r = layout[d];
+        var r = lay[d];
         if (race && r === "L") { out.push({ d: d, role: "C", km: 0, time: 0, tss: 0 }); tss.push(0); continue; }
         if (!r) { out.push({ d: d, role: "R", km: 0, time: 0, tss: 0 }); tss.push(0); continue; }
-        if (r === "Q") { var ty = types[qi], qk = q[qi], wk = wcd[qi]; qi++; var s = qk * tK(PACE[ty]) + wk * tK(PACE.E); out.push({ d: d, role: "Q", type: ty, q: qk, wcd: wk, km: qk + wk, time: qk * PACE[ty] + wk * PACE.E, tss: s }); tss.push(s); }
+        if (r === "Q") { var ty = tys[qi], qk = q[qi], wk = wcd[qi]; qi++; var s = qk * tK(PACE[ty]) + wk * tK(PACE.E); out.push({ d: d, role: "Q", type: ty, q: qk, wcd: wk, km: qk + wk, time: qk * PACE[ty] + wk * PACE.E, tss: s }); tss.push(s); }
         else if (r === "L") { var s2 = L * tK(PACE.E); out.push({ d: d, role: "L", km: L, time: L * easyP, tss: s2 }); tss.push(s2); }
         else { var s3 = E * tK(PACE.E); out.push({ d: d, role: "E", km: E, time: E * easyP, tss: s3 }); tss.push(s3); }
       }
       var km = out.reduce(function (a, d) { return a + d.km; }, 0);
-      return { days: out, km: km, time: out.reduce(function (a, d) { return a + d.time; }, 0), q: qTot, tss: tss, total: tss.reduce(function (a, b) { return a + b; }, 0), warns: warns };
+      return { days: out, km: km, time: out.reduce(function (a, d) { return a + d.time; }, 0), q: qTot, tss: tss, total: tss.reduce(function (a, b) { return a + b; }, 0), warns: warns, moved: rm };
     }
     function sim(ctl, atl, tss) {
       var minT = Infinity;
@@ -451,6 +459,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
       var Vtsb = solve(function (V) { return -tsbRace(V); }, -raceTsb, peakVp * 1.2);
       var Vtp = Math.min(Math.max(Vtsb, Vlo), Vhi), reached = tsbRace(Vtp);
       var t = week(Vtp, true), s2 = sim(c0, a0, t.tss), nts = ["Taper", "Race-day TSB " + sgn(reached, 10)];
+      if (t.moved.length) nts.push("Quality in the last " + RACE_EASY + " days before the race is run easy");
       if (Vtp <= Vlo + 0.01 && Vtsb < Vlo - 0.05 && reached < raceTsb - 0.5) nts.push("Target not reached at the 50% floor");
       else if (Vtp >= Vhi - 0.01 && Vtsb > Vhi + 0.05) nts.push("Capped at 80% of peak");
       t.warns.forEach(function (x) { nts.push(x); });

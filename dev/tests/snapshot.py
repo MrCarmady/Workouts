@@ -25,6 +25,9 @@ def scenarios():
     out.append(('run-session-calculator','1000m reps',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'unit','m'),fill(pg,'rep','1000')]))
     out.append(('run-session-calculator','3 min reps',lambda pg:[fill(pg,'dist','3'),fill(pg,'time','10:44.80'),fill(pg,'unit','min'),fill(pg,'rep','3')]))
     out.append(('plan-builder','block 4 days',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'week','60'),fill(pg,'wunit','mi'),fill(pg,'days','4'),fill(pg,'ctl','50'),fill(pg,'weeks','10')]))
+    LASTWK="e=>{var s=document.querySelector('#wk');s.selectedIndex=s.options.length-1;s.dispatchEvent(new Event('change',{bubbles:true}))}"
+    out.append(('plan-builder','race week 7 days sub-T',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'week','60'),fill(pg,'wunit','mi'),fill(pg,'days','7'),fill(pg,'ctl','45'),fill(pg,'weeks','16'),fill(pg,'rt','1.2'),fill(pg,'focus','subT'),fill(pg,'taper','7'),pg.eval_on_selector('#wk',LASTWK)]))
+    out.append(('plan-builder','race week 6 days sub-T + intervals',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'week','60'),fill(pg,'wunit','mi'),fill(pg,'days','6'),fill(pg,'ctl','45'),fill(pg,'weeks','12'),fill(pg,'focus','subTI'),fill(pg,'taper','14'),pg.eval_on_selector('#wk',LASTWK)]))
     out.append(('plan-builder','block 6 days taper',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','39:10'),fill(pg,'week','50'),fill(pg,'wunit','mi'),fill(pg,'days','6'),fill(pg,'weeks','8'),fill(pg,'taper','14')]))
     out.append(('hybrid-load-planner','defaults',lambda pg:None))
     out.append(('hybrid-load-planner','equal weight',lambda pg:[fill(pg,'cw','1')]))

@@ -94,6 +94,8 @@ So the -10 limit holds the ramp back, but not below 0.1. The -20 limit always wi
 
 A taper of 7 or 14 days is optional. With 14 days, the penultimate week holds CTL (ramp 0) and the last week is the taper proper. With 7 days, only the last week is the taper. Race day replaces the long run.
 
+In the race week, race day is the Sunday. Any quality session in the 2 days before it (Friday, Saturday) is run as an easy run instead, so the last hard session leaves at least two easy days before the race. The change is a single constant in the page (author's choice of 2; 3 is a one-number change). The distance is then shared among the remaining easy days.
+
 The race week is solved so TSB on the morning of race day (end of the day before) equals the target. The target defaults to +10 and is capped at +10, since more is overkill (author's view). The race week is kept between 50% and 80% of the peak week's distance (author's expectation: about 50 to 80% of normal; the exact bounds are my placeholders). If the 50% floor stops the target being reached, the table says so and shows the TSB reached.
 
 The headline CTL is the peak, at the end of the last build week, not the lower value on race day. The peak is the fitness you take into the race; the CTL model's taper decay overstates how much of it is lost (author's view). Race-day CTL is shown beside it.
