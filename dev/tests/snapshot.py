@@ -94,6 +94,7 @@ def scenarios():
     out.append(('copeland-base','6 days ctl 45',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','45'),fill(pg,'days','6')]))
     out.append(('copeland-base','6 days ctl 30 week 3',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','30'),fill(pg,'days','6'),fill(pg,'wk','3')]))
     out.append(('copeland-base','bad ramp',lambda pg:[fill(pg,'ramp','3')]))
+    out.append(('marathon-plan-recommender','chart hansons beginner table',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','38:43'),fill(pg,'ctl','50'),pg.click('#rows tr[data-n="Hansons Beginner"]'),pg.click('#cbtn')]))
     out.append(('marathon-plan-recommender','defaults',lambda pg:None))
     out.append(('marathon-plan-recommender','18:45 ctl 50',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','50')]))
     out.append(('marathon-plan-recommender','18:45 ctl 70 atl 80',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','70'),fill(pg,'atl','80')]))

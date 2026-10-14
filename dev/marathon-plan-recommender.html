@@ -14,18 +14,19 @@
   --accent-fg: #ffffff;
   --accent-soft: #f6dcd9;
   --warn: #a35a00;
+  --c-ctl: #2a78d6; --c-atl: #eb6834; --c-tsb: #1baf7a;
   --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
   --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
-    --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+    --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; --c-ctl: #3987e5; --c-atl: #d95926; --c-tsb: #199e70; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
-  --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+  --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; --c-ctl: #3987e5; --c-atl: #d95926; --c-tsb: #199e70; color-scheme: dark;
 }
 body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
 .wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 20px; }
@@ -111,6 +112,31 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 .paces b { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
 .paces span { font-size: .7rem; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 .paces small { display: block; font-size: .78rem; color: var(--muted); margin-top: 2px; }
+
+/* Load chart */
+#rows tr.pick { cursor: pointer; }
+#rows tr.pick:hover td { background: var(--surface-2); }
+#rows tr.sel td { background: var(--accent-soft); }
+#rows tr.pick:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.chead { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; justify-content: space-between; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .85rem; color: var(--muted); }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 3px solid; vertical-align: middle; margin-right: 6px; }
+.chartwrap { position: relative; min-width: 0; }
+#chart { width: 100%; height: auto; display: block; touch-action: pan-y; }
+#chart text { fill: var(--muted); font-family: var(--font-body); font-size: 11px; }
+#chart .ax { stroke: var(--line); stroke-width: 1; }
+#chart .zero { stroke: var(--muted); stroke-width: 1; opacity: .6; }
+#chart .ref { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; }
+#chart .ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+#chart .hair { stroke: var(--fg); stroke-width: 1; opacity: .5; }
+#chart text.lab { font-weight: 600; font-size: 12px; }
+#ctip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); padding: 8px 10px; font-size: .85rem; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,.18); z-index: 2; }
+#ctip b { font-variant-numeric: tabular-nums; }
+#ctip .r { display: flex; justify-content: space-between; gap: 14px; }
+#ctip .r span { color: var(--muted); }
+#ctip .r i { display: inline-block; width: 10px; border-top: 3px solid; margin-right: 6px; vertical-align: middle; }
+#ctip .h { color: var(--muted); margin-bottom: 4px; }
+#cbtn { justify-self: start; }
 </style>
 <main class="wrap">
   <header class="head">
@@ -194,6 +220,16 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       </div>
       <p class="note" id="rnote"></p>
     </div>
+  </section>
+
+
+  <section id="chartbox" class="panel" hidden>
+    <div class="chead"><h2 id="ctitle">Load</h2>
+      <div class="legend"><span><i style="border-color:var(--c-ctl)"></i>CTL</span><span><i style="border-color:var(--c-atl)"></i>ATL</span><span><i style="border-color:var(--c-tsb)"></i>Form (CTL - ATL)</span></div></div>
+    <p class="note" id="csub"></p>
+    <div class="chartwrap"><svg id="chart" role="img" tabindex="0" aria-label="CTL, ATL and form by day for the chosen plan"></svg><div id="ctip" hidden></div></div>
+    <button type="button" id="cbtn" aria-expanded="false">Show as table</button>
+    <div class="tablewrap" id="ctab" hidden></div>
   </section>
 
   <section class="panel method">
@@ -1001,7 +1037,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   ];
   var MODS = { copeland: COPELAND, daniels: DANIELS, hansons: HANSONS, pfitzinger: PFITZ };
 
-  function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; }
+  function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("chartbox").hidden = true; }
   function num(id) { var s = ($(id).value || "").trim().replace(",", "."); return s === "" ? null : Number(s); }
   function sumArr(a) { return a.reduce(function (s, x) { return s + x; }, 0); }
 
@@ -1018,6 +1054,108 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     });
     return o;
   }
+
+
+  // ---- Load chart for the chosen plan ----
+  var RES = [], C0 = 0, A0 = 0, FLOOR = -20, SELN = null, SER = null, CIDX = -1, DN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function se(n, at, txt) { var e = document.createElementNS(SVGNS, n); for (var k in at) e.setAttribute(k, at[k]); if (txt !== undefined) e.textContent = txt; return e; }
+  function series(x) {
+    var c = C0, a = A0, o = [{ w: 0, d: -1, c: c, a: a }];
+    x.seq.forEach(function (w, i) { w.d7.forEach(function (t, d) { c += (t - c) * KC; a += (t - a) * KA; o.push({ w: i + 1, d: d, c: c, a: a }); }); });
+    return o;
+  }
+  function nice(lo, hi, n) {
+    var span = hi - lo, st = Math.pow(10, Math.floor(Math.log(span / n) / Math.LN10)), m = span / n / st;
+    st *= m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10;
+    var t = [], v = Math.ceil(lo / st) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v * 1e6) / 1e6);
+    return t;
+  }
+  function drawChart() {
+    var box = $("chartbox"), sel = null;
+    RES.forEach(function (x) { if (x.name === SELN) sel = x; });
+    if (!sel) { box.hidden = true; return; }
+    box.hidden = false;
+    var svg0 = $("chart"), S = series(sel); SER = S;
+    $("ctitle").textContent = sel.name + ": CTL, ATL and form";
+    $("csub").textContent = "Daily values from your start CTL " + C0.toFixed(0) + " and ATL " + A0.toFixed(0) + (sel.j > 0 ? ", holding your current load until week " + (sel.j + 1) + "." : ".") + " Click another plan in the table to change it.";
+    var W = Math.max(300, Math.min(760, svg0.parentNode.clientWidth || 760)), H = W < 520 ? 270 : 320, m = { l: 34, r: W < 520 ? 62 : 74, t: 14, b: 28 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
+    var lo = FLOOR, hi = 0;
+    S.forEach(function (p) { lo = Math.min(lo, p.c - p.a); hi = Math.max(hi, p.c, p.a); });
+    lo = Math.floor((lo - 2) / 5) * 5; hi = Math.ceil((hi + 2) / 5) * 5;
+    var N = S.length - 1, X = function (i) { return m.l + pw * i / N; }, Y = function (v) { return m.t + ph * (hi - v) / (hi - lo); };
+    var svg = $("chart"); while (svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    nice(lo, hi, 6).forEach(function (v) {
+      svg.appendChild(se("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), "class": v === 0 ? "zero" : "ax" }));
+      svg.appendChild(se("text", { x: m.l - 6, y: Y(v) + 4, "text-anchor": "end" }, String(v)));
+    });
+    var nw = sel.seq.length, step = W < 520 ? (nw > 12 ? 4 : 2) : nw > 20 ? 4 : nw > 10 ? 2 : 1;
+    for (var wk = 1; wk <= nw; wk += step) svg.appendChild(se("text", { x: X((wk - 1) * 7 + 3.5), y: H - 8, "text-anchor": "middle" }, "W" + wk));
+    svg.appendChild(se("line", { x1: m.l, x2: W - m.r, y1: Y(FLOOR), y2: Y(FLOOR), "class": "ref" }));
+    svg.appendChild(se("text", { x: m.l + 4, y: Y(FLOOR) - 4 }, "Form floor " + FLOOR));
+    if (sel.j > 0) {
+      svg.appendChild(se("line", { x1: X(sel.j * 7), x2: X(sel.j * 7), y1: m.t, y2: H - m.b, "class": "ref" }));
+      svg.appendChild(se("text", { x: X(sel.j * 7) + 4, y: m.t + 10 }, "Joins W" + (sel.j + 1)));
+    }
+    var KEYS = [["c", "CTL", "--c-ctl"], ["a", "ATL", "--c-atl"], ["f", "Form", "--c-tsb"]];
+    KEYS.forEach(function (k) {
+      var d = S.map(function (p, i) { var v = k[0] === "f" ? p.c - p.a : p[k[0]]; return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ");
+      svg.appendChild(se("path", { d: d, "class": "ln", style: "stroke:var(" + k[2] + ")" }));
+    });
+    var last = S[N], ends = [[last.c, "CTL"], [last.a, "ATL"], [last.c - last.a, "Form"]].map(function (e, i) { return { y: Y(e[0]), t: e[1] + " " + e[0].toFixed(0), v: e[0], k: KEYS[i][2] }; });
+    ends.sort(function (p, q) { return p.y - q.y; });
+    for (var i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
+    ends.forEach(function (e) { svg.appendChild(se("text", { x: W - m.r + 6, y: e.y + 4, "class": "lab", style: "fill:var(--fg)" }, e.t)); });
+    var hair = se("line", { y1: m.t, y2: H - m.b, "class": "hair", visibility: "hidden" }); svg.appendChild(hair);
+    var dots = KEYS.map(function (k) { var c = se("circle", { r: 4, style: "fill:var(" + k[2] + ");stroke:var(--surface);stroke-width:2", visibility: "hidden" }); svg.appendChild(c); return c; });
+    svg.__g = { X: X, Y: Y, N: N, W: W, m: m, hair: hair, dots: dots };
+    // table
+    var rows = ["<table><thead><tr><th>Week</th><th class='num'>Plan TSS/day</th><th class='num'>CTL</th><th class='num'>ATL</th><th class='num'>Form</th><th class='num'>ATL / CTL</th></tr></thead><tbody>"];
+    sel.seq.forEach(function (w, i) {
+      var p = S[(i + 1) * 7], tss = sumArr(w.d7) / 7;
+      rows.push("<tr><td>W" + (i + 1) + (i < sel.j ? " (held)" : "") + "</td><td class='num'>" + tss.toFixed(0) + "</td><td class='num'>" + p.c.toFixed(1) + "</td><td class='num'>" + p.a.toFixed(1) + "</td><td class='num'>" + sgn(p.c - p.a) + "</td><td class='num'>" + (p.a / p.c).toFixed(2) + "</td></tr>");
+    });
+    $("ctab").innerHTML = rows.join("") + "</tbody></table><p class='note'>Values at the end of each week.</p>";
+  }
+  function showAt(i) {
+    var svg = $("chart"), g = svg.__g, tip = $("ctip"); if (!g || !SER) return;
+    i = Math.max(0, Math.min(g.N, i)); CIDX = i;
+    var p = SER[i], f = p.c - p.a;
+    g.hair.setAttribute("x1", g.X(i)); g.hair.setAttribute("x2", g.X(i)); g.hair.setAttribute("visibility", "visible");
+    [p.c, p.a, f].forEach(function (v, k) { g.dots[k].setAttribute("cx", g.X(i)); g.dots[k].setAttribute("cy", g.Y(v)); g.dots[k].setAttribute("visibility", "visible"); });
+    tip.textContent = "";
+    var h = document.createElement("div"); h.className = "h"; h.textContent = p.w === 0 ? "Start" : "Week " + p.w + ", " + DN[p.d]; tip.appendChild(h);
+    [["CTL", p.c, "--c-ctl"], ["ATL", p.a, "--c-atl"], ["Form", f, "--c-tsb"]].forEach(function (r) {
+      var d = document.createElement("div"); d.className = "r";
+      var l = document.createElement("span"), ic = document.createElement("i"); ic.style.borderColor = "var(" + r[2] + ")"; l.appendChild(ic); l.appendChild(document.createTextNode(r[0]));
+      var b = document.createElement("b"); b.textContent = r[0] === "Form" ? sgn(r[1]) : r[1].toFixed(1);
+      d.appendChild(l); d.appendChild(b); tip.appendChild(d);
+    });
+    var d2 = document.createElement("div"); d2.className = "r"; var l2 = document.createElement("span"); l2.textContent = "ATL / CTL"; var b2 = document.createElement("b"); b2.textContent = (p.a / p.c).toFixed(2); d2.appendChild(l2); d2.appendChild(b2); tip.appendChild(d2);
+    tip.hidden = false;
+    var wrap = svg.parentNode, sc = svg.getBoundingClientRect().width / g.W, x = g.X(i) * sc, tw = tip.offsetWidth;
+    tip.style.left = Math.max(0, Math.min(wrap.clientWidth - tw, x + 12 + tw > wrap.clientWidth ? x - tw - 12 : x + 12)) + "px"; tip.style.top = "8px";
+  }
+  function hideAt() { var g = $("chart").__g; if (!g) return; g.hair.setAttribute("visibility", "hidden"); g.dots.forEach(function (d) { d.setAttribute("visibility", "hidden"); }); $("ctip").hidden = true; }
+  (function () {
+    var svg = document.getElementById("chart");
+    function idx(e) { var g = svg.__g, r = svg.getBoundingClientRect(); if (!g) return 0; var x = (e.clientX - r.left) / r.width * g.W; return Math.round((x - g.m.l) / (g.W - g.m.l - g.m.r) * g.N); }
+    svg.addEventListener("pointermove", function (e) { showAt(idx(e)); });
+    svg.addEventListener("pointerdown", function (e) { showAt(idx(e)); });
+    svg.addEventListener("pointerleave", hideAt);
+    svg.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { e.preventDefault(); showAt(CIDX < 0 ? 0 : CIDX + 1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); showAt(CIDX < 0 ? 0 : CIDX - 1); }
+      else if (e.key === "Escape") hideAt();
+    });
+    svg.addEventListener("blur", hideAt);
+    var rt = null; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { if (!document.getElementById("chartbox").hidden) drawChart(); }, 150); });
+    document.getElementById("cbtn").addEventListener("click", function () {
+      var t = document.getElementById("ctab"), b = document.getElementById("cbtn"), show = t.hidden;
+      t.hidden = !show; b.textContent = show ? "Hide table" : "Show as table"; b.setAttribute("aria-expanded", show ? "true" : "false");
+    });
+  })();
 
   function update() {
     $("err").hidden = true; $("resbox").hidden = false;
@@ -1053,7 +1191,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       for (var i = 0; i + 4 <= tp.length; i++) pk = Math.max(pk, sumArr(tp.slice(i, i + 4)) / 28);
       var ws = w.slice(j, w.length - 1).map(function (x) { return x.sec; }), avgS = ws.length ? sumArr(ws) / ws.length : 0, maxS = ws.length ? Math.max.apply(null, ws) : 0;
       var okF = s.minF >= floor - 1e-9, okR = s.maxR <= maxr + 1e-9;
-      res.push({ name: p[2], weeks: w.length, join: j + 1, light: light, w1: tp[0] / 7, pk: pk, avgS: avgS, maxS: maxS, minF: s.minF, wF: s.wF, maxR: s.maxR, wR: s.wR, okF: okF, okR: okR });
+      res.push({ seq: seq, j: j, name: p[2], weeks: w.length, join: j + 1, light: light, w1: tp[0] / 7, pk: pk, avgS: avgS, maxS: maxS, minF: s.minF, wF: s.wF, maxR: s.maxR, wR: s.wR, okF: okF, okR: okR });
     });
     var fits = res.filter(function (x) { return x.okF && x.okR; });
     var top = null; fits.forEach(function (x) { if (!top || x.pk > top.pk) top = x; });
@@ -1065,8 +1203,16 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       if (!x.okR) msg.push("A:C " + x.maxR.toFixed(2) + " in W" + x.wR);
       var cell = msg.length ? "<span class='flag red'>" + msg.join("; ") + "</span>" : "Fits";
       if (x.light) cell += " <span class='flag'>Never reaches your load</span>";
-      return "<tr><td>" + x.name + "</td><td class='num'>" + x.weeks + "</td><td class='num'>" + x.join + "</td><td class='num'>" + x.w1.toFixed(0) + "</td><td class='num'>" + x.pk.toFixed(0) + "</td><td class='num'>" + hm(x.avgS) + "</td><td class='num'>" + hm(x.maxS) + "</td><td class='num'>" + sgn(x.minF) + "</td><td class='num'>" + x.maxR.toFixed(2) + "</td><td class='q2'>" + cell + "</td></tr>";
+      return "<tr class='pick" + (x.name === SELN ? " sel" : "") + "' tabindex='0' data-n='" + x.name + "'><td>" + x.name + "</td><td class='num'>" + x.weeks + "</td><td class='num'>" + x.join + "</td><td class='num'>" + x.w1.toFixed(0) + "</td><td class='num'>" + x.pk.toFixed(0) + "</td><td class='num'>" + hm(x.avgS) + "</td><td class='num'>" + hm(x.maxS) + "</td><td class='num'>" + sgn(x.minF) + "</td><td class='num'>" + x.maxR.toFixed(2) + "</td><td class='q2'>" + cell + "</td></tr>";
     }).join("");
+    RES = res; C0 = c0; A0 = a0; FLOOR = floor;
+    if (!res.some(function (x) { return x.name === SELN; })) SELN = (top || res[0] || {}).name;
+    Array.prototype.forEach.call($("rows").querySelectorAll("tr.pick"), function (tr) {
+      tr.classList.toggle("sel", tr.getAttribute("data-n") === SELN);
+      tr.addEventListener("click", function () { SELN = tr.getAttribute("data-n"); update(); });
+      tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); SELN = tr.getAttribute("data-n"); update(); } });
+    });
+    drawChart();
     $("rnote").textContent = "Form is CTL minus ATL at the end of each day, from your start values, through the last full day before the marathon. Week numbers say where the lowest form and highest ratio occur.";
     $("notes").innerHTML = [
       "<b>Test.</b> Each plan is run day by day from your start CTL and ATL (see Joining late). A plan fits if form never drops below the lowest form allowed and ATL / CTL never exceeds the limit. The defaults are -20 and 1.3.",

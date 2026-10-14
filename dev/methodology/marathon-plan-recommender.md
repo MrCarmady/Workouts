@@ -58,3 +58,10 @@ These are Marathon Plans' defaults, fixed here:
 
 - A plan that fits is not a plan that suits you. It says nothing about mileage you can absorb, long-run length or injury history.
 - The plan code is a copy of Marathon Plans'. A build test fails if the two differ.
+
+### Load chart
+
+- Click a plan row to chart it. By default the chart shows the most demanding plan that fits, or the first plan if none fits.
+- The lines are daily CTL, ATL and form (CTL minus ATL), from your start CTL and ATL. The held weeks before the join week are included (flat at your current load). Values are at the end of each day.
+- The dashed horizontal line is the lowest form allowed. The dashed vertical line marks the join week.
+- All three lines are in TSS per day on one axis. The ATL/CTL ratio is not drawn: it has a different scale. Hover (or the arrow keys) shows it with the other values, and the table view lists end-of-week CTL, ATL, form and ratio.
