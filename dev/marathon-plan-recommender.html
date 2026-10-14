@@ -55,6 +55,11 @@ input, select { box-sizing: border-box; height: 2.75rem; font: inherit; font-siz
 input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 label.chk { display: flex; align-items: center; gap: 10px; min-height: 2.75rem; text-transform: none; letter-spacing: 0; font-size: .95rem; font-weight: 500; color: var(--fg); }
 label.chk input { width: 1.2rem; height: 1.2rem; accent-color: var(--accent); }
+.pair { display: flex; gap: 6px; } .pair input { flex: 1; min-width: 0; } .pair select { width: auto; flex: none; }
+#euse { font: inherit; font-size: .85rem; font-weight: 600; color: #fff; background: var(--accent); border: 0; border-radius: 2px; padding: 8px 14px; cursor: pointer; }
+#euse:disabled { opacity: .45; cursor: default; }
+#euse:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.struct + p { margin: 10px 0 0; }
 .note { font-size: .85rem; color: var(--muted); margin: 0; }
 .warn { color: var(--warn); font-size: .88rem; margin: 0; }
 .res { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
@@ -150,6 +155,27 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         <input id="join" type="text" inputmode="decimal" autocomplete="off" value="85">
       </label>
     </div>
+  </section>
+
+  <section class="panel">
+    <h2>Don't know your CTL?</h2>
+    <p class="note">Estimate it from your recent running. This is a rough estimate: it assumes your training was steady and uses a typical TSS per hour for your race time, with easy running at your average easy pace, or 65% of 5km speed if you leave it blank. Slower easy running than you enter makes the estimate run high, faster makes it run low. A CTL from your watch or training log is better.</p>
+    <div class="grid4">
+      <label>Average hours per week, last 6 weeks
+        <input id="eh" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="6.5 or 6:30">
+      </label>
+      <label>Hours in the last 7 days
+        <input id="el" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="same as average">
+      </label>
+      <label>Average easy pace
+        <span class="pair"><input id="ep" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="blank = 65% of 5km speed"><select id="epu" aria-label="Easy pace unit"><option value="km" selected>/km</option><option value="mi">/mi</option></select></span>
+      </label>
+      <label>Share of running time at threshold or harder (%)
+        <input id="emix" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="rough guess, blank = 15">
+      </label>
+    </div>
+    <p class="struct" id="eout"></p>
+    <p><button type="button" id="euse" disabled>Use these as start CTL and ATL</button></p>
   </section>
 
   <p class="warn" id="err" hidden></p>
@@ -1075,6 +1101,46 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       if (t !== null) { el.value = norm(t); el.dispatchEvent(new Event("input", { bubbles: true })); }
     });
   })();
+
+  // ---- CTL estimate from recent hours ----
+  var EST = null;
+  function hrs(v) { v = String(v || "").trim(); if (!v) return null; var m = /^(\d+):(\d{1,2})$/.exec(v); if (m) return +m[1] + +m[2] / 60; var x = parseFloat(v.replace(",", ".")); return isFinite(x) && /^[\d.,]+$/.test(v) ? x : NaN; }
+  function estimate() {
+    EST = null; $("euse").disabled = true;
+    var out = $("eout"), a = hrs($("eh").value), l = hrs($("el").value);
+    if (a === null) { out.textContent = ""; return; }
+    if (!isFinite(a) || a < 1 || a > 30) { out.textContent = "Average hours per week must be from 1 to 30."; return; }
+    if (l !== null && (!isFinite(l) || l < 0 || l > 30)) { out.textContent = "Hours in the last 7 days must be from 0 to 30."; return; }
+    var D = parseFloat($("dist").value), t = parseTime($("time").value);
+    if (t === null || t <= 0) { out.textContent = "Enter a valid race time first, the estimate uses it."; return; }
+    var riegel5 = t * Math.pow(5 / D, K) / 5, p5 = riegel5 + adj(D), c = { D: D, t: t, riegel5: riegel5, p5: p5 }, rp = mkRaceP(c);
+    var thr = rp(16), easy = rp(5) / 0.65, note = "", qv = $("emix").value.trim(), q = qv === "" ? 0.15 : parseFloat(qv.replace(",", ".")) / 100;
+    if (!isFinite(q) || !/^[\d.,]*$/.test(qv) || q < 0 || q > 0.5) { out.textContent = "Share of running time at threshold or harder must be from 0 to 50%."; return; }
+    var ev = $("ep").value.trim();
+    if (ev) {
+      var es = parseTime(ev);
+      if (es === null || es <= 0) { out.textContent = "Enter the easy pace like 5:30 or 530."; return; }
+      var ek = $("epu").value === "mi" ? es / MILE : es;   // seconds per km
+      if (ek < 150 || ek > 600) { out.textContent = "That easy pace is outside 2:30 to 10:00 per km. Check the unit."; return; }
+      if (ek <= thr) { out.textContent = "That easy pace is as fast as your threshold pace (" + mmss(thr) + " per km). Check the unit and the race time."; return; }
+      easy = ek;
+      var pct = rp(5) / ek * 100;
+      note = " Your easy pace is " + pct.toFixed(0) + "% of your 5km speed" + (pct < 50 || pct > 80 ? ", which is unusual: check the unit and race time." : ".");
+    }
+    var rate = (1 - q) * Math.pow(thr / easy, 2) * 100 + q * 100;   // TSS per hour
+    if (l === null) l = a;
+    var ctl = a * rate / 7, atl = (l * (1 - Math.exp(-1)) + a * Math.exp(-1)) * rate / 7;
+    EST = { ctl: ctl, atl: atl };
+    out.textContent = "Estimated CTL " + ctl.toFixed(0) + ", ATL " + atl.toFixed(0) + " (about " + rate.toFixed(0) + " TSS per hour)." + note;
+    $("euse").disabled = false;
+  }
+  $("euse").addEventListener("click", function () {
+    if (!EST) return;
+    $("ctl").value = EST.ctl.toFixed(0); $("atl").value = EST.atl.toFixed(0);
+    $("ctl").dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  ["eh", "el", "emix", "ep", "epu", "time", "dist"].forEach(function (id) { $(id).addEventListener("input", estimate); $(id).addEventListener("change", estimate); });
+  estimate();
 
   restore();
   ["dist", "time", "ctl", "atl", "floor", "maxr", "join"].forEach(function (id) {
