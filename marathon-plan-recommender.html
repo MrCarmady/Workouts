@@ -647,7 +647,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   ];
   var DAYN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   // Rep specs: minutes per rep, pace key, walked recovery in seconds
-  var REP = { 1000: { t: 3, p: "T16", rec: 60 }, 1600: { t: 6, p: "T21", rec: 75 }, 2000: { t: 8, p: "T30", rec: 90 }, 3000: { t: 10, p: "T32", rec: 90 }, 3200: { t: 12, p: "T32", rec: 120 }, 5000: { t: 16.5, p: "F5", rec: 180 } };
+  var REP = { 1000: { t: 3, p: "R60", rec: 60 }, 1600: { t: 6, p: "R90", rec: 75 }, 2000: { t: 8, p: "R120", rec: 90 }, 3000: { t: 10, p: "R150", rec: 90 }, 3200: { t: 12, p: "R180", rec: 120 }, 5000: { t: 16.5, p: "F5", rec: 180 } };
 
     var P = {}, THR = 0, WALK = 600, REP5 = 16.5;   // P: seconds per km
     function tssOf(sec, pace) { return sec / 3600 * Math.pow(THR / pace, 2) * 100; }
@@ -663,7 +663,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       else if (d.k === "EK") r = [segKm("Easy " + d.km + " km", d.km, P.E, "Easy " + pk(P.E))];
       else if (d.k === "S") {
         var sp = REP[d.m], t = d.m === 5000 ? REP5 : sp.t, pace = P[sp.p], rec = d.n > 1 ? sp.rec : 0;
-        var work = seg(d.n + " × " + mn(t) + " min (" + d.m + "m)" + (rec ? " w/ " + rec + " s walk" : ""), d.n * t * 60, pace, ({ T16: "Race(16) ", T21: "Race(21) ", T30: "Race(30) ", T32: "Race(32) ", F5: "MP+1.5% " }[sp.p]) + pk(pace));
+        var work = seg(d.n + " × " + mn(t) + " min (" + d.m + "m)" + (rec ? " w/ " + rec + " s walk" : ""), d.n * t * 60, pace, ({ R60: "60-min race ", R90: "90-min race ", R120: "120-min race ", R150: "150-min race ", R180: "180-min race ", F5: "MP+1.5% " }[sp.p]) + pk(pace));
         if (rec) { var rs = (d.n - 1) * rec; work.sec += rs; work.tss += tssOf(rs, WALK); work.km += rs / WALK; }
         r = wc(10).concat([work, easy("Cooldown 10 min", 10)]);
       }
@@ -696,8 +696,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       offM = marathonOff(c.riegel5, null);   // 70 miles a week
       var raceP = mkRaceP(c), mp = raceP(MAR);
       THR = raceP(16);
-      P = { E: raceP(5) / 0.65, T16: raceP(16), T21: raceP(21), T30: raceP(30), T32: raceP(32), M: mp, F5: mp / 1.015, HM: raceP(HM), MILE: raceP(MILE / 1), R5: raceP(5), R10: raceP(10) };
-      var paces = [["E", "Easy cap"], ["T16", "3 min reps"], ["T21", "6 min reps"], ["T30", "8 min reps"], ["T32", "10-12 min reps"], ["F5", "5km reps"], ["M", "Marathon"]].map(function (x) { return [x[1], pk(P[x[0]]), "/" + U]; });
+      var timeP = function (min) { var lo = 0.5, hi = 100; for (var q = 0; q < 60; q++) { var m = (lo + hi) / 2; if (raceP(m) * m < min * 60) lo = m; else hi = m; } return raceP((lo + hi) / 2); };   // pace of a race lasting min minutes
+      P = { E: raceP(5) / 0.65, R60: timeP(60), R90: timeP(90), R120: timeP(120), R150: timeP(150), R180: timeP(180), M: mp, F5: mp / 1.015, HM: raceP(HM), MILE: raceP(MILE / 1), R5: raceP(5), R10: raceP(10) };
+      var paces = [["E", "Easy cap"], ["R60", "3 min reps"], ["R90", "6 min reps"], ["R120", "8 min reps"], ["R150", "10 min reps"], ["R180", "12 min reps"], ["F5", "5km reps"], ["M", "Marathon"]].map(function (x) { return [x[1], pk(P[x[0]]), "/" + U]; });
       var KEY = { S: 1, PARK: 1, R10: 1, RHM: 1, MP10: 1, MP3: 1, PROG: 1, MAR: 1 };
       var weeks = [];
       PLAN.forEach(function (w, i) {
@@ -718,7 +719,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         title: "15 weeks", paces: paces, weeks: weeks,
         wnote: "Week 15 ends on the morning of the marathon. Its time, distance and TSS include the marathon at marathon pace; CTL and ATL are for the morning of the race. Distances are estimated from times at the paces above, and walked recoveries count at 100 m per minute (6 km/h).",
         notes: [
-          "<b>Reps.</b> Reps are run by time, with the book's rep counts: 1000m = 3 min at race(16), 1600m = 6 min at race(21), 2000m = 8 min at race(30), 3000m = 10 min and 3200m = 12 min at race(32), 5000m = 15 to 18 min at 1.5% faster than marathon pace. Reps are set from current fitness, not goal pace.",
+          "<b>Reps.</b> Reps are run by time, with the book's rep counts: 1000m = 3 min at the pace of a 60-minute race, 1600m = 6 min at 90-minute race pace, 2000m = 8 min at 120, 3000m = 10 min at 150 and 3200m = 12 min at 180 (my extension, slower than the 10-min pace), 5000m = 15 to 18 min at 1.5% faster than marathon pace. Reps are set from current fitness, not goal pace.",
           "<b>Recoveries.</b> Walked at 6 km/h: 60 s after 1000m, 75 s after 1600m, 90 s after 2000m and 3000m, 120 s after 3200m and 180 s after 5000m reps. They count for time and TSS but not distance.",
           "<b>Warm-up and cooldown.</b> 10 min each at the easy cap. Races use 10 min, but 5km and 10km races add a 20 min warm-up with 2 &times; 2 min at half-marathon pace and 4 strides. Easy running is at 65% of 5km speed, as a cap.",
           "<b>Marathon pace.</b> The Race Prediction Calculator's marathon (70 miles a week). Week 13's 10km and week 14's 3 &times; 10 min are at that pace, and week 14's 3 &times; 27.5 min is progressive at 92%, 93% and 100% of marathon speed.",

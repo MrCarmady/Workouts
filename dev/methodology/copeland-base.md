@@ -54,20 +54,20 @@ Sub-threshold work is kept at or under 25% of running time. Walked recoveries ar
 
 | Rep | Pace | Recovery |
 |---|---|---|
-| 3 min | race(16) | 60 s |
-| 6 min | race(21) | 75 s |
-| 8 min | race(30) | 90 s |
-| 10 min | race(32) | 90 s |
-| 12 min | race(32) | 120 s |
+| 3 min | 60-min race | 60 s |
+| 6 min | 90-min race | 75 s |
+| 8 min | 120-min race | 90 s |
+| 10 min | 150-min race | 90 s |
+| 12 min | 180-min race | 120 s |
 
-These are the Copeland plan's values. Other rep lengths (3.5, 4, 5, 7, 9, 11 min) are interpolated between them, in race distance and in recovery (rounded to 5 s). The interpolation and the ladder minimums are my choices, not the author's.
+These are the Copeland plan's values, restated in time (2026-10-14). "60-min race" means the pace of a race lasting 60 minutes, from the race model. The 60, 90 and 150 min anchors fit Copeland's printed 5k-vs-rep-pace table at seven 5k times (15:00 to 28:20) within 2 s/km, always slightly slower than the book. The earlier distance anchors (16, 21, 32 km) drifted with runner speed, so they were the wrong frame. The 120 min (8 min reps) and 180 min (12 min reps) anchors are my extension: the book's table has only 3, 6 and 10 min reps. Other rep lengths are interpolated between anchors, in anchor time and in recovery (rounded to 5 s). The interpolation and the ladder minimums are my choices, not the author's.
 
 ### Load
 
 - TSS per segment = hours x (threshold pace / pace)^2 x 100, threshold = race(16).
 - Recoveries are walked at 6 km/h (100 m per minute). They count for time, TSS and distance.
 - CTL has a 42-day and ATL a 7-day time constant. CTL, ATL and ramp are at the end of each week.
-- Marathon pace for the 70-mile slow-down is only used to keep race(32) the same as on Marathon Plans.
+- The race model's 70-mile marathon slow-down applies to long-race paces, as on Marathon Plans.
 
 ### Limits
 

@@ -121,7 +121,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Load: same TSS rule as the Daniels page; race day not scored; start CTL = week 1 TSS / 7 if blank.
 - 2QD (71-85 mi) added. Backlog: none open for Daniels.
 ### Copeland Marathon Plan
-- 15-week marathon add-on, weekly layout as printed in the book. Reps set by time at current fitness: 1000m = 3 min at race(16), 1600m = 6 min at race(21), 2000m = 8 min at race(30), 3000m = 10 min and 3200m = 12 min at race(32), 5000m = 15-18 min (default 16.5) at MP, 1.5% faster. Recoveries 60/75/90/90/120/180 s, walked at 6 km/h (TSS and time, not distance).
+- 15-week marathon add-on, weekly layout as printed in the book. Reps set by time at current fitness: 1000m = 3 min at 60-min race pace, 1600m = 6 min at 90-min, 2000m = 8 min at 120-min, 3000m = 10 min at 150-min and 3200m = 12 min at 180-min race pace (changed 2026-10-14 from distance anchors race(16/21/30/32); the 60/90/150 anchors fit Copeland's pace table within 2 s/km, slightly slower; 120 and 180 are my extension), 5000m = 15-18 min (default 16.5) at MP, 1.5% faster. Recoveries 60/75/90/90/120/180 s, walked at 6 km/h (TSS and time, not distance).
 - Warm-up and cooldown 10 min each; 5km/10km races 20 min warm-up with 2 x 2 min at HM pace and 4 strides. Week 14 Tue progressive 92/93/100% of MP speed; week 14 Thu typo read as 8 x 1000m.
 - Marathon pace = site prediction at 70 mi a week, no goal input. Easy = 65% of 5km speed (cap). Load as other plan pages; race day not scored; start CTL = week 1 TSS / 7 if blank (high, no ramp-in).
 
@@ -132,7 +132,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Week: Mon/Wed/Fri easy, Tue long, Thu medium, Sat short sub-T, Sun long easy (about 25% of the week). Sub-T work at or under 25% of running time (recoveries excluded).
 - Ladder (P): min 2x10, 2x6, 4x3; basic 3x10, 5x6, 10x3; extend long (3x11, 3x12, 4x10), then medium (7x5, 5x7, 6x6), then short (8x4, 10x3.5, 9x4, 10x4 only over 8 h). Scale down in reverse: short, medium, long.
 - Ramp: largest weekly time (1 min steps, floor 4 h) with CTL ramp at or under target (default 1, input 0.1 to 2). Start ATL = CTL.
-- My choices, not confirmed: interpolated rep pace and recovery for 3.5, 4, 5, 7, 9, 11 min; ladder minimums; 30 min easy-run floor; plan week 1 is not a ladder rung.
+- My choices, not confirmed: interpolated rep pace and recovery for 3.5, 4, 5, 7, 9, 11 min; 120-min (8 min reps) and 180-min (12 min reps) anchors (the 60, 90, 150 anchors fit the book table); ladder minimums; 30 min easy-run floor; plan week 1 is not a ladder rung.
 
 ### Marathon Plan Recommender (running)
 - Separate page (P, 2026-10-13). Inputs: race, start CTL, start ATL (blank = CTL), lowest form (default -20), highest ATL/CTL (default 1.3).
