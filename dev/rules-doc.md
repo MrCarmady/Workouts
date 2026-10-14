@@ -63,7 +63,7 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - Open: a "Recalculate all" button, to recompute stored implied thresholds from raw inputs after a model change.
 
 ## 9. Hard Workout Predictor
-- Anchors (P): 400m with 60s rest = mile pace (8 to 10 reps); 800m, 90s = 3k; 1000m, 60s = 5k; 1600m, 2 min = 8k (4x1600m); 3000m, 3 min = 10k; 5000m, 3 min = marathon pace to 2% faster. Placeholders: 600m = 2k, 1200m = 5k, 2000m = 8k.
+- Anchors (P): 400m with 60s rest = mile pace (8 to 10 reps); 800m, 90s = 3k; 1000m, 60s = 5k; 1600m, 2 min = 8k (4x1600m); 3000m, 3 min = 10k; 5000m, 3 min = marathon pace to 2% faster. 2000m, 2 min = 8k confirmed (P, 2026-10-13: 3x2000m at RPE 8 is a light 10k session; 6k would be extra cautious). Placeholders: 600m = 2k, 1200m = 5k.
 - Anchors apply at RPE 8 and standard rest (P).
 - Rep count must change the answer (P). Short-distance predictors carry more volume than the race, long ones less; the crossover is about 5 to 10km. Equivalent race = anchor race x (reps / typical reps)^1.25 above the typical count, ^0.8 below. Exponents and typical counts are my placeholders, fitted to P's examples.
 - Show the nearest common race distance, preferring the shorter, rounder one (P). The 5% round-up and the distance list are mine.
@@ -82,7 +82,7 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - 10-week block to CTL 60 and TSB +10 from CTL 41 (constant build TSS, one taper week): build about 494 TSS a week, taper about 266. The 1.9 ramp cap and -10 TSB limit stop this, so it is not reachable.
 
 ## Open questions
-- Hard Workout Predictor: confirm the RPE slope, the 1% band, typical rep counts, exponents, the 2000m anchor (reads about 5k for 2 reps; P earlier said 6 to 8k).
+- Hard Workout Predictor: confirm the RPE slope, the 1% band, typical rep counts, exponents (2000m anchor settled at 8k; 2 reps still read about 5.8k by the volume slide).
 - Goal race and phases: race date, phase-specific focus.
 - Graded taper shape (not built).
 - Whether TSB misses structural load from big km jumps at high mileage.
@@ -136,6 +136,8 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 ### Marathon Plan Recommender (running)
 - Separate page (P, 2026-10-13). Inputs: race, start CTL, start ATL (blank = CTL), lowest form (default -20), highest ATL/CTL (default 1.3).
 - Runs all 13 plans from the start values; fits if form never below the floor and ratio never above the limit. Reports week 1 TSS/day, peak 4-week TSS/day, lowest form, highest ratio, with weeks.
+- Join late (my choice, default 85%): skips leading plan weeks below that % of 7 x CTL, holds current load until then. 0 = week 1. Added 2026-10-14 after Hansons Beginner (week 1 far below load) failed while Advanced passed at 38:43 10k, CTL 50. Adds "Joins" column and "Never reaches your load" flag.
+- Time columns (P, 2026-10-14): average and peak running time per week, join week to the week before race week (race week excluded). Peak = longest single week, not a 4-week average.
 - Plan settings fixed at Marathon Plans defaults (Daniels at band top, 6 days). Plan code is a copy of Marathon Plans'; tests/check_plans_sync.py fails the build if they differ.
 - Floor -20 chosen by P for running (not a research threshold). Ratio 1.3 from TrainerPlan's sweet-spot band.
 - Not built: tests from actual recent weeks, a ranking, a lower ratio bound (0.8).

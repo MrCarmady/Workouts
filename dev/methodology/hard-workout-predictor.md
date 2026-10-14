@@ -10,7 +10,7 @@ Predicts a race from a hard interval session. It is a prototype. The anchors are
 | 1000m, 60s rest: 5k pace | Author's anchor |
 | 1200m, 90s rest: 5k pace | My placeholder |
 | 1600m, 2 min rest: 8k pace (4×1600m is a solid 8k predictor) | Author's anchor |
-| 2000m, 2 min rest: 8k pace | My placeholder: about the same volume as 4×1600m |
+| 2000m, 2 min rest: 8k pace | Confirmed by the author: 3 × 2000m at RPE 8 is a light 10k session, so 8k is reasonable (6k would be extra cautious). Same volume as 4×1600m |
 | 3000m, 3 min rest: 10k pace | Author's anchor (3×3000m is closer to 10k than HM pace) |
 | 5000m, 3 min rest: marathon pace to 2% faster | Author's anchor |
 | Typical rep counts: 400m 9 (author: 8–10), 600m 6, 800m 6, 1000m 6, 1200m 4, 1600m 4, 2000m 3, 3000m 3, 5000m 5 (3×5km is too little volume for a marathon prediction); interpolated for other rep lengths | 400m from the author; the rest are my placeholders |

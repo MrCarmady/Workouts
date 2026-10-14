@@ -84,6 +84,8 @@ def scenarios():
     out.append(('marathon-plan-recommender','18:45 ctl 50',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','50')]))
     out.append(('marathon-plan-recommender','18:45 ctl 70 atl 80',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','70'),fill(pg,'atl','80')]))
     out.append(('marathon-plan-recommender','39:10 10k ctl 35 floor -30',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','39:10'),fill(pg,'ctl','35'),fill(pg,'floor','-30')]))
+    out.append(('marathon-plan-recommender','38:43 10k ctl 50',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','38:43'),fill(pg,'ctl','50')]))
+    out.append(('marathon-plan-recommender','38:43 10k ctl 50 join 0',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','38:43'),fill(pg,'ctl','50'),fill(pg,'join','0')]))
     out.append(('marathon-plan-recommender','bad floor',lambda pg:[fill(pg,'floor','5')]))
     out.append(('marathon-plans','pfitz 18/70 18:45',lambda pg:[fill(pg,'author','pfitzinger'),fill(pg,'dist','5'),fill(pg,'time','18:45')]))
     out.append(('marathon-plans','pfitz 12/70 km',lambda pg:[fill(pg,'author','pfitzinger'),fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'plan','12/70'),fill(pg,'wunit','km'),fill(pg,'wk','5')]))

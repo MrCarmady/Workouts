@@ -31,8 +31,17 @@ These are Marathon Plans' defaults, fixed here:
 | Copeland | 5km reps 16.5 min |
 | Hansons | As on Marathon Plans |
 
+### Joining late
+
+- Input "Join plan once load is (% of yours)", default 85 (my choice, not confirmed). Leading weeks whose TSS is below that share of your current weekly load (7 x CTL) are skipped. Your current load is held until the join week, then the plan runs.
+- Reason: a light early week would otherwise let CTL decay, so later weeks look harder than they are. A runner at CTL 50 would not start Hansons Beginner at week 1.
+- 0 = start at week 1, no skipping. "Never reaches your load" is flagged if no week gets there.
+- Peak 4-week TSS/day is taken from the join week on.
+
 ### Columns
 
+- Joins: the week the plan is entered (1 = no skipping).
+- Avg and peak time/week: running time (warm-up, cooldown and walked recoveries included) from the join week to the week before race week. Average = mean of those weeks; peak = longest single week. Race week excluded so the marathon does not inflate it.
 - Week 1 TSS/day: the first week's TSS divided by 7.
 - Peak 4-week TSS/day: the highest average over four consecutive weeks.
 - Lowest form and highest ratio, with the week they occur.

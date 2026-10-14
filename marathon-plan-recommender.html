@@ -149,6 +149,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       <label>Highest ATL / CTL
         <input id="maxr" type="text" inputmode="decimal" autocomplete="off" value="1.3">
       </label>
+      <label>Join plan once load is (% of yours)
+        <input id="join" type="text" inputmode="decimal" autocomplete="off" value="85">
+      </label>
     </div>
   </section>
 
@@ -160,7 +163,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       <p id="summary" class="struct"></p>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Plan</th><th class="num">Weeks</th><th class="num">Week 1 TSS/day</th><th class="num">Peak 4-week TSS/day</th><th class="num">Lowest form</th><th class="num">Highest ATL/CTL</th><th class="q2">Result</th></tr></thead>
+          <thead><tr><th>Plan</th><th class="num">Weeks</th><th class="num">Joins</th><th class="num">First week TSS/day</th><th class="num">Peak 4-week TSS/day</th><th class="num">Avg time/week</th><th class="num">Peak time/week</th><th class="num">Lowest form</th><th class="num">Highest ATL/CTL</th><th class="q2">Result</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -997,12 +1000,13 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     if (t === null || t <= 0) return fail("Enter a race time like 18:54, 1854 or 1:32:10.");
     var vd = vdot(t / 60, D * 1000);
     if (vd < 15 || vd > 85) return fail("That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of 15 to 85. Check the distance and time.");
-    var c0 = num("ctl"), a0 = num("atl"), floor = num("floor"), maxr = num("maxr");
+    var c0 = num("ctl"), a0 = num("atl"), floor = num("floor"), maxr = num("maxr"), jp = num("join");
     if (c0 === null || !isFinite(c0) || c0 < 5 || c0 > 200) return fail("Start CTL must be a number from 5 to 200.");
     if (a0 === null) a0 = c0;
     if (!isFinite(a0) || a0 < 1 || a0 > 300) return fail("Start ATL must be a number from 1 to 300, or blank to use the CTL.");
     if (floor === null || !isFinite(floor) || floor > 0 || floor < -60) return fail("Lowest form must be a number from -60 to 0.");
     if (maxr === null || !isFinite(maxr) || maxr < 1 || maxr > 3) return fail("Highest ATL / CTL must be a number from 1 to 3.");
+    if (jp === null || !isFinite(jp) || jp < 0 || jp > 100) return fail("Join percentage must be a number from 0 to 100. 0 means start every plan at week 1.");
     U = "mi";
     var riegel5 = t * Math.pow(5 / D, K) / 5, p5 = riegel5 + adj(D), c = { D: D, t: t, riegel5: riegel5, p5: p5 };
     var res = [];
@@ -1010,10 +1014,21 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       SHIM.week.value = String(p[3]);
       var r = MODS[p[0]].build(p[1], c);
       if (r.err) return;
-      var w = r.weeks, s = sim(w, c0, a0), tss = w.map(function (x) { return sumArr(x.d7); }), pk = 0;
-      for (var i = 0; i + 4 <= tss.length; i++) pk = Math.max(pk, sumArr(tss.slice(i, i + 4)) / 28);
+      var w = r.weeks, tss = w.map(function (x) { return sumArr(x.d7); }), pk = 0, j = 0, light = false;
+      // Weeks that are lighter than your current load are skipped: you keep running at your current load until the plan catches up.
+      var need = jp / 100 * 7 * c0;
+      if (jp > 0) {
+        var first = -1;
+        for (var k = 0; k < tss.length; k++) if (tss[k] >= need - 1e-9) { first = k; break; }
+        if (first < 0) light = true; else j = first;
+      }
+      var seq = []; for (var q = 0; q < j; q++) seq.push({ d7: [c0, c0, c0, c0, c0, c0, c0] });
+      seq = seq.concat(w.slice(j));
+      var s = sim(seq, c0, a0), tp = tss.slice(j);
+      for (var i = 0; i + 4 <= tp.length; i++) pk = Math.max(pk, sumArr(tp.slice(i, i + 4)) / 28);
+      var ws = w.slice(j, w.length - 1).map(function (x) { return x.sec; }), avgS = ws.length ? sumArr(ws) / ws.length : 0, maxS = ws.length ? Math.max.apply(null, ws) : 0;
       var okF = s.minF >= floor - 1e-9, okR = s.maxR <= maxr + 1e-9;
-      res.push({ name: p[2], weeks: w.length, w1: tss[0] / 7, pk: pk, minF: s.minF, wF: s.wF, maxR: s.maxR, wR: s.wR, okF: okF, okR: okR });
+      res.push({ name: p[2], weeks: w.length, join: j + 1, light: light, w1: tp[0] / 7, pk: pk, avgS: avgS, maxS: maxS, minF: s.minF, wF: s.wF, maxR: s.maxR, wR: s.wR, okF: okF, okR: okR });
     });
     var fits = res.filter(function (x) { return x.okF && x.okR; });
     var top = null; fits.forEach(function (x) { if (!top || x.pk > top.pk) top = x; });
@@ -1024,27 +1039,31 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       if (!x.okF) msg.push("Form " + sgn(x.minF) + " in week " + x.wF);
       if (!x.okR) msg.push("ATL/CTL " + x.maxR.toFixed(2) + " in week " + x.wR);
       var cell = msg.length ? "<span class='flag red'>" + msg.join("; ") + "</span>" : "Fits";
-      return "<tr><td>" + x.name + "</td><td class='num'>" + x.weeks + "</td><td class='num'>" + x.w1.toFixed(0) + "</td><td class='num'>" + x.pk.toFixed(0) + "</td><td class='num'>" + sgn(x.minF) + "</td><td class='num'>" + x.maxR.toFixed(2) + "</td><td class='q2'>" + cell + "</td></tr>";
+      if (x.light) cell += " <span class='flag'>Never reaches your load</span>";
+      return "<tr><td>" + x.name + "</td><td class='num'>" + x.weeks + "</td><td class='num'>" + (x.join > 1 ? "week " + x.join : "week 1") + "</td><td class='num'>" + x.w1.toFixed(0) + "</td><td class='num'>" + x.pk.toFixed(0) + "</td><td class='num'>" + hm(x.avgS) + "</td><td class='num'>" + hm(x.maxS) + "</td><td class='num'>" + sgn(x.minF) + "</td><td class='num'>" + x.maxR.toFixed(2) + "</td><td class='q2'>" + cell + "</td></tr>";
     }).join("");
     $("rnote").textContent = "Form is CTL minus ATL at the end of each day, from your start values, through the last full day before the marathon. Week numbers say where the lowest form and highest ratio occur.";
     $("notes").innerHTML = [
-      "<b>Test.</b> Each plan is run day by day from your start CTL and ATL. A plan fits if form never drops below the lowest form allowed and ATL / CTL never exceeds the limit. The defaults are -20 and 1.3.",
+      "<b>Test.</b> Each plan is run day by day from your start CTL and ATL (see Joining late). A plan fits if form never drops below the lowest form allowed and ATL / CTL never exceeds the limit. The defaults are -20 and 1.3.",
       "<b>Where the defaults come from.</b> TrainerPlan's ATL to CTL bands put 0.8 to 1.3 as the sweet spot and flag above 1.3 and 1.5, and its own alerts sit at form -10 and -20. The -20 floor is a more cautious choice for running than its -30 high-strain mark. It is not a research threshold.",
+      "<b>Joining late.</b> Many plans start well below a fit runner's current load, and following them from week 1 would let CTL fall and then make the harder weeks look worse. So the test skips the leading weeks that are lighter than the join percentage of your current load (default 85%) and assumes you hold your current load until then. The Joins column gives the week the plan is picked up. A plan that never reaches that load is tested from week 1 and marked as never reaching it. Set the percentage to 0 to test every plan from week 1.",
       "<b>Start values.</b> Enter your own CTL and ATL. ATL blank means the same as CTL, which is a flat start. A hard recent week raises ATL and makes early weeks fit worse.",
       "<b>Plan settings.</b> Daniels at the top of each plan's mileage band, 6 run days, short threshold reps for slower runners on. Pfitzinger long runs at 85% of marathon speed, 10km tune-up, no recovery weeks. Copeland 5km reps at 16.5 min. Change these on Marathon Plans.",
-      "<b>Load.</b> " + LOADNOTE + " Peak 4-week TSS/day is the highest average over four consecutive weeks. The marathon itself is not scored.",
+      "<b>Load.</b> " + LOADNOTE + " Peak 4-week TSS/day is the highest average over four consecutive weeks. The marathon itself is not scored. Time per week is the plan's running time including warm-up, cooldown and walked recoveries, from the join week to the week before race week; the average is the mean of those weeks and the peak is the longest single week.",
       "<b>Limits.</b> A plan that fits is not a plan that suits you. It says nothing about the mileage you can absorb, the long run, or injury history."
     ].map(function (x) { return "<li>" + x + "</li>"; }).join("");
   }
 
+  function hm(sec) { var m = Math.round(sec / 60); return Math.floor(m / 60) + ":" + ("0" + (m % 60)).slice(-2); }
+
   function save() {
     try { profSet("km", $("dist").value); profSet("time", $("time").value); } catch (e) {}
-    try { localStorage.setItem("mr", JSON.stringify({ c: $("ctl").value, a: $("atl").value, f: $("floor").value, r: $("maxr").value })); } catch (e) {}
+    try { localStorage.setItem("mr", JSON.stringify({ c: $("ctl").value, a: $("atl").value, f: $("floor").value, r: $("maxr").value, j: $("join").value })); } catch (e) {}
   }
   function restore() {
     try {
       var s = JSON.parse(localStorage.getItem("mr") || "null");
-      if (s) { if (typeof s.c === "string") $("ctl").value = s.c; if (typeof s.a === "string") $("atl").value = s.a; if (typeof s.f === "string") $("floor").value = s.f; if (typeof s.r === "string") $("maxr").value = s.r; }
+      if (s) { if (typeof s.c === "string") $("ctl").value = s.c; if (typeof s.a === "string") $("atl").value = s.a; if (typeof s.f === "string") $("floor").value = s.f; if (typeof s.r === "string") $("maxr").value = s.r; if (typeof s.j === "string") $("join").value = s.j; }
     } catch (e) {}
     var pr = profGet();
     if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km;
@@ -1062,7 +1081,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
 
   restore();
-  ["dist", "time", "ctl", "atl", "floor", "maxr"].forEach(function (id) {
+  ["dist", "time", "ctl", "atl", "floor", "maxr", "join"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });
