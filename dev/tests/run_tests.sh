@@ -3,6 +3,7 @@
 set -e
 cd "$(dirname "$0")"
 python3 ../shared/sync_core.py --check
+python3 ../shared/apply_theme.py --check
 python3 check_plans_sync.py
 node core.test.js
 python3 snapshot.py check

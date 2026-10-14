@@ -1,3 +1,6 @@
+import sys as _s, os as _o
+_s.path.insert(0,_o.path.join(_o.path.dirname(_o.path.abspath(__file__)),'shared'))
+import theme as THEME
 import re, shutil, markdown, os, html, subprocess, sys
 # Stop the build if the shared block is out of sync or any test fails.
 if subprocess.call([os.path.join(os.path.dirname(os.path.abspath(__file__)),'tests','run_tests.sh')])!=0: sys.exit('Tests failed: build stopped')
@@ -27,7 +30,7 @@ for src,out,title,desc,md,slug,grp in tools:
     s=open(f'{SRC}/{src}').read()
     assert s.lstrip().startswith('<title>'), src
     assert s.count('<main class="wrap">')==1, src
-    s=s.replace('<main class="wrap">','<main class="wrap">\n  <p class="sitenav"><a href="index.html">&larr; All tools</a></p>',1)
+    s=s.replace('<main class="wrap">','<main class="wrap">\n  <p class="sitenav"><a href="tools.html">&larr; All tools</a></p>',1)
     if src in ('run-session-calculator.html','classic-session-generator.html'):
         assert s.count('var SITE = false;')==1
         s=s.replace('var SITE = false;','var SITE = true; ')
@@ -45,46 +48,28 @@ body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-b
 h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
 h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
 a { color:var(--accent); }
-.head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
-.themes { display:inline-flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface); }
-.themes button { font:inherit; font-size:.8rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); background:transparent; border:0; padding:7px 12px; cursor:pointer; }
-.themes button + button { border-left:1px solid var(--line); }
-.themes button[aria-pressed="true"] { background:var(--accent); color:#fff; }
-.themes button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.head > div:first-child { min-width:0; }
+.head { display:flex; flex-wrap:nowrap; align-items:flex-start; justify-content:space-between; gap:12px; }
 .sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
-'''
-THEME_JS='''<script>
-(function () {
-  var btns = document.querySelectorAll("[data-theme-set]");
-  function apply(t) {
-    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
-    else document.documentElement.removeAttribute("data-theme");
-    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
-  }
-  var saved = "system";
-  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
-  apply(saved);
-  btns.forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-theme-set"); apply(t); try { localStorage.setItem("theme-pref", t); } catch (e) {} }); });
-})();
-</script>'''
-TOGGLE='''<div class="themes" role="group" aria-label="Theme">
-      <button type="button" data-theme-set="system" aria-pressed="true">Auto</button>
-      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
-      <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
-    </div>'''
+'''+THEME.CSS+'\n'
+THEME_JS='<script>'+THEME.JS+'</script>'
+TOGGLE=THEME.HTML
 FONTS='<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">'
 # index
 ORDER=['Planning and load','Sessions','Race and pace','Lifting']
 cards={}
 for src,out,title,desc,md,slug,grp in sorted(tools,key=lambda t:(ORDER.index(t[6]),tools.index(t))):
     cards.setdefault(grp,[]).append(f'''      <li class="card"><div><a class="name" href="{out}">{html.escape(title)}</a><p>{html.escape(desc)}</p></div><a class="meth" href="methods/{slug}.html">How it works</a></li>''')
-groups=''.join(f'''    <section>
-      <h2>{g}</h2>
+def _sec(g,v,lvl):
+    return f'''    <section>
+      <h{lvl}>{g}</h{lvl}>
       <ul class="cards">
 {chr(10).join(v)}
       </ul>
     </section>
-''' for g,v in cards.items())
+'''
+RUNNING=['Planning and load','Sessions','Race and pace']
+groups='    <h2 class="big">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in RUNNING if g in cards)+'    <h2 class="big">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3)
 START=[ # (question, tool file, tool title); titles must match the tools list
  ("I ran a race. What does it mean for other distances?","race-prediction-calculator.html","Race Prediction Calculator"),
  ("I ran a hard interval session. What race time does it predict?","hard-workout-predictor.html","Hard Workout Predictor"),
@@ -98,41 +83,57 @@ START=[ # (question, tool file, tool title); titles must match the tools list
 _titles={t[1]:t[2] for t in tools}
 for _q,_f,_t in START: assert _titles.get(_f)==_t,(_f,_t)
 startsec='    <section>\n      <h2>Start here</h2>\n      <ul class="start">\n'+'\n'.join(f'        <li><span>{html.escape(q)}</span><a href="{f}">{html.escape(t)} &rarr;</a></li>' for q,f,t in START)+'\n      </ul>\n    </section>\n'
-index=f'''<!doctype html>
+PAGECSS='''
+.cards { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+.card { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:14px 16px; }
+.card > div { min-width:0; flex:1 1 320px; }
+.card .name { font-family:var(--font-display); font-weight:600; font-size:1.25rem; text-decoration:none; }
+.card .name:hover { text-decoration:underline; }
+.card p { margin:2px 0 0; color:var(--muted); font-size:.92rem; }
+.card .meth { font-size:.85rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
+.start { list-style:none; margin:0; padding:0; display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:2px; }
+.start li { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; padding:11px 16px; }
+.start li + li { border-top:1px solid var(--line); }
+.start li span { flex:1 1 280px; min-width:0; }
+.start li a { font-weight:600; text-decoration:none; }
+.start li a:hover { text-decoration:underline; }
+.all { font-weight:600; font-size:.95rem; }
+h2.big { color:var(--fg); font-size:1.5rem; margin:8px 0 0; padding-top:12px; border-top:2px solid var(--fg); }
+h3 { font-family:var(--font-display); font-weight:600; font-size:1.05rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 10px; color:var(--muted); }
+.note { color:var(--muted); font-size:.85rem; margin:0; }
+'''
+def page(title,css,inner):
+    return f'''<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Training Tools</title>
+<title>{title}</title>
 {FONTS}
-<style>{TOK}
-.cards {{ list-style:none; margin:0; padding:0; display:grid; gap:10px; }}
-.card {{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:14px 16px; }}
-.card > div {{ min-width:0; flex:1 1 320px; }}
-.card .name {{ font-family:var(--font-display); font-weight:600; font-size:1.25rem; text-decoration:none; }}
-.card .name:hover {{ text-decoration:underline; }}
-.card p {{ margin:2px 0 0; color:var(--muted); font-size:.92rem; }}
-.card .meth {{ font-size:.85rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }}
-.start {{ list-style:none; margin:0; padding:0; display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:2px; }}
-.start li {{ display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; padding:11px 16px; }}
-.start li + li {{ border-top:1px solid var(--line); }}
-.start li span {{ flex:1 1 280px; min-width:0; }}
-.start li a {{ font-weight:600; text-decoration:none; }}
-.start li a:hover {{ text-decoration:underline; }}
-.note {{ color:var(--muted); font-size:.85rem; margin:0; }}
-</style>
+<style>{TOK}{css}</style>
 <main class="wrap">
-  <header class="head">
-    <div>
-      <h1>Training Tools</h1>
-      <p class="sub">Calculators for running sessions, race predictions, training load and lifting. Each has a short page on how it is calculated.</p>
-    </div>
-    {TOGGLE}
-  </header>
-{startsec}{groups}  <p class="note">All figures are estimates for training. Check paces against heart rate or feel.</p>
+{inner}
 </main>
 {THEME_JS}
 '''
+index=page('Training Tools',PAGECSS,f'''  <header class="head">
+    <div>
+      <h1>Training Tools</h1>
+      <p class="sub">Calculators for running sessions, race predictions, training load and lifting. Pick what you want to do, or see every tool.</p>
+    </div>
+    {TOGGLE}
+  </header>
+{startsec}  <p><a class="all" href="tools.html">See all tools &rarr;</a></p>
+  <p class="note">All figures are estimates for training. Check paces against heart rate or feel.</p>''')
+tools_page=page('All tools: Training Tools',PAGECSS,f'''  <header class="head">
+    <div>
+      <h1>All tools</h1>
+      <p class="sub"><a href="index.html">&larr; Back to start</a></p>
+    </div>
+    {TOGGLE}
+  </header>
+{groups}  <p class="note">All figures are estimates for training. Check paces against heart rate or feel.</p>''')
 open(f'{OUT}/index.html','w').write(index)
+open(f'{OUT}/tools.html','w').write(tools_page)
 open(f'{OUT}/.nojekyll','w').write('')
 # method pages
 mdcss='''
@@ -160,7 +161,7 @@ for src,out,title,desc,md,slug,grp in tools:
 <style>{TOK}{mdcss}</style>
 <main class="wrap">
   <header class="head">
-    <nav class="crumbs"><a href="../index.html">All tools</a><a href="../{out}">Open {html.escape(title)}</a></nav>
+    <nav class="crumbs"><a href="../tools.html">All tools</a><a href="../{out}">Open {html.escape(title)}</a></nav>
     {TOGGLE}
   </header>
   <article class="doc">

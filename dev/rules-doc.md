@@ -152,4 +152,6 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Optional 5-week recovery block (separate tables for the 55 and 70 plans); when on, the marathon is scored at MP so the recovery load starts correctly. Otherwise as the other plan pages.
 
 ### Site index
+- Landing page is Start here plus a link to tools.html (P, 2026-10-14). tools.html groups Running (planning and load, sessions, race and pace) and Lifting. Hybrid group to come with a lifting TSS tool.
+- Theme switch: one 32 px icon button, top right (auto half-circle, sun, moon; click cycles). Same block on every page via shared/apply_theme.py; the build fails if a page differs.
 - "Start here" list at the top of the index (P, 2026-10-14): 8 plain-language questions, each linking to one tool. Questions and the tool picked for each are my choices; the build fails if a linked tool title is not in the tool list.
