@@ -41,7 +41,7 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - Race-day TSB target: default +10, maximum +10 (P). Anything higher is overkill.
 - Race-day TSB means the morning of race day (end of the day before).
 - Headline CTL is the peak at the end of the last build week, not the lower race-day value (P). Race-day CTL is shown beside it.
-- Race week (P, 2026-10-14): quality sessions on Friday or Saturday become easy runs, so there are at least 2 easy days before the race (P said 2, maybe 3; constant RACE_EASY = 2). Known issue not fixed: with 3 or 4 run days the remaining easy running is concentrated (4 days: Saturday easy run of about 1:39; 3 days: a 2:41 easy run), because the 50 to 80% weekly distance is kept.
+- Race week (P, 2026-10-14): quality sessions on Friday or Saturday become easy runs, so there are at least 2 easy days before the race (P said 2, maybe 3; constant RACE_EASY = 2). Easy-run caps (P, 2026-10-14): race-week easy runs are capped at 40 min the day before the race and 70 min otherwise (RACE_SHAKE_MIN, RACE_EASY_MAX_MIN; P's numbers). Distance above the caps is dropped, not moved, so the week can fall below the 50% floor; the note says so. The 50 to 80% distance target is solved before the caps. Fixes 3 and 4 run days (before: 3 days a 2:17 easy run on Thursday, 4 days a 1:11 run on Saturday).
 - 14-day option: the penultimate week holds CTL (ramp 0), the last week is the taper. 7-day option: race week only.
 - Race week is solved for the TSB target but kept between 50% and 80% of the peak week's distance (P's expectation; the exact bounds are my placeholders). If the 50% floor stops the target being reached, the page flags it and shows the TSB reached.
 - Race day replaces the long run.

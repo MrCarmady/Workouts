@@ -305,7 +305,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
     7: { 0: "E", 1: "Q", 2: "E", 3: "Q", 4: "E", 5: "Q", 6: "L" }
   };
   var DAYN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  var LONG_W = 1.6, LONG_MAX_MIN = 150, LONG_SHARE = 0.35, WCD_MIN = 20, WCD_MAX_MIN = 40, QDAY_FRAC = 0.8, RACE_EASY = 2;
+  var LONG_W = 1.6, LONG_MAX_MIN = 150, LONG_SHARE = 0.35, WCD_MIN = 20, WCD_MAX_MIN = 40, QDAY_FRAC = 0.8, RACE_EASY = 2, RACE_SHAKE_MIN = 40, RACE_EASY_MAX_MIN = 70;
   var KC = 1 - Math.exp(-1 / 42), KA = 1 - Math.exp(-1 / 7);
 
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("detail").hidden = true; }
@@ -404,8 +404,19 @@ td.num, th.num { text-align: right; padding-right: 14px; }
         else if (r === "L") { var s2 = L * tK(PACE.E); out.push({ d: d, role: "L", km: L, time: L * easyP, tss: s2 }); tss.push(s2); }
         else { var s3 = E * tK(PACE.E); out.push({ d: d, role: "E", km: E, time: E * easyP, tss: s3 }); tss.push(s3); }
       }
+      var kmTarget = out.reduce(function (a, d) { return a + d.km; }, 0);
+      if (race) {
+        // Race week: easy runs are capped (RACE_SHAKE_MIN the day before the race, RACE_EASY_MAX_MIN otherwise). The distance above the caps is dropped, not moved.
+        var capped = false;
+        out.forEach(function (o) {
+          if (o.role !== "E") return;
+          var cap = (o.d === 5 ? RACE_SHAKE_MIN : RACE_EASY_MAX_MIN) * 60 / easyP;
+          if (o.km > cap + 1e-9) { o.km = cap; o.time = cap * easyP; o.tss = cap * tK(PACE.E); capped = true; }
+        });
+        if (capped) { warns = warns.filter(function (x) { return x.indexOf("Easy days over 2 h") !== 0; }); warns.push("Easy runs capped at " + RACE_SHAKE_MIN + " min the day before the race and " + RACE_EASY_MAX_MIN + " min otherwise, so the week is below its distance target"); tss = out.map(function (o) { return o.tss; }); }
+      }
       var km = out.reduce(function (a, d) { return a + d.km; }, 0);
-      return { days: out, km: km, time: out.reduce(function (a, d) { return a + d.time; }, 0), q: qTot, tss: tss, total: tss.reduce(function (a, b) { return a + b; }, 0), warns: warns, moved: rm };
+      return { days: out, km: km, kmTarget: kmTarget, time: out.reduce(function (a, d) { return a + d.time; }, 0), q: qTot, tss: tss, total: tss.reduce(function (a, b) { return a + b; }, 0), warns: warns, moved: rm };
     }
     function sim(ctl, atl, tss) {
       var minT = Infinity;
@@ -454,7 +465,7 @@ td.num, th.num { text-align: right; padding-right: 14px; }
         for (var i = 0; i < 6; i++) { c += (d[i] - c) * KC; a += (d[i] - a) * KA; }
         return c - a;
       };
-      var kmRace = function (V) { return week(V, true).km; };
+      var kmRace = function (V) { return week(V, true).kmTarget; };   // the 50 to 80% distance target is set before the easy-run caps
       var Vlo = solve(kmRace, 0.5 * peakKm, peakVp * 1.2), Vhi = solve(kmRace, 0.8 * peakKm, peakVp * 1.2);
       var Vtsb = solve(function (V) { return -tsbRace(V); }, -raceTsb, peakVp * 1.2);
       var Vtp = Math.min(Math.max(Vtsb, Vlo), Vhi), reached = tsbRace(Vtp);
