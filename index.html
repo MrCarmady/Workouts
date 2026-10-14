@@ -31,6 +31,12 @@ a { color:var(--accent); }
 .card .name:hover { text-decoration:underline; }
 .card p { margin:2px 0 0; color:var(--muted); font-size:.92rem; }
 .card .meth { font-size:.85rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
+.start { list-style:none; margin:0; padding:0; display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:2px; }
+.start li { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; padding:11px 16px; }
+.start li + li { border-top:1px solid var(--line); }
+.start li span { flex:1 1 280px; min-width:0; }
+.start li a { font-weight:600; text-decoration:none; }
+.start li a:hover { text-decoration:underline; }
 .note { color:var(--muted); font-size:.85rem; margin:0; }
 </style>
 <main class="wrap">
@@ -45,6 +51,19 @@ a { color:var(--accent); }
       <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
     </div>
   </header>
+    <section>
+      <h2>Start here</h2>
+      <ul class="start">
+        <li><span>I ran a race. What does it mean for other distances?</span><a href="race-prediction-calculator.html">Race Prediction Calculator &rarr;</a></li>
+        <li><span>I ran a hard interval session. What race time does it predict?</span><a href="hard-workout-predictor.html">Hard Workout Predictor &rarr;</a></li>
+        <li><span>I want a marathon plan that fits my current fitness.</span><a href="marathon-plan-recommender.html">Marathon Plan Recommender &rarr;</a></li>
+        <li><span>I want to see a marathon plan&#x27;s paces and weekly load.</span><a href="marathon-plans.html">Marathon Plans &rarr;</a></li>
+        <li><span>I need paces for a threshold or tempo session.</span><a href="run-session-generator.html">Sub-Threshold Session Generator &rarr;</a></li>
+        <li><span>I want to know if my weekly load is climbing too fast.</span><a href="run-load-planner.html">Run Load Planner &rarr;</a></li>
+        <li><span>I want to build a training block from a race result.</span><a href="plan-builder.html">Plan Builder &rarr;</a></li>
+        <li><span>I want working weights for a lifting scheme.</span><a href="lift-scheme-calculator.html">Lift Scheme Calculator &rarr;</a></li>
+      </ul>
+    </section>
     <section>
       <h2>Planning and load</h2>
       <ul class="cards">

@@ -85,6 +85,19 @@ groups=''.join(f'''    <section>
       </ul>
     </section>
 ''' for g,v in cards.items())
+START=[ # (question, tool file, tool title); titles must match the tools list
+ ("I ran a race. What does it mean for other distances?","race-prediction-calculator.html","Race Prediction Calculator"),
+ ("I ran a hard interval session. What race time does it predict?","hard-workout-predictor.html","Hard Workout Predictor"),
+ ("I want a marathon plan that fits my current fitness.","marathon-plan-recommender.html","Marathon Plan Recommender"),
+ ("I want to see a marathon plan's paces and weekly load.","marathon-plans.html","Marathon Plans"),
+ ("I need paces for a threshold or tempo session.","run-session-generator.html","Sub-Threshold Session Generator"),
+ ("I want to know if my weekly load is climbing too fast.","run-load-planner.html","Run Load Planner"),
+ ("I want to build a training block from a race result.","plan-builder.html","Plan Builder"),
+ ("I want working weights for a lifting scheme.","lift-scheme-calculator.html","Lift Scheme Calculator"),
+]
+_titles={t[1]:t[2] for t in tools}
+for _q,_f,_t in START: assert _titles.get(_f)==_t,(_f,_t)
+startsec='    <section>\n      <h2>Start here</h2>\n      <ul class="start">\n'+'\n'.join(f'        <li><span>{html.escape(q)}</span><a href="{f}">{html.escape(t)} &rarr;</a></li>' for q,f,t in START)+'\n      </ul>\n    </section>\n'
 index=f'''<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
@@ -99,6 +112,12 @@ index=f'''<!doctype html>
 .card .name:hover {{ text-decoration:underline; }}
 .card p {{ margin:2px 0 0; color:var(--muted); font-size:.92rem; }}
 .card .meth {{ font-size:.85rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }}
+.start {{ list-style:none; margin:0; padding:0; display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:2px; }}
+.start li {{ display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; padding:11px 16px; }}
+.start li + li {{ border-top:1px solid var(--line); }}
+.start li span {{ flex:1 1 280px; min-width:0; }}
+.start li a {{ font-weight:600; text-decoration:none; }}
+.start li a:hover {{ text-decoration:underline; }}
 .note {{ color:var(--muted); font-size:.85rem; margin:0; }}
 </style>
 <main class="wrap">
@@ -109,7 +128,7 @@ index=f'''<!doctype html>
     </div>
     {TOGGLE}
   </header>
-{groups}  <p class="note">All figures are estimates for training. Check paces against heart rate or feel.</p>
+{startsec}{groups}  <p class="note">All figures are estimates for training. Check paces against heart rate or feel.</p>
 </main>
 {THEME_JS}
 '''

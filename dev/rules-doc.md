@@ -150,3 +150,6 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Weekly table lists key sessions only (LT, MP run, V, long run, races) plus any other single run over 1:45 with its time; full detail in the week view.
 - Strides and hills not scored (about +3-4 TSS per 8-10 strides).
 - Optional 5-week recovery block (separate tables for the 55 and 70 plans); when on, the marathon is scored at MP so the recovery load starts correctly. Otherwise as the other plan pages.
+
+### Site index
+- "Start here" list at the top of the index (P, 2026-10-14): 8 plain-language questions, each linking to one tool. Questions and the tool picked for each are my choices; the build fails if a linked tool title is not in the tool list.
