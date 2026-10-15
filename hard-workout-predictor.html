@@ -125,7 +125,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     <h2>Workout</h2>
     <div class="grid4">
       <label class="span2">Session type
-        <select id="mode"><option value="reps">Reps (2 or more)</option><option value="cont">Continuous</option></select>
+        <select id="mode"><option value="reps">Reps (2 or more)</option><option value="aussie">Aussie quarters (400m + 200m float)</option><option value="cont">Continuous</option></select>
       </label>
       <label id="lbReps">Reps <input id="reps" inputmode="numeric" value="6"></label>
       <label><span id="repLab">Rep distance</span>
@@ -145,6 +145,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
         </select>
       </label>
       <label class="span2"><span id="splitLab">Rep times or average, comma separated</span> <input id="splits" placeholder="3:38, 3:32, 3:33, 3:31, 3:34, 3:35"></label>
+      <label class="span2" id="lbFloat" hidden>Float 200m times or average (counted in the total) <input id="float" placeholder="52, 51, 52, 52, 52, 51, 52, 52"></label>
     </div>
     <p class="note" id="hint">Times as mm:ss or seconds. Several times set the rep count. One time is the average and uses Reps. Add /km to enter pace, e.g. 3:20/km.</p>
     <p class="warn" id="err" hidden></p>
@@ -168,6 +169,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       <li><b>Anchors.</b> Each rep length is tied to a race pace, at standard rest and RPE 8. Other lengths are interpolated, then converted to a 5km pace.</li>
       <li><b>Volume.</b> Each anchor has a typical rep count. Above it, the equivalent race gets longer (power 1.25). Below it, shorter (power 0.8). The result shows the nearest common distance. Over 25km of work, or a race under 400m, is refused. Beyond the marathon is capped at the marathon.</li>
       <li><b>RPE.</b> Each point above 8 slows the pace used by 1%. Each point below 8 speeds it up by 1%.</li>
+      <li><b>Aussie quarters.</b> 400m hard, then a 200m float, repeated without stopping. The floats count: for 8 reps (4800m) the total session time is read as the 5k time, and the real race is quicker, by up to 15 seconds. The range runs from that total (slow end) to 15 seconds off it (fast end). Other rep counts use the volume slide for the equivalent race (the 15 seconds scales with the reps) and the pace is the session average over the whole distance, 4% faster for the race. RPE adjusts the total as for other reps.</li>
       <li><b>Continuous.</b> The pace is sped up by 1% for each RPE point below 10, then by a 2.5% race-day effect, and converted to a 5km pace with the race model.</li>
       <li><b>Range.</b> Each anchor has a 1% pace band (5000m: marathon pace to 2% faster).</li>
       <li><b>Not adjusted.</b> Rest, heat, surface, wind and hills. The tool warns when rest is far from standard.</li>
@@ -277,7 +279,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     return Math.exp(x(ANCH[ANCH.length - 1]));
   }
   // Common race distances (km). The label is the largest one at or below the computed distance, or the next one up if the computed distance is within 5% of it.
-  var STD = [[0.4, "400m"], [0.6, "600m"], [0.8, "800m"], [1, "1000m"], [1.2, "1200m"], [1.5, "1500m"], [1.609344, "mile"], [2, "2k"], [3, "3k"], [5, "5k"], [8, "8k"], [10, "10k"], [12, "12k"], [15, "15k"], [16.09344, "10 mile"], [21.0975, "half marathon"], [30, "30k"], [32.18688, "20 mile"], [42.195, "marathon"]];
+  var STD = [[0.4, "400m"], [0.6, "600m"], [0.8, "800m"], [1, "1000m"], [1.2, "1200m"], [1.5, "1500m"], [1.609344, "mile"], [2, "2k"], [3, "3k"], [4, "4k"], [5, "5k"], [8, "8k"], [10, "10k"], [12, "12k"], [15, "15k"], [16.09344, "10 mile"], [21.0975, "half marathon"], [30, "30k"], [32.18688, "20 mile"], [42.195, "marathon"]];
   function xText(x) {
     if (x < STD[0][0] * 0.95) return "under 400m";
     var lab = STD[0][1];
@@ -340,23 +342,78 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     rows.forEach(function (r) { var f = function (p5) { return race(p5, r[1]) * r[1]; }; h += "<tr><td>" + r[0] + "</td><td class=\"num pace\">" + hmmss(f(pm)) + "</td><td class=\"num\">" + hmmss(f(pf)) + "–" + hmmss(f(ps)) + "</td></tr>"; });
     $("eq").innerHTML = h + "</tbody>";
   }
+  // Aussie quarters: 400m hard + 200m float, continuous. The whole session time, floats included, is read as the 5k race time for 8 reps
+  // (4800m in about the time of the 5k; the real race is quicker, by up to AUS_FAST s). Other rep counts use the volume slide for the equivalent race.
+  var AUS_REPS = 8, AUS_FAST = 15, AUS_KM = 0.6;
+  function updateAus(times, nReps, rpe) {
+    var fr = $("float").value.trim();
+    if (!fr) return fail("Enter the 200m float times or their average. The floats count towards the session total.");
+    var fperKm = /\/km\s*$/i.test(fr); fr = fr.replace(/\/km\s*$/i, "");
+    var fparts = fr.split(/[,;\s]+(?=\d)/).map(parseOne);
+    if (fparts.some(function (x) { return x === null || x <= 0; })) return fail("Could not read the float times. Use seconds or mm:ss, separated by commas.");
+    var favg = fparts.reduce(function (a, b) { return a + b; }, 0) / fparts.length;
+    if (fperKm) favg = favg * 0.2;
+    var havg = times.reduce(function (a, b) { return a + b; }, 0) / times.length;
+    if (nReps * AUS_KM > MAXWORK) return fail("Total distance is " + (nReps * AUS_KM).toFixed(1) + "km. The tool supports up to " + MAXWORK + "km in a session.");
+    var X = 5 * Math.pow(nReps / AUS_REPS, nReps < AUS_REPS ? GAMMA_LO : GAMMA_HI), capped = X > MAR * 1.001;
+    if (capped) X = MAR;
+    if (X < MINX) return fail("This many reps equals a race shorter than 400m, outside what the tool supports.");
+    var T = nReps * (havg + favg) * (1 + RPE_K * (rpe - RPE_REF));
+    var shift = AUS_FAST * nReps / AUS_REPS;
+    var solve5 = function (tt) {
+      var pr = tt / (nReps * AUS_KM) * (AUS_REPS * AUS_KM / 5);   // seconds per km of the equivalent race: the session average pace, scaled so that 8 reps give a 5k in the session time
+      var lo = 120, hi = 700;
+      if (race(lo, X) > pr || race(hi, X) < pr) return null;
+      for (var i = 0; i < 50; i++) { var mid = (lo + hi) / 2; if (race(mid, X) < pr) lo = mid; else hi = mid; }
+      return (lo + hi) / 2;
+    };
+    var pm = solve5(T - shift / 2), ps = solve5(T), pf = solve5(T - shift);
+    if (pm === null || ps === null || pf === null) return fail("That pace is outside the range the model supports. Check the times.");
+    var D = Number($("target").value), tFor = function (p5) { return race(p5, D) * D; };
+    var tMid = tFor(pm), tLo = tFor(pf), tHi = tFor(ps);   // fast end first: T minus the race-day gain, then the session total
+    var mpc = race(pm, MAR), fpace = favg * 5, hpace = havg * 2.5;
+    $("res").innerHTML =
+      "<div><span>Session total</span><b>" + hmmss(T) + "</b><small>" + nReps + " × (" + mmss(havg) + " + " + mmss(favg) + "), " + (nReps * AUS_KM).toFixed(1) + "km</small></div>" +
+      "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
+      "<div><span>Reps equal about</span><b>" + xText(X) + "</b><small>" + (nReps === AUS_REPS ? "race, session time = race time" : "race, for this many reps") + "</small></div>";
+    var fl = [];
+    if (capped) fl.push("This many reps would equal a race longer than the marathon. The tool caps it at the marathon.");
+    if (fpace <= hpace) fl.push("The floats are as fast as the hard 400s. Check the times are in the right boxes.");
+    else if (fpace > mpc * 1.1) fl.push("The floats averaged " + mmss(fpace) + " /km, more than 10% slower than marathon pace (" + mmss(mpc) + "). They count towards the total, so this lowers the prediction. A jog is not what the session intends.");
+    if (times.length > 1) {
+      var half = Math.floor(times.length / 2), a1 = times.slice(0, half).reduce(function (a, b) { return a + b; }, 0) / half, a2 = times.slice(times.length - half).reduce(function (a, b) { return a + b; }, 0) / half, d = (a2 - a1) / a1 * 100;
+      if (d > 2) fl.push("The second half of the hard 400s was " + d.toFixed(1) + "% slower than the first. That suggests the opening reps were above a sustainable pace, so the estimate may be too fast.");
+      if (d < -2) fl.push("The second half of the hard 400s was " + (-d).toFixed(1) + "% faster than the first. That suggests reserve, so the estimate may be too slow.");
+    }
+    if (rpe < 6) fl.push("RPE below 6: too easy to predict a race well. Treat the estimate with caution.");
+    if (rpe > 9.5) fl.push("RPE above 9.5: close to all-out. Treat the estimate with caution.");
+    if (D / X > 3 || D / X < 1 / 3) fl.push("These reps equal about " + xText(X) + " pace. Predicting a " + $("target").options[$("target").selectedIndex].text + " from that is a long extrapolation, so treat it with caution.");
+    fl.push("Heat, surface, wind and hills are not adjusted for.");
+    $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
+    var rows = [["1500m", 1.5], ["Mile", 1.609344], ["3km", 3], ["5km", 5], ["10km", 10], ["Half marathon", HM]];
+    var h = "<thead><tr><th>Race</th><th class=\"num\">Predicted</th><th class=\"num\">Range</th></tr></thead><tbody>";
+    rows.forEach(function (r) { var f = function (p5) { return race(p5, r[1]) * r[1]; }; h += "<tr><td>" + r[0] + "</td><td class=\"num pace\">" + hmmss(f(pm)) + "</td><td class=\"num\">" + hmmss(f(pf)) + "–" + hmmss(f(ps)) + "</td></tr>"; });
+    $("eq").innerHTML = h + "</tbody>";
+  }
   function setMode() {
-    var c = $("mode").value === "cont";
-    $("lbReps").hidden = c; $("lbRest").hidden = c; $("anchSec").hidden = c;
+    var md = $("mode").value, c = md === "cont", a = md === "aussie";
+    $("lbReps").hidden = c; $("lbRest").hidden = c || a; $("anchSec").hidden = c || a; $("lbFloat").hidden = !a;
+    $("rep").closest("label").hidden = a;
     $("repLab").textContent = c ? "Distance" : "Rep distance";
-    $("splitLab").textContent = c ? "Time" : "Rep times or average, comma separated";
-    $("splits").placeholder = c ? "20:00" : "3:38, 3:32, 3:33, 3:31, 3:34, 3:35";
-    $("hint").textContent = c ? "Time as mm:ss or h:mm:ss. Add /km to enter pace, e.g. 4:00/km." : HINT_REPS;
+    $("splitLab").textContent = c ? "Time" : a ? "Hard 400m times or average, comma separated" : "Rep times or average, comma separated";
+    $("splits").placeholder = c ? "20:00" : a ? "1:29, 1:29, 1:28, 1:29, 1:30, 1:29, 1:30, 1:29" : "3:38, 3:32, 3:33, 3:31, 3:34, 3:35";
+    $("hint").textContent = c ? "Time as mm:ss or h:mm:ss. Add /km to enter pace, e.g. 4:00/km." : a ? HINT_AUS : HINT_REPS;
   }
 
   function update() {
     $("err").hidden = true;
+    var aus = $("mode").value === "aussie";
     var unit = $("unit").value, rv = Number($("rep").value.replace(",", "."));
-    if (!rv || rv <= 0) return fail("Enter the rep distance as a number.");
-    var m = unit === "km" ? rv * 1000 : rv;
+    if (!aus && (!rv || rv <= 0)) return fail("Enter the rep distance as a number.");
+    var m = aus ? 400 : unit === "km" ? rv * 1000 : rv;
     if ($("mode").value === "cont") return updateCont(m);
     if (m < ANCH[0].m || m > ANCH[ANCH.length - 1].m) return fail("Rep distance should be between 400m and 5000m.");
-    var rest = Number($("rest").value), rpe = Number($("rpe").value.replace(",", "."));
+    var rest = aus ? 0 : Number($("rest").value), rpe = Number($("rpe").value.replace(",", "."));
     if (isNaN(rest) || rest < 0 || rest > 900) return fail("Enter the rest in seconds, 0 to 900.");
     if (!(rpe >= 1 && rpe <= 10)) return fail("Enter the end RPE, 1 to 10.");
     var raw = $("splits").value.trim();
@@ -368,6 +425,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var nReps = times.length > 1 ? times.length : parseInt($("reps").value, 10);
     if (!(nReps >= 2 && nReps <= 50)) return fail("Enter 2 to 50 reps. For a single effort, choose Continuous.");
     if (times.length > 1) $("reps").value = times.length;
+    if (aus) return updateAus(times, nReps, rpe);
     if (nReps * m / 1000 > MAXWORK) return fail("Total work is " + (nReps * m / 1000).toFixed(1) + "km. The tool supports up to " + MAXWORK + "km of work in a session.");
     var xEq = equivX(m, nReps), capped = equivX(m, nReps, true) > MAR * 1.001;
     if (xEq < MINX) return fail("This many reps equals the pace of a race shorter than 400m, outside what the tool supports.");
@@ -381,7 +439,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var tFor = function (p5) { return race(p5, D) * D; };
     var tMid = tFor(pm), tLo = tFor(ps), tHi = tFor(pf);   // slow end of the anchor => faster runner
     $("res").innerHTML =
-      "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + ", " + mmss(pRaw) + " /km</small></div>" +
+      "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + (aus ? " + 200m float" : "") + ", " + mmss(pRaw) + " /km</small></div>" +
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
       "<div><span>Reps equal about</span><b>" + xText(xEq) + "</b><small>pace, for this many reps</small></div>";
     var fl = [];
@@ -413,8 +471,9 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     $("anch").innerHTML = h + "</tbody>";
   }
   var HINT_REPS = $("hint").textContent;
+  var HINT_AUS = "Hard 400m times as mm:ss or seconds. Several times set the rep count. One time is the average and uses Reps. The float is the 200m between hard 400s, run without stopping. The floats count towards the session total.";
   $("mode").addEventListener("change", setMode);
-  ["mode", "reps", "rep", "unit", "rest", "rpe", "splits", "target"].forEach(function (id) { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
+  ["mode", "reps", "rep", "unit", "rest", "rpe", "splits", "float", "target"].forEach(function (id) { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
   update();
 })();
 
