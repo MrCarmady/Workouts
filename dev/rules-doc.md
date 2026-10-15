@@ -177,3 +177,4 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Easy pace % of 5km speed (default 65, range 50 to 85) and sub-threshold buffer % slower (default 0, range 0 to 10), on Plan Builder, Marathon Plans, Copeland Base and the Recommender. Saved in the shared browser profile.
 - Easy % feeds E paces (and the Recommender load estimate). Buffer slows Plan Builder sub-threshold (race 21) and the Copeland rep paces (3 to 12 min); 5km reps, race paces and Hansons fixed paces are unchanged.
 - Plan Builder keeps its easy pace box; if filled it overrides the percentage.
+- Recommender: the buffer box is hidden unless the Copeland row is selected or the value is invalid; a hidden buffer still applies to the Copeland row. Invalid easy % or buffer shows an error.

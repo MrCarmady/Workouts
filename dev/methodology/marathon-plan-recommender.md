@@ -65,3 +65,6 @@ These are Marathon Plans' defaults, fixed here:
 - The lines are daily CTL, ATL and form (CTL minus ATL), from your start CTL and ATL. The held weeks before the join week are included (flat at your current load). Values are at the end of each day.
 - The dashed horizontal line is the lowest form allowed. The dashed vertical line marks the join week.
 - All three lines are in TSS per day on one axis. The ATL/CTL ratio is not drawn: it has a different scale. Hover (or the arrow keys) shows it with the other values, and the table view lists end-of-week CTL, ATL, form and ratio.
+
+## Sub-threshold buffer box
+The buffer only changes the Copeland add-on, so its input is shown only while the Copeland row is selected, or while its value is invalid (so it can be fixed). A hidden buffer still applies to the Copeland row in the table. An invalid easy % or buffer now shows an error instead of an empty table.

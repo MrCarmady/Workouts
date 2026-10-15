@@ -1060,7 +1060,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   ];
   var MODS = { copeland: COPELAND, daniels: DANIELS, hansons: HANSONS, pfitzinger: PFITZ };
 
-  function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("chartbox").hidden = true; }
+  // The sub-threshold buffer only changes the Copeland add-on, so its box shows only while that plan is selected, or while its value is invalid.
+  function syncBuf() { $("sbf").parentNode.hidden = SELN !== "Copeland add-on" && !pers().err; }
+  function fail(msg) { syncBuf(); $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("chartbox").hidden = true; }
   function num(id) { var s = ($(id).value || "").trim().replace(",", "."); return s === "" ? null : Number(s); }
   function sumArr(a) { return a.reduce(function (s, x) { return s + x; }, 0); }
 
@@ -1193,6 +1195,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     if (floor === null || !isFinite(floor) || floor > 0 || floor < -60) return fail("Lowest form must be a number from -60 to 0.");
     if (maxr === null || !isFinite(maxr) || maxr < 1 || maxr > 3) return fail("Highest ATL / CTL must be a number from 1 to 3.");
     if (jp === null || !isFinite(jp) || jp < 0 || jp > 100) return fail("Join percentage must be a number from 0 to 100. 0 means start every plan at week 1.");
+    var pv = pers(); if (pv.err) return fail(pv.err);
     U = "mi";
     var riegel5 = t * Math.pow(5 / D, K) / 5, p5 = riegel5 + adj(D), c = { D: D, t: t, riegel5: riegel5, p5: p5 };
     var res = [];
@@ -1230,6 +1233,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     }).join("");
     RES = res; C0 = c0; A0 = a0; FLOOR = floor;
     if (!res.some(function (x) { return x.name === SELN; })) SELN = (top || res[0] || {}).name;
+    syncBuf();
     Array.prototype.forEach.call($("rows").querySelectorAll("tr.pick"), function (tr) {
       tr.classList.toggle("sel", tr.getAttribute("data-n") === SELN);
       tr.addEventListener("click", function () { SELN = tr.getAttribute("data-n"); update(); });
