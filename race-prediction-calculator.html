@@ -102,15 +102,30 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
 
   <p class="warn" id="err" hidden></p>
 
+  <section class="panel">
+    <h2>Compare</h2>
+    <div class="fields">
+      <label>Compare with
+        <select id="cmp">
+          <option value="none" selected>None</option>
+          <option value="daniels">Daniels (VDOT)</option>
+          <option value="hansons">Hansons</option>
+          <option value="pfitz">Pfitzinger</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
   <section id="res">
     <h2>Predicted times</h2>
     <div class="tablewrap">
       <table>
-        <thead><tr><th>Distance</th><th>Time</th><th>/km</th><th>/mile</th></tr></thead>
+        <thead><tr id="thead"><th>Distance</th><th>Time</th><th>/km</th><th>/mile</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
     <p class="note" id="weeknote" style="margin-top:12px"></p>
+    <p class="note" id="cmpnote" style="margin-top:6px"></p>
   </section>
 
   <section class="method">
@@ -198,6 +213,47 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   // The marathon is set to F x half marathon, where F is 2.10 at 70 miles a week or more, 2.13 at 60, 2.17 at 50 and 2.25 at 35 (linear between, flat outside).
   // With no weekly distance, 70 miles a week is assumed.
 
+  var HANS = { x0: 7.288757114294251, lo: 810, hi: 2700, c: {
+    "mile": [0.004191160441505432, -0.0010626600793939497, 1.0001707413576468, 6.045259327978089],
+    "5k": [1.831196919573717e-15, 2.3150137740320326e-14, 1.0, 7.288757114294246],
+    "10k": [-0.00011745449010257657, 0.00011301067613759096, 1.0000055495587026, 8.019825978382615],
+    "10mi": [-3.53572188230205e-05, 5.0579296333834225e-05, 1.0000216105040334, 8.535975789619222],
+    "hm": [0.00037341324099069833, -2.3871048198857038e-05, 0.9998978743325316, 8.819685986483577],
+    "mar": [6.864360051145161e-05, -9.69865730410293e-07, 0.9999876428439406, 9.565893529785535]
+  } };
+  // Comparison models. Hansons: cubic fits to the printed equivalent-times chart (max error 0.5 s; fitted curves, not the book's table).
+  // Pfitzinger: constant ratios fitted to his 10K to 15K/10 mile/half/marathon table. Daniels: VDOT equations (Daniels-Gilbert).
+  var HKEY = { "Mile": "mile", "5km": "5k", "10km": "10k", "10 miles": "10mi", "Half marathon": "hm", "Marathon": "mar" };
+  var PFZ = { "10km": 1, "10 miles": 1.6797, "Half marathon": 2.2373, "Marathon": 4.7173 };
+  function hansT(key, t5) { var u = Math.log(t5) - HANS.x0, c = HANS.c[key], v = 0; for (var i = 0; i < c.length; i++) v = v * u + c[i]; return Math.exp(v); }
+  function hansTo5(key, t) {
+    var lo = HANS.lo, hi = HANS.hi;
+    if (t < hansT(key, lo) || t > hansT(key, hi)) return null;
+    for (var i = 0; i < 60; i++) { var m = (lo + hi) / 2; if (hansT(key, m) < t) lo = m; else hi = m; }
+    return (lo + hi) / 2;
+  }
+  function danielsT(v, km) { var lo = 60, hi = 40000; for (var i = 0; i < 80; i++) { var m = (lo + hi) / 2; if (vdot(m / 60, km * 1000) > v) lo = m; else hi = m; } return (lo + hi) / 2; }
+  // Returns {name: seconds or null} for every distance, or an {err} when the input is outside the model's table.
+  function compareTimes(model, D, t) {
+    var out = {}, i;
+    if (model === "daniels") { var v = vdot(t / 60, D.km * 1000); DISTS.forEach(function (T) { out[T.name] = danielsT(v, T.km); }); return { t: out }; }
+    if (model === "hansons") {
+      var k = HKEY[D.name]; if (!k) return { err: "Hansons chart has no " + D.name + " column. Enter a mile, 5km, 10km, 10 miles, half marathon or marathon result." };
+      var t5 = hansTo5(k, t); if (t5 === null) return { err: "Outside the Hansons chart (5km equivalent 13:30 to 45:00)." };
+      DISTS.forEach(function (T) { var kk = HKEY[T.name]; out[T.name] = kk ? hansT(kk, t5) : null; });
+      return { t: out };
+    }
+    if (model === "pfitz") {
+      var z = PFZ[D.name]; if (!z) return { err: "Pfitzinger's table has no " + D.name + " column. Enter a 10km, 10 miles, half marathon or marathon result." };
+      var t10 = t / z; if (t10 < 27 * 60 || t10 > 55 * 60) return { err: "Outside Pfitzinger's table (10km equivalent 27:00 to 55:00)." };
+      DISTS.forEach(function (T) { out[T.name] = PFZ[T.name] ? t10 * PFZ[T.name] : null; });
+      return { t: out };
+    }
+    return { t: null };
+  }
+  var CMP_NAMES = { daniels: "Daniels (VDOT)", hansons: "Hansons", pfitz: "Pfitzinger" };
+  function dstr(d) { var s = Math.round(d), a = Math.abs(s); return (s < 0 ? "-" : "+") + (a >= 60 ? Math.floor(a / 60) + ":" + (a % 60 < 10 ? "0" : "") + a % 60 : a + "s"); }
+
   var VDOT_MIN = 15, VDOT_MAX = 85;   // plausible human range (my choice; world records are about 80-85)
 
 
@@ -209,13 +265,14 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   // Shared race result for all pages on the same site (browser storage; does not sync between devices).
   function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
   function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
-  function save() { try { profSet("km", String(DISTS[parseInt($("dist").value, 10)].km)); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {} try { localStorage.setItem("racepred", JSON.stringify({ dist: $("dist").value, time: $("time").value })); } catch (e) {} }
+  function save() { try { profSet("km", String(DISTS[parseInt($("dist").value, 10)].km)); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {} try { localStorage.setItem("racepred", JSON.stringify({ dist: $("dist").value, time: $("time").value, cmp: $("cmp").value })); } catch (e) {} }
   function restore() {
     try {
       var o = JSON.parse(localStorage.getItem("racepred") || "null");
       if (!o) return;
       if (DISTS[parseInt(o.dist, 10)]) $("dist").value = o.dist;
       if (typeof o.time === "string") $("time").value = o.time;
+      if (["none", "daniels", "hansons", "pfitz"].indexOf(o.cmp) >= 0) $("cmp").value = o.cmp;
     } catch (e) {}
   }
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("res").hidden = true; }
@@ -238,13 +295,17 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       if (weekKm < 30 || weekKm > 300) return fail("Weekly distance should be between 30km (19 miles) and 300km (186 miles). Check the number and unit.");
     }
     offM = marathonOff(riegel5, weekKm);
-    var html = "";
+    var html = "", cm = $("cmp").value, cr = compareTimes(cm, D, t), cnote = "";
+    var hasC = cm !== "none";
+    $("thead").innerHTML = "<th>Distance</th><th>Time</th><th>/km</th><th>/mile</th>" + (hasC ? "<th>" + CMP_NAMES[cm] + "</th>" : "");
+    if (hasC && cr.err) cnote = CMP_NAMES[cm] + ": " + cr.err;
     DISTS.forEach(function (T, i) {
       // Short targets get the same adjustment back, so the input race reproduces itself.
       var p = (p5 - adj(T.km)) * Math.pow(T.km / 5, K - 1) + off(T.km) - off(D.km);
       var isIn = i === di;
       html += "<tr" + (isIn ? " class='input'" : "") + "><td class='dist'>" + T.name + (isIn ? "<small>Your result</small>" : "") + "</td>" +
-        "<td class='time'>" + hmmss(p * T.km) + "</td><td>" + mmss(p) + "</td><td>" + mmss(p * MILE) + "</td></tr>";
+        "<td class='time'>" + hmmss(p * T.km) + "</td><td>" + mmss(p) + "</td><td>" + mmss(p * MILE) + "</td>" +
+        (hasC ? "<td>" + (cr.t && cr.t[T.name] != null ? hmmss(cr.t[T.name]) + " <small>" + dstr(cr.t[T.name] - p * T.km) + "</small>" : "–") + "</td>" : "") + "</tr>";
     });
     $("rows").innerHTML = html;
     var wn = $("weeknote");
@@ -253,6 +314,8 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       var x = marathonFactor(weekKm);
       wn.textContent = "Marathon is set to " + (Math.round(x * 1000) / 1000) + " times the half marathon, for " + (Math.round(weekKm * 10) / 10) + "km a week." + (weekKm / MILE < 35 ? " Below 35 miles a week the adjustment stops at 2.25 times the half marathon; a marathon build on less is not covered." : "");
     }
+    if (hasC && !cr.err) { var cn = { daniels: "Daniels: VDOT equations, all distances.", hansons: "Hansons: fitted to the book's chart; shown for mile, 5km, 10km, 10 miles, half marathon and marathon.", pfitz: "Pfitzinger: fitted to his table; shown for 10km, 10 miles, half marathon and marathon." }; cnote = cn[cm] + " Small figure = their time minus ours."; }
+    $("cmpnote").textContent = cnote;
     $("res").hidden = false;
   }
 
@@ -277,7 +340,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     if (typeof pr.week === "string") $("week").value = pr.week;
     if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit;
   })();
-  ["dist", "time", "week", "wunit"].forEach(function (id) {
+  ["dist", "time", "week", "wunit", "cmp"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });

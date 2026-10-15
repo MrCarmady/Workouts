@@ -102,6 +102,15 @@ The page shows an error when the time can't be read, when the VDOT check above f
 - The 5km to half marathon relationship is most reliable for intermediate runners on moderate mileage. It may be less reliable for beginners and for runners on low mileage. This is the author's judgement, not tested here. Vickers & Vertosick (2016) found Riegel reasonable up to the half marathon in a mostly recreational sample (median 30 miles a week), but the main text does not report that by runner type.
 - The marathon adjustment is small and is a guess. Long runs, fuelling and heat dominate real marathon outcomes.
 
+## Compare with
+
+An optional extra column shows another model's times beside ours, with the difference (their time minus ours). One comparison at a time. The choice is stored with the page's other values.
+
+- Daniels (VDOT): the Daniels-Gilbert equations, solved for the same VDOT at each distance. All eight distances. Spot-checked by the author against the printed Daniels table; a few seconds' difference remains and the model was left unchanged.
+- Hansons: cubic curves fitted to the equivalent-times chart in the Hansons supplement (natural log of time against the log of the 5km time). Maximum fit error 0.5 seconds. The book's table is not reproduced. Columns: mile, 5km, 10km, 10 miles, half marathon, marathon. Valid for a 5km equivalent of 13:30 to 45:00. At 18:30 it gives a 3:00:21 marathon, as the chart prints. One chart cell looks like a typo (25K at a 15:00 5km prints 1:23:18, about 1:23:28 expected); it is not used.
+- Pfitzinger: constant ratios to the 10km time (10 miles 1.6797, half 2.2373, marathon 4.7173), fitted to his table, valid for a 10km equivalent of 27:00 to 55:00.
+- Where the other model has no column for the input distance, or the input is outside its range, the column shows a dash and a note says why. Nothing is extrapolated.
+
 ## Shared race result
 
 This page shares its race distance and time with the Sub-Threshold Session Generator, the Race Prediction Calculator, the Run TSS Calculator and the Run TSS Planner. The values are kept in the browser's local storage under one key. The last page you edited sets the value for the others. It applies only on the hosted site, where the pages share an origin, and only in the same browser on the same device. It does not sync between devices. If a stored distance is missing from a page's list (the 10 miles and marathon options exist only on the predictor), that page keeps its own distance.

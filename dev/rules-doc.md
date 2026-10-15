@@ -184,3 +184,9 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - 2.10 is the author's (1:40 half -> 3:30 at 70 mi). Cross-check: Kejelcha 56:51 half, 1:59:41 marathon (author-supplied, unverified) = 2.105, so no separate band above 70 mi.
 - 60/50/35 mi factors are placeholders (old table converted at a 100 min half). Author's low-mileage blow-ups (1:39/4:05, 1:29/3:31) suggest the low end may be too optimistic; weekly mileage in those blocks unknown.
 - Effect: faster halves get faster marathons (1:20 at 40 mi: 3:02:20 -> 2:57:52), slower halves slower (1:50 at 40 mi: 4:02:20 -> 4:04:34); 1:40 unchanged.
+
+## Compare with (2026-10-15)
+- Race Prediction Calculator: optional column for Daniels (VDOT), Hansons or Pfitzinger, one at a time, with difference vs ours.
+- Hansons and Pfitzinger are fitted curves/ratios, not the books' tables (public site). No extrapolation; unsupported inputs or distances show a dash plus a note.
+- Our VDOT is not tuned to the printed Daniels table (a few seconds apart; author's call).
+- At 18:30 5km: Daniels 2:57:08, Hansons 3:00:21 (matches chart), ours 2:58:43 (70 mi default).
