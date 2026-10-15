@@ -148,7 +148,7 @@ tr.easy td:first-child { padding-left: 11px; }
       <p class="struct" id="struct"></p>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Part</th><th>Reps</th><th>Length</th><th>Pace /km</th><th id="eqh">Equivalent</th></tr></thead>
+          <thead><tr><th>Part</th><th>Reps</th><th>Length</th><th id="eqh">Time / distance</th><th>Pace /km</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -258,6 +258,11 @@ tr.easy td:first-child { padding-left: 11px; }
   function pn(km) { return Math.abs(km - MILE) < 0.01 ? "mile pace" : km < 2 ? Math.round(km * 1000) + "m pace" : km + "k pace"; }
   function rangeText(a, b) { return a === b ? a : a + "–" + b; }
   function distLabel(m) { return m < 1000 ? Math.round(m) + "m" : (Math.round(m / 10) / 100).toString() + "km"; }
+  function timeRange(a, b) {
+    var ra = Math.round(a), rb = Math.round(b);
+    if (rb < 60) return ra === rb ? ra + "s" : ra + "–" + rb + "s";
+    return rangeText(hmmss(a), hmmss(b));
+  }
   function secLabel(s) { return s >= 120 && s % 60 === 0 ? (s / 60) + " min" : s < 120 ? s + "s" : mmss(s); }
   function round10(x) { return Math.round(x / 10) * 10; }
 
@@ -372,18 +377,18 @@ tr.easy td:first-child { padding-left: 11px; }
     function add(label, reps, spec, pf, ps, cls, main) {
       if (reps < 1) return;
       var pm = (pf + ps) / 2, tMid, dMid, len, eq;
-      if (spec.m != null) { dMid = spec.m; tMid = spec.m / 1000 * pm; len = distLabel(spec.m); eq = rangeText(hmmss(spec.m / 1000 * pf), hmmss(spec.m / 1000 * ps)); }
+      if (spec.m != null) { dMid = spec.m; tMid = spec.m / 1000 * pm; len = distLabel(spec.m); eq = timeRange(spec.m / 1000 * pf, spec.m / 1000 * ps); }
       else { tMid = spec.s; dMid = spec.s / pm * 1000; len = secLabel(spec.s); eq = "ca. " + distLabel(round10(dMid)); }
       T += reps * tMid; Dm += reps * dMid; TSS += reps * tMid / 3600 * Math.pow(thr / pm, 2) * 100;
       if (main) { mainT += reps * tMid; mainD += reps * dMid; }
-      rows.push('<tr class="' + cls + '"><td>' + label + "</td><td>" + reps + "</td><td>" + len + '</td><td class="pace">' + rangeText(mmss(pf), mmss(ps)) + "</td><td>" + eq + "</td></tr>");
+      rows.push('<tr class="' + cls + '"><td>' + label + "</td><td>" + reps + "</td><td>" + len + "</td><td>" + eq + '</td><td class="pace">' + rangeText(mmss(pf), mmss(ps)) + "</td></tr>");
     }
     var struct = "", mpNote = false, scaleHtml = "";
     function tempoPace(min) { return Math.min(thr * (1 + TEMPO_SLOW * Math.log(min / 20)), Math.max(mp, thr)); }
     if (wuMin + cdMin > 0) {
       var wcT = (wuMin + cdMin) * 60;
       T += wcT; Dm += wcT / wcPace * 1000; TSS += wcT / 3600 * Math.pow(thr / wcPace, 2) * 100;
-      rows.push('<tr class="easy"><td>Warm-up and cool-down</td><td>1</td><td>' + (wuMin === cdMin ? wuMin + " + " + cdMin : wuMin + " + " + cdMin) + ' min</td><td class="pace">' + mmss(wcPace) + "</td><td>ca. " + distLabel(round10(wcT / wcPace * 1000)) + "</td></tr>");
+      rows.push('<tr class="easy"><td>Warm-up and cool-down</td><td></td><td>' + wuMin + " + " + cdMin + ' min</td><td>ca. ' + distLabel(round10(wcT / wcPace * 1000)) + '</td><td class="pace">' + mmss(wcPace) + "</td></tr>");
     }
 
     if (w.key === "tempo") {
@@ -418,14 +423,14 @@ tr.easy td:first-child { padding-left: 11px; }
       var nA = 8;   // Aussie quarters is always 8 reps
       struct = nA + " × (400m + 200m float), continuous" + (o.start ? ", 200m float first" : "");
       if (o.start) add("Opening float at M pace", 1, { m: 200 }, mpFast, mpFl, "easy", true);
-      add("Hard 400m at 4k pace", nA, { m: 400 }, ph, ph, "hard", true);
-      add("Float 200m at M pace", nA, { m: 200 }, mpFast, mpFl, "easy", true);
+      add("Hard at 4k pace", nA, { m: 400 }, ph, ph, "hard", true);
+      add("Float at M pace", nA, { m: 200 }, mpFast, mpFl, "easy", true);
       notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ".");
     } else if (w.key === "pre") {
       var pm1 = raceP(MILE), pm2 = pm1 * 1.02;   // fast 200s: mile pace to 2% slower
-      struct = o.pairs + " × (200m fast + 200m recovery), continuous";
-      add("Fast 200m", o.pairs, { m: 200 }, pm1, pm2, "hard", true);
-      add("Recovery 200m", o.pairs, { m: 200 }, pm1 * 4 / 3, pm2 * 4 / 3, "easy", true);
+      struct = o.pairs + " pairs of 200m, fast then recovery, continuous";
+      add("Fast", o.pairs, { m: 200 }, pm1, pm2, "hard", true);
+      add("Recovery", o.pairs, { m: 200 }, pm1 * 4 / 3, pm2 * 4 / 3, "easy", true);
       notes.push("Fast 200s are slightly slower than mile pace (mile pace to 2% slower, my reading of the article). Recovery 200s are 33⅓% slower than the fast ones. There is no standing rest: the slow 200 is the recovery. Stop when you cannot hold the fast pace or the recovery feels too short.");
       notes.push("From the Outside article on Pre's 200s, which credits Bill Bowerman. It suggests three miles or until you cannot hold pace, and using it before the final taper rather than weekly. " + o.pairs + " pairs is " + distLabel(o.pairs * 400) + ".");
     } else if (w.key === "mona") {
@@ -440,20 +445,20 @@ tr.easy td:first-child { padding-left: 11px; }
     } else if (w.key === "yasso") {
       var py = raceP(5), rep800 = 0.8 * py;
       struct = o.reps + " × 800m, jog the same time between";
-      add("800m at 5k pace", o.reps, { m: 800 }, py, py, "hard", true);
+      add("At 5k pace", o.reps, { m: 800 }, py, py, "hard", true);
       add("Jog (same time as the rep)", o.reps - 1, { s: Math.round(rep800) }, wcPace, wcPace, "easy", true);
       var folk = Math.round(rep800) * 60, pred = mp * MAR, diff = pred - folk;
       notes.push("Old rule: " + mmss(rep800) + " per 800m means a " + hmmss(folk) + " marathon. Predicted: " + hmmss(pred) + ", " + mmss(Math.abs(diff)) + (diff >= 0 ? " slower" : " faster") + ".");
     } else if (w.key === "rosario") {
       var pr = raceP(5), pf2 = pr + 25 / 0.8;
       struct = o.reps + " × (800m + 800m float), continuous";
-      add("800m at 5k pace", o.reps, { m: 800 }, pr, pr, "hard", true);
-      add("Float 800m", o.reps, { m: 800 }, pf2, pf2, "easy", true);
+      add("At 5k pace", o.reps, { m: 800 }, pr, pr, "hard", true);
+      add("Float", o.reps, { m: 800 }, pf2, pf2, "easy", true);
       var dd = pf2 - mp;
       notes.push("Float: " + mmss(pf2) + "/km, " + Math.round(Math.abs(dd)) + "s/km " + (dd >= 0 ? "slower" : "faster") + " than predicted marathon pace (" + mmss(mp) + ").");
     } else if (w.key === "k1") {
       struct = o.reps + " × 1km, " + o.rest + "s jog between";
-      add("1km at 4.5k pace", o.reps, { m: 1000 }, raceP(4.5), raceP(4.5), "hard", true);
+      add("At 4.5k pace", o.reps, { m: 1000 }, raceP(4.5), raceP(4.5), "hard", true);
       add("Jog", o.reps - 1, { s: o.rest }, wcPace, wcPace, "easy", true);
     } else if (w.key === "mile") {
       var pmi = raceP(10);

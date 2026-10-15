@@ -71,3 +71,6 @@ The float pace is race(5) + 25s per 800m. The page shows how far that float is f
 - Hard parts use their stated paces. Floats use the mid-point of their range.
 - The marathon-pace long run has no separate warm-up or cool-down.
 - TSS = hours × (threshold pace ÷ pace)² × 100, summed over every part.
+
+## Results table layout
+Columns: Part, Reps, Length, Time / distance, Pace /km. For distance reps the time per rep comes first (seconds under a minute, e.g. 41–42s) and pace /km is secondary, because coaches give short reps as times. For timed reps the column shows the approximate distance. The warm-up and cool-down row has no rep count. Labels do not repeat the length.
