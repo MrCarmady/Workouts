@@ -54,8 +54,8 @@ def scenarios():
     for page in ['run-tss-calculator','run-tss-planner']:
         out.append((page,'race mode',lambda pg:[fill(pg,'mode','race'),fill(pg,'thr','3:58'),fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'wmin','30'),fill(pg,'wpace','4:00'),fill(pg,'target','60'),fill(pg,'emin','20'),fill(pg,'epace','5:00')]))
     out.append(('hard-workout-predictor','aussie 8 x 1:29',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'splits','1:29, 1:29, 1:28, 1:29, 1:30, 1:29, 1:30, 1:29'),fill(pg,'float','52, 51, 52, 52, 52, 51, 52, 52')]))
-    out.append(('hard-workout-predictor','aussie 12 avg jog floats',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'reps','12'),fill(pg,'splits','1:29'),fill(pg,'float','75')]))
-    out.append(('hard-workout-predictor','aussie 6 avg',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'reps','6'),fill(pg,'splits','1:29'),fill(pg,'float','52')]))
+    out.append(('hard-workout-predictor','aussie avg jog floats',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'splits','1:29'),fill(pg,'float','75')]))
+    out.append(('hard-workout-predictor','aussie 6 times error',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'splits','1:29, 1:29, 1:28, 1:29, 1:30, 1:29'),fill(pg,'float','52')]))
     out.append(('hard-workout-predictor','aussie no float',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'splits','1:29')]))
     out.append(('hard-workout-predictor','6x1k',lambda pg:[fill(pg,'rep','1000'),fill(pg,'splits','3:38, 3:32, 3:33, 3:31, 3:34, 3:35')]))
     out.append(('hard-workout-predictor','6x800',lambda pg:[fill(pg,'rep','800'),fill(pg,'rest','90'),fill(pg,'splits','2:39, 2:39, 2:39, 2:40, 2:38, 2:36')]))
