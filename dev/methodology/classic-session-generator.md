@@ -55,11 +55,11 @@ The 0.049 comes from a least-squares fit to a table the author supplied and desc
 
 ## Marathon pace and weekly distance
 
-Marathon pace is race(42.195), which depends on the weekly distance field. The marathon is set to twice the half marathon plus 7 min at 80 miles (129km) a week or more, plus 10 min at 70 miles, 13 at 60, 17 at 50, and 25 at 35 miles or less, in straight lines between those points. Blank means 70 miles. The Race Prediction Calculator methodology gives the formula and says these numbers are my estimates.
+Marathon pace is race(42.195), which depends on the weekly distance field. The marathon is set to 2.10 times the half marathon at 70 miles a week or more, 2.13 at 60, 2.17 at 50 and 2.25 at 35 or less, in straight lines between those points. Blank means 70 miles. The Race Prediction Calculator methodology gives the formula and says these numbers are my estimates.
 
 ## Yasso 800s and the marathon
 
-The traditional rule reads the average 800m time in minutes:seconds as the marathon time in hours:minutes. This page runs the 800s at race(5) and shows the rule's marathon time beside the model's predicted marathon, with the difference. At about 75 miles a week the model was 1 min 23s slower than the rule for an 18:54 5k. At lower weekly distances the model's marathon is slower, so the rule would overestimate. This is shown for comparison. The rule is a folk rule, and 5km-paced 800s are a fitness check more than a predictor.
+The traditional rule reads the average 800m time in minutes:seconds as the marathon time in hours:minutes. This page runs the 800s at race(5) and shows the rule's marathon time beside the model's predicted marathon, with the difference. At about 75 miles a week the model was 1 min 35s slower than the rule for an 18:54 5k. At lower weekly distances the model's marathon is slower, so the rule would overestimate. This is shown for comparison. The rule is a folk rule, and 5km-paced 800s are a fitness check more than a predictor.
 
 ## Rosario 800s
 

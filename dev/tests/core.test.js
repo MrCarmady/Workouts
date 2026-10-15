@@ -2,7 +2,7 @@
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
 const src = fs.readFileSync(path.join(__dirname, "..", "shared", "core.js"), "utf8");
 const ctx = {}; vm.createContext(ctx);
-vm.runInContext(src + "\nthis.api = { K, HM, MAR, MILE, adj, off, marathonExtraMin, marathonOff, parseTime, mmss, hmmss, vdot, setOff: function (v) { offM = v; } };", ctx);
+vm.runInContext(src + "\nthis.api = { K, HM, MAR, MILE, adj, off, marathonFactor, marathonOff, parseTime, mmss, hmmss, vdot, setOff: function (v) { offM = v; } };", ctx);
 const a = ctx.api; let n = 0;
 function t(name, fn) { fn(); n++; }
 const near = (x, y, e, m) => assert.ok(Math.abs(x - y) <= e, (m || "") + " got " + x + " expected " + y);
@@ -22,11 +22,19 @@ t("mmss and hmmss", () => {
 t("adj: short-race slowing is 6.5 ln(5/km) below 5km, zero above", () => {
   near(a.adj(5), 0, 0); near(a.adj(10), 0, 0); near(a.adj(3), 6.5 * Math.log(5 / 3), 1e-12); near(a.adj(1.5), 6.5 * Math.log(5 / 1.5), 1e-12);
 });
-t("marathonExtraMin: author's points, flat outside, linear between", () => {
+t("marathonFactor: points, flat outside, linear between", () => {
   const mi = x => x * 1.609344;
-  [[80, 7], [70, 10], [60, 13], [50, 17], [35, 25]].forEach(p => near(a.marathonExtraMin(mi(p[0])), p[1], 1e-9, "at " + p[0]));
-  near(a.marathonExtraMin(mi(120)), 7, 1e-9); near(a.marathonExtraMin(mi(20)), 25, 1e-9);
-  near(a.marathonExtraMin(mi(65)), 11.5, 1e-9); near(a.marathonExtraMin(mi(42.5)), 21, 1e-9);
+  [[70, 2.10], [60, 2.13], [50, 2.17], [35, 2.25]].forEach(p => near(a.marathonFactor(mi(p[0])), p[1], 1e-9, "at " + p[0]));
+  near(a.marathonFactor(mi(150)), 2.10, 1e-9); near(a.marathonFactor(mi(20)), 2.25, 1e-9);
+  near(a.marathonFactor(mi(65)), 2.115, 1e-9); near(a.marathonFactor(mi(40)), 2.25 - 5 / 15 * 0.08, 1e-9);
+});
+t("marathonOff: the marathon is the factor times the half marathon, never below Riegel", () => {
+  const p5 = 1125 / 5, H0 = p5 * Math.pow(a.HM / 5, a.K - 1) * a.HM;
+  a.setOff(a.marathonOff(p5, 50 * 1.609344));
+  const pm = p5 * Math.pow(a.MAR / 5, a.K - 1) + a.off(a.MAR);
+  near(pm * a.MAR / H0, 2.17, 1e-9);
+  a.setOff(a.marathonOff(p5, 130 * 1.609344));
+  near((p5 * Math.pow(a.MAR / 5, a.K - 1) + a.off(a.MAR)) * a.MAR / H0, 2.10, 1e-9);
 });
 t("marathonOff: null assumes 70 miles, never negative, falls with more mileage", () => {
   const p5 = 226.8;   // 18:54 5k

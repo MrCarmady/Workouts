@@ -130,7 +130,7 @@ Lays out the 18-week Hansons Marathon Method Beginner (Table 4.3) or Advanced (T
 
 ### Paces
 
-- Marathon pace: the Race Prediction Calculator's marathon, assuming 70 miles a week (2 × half marathon + 10 min). There is no goal-time input: every session is set from current fitness, so tempo and strength cannot come out faster than speed work. The book quotes 3:00:21 for an 18:30 5km; the page gives 3:00:12 for the same result.
+- Marathon pace: the Race Prediction Calculator's marathon, assuming 70 miles a week (2.10 × half marathon). There is no goal-time input: every session is set from current fitness, so tempo and strength cannot come out faster than speed work. The book quotes 3:00:21 for an 18:30 5km; the page gives 2:58:43 for the same result (3:00:12 before the marathon factor change of 2026-10-15, which makes faster halves faster).
 - Tempo: marathon pace. Strength: marathon pace minus 10 s per mile. Speed: race(5).
 - Easy, long runs and recoveries: the 5km pace divided by 0.65.
 

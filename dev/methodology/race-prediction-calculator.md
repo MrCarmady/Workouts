@@ -9,7 +9,7 @@ Takes one race result (distance and time) and predicts times, paces per km and p
 | Riegel formula, exponent 1.06 | Published, widely used |
 | Slowing the 5km equivalent from a result shorter than 5km by 6.5 × ln(5 / km) s/km | My estimate. The coefficient was lowered from 10.6 to 8 because the 5km PB it was first set from is thought to be soft, then to 6.5 as a halfway point between 8 and what the Daniels-Gilbert (VDOT) equations imply, which is about 3 to 6 s/km depending on distance and fitness (see below) |
 | No adjustment between 5km and the half marathon | Chosen here |
-| Marathon = 2 × half marathon + 7 min at 80+ miles a week, + 10 at 70, + 13 at 60, + 17 at 50, + 25 at 35 or less; 70 miles assumed when blank | My estimate, set by judgement. Not fitted to data |
+| Marathon = 2.10 × half marathon at 70+ miles a week, 2.13 at 60, 2.17 at 50, 2.25 at 35 or less; 70 miles assumed when blank | 2.10 is the author's; the rest are placeholders. Not fitted to data |
 | Distances offered | Chosen here |
 
 The adjustments were set by judgement. The short-race one rests on a single runner's untrained mile, so it is weak evidence. Treat them as starting points.
@@ -45,33 +45,28 @@ off(km) = offM * (min(km, 42.195) - 21.0975) / 21.0975     otherwise
 
 `offM` is set from the weekly distance. With the field blank, 70 miles a week is assumed.
 
-The marathon is set to twice the half marathon plus `X` minutes, where `X` is a straight line through these points (weekly distance in miles):
+The marathon is set to `F` times the half marathon, where `F` is a straight line through these points (weekly distance in miles). Changed 2026-10-15 from "twice the half marathon plus 7 to 25 minutes" to a percentage, so the adjustment scales with the runner.
 
-| Weekly distance | X |
+| Weekly distance | F |
 |---|---|
-| 80 or more | 7 min |
-| 70 | 10 min |
-| 60 | 13 min |
-| 50 | 17 min |
-| 35 or less | 25 min |
+| 70 or more | 2.10 |
+| 60 | 2.13 |
+| 50 | 2.17 |
+| 35 or less | 2.25 |
 
 ```
-X = 7                                   for weekly >= 80
-X = 7 + (80 - weekly) / 10 * 3          for 70 <= weekly < 80
-X = 10 + (70 - weekly) / 10 * 3         for 60 <= weekly < 70
-X = 13 + (60 - weekly) / 10 * 4         for 50 <= weekly < 60
-X = 17 + (50 - weekly) / 15 * 8         for 35 < weekly < 50
-X = 25                                  for weekly <= 35
-
 H0 = half marathon time and M0 = marathon time from Riegel with no offset, both from the input race
-offM = max(0, (X * 60 - (M0 - 2 * H0)) / 42.195)     (s/km)
+offM = max(0, (F * H0 - M0) / 42.195)     (s/km)
 ```
 
-Riegel with exponent 1.06 already puts the marathon about 8.5% above twice the half marathon (6.8 min for an 80-minute half). The mileage term adds only the remainder up to `X`. It is never negative, so a slower runner at high mileage keeps the plain Riegel result, which can be above `X`.
+Riegel with exponent 1.06 already puts the marathon at 2.085 times the half marathon. The mileage term adds only the remainder up to `F`. It is never negative, so a runner whose Riegel result is already above `F` keeps it.
 
-Where the numbers come from: all of them are my judgement, set with the author, not fitted to data. 7 min is for a well-trained club runner (elites lose almost nothing). 10 min at 70 miles was chosen because the author says a common 70-mile Pfitzinger plan assumes about that conversion; I have not checked that against Pfitzinger's books. 25 min at 35 miles is the author's figure for a low-mileage marathon build, raised from 20 because a runner's fuelling capacity and muscular endurance should still grow with mileage. The 60 and 50 mile points (13 and 17 min) were added after comparing with the Vickers & Vertosick figures below: a straight line from 10 at 70 to 25 at 35 gave +16 at 56 miles, where the 42cal article's reading of that study gives about +12 for a 1:45 half marathon. The article reports that at 60 miles Riegel overestimates by about 1 min and at 20 miles by 20+ min; I have not verified its calculation or read the paper. The 13 and 17 min points are a compromise between the two, not a fit. The slide between points is linear by choice.
+Where the numbers come from:
+- 2.10 at 70 miles or more is the author's figure (a 1:40 half converts to 3:30 on 70-mile weeks). One cross-check, not a fit: Kejelcha's half of 56:51 and marathon of 1:59:41 (as given by the author, not verified by me) is a ratio of 2.105, so there is no separate band above 70 miles. Elites at 130+ miles a week have about the same ratio. The old 80+ band (twice the half plus 7 min, ratio about 2.07 for a 1:40 half) would have been too fast for him.
+- 2.13, 2.17 and 2.25 keep the shape of the old table (+13, +17 and +25 min) converted to factors at a 100-minute half. They are placeholders, not fitted. The author's two low-mileage marathons (1:39 half, 4:05 marathon and 1:29 half, 3:31 marathon, both blow-ups, ratios 2.48 and 2.37) suggest the low end may be too optimistic, but weekly distance for those blocks is not known.
+- The old points came from the Vickers & Vertosick figures below and the 42cal article's reading of them. I could not read the model equations, so they are not used here. The slide between points is linear by choice.
 
-The closest published work is Vickers & Vertosick (2016, BMC Sports Science, Medicine and Rehabilitation, 2,303 recreational runners). There, Riegel with k = 1.07 predicted marathon times 10 minutes or more too fast for about half of runners, and models that add typical weekly mileage cut that to about 25%. I could not read the model equations, so they are not used here. Below 35 miles a week the adjustment stops at +25 min and the page says so.
+The closest published work is Vickers & Vertosick (2016, BMC Sports Science, Medicine and Rehabilitation, 2,303 recreational runners). There, Riegel with k = 1.07 predicted marathon times 10 minutes or more too fast for about half of runners, and models that add typical weekly mileage cut that to about 25%. Below 35 miles a week the adjustment stops at 2.25 and the page says so.
 
 ## Step 4: prediction for a target distance `T`
 

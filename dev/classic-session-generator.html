@@ -198,9 +198,10 @@ tr.easy td:first-child { padding-left: 11px; }
   function adj(km) { return km < 5 ? 6.5 * Math.log(5 / km) : 0; }
   var offM = 5;   // marathon slow-down in s/km, set per page from the weekly distance
   function off(km) { return km <= HM ? 0 : offM * (Math.min(km, MAR) - HM) / (MAR - HM); }
-  function marathonExtraMin(weekKm) {
+  // Marathon time as a multiple of the half marathon, by weekly miles. 2.10 at 70 miles or more (also checked against Kejelcha's 56:51 half and 1:59:41 marathon, ratio 2.105); the lower-mileage points are placeholders.
+  function marathonFactor(weekKm) {
     var mi = weekKm / 1.609344;
-    var P = [[80, 7], [70, 10], [60, 13], [50, 17], [35, 25]];   // [miles per week, minutes added to 2 x half marathon]
+    var P = [[70, 2.10], [60, 2.13], [50, 2.17], [35, 2.25]];   // [miles per week, marathon / half marathon]
     if (mi >= P[0][0]) return P[0][1];
     for (var i = 1; i < P.length; i++) {
       if (mi >= P[i][0]) { var f = (P[i - 1][0] - mi) / (P[i - 1][0] - P[i][0]); return P[i - 1][1] + f * (P[i][1] - P[i - 1][1]); }
@@ -211,7 +212,7 @@ tr.easy td:first-child { padding-left: 11px; }
   function marathonOff(p5r, weekKm) {
     if (weekKm === null) weekKm = 70 * 1.609344;
     var H0 = p5r * Math.pow(HM / 5, K - 1) * HM, M0 = p5r * Math.pow(MAR / 5, K - 1) * MAR;
-    return Math.max(0, (marathonExtraMin(weekKm) * 60 - (M0 - 2 * H0)) / MAR);
+    return Math.max(0, (marathonFactor(weekKm) * H0 - M0) / MAR);
   }
   function parseTime(str) {
     str = (str || "").trim();
@@ -249,7 +250,7 @@ tr.easy td:first-child { padding-left: 11px; }
   }
   /*@@CORE-END@@*/
   // Marathon slow-down beyond the half marathon, in s/km at the marathon (my estimate, see the Race Prediction Calculator notes).
-  // The marathon is set to 2 x half marathon + X minutes, where X is 7 min at 80 miles a week, 10 at 70, 13 at 60, 17 at 50 and 25 at 35 (linear between, flat outside).
+  // The marathon is set to F x half marathon, where F is 2.10 at 70 miles a week or more, 2.13 at 60, 2.17 at 50 and 2.25 at 35 (linear between, flat outside).
   // With no weekly distance, 70 miles a week is assumed.
   var VDOT_MIN = 15, VDOT_MAX = 85;
   // Tempo slows by this fraction per ln(minutes / 20) beyond 20 minutes. Least-squares fit to a Daniels-style table supplied by the author (20 to 60 min in 5 min steps).

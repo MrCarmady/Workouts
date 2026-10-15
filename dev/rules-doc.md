@@ -123,7 +123,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 ### Hansons Plans (Beginner, Advanced)
 - Beginner (Table 4.3): same pace rules as Advanced; warm-up/cooldown 1 mile (the book's note, and it fits the totals), Advanced 1.5. Marathon pace at 55 mi/week for Beginner (choice), 70 for Advanced.
 - Book's Advanced program (Table 4.4), 18 weeks, 6 days a week, mileage as printed (26 to 63 mi), not scaled. Tue: speed weeks 2-10, strength weeks 11-17. Thu: tempo. Sun: long run every other week from week 3. Totals include 1.5 mi warm-up and cooldown on speed, strength and tempo days.
-- Paces: marathon = predicted from the race result (70 mi a week; the book's 18:30 -> 3:00:21, page gives 3:00:12), no goal-time input because sessions run at current fitness, not goal pace (P), tempo = MP, strength = MP - 10 s/mi, speed = 5km pace, easy and recoveries = 65% of 5km speed.
+- Paces: marathon = predicted from the race result (70 mi a week; the book's 18:30 -> 3:00:21, page gives 2:58:43 since the 2026-10-15 factor change, was 3:00:12), no goal-time input because sessions run at current fitness, not goal pace (P), tempo = MP, strength = MP - 10 s/mi, speed = 5km pace, easy and recoveries = 65% of 5km speed.
 - Load: same TSS rule as the Daniels page; race day not scored; start CTL = week 1 TSS / 7 if blank.
 - 2QD (71-85 mi) added. Backlog: none open for Daniels.
 ### Copeland Marathon Plan
@@ -178,3 +178,9 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Easy % feeds E paces (and the Recommender load estimate). Buffer slows Plan Builder sub-threshold (race 21) and the Copeland rep paces (3 to 12 min); 5km reps, race paces and Hansons fixed paces are unchanged.
 - Plan Builder keeps its easy pace box; if filled it overrides the percentage.
 - Recommender: the buffer box is hidden unless the Copeland row is selected or the value is invalid; a hidden buffer still applies to the Copeland row. Invalid easy % or buffer shows an error.
+
+## Marathon factor (2026-10-15)
+- Marathon = F x half marathon (replaces 2 x half + 7/10/13/17/25 min). F = 2.10 at 70+ mi/week, 2.13 at 60, 2.17 at 50, 2.25 at 35 or less, linear between. 70 mi assumed when blank. Never below plain Riegel (2.085).
+- 2.10 is the author's (1:40 half -> 3:30 at 70 mi). Cross-check: Kejelcha 56:51 half, 1:59:41 marathon (author-supplied, unverified) = 2.105, so no separate band above 70 mi.
+- 60/50/35 mi factors are placeholders (old table converted at a 100 min half). Author's low-mileage blow-ups (1:39/4:05, 1:29/3:31) suggest the low end may be too optimistic; weekly mileage in those blocks unknown.
+- Effect: faster halves get faster marathons (1:20 at 40 mi: 3:02:20 -> 2:57:52), slower halves slower (1:50 at 40 mi: 4:02:20 -> 4:04:34); 1:40 unchanged.

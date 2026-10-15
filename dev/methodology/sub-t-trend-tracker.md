@@ -5,7 +5,7 @@ Logs classic sub-threshold sessions and turns each into an implied threshold pac
 | Item | Status |
 |---|---|
 | Rep length to race-pace table (3 min race(14–16) … 20 min race(40–42.195)) | Same as the Sub-Threshold Session Generator, run backwards |
-| Race model (Riegel 1.06) with the short-race adjustment and the marathon slow-down at the 70-mile value (twice the half marathon plus 10 min). Same as the Sub-Threshold Session Generator with its weekly distance left blank, so the table runs backwards consistently. Weekly distance is not an input | Author's judgement |
+| Race model (Riegel 1.06) with the short-race adjustment and the marathon slow-down at the 70-mile value (2.10 times the half marathon). Same as the Sub-Threshold Session Generator with its weekly distance left blank, so the table runs backwards consistently. Weekly distance is not an input | Author's judgement |
 | Threshold = race(16) | Author's definition |
 | The user logs only sessions ending at RPE 7 or lower (RPE is logged in the table for reference but does not change the result) | Author's guardrail |
 | Excluded if peak HR (last minute or two of the last rep) is above 90% of max | Author's guardrail |
