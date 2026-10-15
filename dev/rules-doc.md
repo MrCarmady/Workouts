@@ -25,7 +25,7 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 
 ## 4. Paces
 - Sub-T pace is race(21) (P): the average of sub-T paces, since longer reps run a little slower and shorter reps a little quicker. About 1.7% slower than threshold (race(16)). The earlier placeholder of 1.04 x threshold was about race(31), too slow.
-- Threshold race(16). Intervals race(4). R is the predicted mile pace. Easy is 65% of 5km speed (a cap, not a target), editable.
+- Threshold race(16). Intervals race(4). R is the predicted mile pace. Easy is 65% of 5km speed (a cap, not a target), editable (pace box or percentage).
 
 ## 5. Load progression (P)
 - Replaces the 10% mileage rule. Target weekly TSS, simulate daily CTL, ATL, TSB.
@@ -171,3 +171,9 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Lifting counts in full for ATL and at an adjustable weight for CTL, default 0.75 (my guess; P wanted ATL weighted above CTL). A common discount on both was rejected as the same as lowering the anchors. Weight below 1 means steady lifters show lower form by design (running 50 + lifting 30 per day: form -7.5 at 0.75, -15 at 0.5).
 - Same-day hit like running TSS (P: DOMS depends on exercise familiarity; same logic as a hard run). New or returning exercises not modelled.
 - Ramp is CTL-based, with an i button splitting it into running/existing versus lifting (exact, since CTL is a linear sum).
+
+
+## Personal pace inputs (2026-10-15)
+- Easy pace % of 5km speed (default 65, range 50 to 85) and sub-threshold buffer % slower (default 0, range 0 to 10), on Plan Builder, Marathon Plans, Copeland Base and the Recommender. Saved in the shared browser profile.
+- Easy % feeds E paces (and the Recommender load estimate). Buffer slows Plan Builder sub-threshold (race 21) and the Copeland rep paces (3 to 12 min); 5km reps, race paces and Hansons fixed paces are unchanged.
+- Plan Builder keeps its easy pace box; if filled it overrides the percentage.

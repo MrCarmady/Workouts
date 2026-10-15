@@ -24,7 +24,8 @@ Builds a block of weeks from a race result, current weekly distance, run days an
 
 Same model as the Race Prediction Calculator, with marathon pace set by the weekly distance entered.
 
-- Easy: 65% of 5km speed, or your own pace. This is a cap rather than a target.
+- Easy: 65% of 5km speed by default, adjustable as a percentage (50 to 85), or your own pace, which takes priority. This is a cap rather than a target.
+- Sub-threshold buffer: race(21) pace is made slower by a percentage (default 0, up to 10). It is a personal margin, not from a source.
 - Sub-threshold: race(21), about 1.7% slower than threshold (the 16km pace).
 - Threshold: the predicted 16km pace.
 - Intervals: race(4).

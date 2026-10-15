@@ -12,7 +12,7 @@ Builds a week-by-week ramp from a starting CTL to week 1 of the Copeland maratho
 | Sat | Sub-threshold, short |
 | Sun | Long easy |
 
-Each sub-threshold day has a 10 min warm-up and cooldown at the easy cap (65% of 5km speed).
+Each sub-threshold day has a 10 min warm-up and cooldown at the easy cap (65% of 5km speed by default, adjustable from 50 to 85). A sub-threshold buffer (percent slower, default 0, up to 10) slows every rep pace. Both inputs are shared with the other plan pages. They are personal margins, not from the book.
 
 ### Target
 

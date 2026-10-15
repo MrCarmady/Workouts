@@ -174,6 +174,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       <label id="f-rep5">5km reps (15-18 min)
         <input id="rep5" type="text" inputmode="decimal" autocomplete="off" value="16.5">
       </label>
+      <label>Easy pace (% of 5km speed)
+        <input id="ezp" type="text" inputmode="decimal" autocomplete="off" value="65">
+      </label>
+      <label>Sub-threshold buffer (% slower)
+        <input id="sbf" type="text" inputmode="decimal" autocomplete="off" value="0">
+      </label>
       <label id="f-lp">Long run pace (% of MP speed)
         <input id="lp" type="text" inputmode="decimal" autocomplete="off" value="85">
       </label>
@@ -236,6 +242,13 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
+  function pers() {
+    var e = ($("ezp").value || "").trim().replace(",", "."), b = ($("sbf").value || "").trim().replace(",", ".");
+    e = e === "" ? 65 : Number(e); b = b === "" ? 0 : Number(b);
+    if (!isFinite(e) || e < 50 || e > 85) return { err: "Easy pace must be 50 to 85% of 5km speed." };
+    if (!isFinite(b) || b < 0 || b > 10) return { err: "Sub-threshold buffer must be 0 to 10% slower." };
+    return { e: e / 100, b: 1 + b / 100 };
+  }
   /*@@CORE-BEGIN@@ Shared code. Edit shared/core.js and run sync_core.py; do not edit between these markers. */
   var K = 1.06, HM = 21.0975, MAR = 42.195, MILE = 1.609344;
   // Slowing applied to the 5km equivalent when the input race is shorter than 5km, in s/km (my estimate).
@@ -464,6 +477,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       return h + ttot(dr(x.dlo, x.dhi) + " " + U, trange(x.tlo, x.thi), tr(x.slo, x.shi));
     }
     function build(planId, c) {
+      var pz = pers(); if (pz.err) return { err: pz.err };
       var raw = ($("week").value || "").trim().replace(",", "."), wv = Number(raw);
       if (raw === "" || !isFinite(wv) || wv < 10 || wv > 300) return { err: "Peak weekly distance must be a number from 10 to 300." };
       adjOn = $("adjt").checked; usedAdj = false;
@@ -471,7 +485,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       offM = 0;   // marathon pace is the plain Riegel prediction
       var raceP = mkRaceP(c);
       THR = raceP(16) * MILE;
-      P = { E: raceP(5) / 0.65 * MILE, M: raceP(MAR) * MILE, T: raceP(17) * MILE, I: raceP(4) * MILE, R: raceP(1.7) * MILE };
+      P = { E: raceP(5) / pz.e * MILE, M: raceP(MAR) * MILE, T: raceP(17) * MILE, I: raceP(4) * MILE, R: raceP(1.7) * MILE };
       var paces = [["E", "Easy cap"], ["M", "Marathon"], ["T", "Threshold"], ["I", "Intervals"], ["R", "Repetition"]].map(function (x) { return [x[1], pm(P[x[0]]), "/" + U]; });
       var weeks = [], warns = [], PL = PLANS[planId] || PLANS["2qa"], RW = PL[1];
       PL[0].forEach(function (w, i) {
@@ -506,7 +520,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         wnote: "Week 18 ends on the morning of race day. Quality sessions are in miles as written. Numbers in the shorthand are miles." + (warns.length ? " In week " + warns.join(", ") + " the quality sessions alone exceed the weekly total, so the total is raised to match." : ""),
         notes: [
           "<b>Shorthand.</b> A number before E, M or T is miles (4M = 4 miles at marathon pace). I and R reps are timed. Jogs and easy segments are at easy pace and count towards the distance.",
-          "<b>Paces.</b> Marathon pace is the Riegel prediction. Threshold is race(17), intervals race(4), repetition race(1.7). Easy is a cap at 65% of 5km speed, not a target.",
+          "<b>Paces.</b> Marathon pace is the Riegel prediction. Threshold is race(17), intervals race(4), repetition race(1.7). Easy is a cap, 65% of 5km speed unless you change it, not a target.",
           "<b>Weekly total.</b> Peak distance times the week's fraction of peak. Easy days share what is left after the two quality sessions.",
           "<b>Load.</b> " + LOADNOTE + " Standing rests score 0. Q2 falls on Wednesday and Q1 on Sunday, so day order affects ATL slightly. Ranges (steady runs) use the midpoint. The marathon is scored at marathon pace and added to the race week's TSS; CTL and ATL are for race morning.",
           "<b>Slower runners.</b> Daniels treats 5 to 6 min of threshold as 1 mile, 10 to 15 min as 2 miles and 16 to 20 min as 3 miles. With the box ticked, threshold segments are capped at 6, 15 and 20 min."
@@ -600,12 +614,13 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       return trow(r.lbl, r.p ? pn + " " + pm(pkey(r.p)) : "", r.mi > 0 ? ds(r.mi) + " " + U : "", r.sec > 0 ? tm(r.sec) : "", r.tss > 0 ? Math.round(r.tss) : "");
     }
     function build(planId, c) {
+      var pz = pers(); if (pz.err) return { err: pz.err };
       var BEG = planId === "beg", PL = BEG ? PLANB : PLAN;
       WUM = BEG ? 1 : 1.5;
       offM = marathonOff(c.riegel5, BEG ? 55 * 1.609344 : null);   // 55 miles a week (beginner) or 70 (advanced)
       var raceP = mkRaceP(c), mp = raceP(MAR);
       THR = raceP(16) * MILE;
-      P = { E: raceP(5) / 0.65 * MILE, T: mp * MILE, K: (mp * MILE) - 10, S: raceP(5) * MILE };
+      P = { E: raceP(5) / pz.e * MILE, T: mp * MILE, K: (mp * MILE) - 10, S: raceP(5) * MILE };
       var paces = [["E", "Easy cap"], ["S", "Speed"], ["K", "Strength"], ["T", "Tempo and marathon"]].map(function (x) { return [x[1], pm(P[x[0]]), "/" + U]; });
       paces.push(["Marathon", hmmss(mp * MAR), "predicted"]);
       var weeks = [], diffs = [];
@@ -634,7 +649,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         notes: [
           (BEG ? "<b>Program.</b> Beginner, Table 4.3. Speed work is Tuesday in weeks 6 to 10 and strength work in weeks 11 to 17; Thursday is tempo from week 6. Long runs of 10 to 16 miles are on Sundays from week 7." : "<b>Program.</b> Advanced, Table 4.4."),
           "<b>Mileage.</b> Distances and weekly totals are the book's. Totals include a " + (BEG ? "1" : "1.5") + "-mile warm-up and cooldown on speed, strength and tempo days. The detail adds up to within a mile or two of the printed total.",
-          "<b>Paces.</b> Marathon pace is the Race Prediction Calculator's marathon (" + (BEG ? 55 : 70) + " miles a week), so every session is set from your current fitness rather than a goal. Tempo is marathon pace, strength is 10 s/mile faster, and speed is 5km pace. Easy and recovery jogs are at 65% of 5km speed, as a cap.",
+          "<b>Paces.</b> Marathon pace is the Race Prediction Calculator's marathon (" + (BEG ? 55 : 70) + " miles a week), so every session is set from your current fitness rather than a goal. Tempo is marathon pace, strength is 10 s/mile faster, and speed is 5km pace. Easy and recovery jogs are at 65% of 5km speed by default, as a cap.",
           "<b>Load.</b> " + LOADNOTE + " The marathon on the last Sunday is added to week 18's TSS, but CTL and ATL are for the morning of the race."
         ]
       };
@@ -711,6 +726,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     }
     function rowHtml(r) { return trow(r.lbl, r.pt, r.km > 0 ? dk(r.km) + " " + U : "", r.sec > 0 ? tm(r.sec) : "", r.tss > 0 ? Math.round(r.tss) : ""); }
     function build(planId, c) {
+      var pz = pers(); if (pz.err) return { err: pz.err };
       var r5 = Number(($("rep5").value || "").trim().replace(",", "."));
       if (!isFinite(r5) || r5 < 15 || r5 > 18) return { err: "5km rep length must be a number from 15 to 18 minutes." };
       REP5 = r5; REP[5000].t = r5;
@@ -718,7 +734,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       var raceP = mkRaceP(c), mp = raceP(MAR);
       THR = raceP(16);
       var timeP = function (min) { var lo = 0.5, hi = 100; for (var q = 0; q < 60; q++) { var m = (lo + hi) / 2; if (raceP(m) * m < min * 60) lo = m; else hi = m; } return raceP((lo + hi) / 2); };   // pace of a race lasting min minutes
-      P = { E: raceP(5) / 0.65, R60: timeP(60), R90: timeP(90), R120: timeP(120), R150: timeP(150), R180: timeP(180), M: mp, F5: mp / 1.015, HM: raceP(HM), MILE: raceP(MILE / 1), R5: raceP(5), R10: raceP(10) };
+      P = { E: raceP(5) / pz.e, R60: timeP(60) * pz.b, R90: timeP(90) * pz.b, R120: timeP(120) * pz.b, R150: timeP(150) * pz.b, R180: timeP(180) * pz.b, M: mp, F5: mp / 1.015, HM: raceP(HM), MILE: raceP(MILE / 1), R5: raceP(5), R10: raceP(10) };
       var paces = [["E", "Easy cap"], ["R60", "3 min reps"], ["R90", "6 min reps"], ["R120", "8 min reps"], ["R150", "10 min reps"], ["R180", "12 min reps"], ["F5", "5km reps"], ["M", "Marathon"]].map(function (x) { return [x[1], pk(P[x[0]]), "/" + U]; });
       var KEY = { S: 1, PARK: 1, R10: 1, RHM: 1, MP10: 1, MP3: 1, PROG: 1, MAR: 1 };
       var weeks = [];
@@ -742,7 +758,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         notes: [
           "<b>Reps.</b> Reps are run by time, with the book's rep counts: 1000m = 3 min at the pace of a 60-minute race, 1600m = 6 min at 90-minute race pace, 2000m = 8 min at 120, 3000m = 10 min at 150 and 3200m = 12 min at 180 (my extension, slower than the 10-min pace), 5000m = 15 to 18 min at 1.5% faster than marathon pace. Reps are set from current fitness, not goal pace.",
           "<b>Recoveries.</b> Walked at 6 km/h: 60 s after 1000m, 75 s after 1600m, 90 s after 2000m and 3000m, 120 s after 3200m and 180 s after 5000m reps. They count for time and TSS but not distance.",
-          "<b>Warm-up and cooldown.</b> 10 min each at the easy cap. Races use 10 min, but 5km and 10km races add a 20 min warm-up with 2 &times; 2 min at half-marathon pace and 4 strides. Easy running is at 65% of 5km speed, as a cap.",
+          "<b>Warm-up and cooldown.</b> 10 min each at the easy cap. Races use 10 min, but 5km and 10km races add a 20 min warm-up with 2 &times; 2 min at half-marathon pace and 4 strides. Easy running is at 65% of 5km speed by default, as a cap.",
           "<b>Marathon pace.</b> The Race Prediction Calculator's marathon (70 miles a week). Week 13's 10km and week 14's 3 &times; 10 min are at that pace, and week 14's 3 &times; 27.5 min is progressive at 92%, 93% and 100% of marathon speed.",
           "<b>Load.</b> " + LOADNOTE + " The marathon is scored at marathon pace and added to week 15's TSS; CTL and ATL are for the morning of the race.",
           "<b>Table.</b> Only the quality sessions and runs over 1:45 are listed; the detail has every run."
@@ -1079,7 +1095,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   }
 
   function save() {
-    try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {}
+    try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); profSet("ezp", $("ezp").value); profSet("sbf", $("sbf").value); } catch (e) {}
     try { localStorage.setItem("mp", JSON.stringify({ a: $("author").value, p: $("plan").value, c: $("ctl").value, r: $("rep5").value, d: $("days").value, j: $("adjt").checked, l: $("lp").value, g: $("rd").value, y: $("rec").checked })); } catch (e) {}
   }
   function restore() {
@@ -1103,6 +1119,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     if (pr.time) $("time").value = pr.time;
     if (typeof pr.week === "string") $("week").value = pr.week;
     if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit;
+    if (typeof pr.ezp === "string") $("ezp").value = pr.ezp;
+    if (typeof pr.sbf === "string") $("sbf").value = pr.sbf;
   }
 
   (function () {
@@ -1116,7 +1134,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
 
   restore();
-  ["dist", "time", "wunit", "author", "plan", "ctl", "week", "days", "adjt", "rep5", "lp", "rd", "rec"].forEach(function (id) {
+  ["dist", "time", "wunit", "author", "plan", "ctl", "week", "days", "adjt", "rep5", "lp", "rd", "rec", "ezp", "sbf"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });

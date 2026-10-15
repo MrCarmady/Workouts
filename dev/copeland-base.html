@@ -151,6 +151,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       <label>Ramp target (CTL per week)
         <input id="ramp" type="text" inputmode="decimal" autocomplete="off" value="1">
       </label>
+      <label>Easy pace (% of 5km speed)
+        <input id="ezp" type="text" inputmode="decimal" autocomplete="off" value="65">
+      </label>
+      <label>Sub-threshold buffer (% slower)
+        <input id="sbf" type="text" inputmode="decimal" autocomplete="off" value="0">
+      </label>
     </div>
   </section>
 
@@ -368,7 +374,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     offM = marathonOff(riegel5, null);   // 70 miles a week, as on Marathon Plans
     var raceP = mkRaceP({ D: D, t: t, riegel5: riegel5, p5: p5 });
     THR = raceP(16);
-    P = { E: raceP(5) / 0.65, race: raceP, timeP: function (min) { var lo = 0.5, hi = 100; for (var q = 0; q < 60; q++) { var m = (lo + hi) / 2; if (raceP(m) * m < min * 60) lo = m; else hi = m; } return raceP((lo + hi) / 2); } };
+    var pz = pers(); if (pz.err) return fail(pz.err);
+    P = { E: raceP(5) / pz.e, race: raceP, timeP: function (min) { var lo = 0.5, hi = 100; for (var q = 0; q < 60; q++) { var m = (lo + hi) / 2; if (raceP(m) * m < min * 60) lo = m; else hi = m; } return raceP((lo + hi) / 2) * pz.b; } };
     $("paces").innerHTML = [["Easy cap", P.E], ["3 min reps", P.timeP(60)], ["6 min reps", P.timeP(90)], ["8 min reps", P.timeP(120)], ["10 min reps", P.timeP(150)], ["12 min reps", P.timeP(180)]]
       .map(function (x) { return "<div><span>" + x[0] + "</span><b>" + pk(x[1]) + "</b><small>/" + U + "</small></div>"; }).join("");
 
@@ -439,8 +446,16 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     $("dnote").textContent = r.opt + ": " + ht(w.sec) + " h, about " + dk(w.km) + " " + U + ", TSS " + Math.round(w.tss) + ", sub-threshold " + Math.round(w.work) + " min of " + Math.round(w.run) + " min running (" + Math.round(w.share * 100) + "%).";
   }
 
+  function pers() {
+    var e = ($("ezp").value || "").trim().replace(",", "."), b = ($("sbf").value || "").trim().replace(",", ".");
+    e = e === "" ? 65 : Number(e); b = b === "" ? 0 : Number(b);
+    if (!isFinite(e) || e < 50 || e > 85) return { err: "Easy pace must be 50 to 85% of 5km speed." };
+    if (!isFinite(b) || b < 0 || b > 10) return { err: "Sub-threshold buffer must be 0 to 10% slower." };
+    return { e: e / 100, b: 1 + b / 100 };
+  }
+
   function save() {
-    try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("wunit", $("wunit").value); } catch (e) {}
+    try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("wunit", $("wunit").value); profSet("ezp", $("ezp").value); profSet("sbf", $("sbf").value); } catch (e) {}
     try { localStorage.setItem("cb", JSON.stringify({ c: $("ctl").value, r: $("ramp").value, d: $("days").value })); } catch (e) {}
   }
   function restore() {
@@ -452,6 +467,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km;
     if (pr.time) $("time").value = pr.time;
     if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit;
+    if (typeof pr.ezp === "string") $("ezp").value = pr.ezp;
+    if (typeof pr.sbf === "string") $("sbf").value = pr.sbf;
   }
 
   (function () {
@@ -465,7 +482,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
 
   restore();
-  ["dist", "time", "wunit", "ctl", "ramp", "days"].forEach(function (id) {
+  ["dist", "time", "wunit", "ctl", "ramp", "days", "ezp", "sbf"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });

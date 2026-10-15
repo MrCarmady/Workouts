@@ -34,7 +34,7 @@ Lays out the 15-week Copeland marathon add-on ("My Marathon Build") from a race 
 
 - Rep pace is the pace of a race lasting that many minutes (see Copeland Base for the fit to the book's table; the 120 and 180 min anchors are my extension). Reps are set by time at current fitness, with the book's rep counts. The 2000m pace is slightly slower than half marathon pace, by the author's choice.
 - Marathon pace: the Race Prediction Calculator's marathon, assuming 70 miles a week.
-- Easy and long runs: 65% of 5km speed, a cap.
+- Easy and long runs: 65% of 5km speed by default, a cap. The easy percentage (50 to 85) is an input. The Hansons plan keeps its own fixed recovery (60%) and general aerobic (70%) paces.
 - Warm-up and cooldown: 10 min each at the easy pace. 5km and 10km races use a 20 min warm-up (easy, 2 x 2 min at half marathon pace, 4 strides of 17 s at mile pace).
 
 ### Load
@@ -68,7 +68,8 @@ Lays out the 18-week 2QA plan from a race result. Two quality sessions a week (Q
 
 ### Paces
 
-- Easy: 65% of 5km speed. This is a cap rather than a target.
+- Easy: 65% of 5km speed by default (input, 50 to 85). This is a cap rather than a target.
+- Copeland add-on: the sub-threshold buffer (percent slower, default 0, up to 10) slows the 3 to 12 minute rep paces. The 5km reps and race paces are not changed.
 - Marathon: plain Riegel prediction (exponent 1.06), with no extra slowdown for weekly distance. The Race Prediction Calculator's marathon pace is slower.
 - Threshold: race(17).
 - Intervals: race(4).
