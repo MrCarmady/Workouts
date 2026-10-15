@@ -76,6 +76,11 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 - Aussie quarters (P, 2026-10-14/15): mode in the predictor. Always 8 reps (P: a classic session, no rep input; a list of times must have 8 entries or give one average). Floats count (P): 8 x (400m + 200m float) = 4800m, total time read as the 5k time; the race itself is quicker by up to 15 s (P's rule of thumb), so range = total to total minus 15 s. Float times required. RPE applied to the total (mine). Warnings: floats as fast as the 400s, or more than 10% slower than M pace (10% is mine). 4k added to the common-distance list. Replaced earlier versions (4k anchor; variable rep counts) after P's corrections. Not validated.
 - Check case: 6x800 averaging 2:38.5 gives a 5k of 17:22 (17:12 to 17:32); the poster ran 17:07. One case, not a calibration.
 
+## Classic Session Generator changes (P, 2026-10-15)
+- Ladder 5-4-3-2-1: jog after each rep defaults to half of that rep (P chose this from the Outside ladders article); fixed jog (90 s) is an option; optional 0 to 8 extra "1 min easy + 1 min hard" repeats after the 1-min rep (down order only), as in the article. Paces are P's own (the article gives effort only).
+- Aussie quarters: always 8 reps in the generator too (P).
+- Pre's 200s added (P, from the Outside article crediting Bowerman): fast 200 at mile pace to 2% slower (2% is my reading of "slightly slower"), recovery 200 33 1/3% slower, no standing rest, 12 pairs default (about 3 miles), 4 to 30 pairs.
+
 ## Simulation notes
 - 100 to 109 km, extra 9 km easy: TSB about -3. Extra 9 km sub-T: about -4 to -5.
 - 40 to 45 km, extra 5 km easy: about -2.

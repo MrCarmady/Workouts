@@ -53,6 +53,11 @@ def scenarios():
     out.append(('lift-scheme-calculator','bulgarian split squat',lambda pg:[pg.select_option('#lift','bss')]))
     for page in ['run-tss-calculator','run-tss-planner']:
         out.append((page,'race mode',lambda pg:[fill(pg,'mode','race'),fill(pg,'thr','3:58'),fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'wmin','30'),fill(pg,'wpace','4:00'),fill(pg,'target','60'),fill(pg,'emin','20'),fill(pg,'epace','5:00')]))
+    out.append(('classic-session-generator','ladder fixed jog tail 3',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','ladder'),fill(pg,'opt_jogmode','fixed'),fill(pg,'opt_tail','3')]))
+    out.append(('classic-session-generator','ladder half jog tail 3',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','ladder'),fill(pg,'opt_tail','3')]))
+    out.append(('classic-session-generator','ladder up half jog',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','ladder'),fill(pg,'opt_order','up'),fill(pg,'opt_tail','2')]))
+    out.append(('classic-session-generator','pre 20 pairs',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','pre'),fill(pg,'opt_pairs','20')]))
+    out.append(('classic-session-generator','pre bad pairs',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','pre'),fill(pg,'opt_pairs','2')]))
     out.append(('hard-workout-predictor','aussie 8 x 1:29',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'splits','1:29, 1:29, 1:28, 1:29, 1:30, 1:29, 1:30, 1:29'),fill(pg,'float','52, 51, 52, 52, 52, 51, 52, 52')]))
     out.append(('hard-workout-predictor','aussie avg jog floats',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'splits','1:29'),fill(pg,'float','75')]))
     out.append(('hard-workout-predictor','aussie 6 times error',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'splits','1:29, 1:29, 1:28, 1:29, 1:30, 1:29'),fill(pg,'float','52')]))

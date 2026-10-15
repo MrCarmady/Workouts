@@ -20,6 +20,21 @@ In this document, race(x) is the predicted race pace over x km, from the Race Pr
 | Session | Hard part | Easy part |
 |---|---|---|
 | Continuous tempo | 20 min at threshold. Longer tempos slow by 4.9% × ln(minutes ÷ 20), capped at marathon pace, up to 60 min | None |
+| Ladder 5-4-3-2-1 min | 5 min at race(10), 4 at race(5), 3 at race(3), 2 at race(2), 1 at race(1.5). The paces are the author's: the Outside article on ladders gives effort, not paces | Jog after each rep of half its length by default (150, 120, 90 and 60 s), as in the article's ladder (the article's example is 5:00, 4:00, 3:00, 2:00, then repeats of 1:00 hard and 1:00 easy). Option: a fixed jog (90 s default). Option: 0 to 8 extra repeats of 1 min easy and 1 min at race(1.5) after the 1-min rep, 5-4-3-2-1 order only. The article's research ladder (3-2-1-0.75-0.5 min, jogs of two-thirds of the rep) is not built in |
+| Aussie quarters | 400m at race(4) | 200m float from marathon pace to 3% faster, continuous. Float marathon pace ignores weekly distance (70-mile default). Always 8 reps (4.8km), optional 200m float first (5km) (author's decision, 2026-10-15) |
+| Pre's 200s | Fast 200m from mile pace to 2% slower (race(1.609), my reading of "slightly slower than mile pace") | Recovery 200m, 33⅓% slower than the fast ones (the article's figure), continuous with no standing rest. 12 pairs by default (4.8km, about the article's 3 miles), 4 to 30 pairs. From the Outside article on Pre's 200s, which credits Bill Bowerman; the article suggests using it before the final taper. The 2% upper end and the default pair count are mine |
+| Mona fartlek structure (2×90s, 4×60s, 4×30s, 4×15s, equal recoveries) and effort guidance (about 5k effort for the 90s, faster as the reps shorten) | As described by Nate Jenkins in his 2015 blog post on the Moneghetti fartlek |
+| Mona effort paces and float pace (85% of 5km speed) | Set by the author |
+| All other session structures and every pace choice below | Set by the author from his own descriptions, not published prescriptions |
+| TSS = hours × (threshold pace ÷ pace)² × 100 | The same method as the other tools |
+
+In this document, race(x) is the predicted race pace over x km, from the Race Prediction Calculator model with the weekly distance applied. Threshold pace is race(16). On the page these appear as pace names: race(5) is 5k pace, race(1.5) is 1500m pace, the mile is mile pace, and marathon pace is M pace. Race(4.5) is shown as 4.5k pace.
+
+## Pace choices
+
+| Session | Hard part | Easy part |
+|---|---|---|
+| Continuous tempo | 20 min at threshold. Longer tempos slow by 4.9% × ln(minutes ÷ 20), capped at marathon pace, up to 60 min | None |
 | Ladder 5-4-3-2-1 min | 5 min at race(10), 4 at race(5), 3 at race(3), 2 at race(2), 1 at race(1.5) | 90s jog (adjustable), 4 jogs |
 | Aussie quarters | 400m at race(4) | 200m float from marathon pace to 3% faster, continuous. Float marathon pace ignores weekly distance (70-mile default). 8 reps by default (4.8km), optional 200m float first (5km) |
 | Mona fartlek | 90s at race(5), 60s at race(4), 30s at race(3), 15s at race(1.6) | Float of the same duration after every effort, at 85% of 5km speed (my choice; the article calls it a quick jog), so the total is 20 min (10 + 10) |
