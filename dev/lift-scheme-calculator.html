@@ -1,4 +1,4 @@
-<title>Lift Scheme Calculator</title>
+<title>1RM and Scheme Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
 <style>
@@ -68,6 +68,12 @@ tr:last-child td { border-bottom: 0; }
 td.scheme { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
 td.kg { font-weight: 600; color: var(--accent); }
 .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 14px; }
+[hidden] { display: none !important; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; }
+.seg button { font: inherit; font-size: .95rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 10px 8px; border: 0; background: var(--bg); color: var(--muted); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
 .method p { margin: 0; }
 @media (max-width: 560px) { table { min-width: 0; } th, td { padding: 9px 8px; white-space: normal; } th { letter-spacing: .03em; font-size: .72rem; vertical-align: bottom; } }
@@ -75,8 +81,8 @@ td.kg { font-weight: 600; color: var(--accent); }
 
 <main class="wrap">
   <header class="head">
-    <div>    <h1>Lift Scheme Calculator</h1>
-    <p class="sub">Enter one set. Get an estimated 1RM and the weights for common set and rep schemes.</p>
+    <div>    <h1>1RM and Scheme Calculator</h1>
+    <p class="sub" id="modesub">Enter one set. Get an estimated 1RM and the weights for common set and rep schemes.</p>
   </div>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
@@ -87,8 +93,12 @@ td.kg { font-weight: 600; color: var(--accent); }
 
   <section class="top">
     <div class="panel">
-      <h2>Your set</h2>
+      <h2 id="panelh">Your set</h2>
       <div class="fields">
+        <div class="full seg" role="group" aria-label="What to enter">
+          <button type="button" id="modeset" aria-pressed="true">One set</button>
+          <button type="button" id="modeses" aria-pressed="false">Whole session</button>
+        </div>
         <label class="full">Lift
           <select id="lift">
             <option value="bench">Bench press</option>
@@ -108,14 +118,24 @@ td.kg { font-weight: 600; color: var(--accent); }
         <label><span id="wlabel">Weight lifted (kg)</span>
           <input id="w" type="number" inputmode="decimal" min="0" max="500" step="0.5" value="60">
         </label>
-        <label>Reps completed
+        <label><span id="replabel">Reps completed</span>
           <input id="reps" type="number" inputmode="numeric" min="1" max="30" step="1" value="5">
         </label>
-        <label>Reps in reserve
+        <label>Reps in reserve <span id="rirsuffix"></span>
           <input id="rir" type="number" inputmode="decimal" min="0" max="5" step="0.5" value="0">
         </label>
+        <label id="setswrap" hidden>Sets done
+          <input id="sets" type="number" inputmode="numeric" min="1" max="10" step="1" value="1">
+        </label>
+        <label id="sesrestwrap" hidden>Rest between sets
+          <select id="sesrest">
+            <option value="1.25">1 min</option>
+            <option value="1.1">2 min</option>
+            <option value="1" selected>3 min or more</option>
+          </select>
+        </label>
       </div>
-      <p class="note" style="margin-top:12px">Reps in reserve: 0 means the set was to failure. Values shown are an example. Replace them with your own set.</p>
+      <p class="note" id="inputnote" style="margin-top:12px">Reps in reserve: 0 means the set was to failure. Values shown are an example. Replace them with your own set.</p>
     </div>
 
     <div class="panel result" aria-live="polite">
@@ -126,6 +146,7 @@ td.kg { font-weight: 600; color: var(--accent); }
         <div><b id="ratio">-</b><span id="ratiolabel">× bodyweight</span></div>
       </div>
       <p class="warn" id="warn" hidden></p>
+      <p class="note" id="sesnote" hidden></p>
       <p class="note" id="bwnote" hidden></p>
     </div>
   </section>
@@ -179,6 +200,7 @@ td.kg { font-weight: 600; color: var(--accent); }
     <h2>How this is calculated</h2>
     <p>The 1RM uses the average of the Brzycki and Epley formulas, applied to reps completed plus reps left in tank. Brzycki: weight × 36 / (37 − reps). Epley: weight × (1 + reps / 30), set to exactly 1 for a single and blended in by 2 reps. Both get less reliable above about 10 reps.</p>
     <p>Weights come from a fatigue model. The last set is set to your chosen RIR, and each earlier set costs a fixed number of reps of capacity at 3 min rest (0.75 for sets of 3, 1 for sets of 5–6, 1.2 for 8, 1.35–1.6 for 10–12). Shorter rest scales that loss: 1.25× at 1 min, 1.1× at 2 min. "By rep range" assumes 3 min for sets of 3–5, 2 min for 6–8 and 1 min for 10–12. Set 1's fresh capacity is converted back to % of 1RM with the same two formulas.</p>
+    <p>Entering a session works backwards from the same model. The reps lost over the earlier sets (fatigue per set × rest multiplier × (sets − 1)) are added to reps and reps in reserve to give the reps the first set could have reached, and the 1RM comes from that. For sets of other lengths the fatigue per set is read in a straight line between the scheme values (a choice made here). A session gives a less certain 1RM than a fresh single set, so the page shows how it moves if the loss per set is 25% lower or higher. Sets must all use the same weight and reps.</p>
     <p>Calibrate the fatigue and rest values against your own logs. Squat, deadlift and Bulgarian split squat use 1.15× the fatigue.</p>
   </section>
 </main>
@@ -196,7 +218,20 @@ td.kg { font-weight: 600; color: var(--accent); }
   var EXAMPLES = {
     bench: [60, 5], squat: [80, 5], deadlift: [100, 5], ohp: [40, 5], row: [60, 8], pullup: [10, 5], dip: [15, 6], incdb: [24, 8], bss: [20, 8]
   };
-  var touched = false;
+  var touched = false, mode = "set";
+  function setMode(m) {
+    mode = m;
+    $("modeset").setAttribute("aria-pressed", m === "set" ? "true" : "false");
+    $("modeses").setAttribute("aria-pressed", m === "ses" ? "true" : "false");
+    if (m === "ses" && (num("sets") || 1) < 2) $("sets").value = 3;
+    $("setswrap").hidden = m !== "ses";
+    $("panelh").textContent = m === "ses" ? "Your session" : "Your set";
+    $("replabel").textContent = m === "ses" ? "Reps per set" : "Reps completed";
+    $("modesub").textContent = m === "ses" ? "Enter a session of identical sets (same weight and reps). Get an estimated 1RM, then weights for common set and rep schemes." : "Enter one set. Get an estimated 1RM and the weights for common set and rep schemes.";
+    $("inputnote").textContent = m === "ses"
+      ? "Use the weight and reps from every set (all the same), the rest you took, and the reps in reserve after the last set. 0 means the last set was to failure. Values shown are an example. Replace them with your own."
+      : "Reps in reserve: 0 means the set was to failure. Values shown are an example. Replace them with your own set.";
+  }
   function loadExample() {
     var e = EXAMPLES[$("lift").value];
     if (!e) return;
@@ -208,6 +243,14 @@ td.kg { font-weight: 600; color: var(--accent); }
     [3, 10, 1.6], [3, 12, 1.6]
   ];
   var RMS = [1, 3, 5, 8, 10, 12];
+  // Reps of capacity lost per set at 3 min rest, for a session entered as sets x reps. Read from the scheme values above,
+  // joined in a straight line (my choice): 3 -> 0.75, 5 and 6 -> 1.0, 8 -> 1.2, 10 -> 1.5, 12 -> 1.6.
+  var FPTS = [[3, 0.75], [5, 1], [6, 1], [8, 1.2], [10, 1.5], [12, 1.6]];
+  function baseFatigue(r) {
+    if (r <= FPTS[0][0]) return FPTS[0][1];
+    for (var i = 1; i < FPTS.length; i++) if (r <= FPTS[i][0]) return FPTS[i - 1][1] + (r - FPTS[i - 1][0]) / (FPTS[i][0] - FPTS[i - 1][0]) * (FPTS[i][1] - FPTS[i - 1][1]);
+    return FPTS[FPTS.length - 1][1];
+  }
 
   function brz(n) { return (37 - n) / 36; }
   function epl(n) {                                       // raw Epley gives 0.968 at 1 rep, so a true single is pinned to 1 and blended into the formula by 2 reps
@@ -251,7 +294,10 @@ td.kg { font-weight: 600; color: var(--accent); }
 
   function update() {
     var key = $("lift").value, cfg = LIFTS[key];
-    var bw = num("bw"), w = num("w"), reps = num("reps"), rir = num("rir") || 0;
+    var bw = num("bw"), w = num("w"), reps = num("reps"), rir = num("rir") || 0, sets = mode === "ses" ? Math.round(num("sets") || 1) : 1;
+    $("sesrestwrap").hidden = mode !== "ses";
+    
+    $("sesnote").hidden = true;
     var step = parseFloat($("step").value);
     var restSel = $("rest").value;
     $("wlabel").textContent = cfg.bw ? "Added weight (kg)" : (cfg.hand ? "Weight per hand (kg)" : "Weight lifted (kg)");
@@ -262,7 +308,7 @@ td.kg { font-weight: 600; color: var(--accent); }
     if (cfg.bw) $("bwnote").textContent = "Total load = bodyweight + added weight. Table weights show added weight only.";
     if (cfg.hand) $("bwnote").textContent = "Weights are for one dumbbell, not the pair.";
 
-    var ok = bw && bw > 0 && w !== null && w >= 0 && reps && reps >= 1;
+    var ok = bw && bw > 0 && w !== null && w >= 0 && reps && reps >= 1 && sets >= 1 && sets <= 10;
     var load = ok ? (cfg.bw ? bw + w : w) : null;
     var warn = $("warn");
     warn.hidden = true;
@@ -272,7 +318,10 @@ td.kg { font-weight: 600; color: var(--accent); }
       warn.hidden = false; warn.textContent = "Enter bodyweight, weight and reps to see results.";
       return;
     }
-    var n = reps + rir;
+    var lowerM = cfg.lower ? 1.15 : 1;
+    var fS = sets > 1 ? baseFatigue(reps) * parseFloat($("sesrest").value) * lowerM : 0;
+    var lost = fS * (sets - 1);                            // reps of capacity lost before the last set (model estimate)
+    var n = reps + rir + lost;                             // reps the first set could have reached
     if (n >= 36) { warn.hidden = false; warn.textContent = "Rep count is too high for these formulas. Use a set of 12 or fewer."; return; }
     var e1 = load / pct(n);
     var a = load / brz(n), b = load / epl(n);
@@ -280,6 +329,12 @@ td.kg { font-weight: 600; color: var(--accent); }
     var lo = fmt(Math.min(a, b), 1), hi = fmt(Math.max(a, b), 1);
     $("range").textContent = lo === hi ? lo : lo + "–" + hi;
     $("ratio").textContent = fmt(e1 / bw, 2) + "×";
+    if (sets > 1) {
+      var nLo = reps + rir + lost * 0.75, nHi = reps + rir + lost * 1.25;
+      var eLo = load / pct(nLo), eHi = load / pct(nHi);
+      $("sesnote").hidden = false;
+      $("sesnote").textContent = "Assumes " + fmt(fS, 2) + " reps of capacity lost per set, " + fmt(lost, 1) + " over the " + (sets - 1) + " earlier sets, so a fresh set to failure would reach about " + fmt(n, 1) + " reps. This is a model estimate. If the real loss is 25% lower or higher, the 1RM is " + fmt(eLo, 1) + " to " + fmt(eHi, 1) + " kg.";
+    }
     if (n > 10) { warn.hidden = false; warn.textContent = "Above about 10 reps the estimate gets less reliable. A heavier set of 3–6 reps gives a better 1RM."; }
 
     var rirLow = parseFloat($("rirtarget").value);
@@ -311,11 +366,13 @@ td.kg { font-weight: 600; color: var(--accent); }
 
   restore();
   loadExample();
-  ["w", "reps", "rir"].forEach(function (id) {
+  $("modeset").addEventListener("click", function () { setMode("set"); update(); });
+  $("modeses").addEventListener("click", function () { setMode("ses"); update(); });
+  ["w", "reps", "rir", "sets"].forEach(function (id) {
     $(id).addEventListener("input", function () { touched = true; });
   });
   $("lift").addEventListener("change", function () { if (!touched) { loadExample(); update(); } });
-  ["lift", "bw", "w", "reps", "rir", "rirtarget", "step", "rest"].forEach(function (id) {
+  ["lift", "bw", "w", "reps", "rir", "sets", "sesrest", "rirtarget", "step", "rest"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });

@@ -51,6 +51,8 @@ def scenarios():
     out.append(('lifting-programme-planner','other w531 12 weeks 1.25',lambda pg:[pg.select_option('#prog','w531'),pg.select_option('[data-o=weeks]','12'),pg.select_option('[data-o=step]','1.25')]))
     out.append(('lifting-programme-planner','other rbeg 12 weeks',lambda pg:[pg.select_option('#prog','rbeg'),pg.select_option('[data-o=weeks]','12')]))
     out.append(('lifting-programme-planner','other back to operator',lambda pg:[pg.select_option('#prog','gzclp'),pg.select_option('#prog','operator')]))
+    out.append(('lift-scheme-calculator','session 3x6 pullup bw 2min rir2',lambda pg:[pg.click('#modeses'),pg.select_option('#lift','pullup'),fill(pg,'bw','76'),fill(pg,'w','0'),fill(pg,'reps','6'),fill(pg,'rir','2'),fill(pg,'sets','3'),pg.select_option('#sesrest','1.1')]))
+    out.append(('lift-scheme-calculator','session 5x5 squat 3min rir1',lambda pg:[pg.click('#modeses'),pg.select_option('#lift','squat'),fill(pg,'bw','76'),fill(pg,'w','100'),fill(pg,'reps','5'),fill(pg,'rir','1'),fill(pg,'sets','5')]))
     out.append(('lift-scheme-calculator','incline dumbbell bench',lambda pg:[pg.select_option('#lift','incdb')]))
     out.append(('lift-scheme-calculator','bulgarian split squat',lambda pg:[pg.select_option('#lift','bss')]))
     for page in ['run-tss-calculator','run-tss-planner']:

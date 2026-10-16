@@ -19,7 +19,7 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("run-tss-calculator.html","run-tss-calculator.html","Run TSS Calculator","Training stress score for a run, from your threshold pace and what you ran.","run-tss-calculator.md","run-tss-calculator","Planning and load"),
  ("run-tss-planner.html","run-tss-planner.html","Run TSS Planner","The workout pace that hits a target TSS.","run-tss-planner.md","run-tss-planner","Sessions"),
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace for a treadmill belt speed and incline.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
- ("lift-scheme-calculator.html","lift-scheme-calculator.html","Lift Scheme Calculator","Estimated 1RM and working weights for common set and rep schemes, from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
+ ("lift-scheme-calculator.html","lift-scheme-calculator.html","1RM and Scheme Calculator","Estimated 1RM and working weights for common set and rep schemes, from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
  ("marathon-plans.html","marathon-plans.html","Marathon Plans","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Planning and load"),
  ("copeland-base.html","copeland-base.html","Copeland Base","A ramp from your CTL to week 1 of the Copeland marathon plan.","copeland-base.md","copeland-base","Planning and load"),
  ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Recommender","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Planning and load"),
@@ -80,7 +80,7 @@ START=[ # (question, tool file, tool title); titles must match the tools list
  ("I need paces for a threshold or tempo session.","run-session-generator.html","Sub-Threshold Session Generator"),
  ("I want to know if my weekly load is climbing too fast.","run-load-planner.html","Run Load Planner"),
  ("I want to build a training block from a race result.","plan-builder.html","Plan Builder"),
- ("I want working weights for a lifting scheme.","lift-scheme-calculator.html","Lift Scheme Calculator"),
+ ("I want working weights for a lifting scheme.","lift-scheme-calculator.html","1RM and Scheme Calculator"),
 ]
 _titles={t[1]:t[2] for t in tools}
 for _q,_f,_t in START: assert _titles.get(_f)==_t,(_f,_t)

@@ -196,3 +196,9 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Male WRs (s): 1500m 206.00, mile 222.66 (3:42.66, author), 3km 437.55, 5km 755.36, 10km 1571.00, 10 miles 2664 (44:24 Gebrselassie, ratified; author chose it over a faster time by a sanctioned athlete; a 10km-to-half power law would give 42:55, so % at 10 miles reads high), half 3411 (56:51 Kejelcha, unratified; author's choice, revert to 57:20 Kiplimo if rejected), marathon 7170 (1:59:30 Sawe, London 2026, author-supplied, unverified by me).
 - Planned later: women's and masters' records.
 - At 18:45 5k our model gives ~67.1% (5k) and 66.0% (marathon).
+## 1RM and Scheme Calculator (renamed from Lift Scheme Calculator, 2026-10-16): session input
+- Toggle 'One set' / 'Whole session'. File name unchanged (lift-scheme-calculator.html) so links and the artifact URL stay valid.
+- New inputs 'Sets done' and 'Rest between sets' (1 / 2 / 3+ min). Reverse of the scheme model: n = reps + last-set RIR + f x (sets - 1), e1RM = load / pct(n). Sets = 1 behaves exactly as before.
+- Base fatigue per set for any rep count read by straight-line interpolation (3: 0.75, 5-6: 1.0, 8: 1.2, 10: 1.5, 12: 1.6). Shows 1RM sensitivity at +/-25% loss per set.
+- Equal sets only. Heavy-vs-light fatigue difference is an unverified assumption (one bench study found no difference in rep sustainability at 80% vs 50%).
+- 3x6 BW pull-ups, 2 min, RIR 2 at 76 kg: e1RM ~102 kg total, fresh set ~10 reps.

@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lift Scheme Calculator: how it works</title>
+<title>1RM and Scheme Calculator: how it works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
 <style>
@@ -41,7 +41,7 @@ a { color:var(--accent); }
 </style>
 <main class="wrap">
   <header class="head">
-    <nav class="crumbs"><a href="../tools.html">All tools</a><a href="../lift-scheme-calculator.html">Open Lift Scheme Calculator</a></nav>
+    <nav class="crumbs"><a href="../tools.html">All tools</a><a href="../lift-scheme-calculator.html">Open 1RM and Scheme Calculator</a></nav>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
       <svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
@@ -49,7 +49,7 @@ a { color:var(--accent); }
     </button>
   </header>
   <article class="doc">
-<h1>Lift Scheme Calculator: methodology</h1>
+<h1>1RM and Scheme Calculator: methodology (page file: lift-scheme-calculator)</h1>
 <p>Takes one set (lift, bodyweight, weight, reps, optional reps in reserve) and returns:</p>
 <ol>
 <li>An estimated 1RM.</li>
@@ -102,6 +102,19 @@ e1RM      = load / pct(n)
 <p>Worked example: bench 60 kg × 5, RIR 0.
 - Brzycki fraction 0.8889, Epley 0.8571, average 0.8730.
 - e1RM = 60 / 0.8730 = 68.7 kg (range 67.5 to 70.0).</p>
+<h2>Entering a whole session (added 2026-10-16)</h2>
+<p>The page has a toggle, "One set" or "Whole session". The session mode works backwards from a session of identical sets (same weight, same reps).</p>
+<pre><code>f     = baseFatigue(reps) * restMultiplier * (lowerBody ? 1.15 : 1)
+lost  = f * (sets - 1)              // reps of capacity lost before the last set
+n     = reps + RIR + lost           // reps the first set could have reached
+e1RM  = load / pct(n)
+</code></pre>
+<p><code>RIR</code> is the reps in reserve after the last set. <code>baseFatigue</code> is read in a straight line between the scheme values in Step 2: 3 reps 0.75, 5 and 6 reps 1.0, 8 reps 1.2, 10 reps 1.5, 12 reps 1.6 (the straight-line join and the 1.5 at 10 reps are choices made here; the 10-rep schemes use 1.35 or 1.6). Rest options are 1 min (×1.25), 2 min (×1.1) and 3 min or more (×1).</p>
+<p>Caveats:
+- The fatigue values and rest multipliers are estimates, so a session gives a less certain 1RM than a fresh single set. The page shows the 1RM if the loss per set is 25% lower or higher.
+- Sets of different reps (such as 9, 7, 6 to failure) are not supported. Enter the last set alone as a single set instead.
+- One test found no difference in rep loss between 80% and 50% of 1RM (bench, five sets), so the rise in fatigue with set length is an assumption.
+- Checks: 3 sets of 6 bodyweight pull-ups, 2 min rest, 2 reps in reserve at 76 kg gives about 102 kg total (about +26 kg added) and a fresh set of about 10 reps.</p>
 <h2>Step 2: weights for set × rep schemes</h2>
 <p>The idea: if the last set must finish with a given number of reps in reserve, and each earlier set costs some reps of capacity, then fresh capacity on set 1 is bigger than the reps written on the plan. Convert that capacity back to a % of 1RM.</p>
 <pre><code>f        = baseFatigue(scheme) * restMultiplier * (lowerBody ? 1.15 : 1)

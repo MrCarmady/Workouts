@@ -1,4 +1,4 @@
-# Lift Scheme Calculator: methodology
+# 1RM and Scheme Calculator: methodology (page file: lift-scheme-calculator)
 
 Takes one set (lift, bodyweight, weight, reps, optional reps in reserve) and returns:
 
@@ -39,6 +39,25 @@ The page also shows the two single-formula estimates (`load / brzycki(n)` and `l
 Worked example: bench 60 kg × 5, RIR 0.
 - Brzycki fraction 0.8889, Epley 0.8571, average 0.8730.
 - e1RM = 60 / 0.8730 = 68.7 kg (range 67.5 to 70.0).
+
+## Entering a whole session (added 2026-10-16)
+
+The page has a toggle, "One set" or "Whole session". The session mode works backwards from a session of identical sets (same weight, same reps).
+
+```
+f     = baseFatigue(reps) * restMultiplier * (lowerBody ? 1.15 : 1)
+lost  = f * (sets - 1)              // reps of capacity lost before the last set
+n     = reps + RIR + lost           // reps the first set could have reached
+e1RM  = load / pct(n)
+```
+
+`RIR` is the reps in reserve after the last set. `baseFatigue` is read in a straight line between the scheme values in Step 2: 3 reps 0.75, 5 and 6 reps 1.0, 8 reps 1.2, 10 reps 1.5, 12 reps 1.6 (the straight-line join and the 1.5 at 10 reps are choices made here; the 10-rep schemes use 1.35 or 1.6). Rest options are 1 min (×1.25), 2 min (×1.1) and 3 min or more (×1).
+
+Caveats:
+- The fatigue values and rest multipliers are estimates, so a session gives a less certain 1RM than a fresh single set. The page shows the 1RM if the loss per set is 25% lower or higher.
+- Sets of different reps (such as 9, 7, 6 to failure) are not supported. Enter the last set alone as a single set instead.
+- One test found no difference in rep loss between 80% and 50% of 1RM (bench, five sets), so the rise in fatigue with set length is an assumption.
+- Checks: 3 sets of 6 bodyweight pull-ups, 2 min rest, 2 reps in reserve at 76 kg gives about 102 kg total (about +26 kg added) and a fresh set of about 10 reps.
 
 ## Step 2: weights for set × rep schemes
 
