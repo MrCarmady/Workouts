@@ -106,6 +106,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
           <option value="hansons">Hansons</option>
           <option value="pfitz">Pfitzinger</option>
           <option value="tinman">Tinman</option>
+          <option value="wr">Same % of world record</option>
         </select>
       </label>
     </div>
@@ -230,6 +231,9 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   // 3000m and up: (d / 5000) ^ 1.0579. Below that, factors read from his output table (1500m and mile).
   var TIN_SHORT = { "1500m": 0.2723, "Mile": 0.29447 };
   function tinF(T) { return TIN_SHORT[T.name] !== undefined ? TIN_SHORT[T.name] : Math.pow(T.km / 5, 1.0579); }
+  // Male world records in seconds (author-supplied mile; marathon 1:59:30 and half 56:51 not yet ratified as of 2026-10-16).
+  // 10 miles: Haile Gebrselassie 44:24 (road, ratified; author's choice over a faster time by a sanctioned athlete).
+  var WR = { "1500m": 206.00, "Mile": 222.66, "3km": 437.55, "5km": 755.36, "10km": 1571.00, "10 miles": 2664, "Half marathon": 3411, "Marathon": 7170 };
   function danielsT(v, km) { var lo = 60, hi = 40000; for (var i = 0; i < 80; i++) { var m = (lo + hi) / 2; if (vdot(m / 60, km * 1000) > v) lo = m; else hi = m; } return (lo + hi) / 2; }
   // Returns {name: seconds or null} for every distance, or an {err} when the input is outside the model's table.
   function compareTimes(model, D, t) {
@@ -247,6 +251,11 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       DISTS.forEach(function (T) { out[T.name] = PFZ[T.name] ? t10 * PFZ[T.name] : null; });
       return { t: out };
     }
+    if (model === "wr") {
+      var pc = WR[D.name] / t; if (pc < 0.4 || pc > 1.0) return { err: "Outside 40% to 100% of the world record." };
+      DISTS.forEach(function (T) { out[T.name] = WR[T.name] / pc; });
+      return { t: out };
+    }
     if (model === "tinman") {
       var t5 = t / tinF(D); if (t5 < 780 || t5 > 1740) return { err: "Outside the tested Tinman range (5km equivalent 13:00 to 29:00)." };
       DISTS.forEach(function (T) { out[T.name] = t5 * tinF(T); });
@@ -254,7 +263,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     }
     return { t: null };
   }
-  var CMP_NAMES = { daniels: "Daniels (VDOT)", hansons: "Hansons", pfitz: "Pfitzinger", tinman: "Tinman" };
+  var CMP_NAMES = { daniels: "Daniels (VDOT)", hansons: "Hansons", pfitz: "Pfitzinger", tinman: "Tinman", wr: "Same % of WR" };
   function dstr(d) { var s = Math.round(d), a = Math.abs(s); return (s < 0 ? "-" : "+") + (a >= 60 ? Math.floor(a / 60) + ":" + (a % 60 < 10 ? "0" : "") + a % 60 : a + "s"); }
 
   var VDOT_MIN = 15, VDOT_MAX = 85;   // plausible human range (my choice; world records are about 80-85)
@@ -275,7 +284,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       if (!o) return;
       if (DISTS[parseInt(o.dist, 10)]) $("dist").value = o.dist;
       if (typeof o.time === "string") $("time").value = o.time;
-      if (["none", "daniels", "hansons", "pfitz", "tinman"].indexOf(o.cmp) >= 0) $("cmp").value = o.cmp;
+      if (["none", "daniels", "hansons", "pfitz", "tinman", "wr"].indexOf(o.cmp) >= 0) $("cmp").value = o.cmp;
     } catch (e) {}
   }
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("res").hidden = true; }
@@ -300,14 +309,14 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     offM = marathonOff(riegel5, weekKm);
     var html = "", cm = $("cmp").value, cr = compareTimes(cm, D, t), cnote = "";
     var hasC = cm !== "none";
-    $("thead").innerHTML = "<th>Distance</th><th>Time</th><th>/km</th><th>/mile</th>" + (hasC ? "<th>" + CMP_NAMES[cm] + "</th>" : "");
+    $("thead").innerHTML = "<th>Distance</th><th>Time</th><th>/km</th><th>/mile</th><th>% WR</th>" + (hasC ? "<th>" + CMP_NAMES[cm] + "</th>" : "");
     if (hasC && cr.err) cnote = CMP_NAMES[cm] + ": " + cr.err;
     DISTS.forEach(function (T, i) {
       // Short targets get the same adjustment back, so the input race reproduces itself.
       var p = (p5 - adj(T.km)) * Math.pow(T.km / 5, K - 1) + off(T.km) - off(D.km);
       var isIn = i === di;
       html += "<tr" + (isIn ? " class='input'" : "") + "><td class='dist'>" + T.name + (isIn ? "<small>Your result</small>" : "") + "</td>" +
-        "<td class='time'>" + hmmss(p * T.km) + "</td><td>" + mmss(p) + "</td><td>" + mmss(p * MILE) + "</td>" +
+        "<td class='time'>" + hmmss(p * T.km) + "</td><td>" + mmss(p) + "</td><td>" + mmss(p * MILE) + "</td><td>" + (Math.round(WR[T.name] / (p * T.km) * 1000) / 10).toFixed(1) + "%</td>" +
         (hasC ? "<td>" + (cr.t && cr.t[T.name] != null ? hmmss(cr.t[T.name]) + " <small>" + dstr(cr.t[T.name] - p * T.km) + "</small>" : "–") + "</td>" : "") + "</tr>";
     });
     $("rows").innerHTML = html;
@@ -317,7 +326,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       var x = marathonFactor(weekKm);
       wn.textContent = "Marathon is set to " + (Math.round(x * 1000) / 1000) + " times the half marathon, for " + (Math.round(weekKm * 10) / 10) + "km a week." + (weekKm / MILE < 35 ? " Below 35 miles a week the adjustment stops at 2.25 times the half marathon; a marathon build on less is not covered." : "");
     }
-    if (hasC && !cr.err) { var cn = { daniels: "Daniels: VDOT equations, all distances.", hansons: "Hansons: fitted to the book's chart; shown for mile, 5km, 10km, 10 miles, half marathon and marathon.", pfitz: "Pfitzinger: fitted to his table; shown for 10km, 10 miles, half marathon and marathon.", tinman: "Tinman: fitted to sample outputs of his calculator, not his published formula. Same factor curve for input and output, all distances." }; cnote = cn[cm] + " Small figure = their time minus ours."; }
+    if (hasC && !cr.err) { var cn = { daniels: "Daniels: VDOT equations, all distances.", hansons: "Hansons: fitted to the book's chart; shown for mile, 5km, 10km, 10 miles, half marathon and marathon.", pfitz: "Pfitzinger: fitted to his table; shown for 10km, 10 miles, half marathon and marathon.", tinman: "Tinman: fitted to sample outputs of his calculator, not his published formula. Same factor curve for input and output, all distances.", wr: "Same % of WR: your result as a percentage of the male world record pace, held constant across distances." }; cnote = cn[cm] + " Small figure = their time minus ours."; }
     $("cmpnote").textContent = cnote;
     $("res").hidden = false;
   }
