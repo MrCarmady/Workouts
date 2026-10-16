@@ -429,6 +429,9 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
       name: "GZCLP", kind: "lin", per: 3, weeksOpts: [2, 4, 8, 12], weeksDef: 4,
       days: "Four workouts that rotate across three sessions a week, so the weekdays shift. Stage 1 shown.",
       src: "https://thefitness.wiki/routines/gzclp/",
+      rm: { p1: 0.77, p2: 0.62, lifts: [
+        { id: "sq", n: "Squat", t1: "sq1", t2: "sq2" }, { id: "bn", n: "Bench press", t1: "bn1", t2: "bn2" },
+        { id: "oh", n: "Overhead press", t1: "oh1", t2: "oh2" }, { id: "dl", n: "Deadlift", t1: "dl1", t2: "dl2" } ] },
       slots: {
         sq1: { n: "Squat (T1)",           s: "5 × 3+",  w: 60, inc: 5 },
         bn2: { n: "Bench press (T2)",     s: "3 × 10",  w: 30, inc: 2.5 },
@@ -451,6 +454,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
         "Miss the prescribed total and that tier moves to the next stage: T1 goes 5×3+, 6×2+, 10×1+, and T2 goes 3×10, 3×8, 3×6.",
         "Fail the last stage and restart at stage 1. T1 restarts at 85% of a new 5-rep max. T2 restarts at the last stage 1 weight plus 15–20 lb.",
         "T3 weight goes up once you reach 25 reps on the final set.",
+        "Optional 1RM fields fill the T1 and T2 start weights at 77% and 62% of 1RM, rounded to the step. These are placeholders from our 1RM and Scheme model (last set about 3 reps from failure). Sources differ: roughly 74–86% for T1 and 62–72% for T2. Edit any weight after.",
         "The projection assumes no missed stage."
       ]
     },
@@ -598,7 +602,8 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
   var oth = {};
   function othState(key) {
     var D = OTHER[key];
-    if (!oth[key]) oth[key] = { w: {}, reps: {}, tm: {}, weeks: D.weeksDef || 1, step: 2.5 };
+    if (!oth[key]) oth[key] = { w: {}, reps: {}, tm: {}, rm: {}, weeks: D.weeksDef || 1, step: 2.5 };
+    if (!oth[key].rm) oth[key].rm = {};
     if (!oth[key].tm) oth[key].tm = {};
     var s = oth[key];
     if (D.slots) Object.keys(D.slots).forEach(function (id) { if (!D.slots[id].nw && s.w[id] === undefined) s.w[id] = D.slots[id].w; });
@@ -622,6 +627,12 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
       h += '<label>Round to<select data-o="step">' + [1.25, 2.5, 5].map(function (x) { return opt(x, x + " kg", x === s.step); }).join("") + '</select></label>';
     } else {
       var seen = {};
+      if (D.rm) {
+        D.rm.lifts.forEach(function (l) {
+          h += '<label>' + l.n + ' 1RM (kg), optional<input data-o="m:' + l.id + '" type="number" inputmode="decimal" min="0" max="500" step="0.5" placeholder="fills T1 and T2" value="' + v(s.rm[l.id]) + '"></label>';
+        });
+        h += '<label>Round to<select data-o="step">' + [1.25, 2.5, 5].map(function (x) { return opt(x, x + " kg", x === s.step); }).join("") + '</select></label>';
+      }
       D.sched.forEach(function (d) { d.s.forEach(function (id) {
         var S = D.slots[id]; if (S.nw || seen[id]) return; seen[id] = 1;
         h += '<label>' + S.n + (S.bw ? '' : (S.hand ? ' per hand (kg)' : ' (kg)')) + (S.bw ? ' (kg)' : '') + '<input data-o="w:' + id + '" type="number" inputmode="decimal" min="0" max="500" step="0.5" value="' + v(s.w[id]) + '"></label>';
@@ -718,10 +729,11 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
       var s = JSON.parse(localStorage.getItem("opo") || "null");
       if (s && typeof s === "object") Object.keys(OTHER).forEach(function (k) {
         var t = s[k]; if (!t || typeof t !== "object") return;
-        var D = OTHER[k], o = { w: {}, reps: {}, tm: {}, weeks: D.weeksDef || 1, step: 2.5 };
+        var D = OTHER[k], o = { w: {}, reps: {}, tm: {}, rm: {}, weeks: D.weeksDef || 1, step: 2.5 };
         Object.keys(t.w || {}).forEach(function (id) { var x = t.w[id]; if (x === null || (typeof x === "number" && isFinite(x))) o.w[id] = x; });
         Object.keys(t.reps || {}).forEach(function (id) { var x = t.reps[id]; if (x === null || (typeof x === "number" && isFinite(x))) o.reps[id] = x; });
         Object.keys(t.tm || {}).forEach(function (id) { var x = t.tm[id]; if (x === null || (typeof x === "number" && isFinite(x))) o.tm[id] = x; });
+        Object.keys(t.rm || {}).forEach(function (id) { var x = t.rm[id]; if (x === null || (typeof x === "number" && isFinite(x))) o.rm[id] = x; });
         if (D.weeksOpts && D.weeksOpts.indexOf(t.weeks) >= 0) o.weeks = t.weeks;
         if ([1.25, 2.5, 5].indexOf(t.step) >= 0) o.step = t.step;
         oth[k] = o;
@@ -761,13 +773,19 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
     rows.push(newRow(pick));
     save(); renderAll();
   });
+  function fillFromRm(D, s, l) {
+    var m = s.rm[l.id];
+    if (!(m > 0)) return;
+    s.w[l.t1] = snap(D.rm.p1 * m, s.step); s.w[l.t2] = snap(D.rm.p2 * m, s.step);
+    [l.t1, l.t2].forEach(function (id) { var inp = document.querySelector('#ofields [data-o="w:' + id + '"]'); if (inp) inp.value = s.w[id]; });
+  }
   function onOther(ev) {
     var el = ev.target, f = el.getAttribute && el.getAttribute("data-o");
     if (!f) return;
     var s = othState(prog);
     if (f === "weeks") s.weeks = parseInt(el.value, 10);
-    else if (f === "step") s.step = parseFloat(el.value);
-    else { var pr = f.split(":"); s[{ r: "reps", t: "tm" }[pr[0]] || "w"][pr[1]] = numOf(el); }
+    else if (f === "step") { s.step = parseFloat(el.value); if (OTHER[prog].rm) OTHER[prog].rm.lifts.forEach(function (l) { fillFromRm(OTHER[prog], s, l); }); }
+    else { var pr = f.split(":"); if (pr[0] === "m") { s.rm[pr[1]] = numOf(el); OTHER[prog].rm.lifts.forEach(function (l) { if (l.id === pr[1]) fillFromRm(OTHER[prog], s, l); }); } else s[{ r: "reps", t: "tm" }[pr[0]] || "w"][pr[1]] = numOf(el); }
     saveOther(); updateOther();
   }
   $("ofields").addEventListener("input", onOther);
