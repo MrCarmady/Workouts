@@ -105,6 +105,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
           <option value="daniels">Daniels (VDOT)</option>
           <option value="hansons">Hansons</option>
           <option value="pfitz">Pfitzinger</option>
+          <option value="tinman">Tinman</option>
         </select>
       </label>
     </div>
@@ -225,6 +226,10 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     for (var i = 0; i < 60; i++) { var m = (lo + hi) / 2; if (hansT(key, m) < t) lo = m; else hi = m; }
     return (lo + hi) / 2;
   }
+  // Tinman: fitted to sample outputs of his calculator (13:00 to 29:00 5k). Every time is the 5k time x a fixed factor.
+  // 3000m and up: (d / 5000) ^ 1.0579. Below that, factors read from his output table (1500m and mile).
+  var TIN_SHORT = { "1500m": 0.2723, "Mile": 0.29447 };
+  function tinF(T) { return TIN_SHORT[T.name] !== undefined ? TIN_SHORT[T.name] : Math.pow(T.km / 5, 1.0579); }
   function danielsT(v, km) { var lo = 60, hi = 40000; for (var i = 0; i < 80; i++) { var m = (lo + hi) / 2; if (vdot(m / 60, km * 1000) > v) lo = m; else hi = m; } return (lo + hi) / 2; }
   // Returns {name: seconds or null} for every distance, or an {err} when the input is outside the model's table.
   function compareTimes(model, D, t) {
@@ -242,9 +247,14 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       DISTS.forEach(function (T) { out[T.name] = PFZ[T.name] ? t10 * PFZ[T.name] : null; });
       return { t: out };
     }
+    if (model === "tinman") {
+      var t5 = t / tinF(D); if (t5 < 780 || t5 > 1740) return { err: "Outside the tested Tinman range (5km equivalent 13:00 to 29:00)." };
+      DISTS.forEach(function (T) { out[T.name] = t5 * tinF(T); });
+      return { t: out };
+    }
     return { t: null };
   }
-  var CMP_NAMES = { daniels: "Daniels (VDOT)", hansons: "Hansons", pfitz: "Pfitzinger" };
+  var CMP_NAMES = { daniels: "Daniels (VDOT)", hansons: "Hansons", pfitz: "Pfitzinger", tinman: "Tinman" };
   function dstr(d) { var s = Math.round(d), a = Math.abs(s); return (s < 0 ? "-" : "+") + (a >= 60 ? Math.floor(a / 60) + ":" + (a % 60 < 10 ? "0" : "") + a % 60 : a + "s"); }
 
   var VDOT_MIN = 15, VDOT_MAX = 85;   // plausible human range (my choice; world records are about 80-85)
@@ -265,7 +275,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       if (!o) return;
       if (DISTS[parseInt(o.dist, 10)]) $("dist").value = o.dist;
       if (typeof o.time === "string") $("time").value = o.time;
-      if (["none", "daniels", "hansons", "pfitz"].indexOf(o.cmp) >= 0) $("cmp").value = o.cmp;
+      if (["none", "daniels", "hansons", "pfitz", "tinman"].indexOf(o.cmp) >= 0) $("cmp").value = o.cmp;
     } catch (e) {}
   }
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("res").hidden = true; }
@@ -307,7 +317,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       var x = marathonFactor(weekKm);
       wn.textContent = "Marathon is set to " + (Math.round(x * 1000) / 1000) + " times the half marathon, for " + (Math.round(weekKm * 10) / 10) + "km a week." + (weekKm / MILE < 35 ? " Below 35 miles a week the adjustment stops at 2.25 times the half marathon; a marathon build on less is not covered." : "");
     }
-    if (hasC && !cr.err) { var cn = { daniels: "Daniels: VDOT equations, all distances.", hansons: "Hansons: fitted to the book's chart; shown for mile, 5km, 10km, 10 miles, half marathon and marathon.", pfitz: "Pfitzinger: fitted to his table; shown for 10km, 10 miles, half marathon and marathon." }; cnote = cn[cm] + " Small figure = their time minus ours."; }
+    if (hasC && !cr.err) { var cn = { daniels: "Daniels: VDOT equations, all distances.", hansons: "Hansons: fitted to the book's chart; shown for mile, 5km, 10km, 10 miles, half marathon and marathon.", pfitz: "Pfitzinger: fitted to his table; shown for 10km, 10 miles, half marathon and marathon.", tinman: "Tinman: fitted to sample outputs of his calculator, not his published formula. Same factor curve for input and output, all distances." }; cnote = cn[cm] + " Small figure = their time minus ours."; }
     $("cmpnote").textContent = cnote;
     $("res").hidden = false;
   }

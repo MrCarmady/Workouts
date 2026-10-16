@@ -104,11 +104,12 @@ The page shows an error when the time can't be read, when the VDOT check above f
 
 ## Compare with
 
-An optional extra column shows another model's times beside ours, with the difference (their time minus ours). One comparison at a time. The choice is stored with the page's other values.
+An optional extra column shows another model's times beside ours, with the difference (their time minus ours). One comparison at a time (Daniels, Hansons, Pfitzinger or Tinman). The choice is stored with the page's other values.
 
 - Daniels (VDOT): the Daniels-Gilbert equations, solved for the same VDOT at each distance. All eight distances. Spot-checked by the author against the printed Daniels table; a few seconds' difference remains and the model was left unchanged.
 - Hansons: cubic curves fitted to the equivalent-times chart in the Hansons supplement (natural log of time against the log of the 5km time). Maximum fit error 0.5 seconds. The book's table is not reproduced. Columns: mile, 5km, 10km, 10 miles, half marathon, marathon. Valid for a 5km equivalent of 13:30 to 45:00. At 18:30 it gives a 3:00:21 marathon, as the chart prints. One chart cell looks like a typo (25K at a 15:00 5km prints 1:23:18, about 1:23:28 expected); it is not used.
 - Pfitzinger: constant ratios to the 10km time (10 miles 1.6797, half 2.2373, marathon 4.7173), fitted to his table, valid for a 10km equivalent of 27:00 to 55:00.
+- Tinman: fitted to sample outputs of his calculator (six sheets, 5km 13:00, 15:00, 17:00, 19:00, 25:00, 29:00), not his published formula. Every time is the 5km time multiplied by a fixed factor per distance, at all fitness levels tested. From 3000m up the factor is (distance / 5000) ^ 1.0579, with no marathon fade. For the mile and 1500m the factors are read from his table (0.29447 and 0.2723 of the 5km time). Reproduces his output sheets to within a second. The same factors are used to convert the input race, so a mile entered here gives a 5km about 0.17% faster than his own tool would. His tool's input conversion differs slightly at some distances (2400m by 1.26%); those distances are not in this calculator. Valid for a 5km equivalent of 13:00 to 29:00.
 - Where the other model has no column for the input distance, or the input is outside its range, the column shows a dash and a note says why. Nothing is extrapolated.
 
 ## Shared race result

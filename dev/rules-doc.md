@@ -190,3 +190,4 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Hansons and Pfitzinger are fitted curves/ratios, not the books' tables (public site). No extrapolation; unsupported inputs or distances show a dash plus a note.
 - Our VDOT is not tuned to the printed Daniels table (a few seconds apart; author's call).
 - At 18:30 5km: Daniels 2:57:08, Hansons 3:00:21 (matches chart), ours 2:58:43 (70 mi default).
+- Tinman added (2026-10-16): reverse-engineered from six sample sheets (5k 13:00-29:00). Pure scaling: time = 5k time x factor(d). d >= 3000m: (d/5000)^1.0579, no marathon fade. Mile 0.29447, 1500m 0.2723. Author accepted a broad fit (his tool's input and output curves differ slightly, e.g. 2400m by 1.26%, mile 0.17%). Range 13:00-29:00 5k equivalent. At 18:30 5k: marathon 2:56:39.
