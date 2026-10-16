@@ -4,6 +4,8 @@ Builds a week-by-week ramp from a starting CTL to week 1 of the Copeland maratho
 
 ### Week
 
+7 run days (6 drops Friday; 5 is below).
+
 | Day | Session |
 |---|---|
 | Mon, Wed, Fri | Easy (Friday is a rest or cross-training day with 6 run days) |
@@ -13,6 +15,25 @@ Builds a week-by-week ramp from a starting CTL to week 1 of the Copeland maratho
 | Sun | Long easy |
 
 Each sub-threshold day has a 10 min warm-up and cooldown at the easy cap (65% of 5km speed by default, adjustable from 50 to 85). A sub-threshold buffer (percent slower, default 0, up to 10) slows every rep pace. Both inputs are shared with the other plan pages. They are personal margins, not from the book.
+
+### Five run days
+
+Two easy runs, two sub-threshold sessions and one long run (your split; the days and which sessions are mine).
+
+| Day | Session |
+|---|---|
+| Mon | Rest or cross-train |
+| Tue | Sub-threshold, long |
+| Wed | Easy |
+| Thu | Sub-threshold, medium |
+| Fri | Rest or cross-train |
+| Sat | Easy |
+| Sun | Long easy |
+
+- The short session is dropped, in line with the ladder rule that short is cut first. The ladder climbs the long and medium sessions only (top state 4 x 10 and 6 x 6), so sub-threshold share tops out near 17% in the biggest weeks.
+- Easy days share the time left after the sub-threshold days and the long run (about 25% of the week).
+- Cross-training is not counted in TSS or CTL.
+- Plan week 1 is still the book's seven-day week. The last row is therefore a step from five runs to seven, and at a start CTL of 30 it shows "ramp above target" (+1.1 against 1.0) because five-day weeks carry less load per hour.
 
 ### Target
 

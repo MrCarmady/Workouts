@@ -108,7 +108,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   <header class="head">
     <div>
       <h1>Copeland Base</h1>
-      <p class="sub">A week-by-week ramp from your CTL to week 1 of the Copeland marathon plan: three easy runs, a long easy run and three sub-threshold sessions.</p>
+      <p class="sub">A week-by-week ramp from your CTL to week 1 of the Copeland marathon plan: easy runs, a long easy run and two or three sub-threshold sessions, on 5, 6 or 7 run days.</p>
     </div>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
@@ -146,6 +146,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         <select id="days">
           <option value="7">7</option>
           <option value="6">6, no Friday run</option>
+          <option value="5">5, 2 sub-T, no Mon or Fri run</option>
         </select>
       </label>
       <label>Ramp target (CTL per week)
@@ -342,13 +343,15 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   var ND = 7;
   function restDay() { return { rows: [], work: 0, rec: 0, book: "Rest", sec: 0, km: 0, tss: 0, kind: "R" }; }
   function ladderWeek(H) {
-    var ne = ND === 6 ? 2 : 3;
+    var ne = ND === 7 ? 3 : 2, two = ND === 5;
     for (var s = LADDER.length - 1; s >= 0; s--) {
       var st = LADDER[s];
       if (st.gate && H <= st.gate) continue;
-      var sub = subDur(st.L) + subDur(st.M) + subDur(st.S), R = H - sub, lg = Math.round(0.25 * H), ez = Math.round((R - lg) / ne);
+      var sub = subDur(st.L) + subDur(st.M) + (two ? 0 : subDur(st.S)), R = H - sub, lg = Math.round(0.25 * H), ez = Math.round((R - lg) / ne);
       if (ez < MINEASY) { ez = MINEASY; lg = Math.max(MINLONG, Math.round(R - ne * MINEASY)); }
-      var w = weekOf([mkDay("E", ez, "Easy"), mkDay("S", st.L), mkDay("E", ez, "Easy"), mkDay("S", st.M), ne === 3 ? mkDay("E", ez, "Easy") : restDay(), mkDay("S", st.S), mkDay("E", lg, "Long easy")]);
+      var w = weekOf(two
+        ? [restDay(), mkDay("S", st.L), mkDay("E", ez, "Easy"), mkDay("S", st.M), restDay(), mkDay("E", ez, "Easy"), mkDay("E", lg, "Long easy")]
+        : [mkDay("E", ez, "Easy"), mkDay("S", st.L), mkDay("E", ez, "Easy"), mkDay("S", st.M), ne === 3 ? mkDay("E", ez, "Easy") : restDay(), mkDay("S", st.S), mkDay("E", lg, "Long easy")]);
       if (w.share <= 0.25 || s === 0) { w.state = s; w.min = s === 0 && w.share > 0.25; return w; }
     }
   }
@@ -366,7 +369,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     if (t === null || t <= 0) return fail("Enter a race time like 18:54, 1854 or 1:32:10.");
     var vd = vdot(t / 60, D * 1000);
     if (vd < 15 || vd > 85) return fail("That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of 15 to 85. Check the distance and time.");
-    U = $("wunit").value; ND = $("days").value === "6" ? 6 : 7;
+    U = $("wunit").value; ND = $("days").value === "5" ? 5 : $("days").value === "6" ? 6 : 7;
     var c0 = Number(($("ctl").value || "").trim().replace(",", "."));
     if (($("ctl").value || "").trim() === "" || !isFinite(c0) || c0 < 5 || c0 > 200) return fail("Start CTL must be a number from 5 to 200.");
     var tgt = Number(($("ramp").value || "").trim().replace(",", "."));
@@ -410,7 +413,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     var h = "";
     weeks.forEach(function (r) {
       var w = r.w, d = w.days;
-      var sess = ["Tue " + d[1].book, "Thu " + d[3].book, "Sat " + d[5].book, "Sun " + d[6].book.replace(" min", " min easy")];
+      var sess = ["Tue " + d[1].book, "Thu " + d[3].book];
+      if (d[5].kind === "S") sess.push("Sat " + d[5].book);
+      sess.push("Sun " + d[6].book.replace(" min", " min easy"));
       h += "<tr" + (r.isPlan ? " class='hard'" : "") + "><td>" + r.lab + "</td><td class='num'>" + ht(w.sec) + "</td><td class='num'>" + dk(w.km) + " " + U + "</td><td class='num'>" + Math.round(w.tss) + "</td><td class='num'>" + r.ctl.toFixed(1) + "</td><td class='num'>" + r.atl.toFixed(1) + "</td><td class='num'>" + sgn(r.ramp) + "</td><td class='num'>" + Math.round(w.share * 100) + "%</td>"
         + "<td class='q2'>" + sess.map(function (s) { return "<span class='s'>" + s + "</span>"; }).join("") + (r.flag ? "<span class='s flag'>" + r.flag + "</span>" : "") + "</td></tr>";
     });
@@ -420,8 +425,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       + (base === 0 ? " This CTL already supports plan week 1 within the ramp target, so no base weeks are needed." : "")
       + (weeks.some(function (r) { return r.flag.indexOf("minimum") >= 0; }) ? " A minimum week is the floor this page builds: 4 hours of time and easy runs of at least 30 min. The start CTL is below what it supports at the ramp target, so the ramp is above target until CTL catches up." : "");
     $("notes").innerHTML = [
-      "<b>Week.</b> Mon, Wed and Fri easy; Tue, Thu and Sat sub-threshold (long, medium, short); Sun long easy. With 6 run days Friday is a rest or cross-training day and its time goes to the other two easy runs. Each sub-threshold day has a 10 min warm-up and cooldown at the easy cap.",
-      "<b>Target.</b> Plan week 1 is the Copeland marathon add-on's first week: Tue 3 &times; 12, Thu 6 &times; 6, Sat 10 &times; 3, Sun 110 min, other days 60 min. The row is the same as Marathon Plans' week 1, so it has the Friday run even with 6 run days.",
+      "<b>Week.</b> Mon, Wed and Fri easy; Tue, Thu and Sat sub-threshold (long, medium, short); Sun long easy. With 6 run days Friday is a rest or cross-training day and its time goes to the other two easy runs. With 5 run days the week is Mon rest or cross-train, Tue sub-threshold long, Wed easy, Thu sub-threshold medium, Fri rest or cross-train, Sat easy, Sun long easy; the short session is dropped and the ladder climbs the long and medium sessions only. Cross-training is not counted in TSS or CTL, so the ramp is for running alone. Each sub-threshold day has a 10 min warm-up and cooldown at the easy cap.",
+      "<b>Target.</b> Plan week 1 is the Copeland marathon add-on's first week: Tue 3 &times; 12, Thu 6 &times; 6, Sat 10 &times; 3, Sun 110 min, other days 60 min. The row is the same as Marathon Plans' week 1, so it has all seven run days even with 5 or 6 run days; with 5, the last row is a step up from five runs to seven.",
       "<b>Time.</b> Each week is the largest total time whose end-of-week CTL ramp stays at or under the target. The long easy run is about 25% of the week; the easy days share what is left after the sub-threshold days.",
       "<b>Sessions.</b> Sub-threshold work stays at or under 25% of running time. Basic week 3 &times; 10, 5 &times; 6, 10 &times; 3, built from a minimum of 2 &times; 10, 2 &times; 6, 4 &times; 3. Below the basic week the short session is cut first, then the medium, then the long. Above it the long extends first (3 &times; 11, 3 &times; 12, 4 &times; 10), then the medium (7 &times; 5, 5 &times; 7, 6 &times; 6), then the short (8 &times; 4, 10 &times; 3.5, 9 &times; 4, and 10 &times; 4 once the week passes 8 hours).",
       "<b>Pace and recovery.</b> Pace is the pace of a race lasting 60, 90, 120, 150 and 180 min for 3, 6, 8, 10 and 12 min reps, with walks of 60, 75, 90, 90, 120 s. The 60, 90 and 150 min anchors fit the book's pace table within 2 s/km (slightly slower). The 120 and 180 min anchors are my extension. Other rep lengths are interpolated between them and the walks rounded to 5 s.",
@@ -462,7 +467,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   function restore() {
     try {
       var s = JSON.parse(localStorage.getItem("cb") || "null");
-      if (s) { if (typeof s.c === "string") $("ctl").value = s.c; if (typeof s.r === "string") $("ramp").value = s.r; if (s.d === "6" || s.d === "7") $("days").value = s.d; }
+      if (s) { if (typeof s.c === "string") $("ctl").value = s.c; if (typeof s.r === "string") $("ramp").value = s.r; if (s.d === "5" || s.d === "6" || s.d === "7") $("days").value = s.d; }
     } catch (e) {}
     var pr = profGet();
     if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km;

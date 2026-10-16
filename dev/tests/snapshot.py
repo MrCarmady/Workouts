@@ -8,6 +8,8 @@ import tempfile, glob
 PAGES=tempfile.mkdtemp()   # copies with a charset tag, as the publish wrapper adds one
 for _f in glob.glob(os.path.join(PAGES_SRC,'*.html')):
     open(os.path.join(PAGES,os.path.basename(_f)),'w',encoding='utf-8').write('<!doctype html><meta charset="utf-8">'+open(_f,encoding='utf-8').read())
+# The Race Prediction Calculator's distance dropdown uses list positions, not km, so km values are translated for that page.
+KMIDX={'3':'2','5':'3','10':'4','21.0975':'6'}
 RACES=[('5','18:54','70','mi'),('3','10:44.80','45','mi'),('10','39:10','','mi'),('21.0975','1:25:00','100','km')]
 def fill(pg,id,v):
     if pg.query_selector('#'+id):
@@ -20,7 +22,7 @@ def main_text(pg): return pg.inner_text('main')
 def scenarios():
     out=[]
     for page in ['race-prediction-calculator','plan-builder','run-session-calculator','classic-session-generator']:
-        for r in RACES: out.append((page,'race '+'|'.join(r),lambda pg,r=r:[fill(pg,'dist',r[0]),fill(pg,'time',r[1]),fill(pg,'week',r[2]),fill(pg,'wunit',r[3])]))
+        for r in RACES: out.append((page,'race '+'|'.join(r),lambda pg,r=r,page=page:[fill(pg,'dist',KMIDX[r[0]] if page=='race-prediction-calculator' else r[0]),fill(pg,'time',r[1]),fill(pg,'week',r[2]),fill(pg,'wunit',r[3])]))
     out.append(('run-session-calculator','10 min reps',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'unit','min'),fill(pg,'rep','10')]))
     out.append(('run-session-calculator','1000m reps',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'unit','m'),fill(pg,'rep','1000')]))
     out.append(('run-session-calculator','3 min reps',lambda pg:[fill(pg,'dist','3'),fill(pg,'time','10:44.80'),fill(pg,'unit','min'),fill(pg,'rep','3')]))
@@ -48,6 +50,8 @@ def scenarios():
     out.append(('lifting-programme-planner','bulgarian high-rep',lambda pg:[pg.click('#add'),pg.select_option('#lifts > section:nth-of-type(4) select[data-f=lift]','bss')]))
     for pr in ['rbeg','gzclp','w531','ppl6','dbs','dbppl','nsuns4','nsuns5','nsuns6d','nsuns6s']:
         out.append(('lifting-programme-planner','other '+pr,lambda pg,pr=pr:[pg.select_option('#prog',pr)]))
+    out.append(('lifting-programme-planner','gzclp 1RMs 120 90 55 150',lambda pg:[pg.select_option('#prog','gzclp'),pg.fill('[data-o="m:sq"]','120'),pg.fill('[data-o="m:bn"]','90'),pg.fill('[data-o="m:oh"]','55'),pg.fill('[data-o="m:dl"]','150')]))
+    out.append(('lifting-programme-planner','gzclp 1RM squat 100 step 5 then edit T2',lambda pg:[pg.select_option('#prog','gzclp'),pg.fill('[data-o="m:sq"]','100'),pg.select_option('[data-o=step]','5'),pg.fill('[data-o="w:sq2"]','57.5')]))
     out.append(('lifting-programme-planner','other w531 12 weeks 1.25',lambda pg:[pg.select_option('#prog','w531'),pg.select_option('[data-o=weeks]','12'),pg.select_option('[data-o=step]','1.25')]))
     out.append(('lifting-programme-planner','other rbeg 12 weeks',lambda pg:[pg.select_option('#prog','rbeg'),pg.select_option('[data-o=weeks]','12')]))
     out.append(('lifting-programme-planner','other back to operator',lambda pg:[pg.select_option('#prog','gzclp'),pg.select_option('#prog','operator')]))
@@ -106,6 +110,9 @@ def scenarios():
     out.append(('copeland-base','39:10 10k ctl 45 plan week',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','39:10'),fill(pg,'ctl','45'),fill(pg,'wk','99')]))
     out.append(('copeland-base','6 days ctl 45',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','45'),fill(pg,'days','6')]))
     out.append(('copeland-base','6 days ctl 30 week 3',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','30'),fill(pg,'days','6'),fill(pg,'wk','3')]))
+    out.append(('copeland-base','5 days ctl 45',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','45'),fill(pg,'days','5')]))
+    out.append(('copeland-base','5 days ctl 30 week 3',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','30'),fill(pg,'days','5'),fill(pg,'wk','3')]))
+    out.append(('copeland-base','5 days ctl 20 minimum',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','20'),fill(pg,'days','5')]))
     out.append(('copeland-base','easy 60 buffer 3',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','40'),fill(pg,'ezp','60'),fill(pg,'sbf','3')]))
     out.append(('copeland-base','bad easy pct',lambda pg:[fill(pg,'ezp','40')]))
     out.append(('plan-builder','easy 60 buffer 3',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'week','40'),fill(pg,'wunit','mi'),fill(pg,'ctl','40'),fill(pg,'ezp','60'),fill(pg,'sbf','3')]))
