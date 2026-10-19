@@ -222,3 +222,13 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Time parsing is now strict everywhere (shared core): plain minutes (1 or 2 digits, decimals), m:ss, h:mm:ss, with seconds and minutes after the first part 00 to 59. Rejected: 18:75, 18:5, 0x10, 1e2, Infinity, signs, spaces inside, 7+ digit numbers. Digits only (3 to 6 digits) are still read from the right.
 - Range checks added: Lift Scheme Calculator (bodyweight 30 to 250 kg, weight up to 1000 kg, reps up to 30, RIR 0 to 10); Lifting Programme Planner (bodyweight 30 to 250 kg, weight up to 1000 kg, reps up to 30, numbers outside 0 to 1000 read as blank).
 - Fixed crashes in the Lifting Programme Planner from late change events on replaced or hidden fields.
+
+## Cross-Training TSS (P, 2026-10-19)
+- New page. Activities: bike, Concept2 rower, heart rate (elliptical, Stairmaster, other), treadmill walking.
+- Bike: TSS = hours x (power / FTP)^2 x 100 (P: FTP as the anchor).
+- Rower: watts, not pace (P). Threshold = 2k split + 15 s per 500m from Paul's law (P: add 5 s per 500m for each doubling; 2k + 15 about an hour). Threshold watts can be entered instead.
+- Heart rate: heart rate reserve against threshold HR (mine, placeholder; P agreed HR is the way for elliptical and Stairmaster).
+- Counts towards CTL: 80% for every activity (P). Source for the bike: Copeland pp. 174 to 175, cycling +20 to 30% time for similar aerobic benefit. Raw TSS shown beside the counted figure.
+- Cross-training share above 40% of weekly time is flagged (P: 60/40 running to cross-training, Copeland's anecdote). Weekly balance check only on the new page so far.
+- Not yet built: cross-training inputs inside the Run Load Planner (a hand-off link exists), Copeland Base, Hybrid Load Planner.
+

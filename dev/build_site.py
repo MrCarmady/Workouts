@@ -18,6 +18,7 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("run-load-planner.html","run-load-planner.html","Run Load Planner","CTL, ATL and TSB from a planned week, or the TSS needed for a target.","run-load-planner.md","run-load-planner","Planning and load"),
  ("run-tss-calculator.html","run-tss-calculator.html","Run TSS Calculator","Training stress score for a run, from your threshold pace and what you ran.","run-tss-calculator.md","run-tss-calculator","Planning and load"),
  ("run-tss-planner.html","run-tss-planner.html","Run TSS Planner","The workout pace that hits a target TSS.","run-tss-planner.md","run-tss-planner","Sessions"),
+ ("cross-training-tss.html","cross-training-tss.html","Cross-Training TSS","TSS for a bike, rower, heart-rate or treadmill walking session, and the share that counts towards CTL.","cross-training-tss.md","cross-training-tss","Planning and load"),
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace, and optional TSS, for a running or walking treadmill setting.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","1RM and Scheme Calculator","Estimated 1RM and working weights for common set and rep schemes, from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
  ("marathon-plans.html","marathon-plans.html","Marathon Plans","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Planning and load"),
@@ -32,7 +33,7 @@ for src,out,title,desc,md,slug,grp in tools:
     assert s.lstrip().startswith('<title>'), src
     assert s.count('<main class="wrap">')==1, src
     s=s.replace('<main class="wrap">','<main class="wrap">\n  <p class="sitenav"><a href="tools.html">&larr; All tools</a></p>',1)
-    if src in ('run-session-calculator.html','classic-session-generator.html'):
+    if src in ('run-session-calculator.html','classic-session-generator.html','cross-training-tss.html'):
         assert s.count('var SITE = false;')==1
         s=s.replace('var SITE = false;','var SITE = true; ')
     assert s.count('</main>')==1, src
@@ -80,6 +81,7 @@ START=[ # (question, tool file, tool title); titles must match the tools list
  ("I need paces for a threshold or tempo session.","run-session-generator.html","Sub-Threshold Session Generator"),
  ("I want to know if my weekly load is climbing too fast.","run-load-planner.html","Run Load Planner"),
  ("I want to build a training block from a race result.","plan-builder.html","Plan Builder"),
+ ("I cross-trained on a bike, rower or treadmill. How much load is that?","cross-training-tss.html","Cross-Training TSS"),
  ("I want working weights for a lifting scheme.","lift-scheme-calculator.html","1RM and Scheme Calculator"),
 ]
 _titles={t[1]:t[2] for t in tools}

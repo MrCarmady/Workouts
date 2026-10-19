@@ -1,0 +1,375 @@
+<title>Cross-Training TSS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+/* Layout: one narrow column; activity panel, session panel, result panel. Track-red accent on white, same system as the other calculators. */
+:root {
+  --bg: #f2f2f1;
+  --surface: #ffffff;
+  --surface-2: #f0f0ee;
+  --fg: #17181a;
+  --muted: #6a6d72;
+  --line: #deded9;
+  --accent: #c8372d;
+  --warn: #a35a00;
+  --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+    --line: #34343a; --accent: #ef6a5e; --warn: #f0a35a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+  --line: #34343a; --accent: #ef6a5e; --warn: #f0a35a; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 20px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 2rem; letter-spacing: .02em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 12px; color: var(--muted); }
+.head > div:first-child { min-width: 0; }
+.head { display: flex; flex-wrap: nowrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.themes { display: inline-grid; place-items: center; flex: none; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); color: var(--muted); cursor: pointer; }
+.themes:hover { color: var(--fg); }
+.themes:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.themes svg { display: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.themes[data-mode="system"] .i-system, .themes[data-mode="light"] .i-light, .themes[data-mode="dark"] .i-dark { display: block; }
+.themes .i-system path { fill: currentColor; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; }
+.fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 480px) { .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fields label:last-child { grid-column: 1 / -1; } }
+label { display: grid; gap: 4px; grid-template-rows: auto auto; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+input, select { box-sizing: border-box; height: 2.75rem; font: inherit; font-size: 1.05rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 9px 10px; width: 100%; min-width: 0; font-variant-numeric: tabular-nums; }
+input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.warn { color: var(--warn); font-size: .88rem; margin: 0; }
+.result { display: grid; gap: 10px; align-content: center; }
+.big { font-family: var(--font-display); font-weight: 700; font-size: 5.5rem; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; line-height: 1; font-variant-numeric: tabular-nums; color: var(--accent); }
+.big small { font-size: 1.6rem; font-weight: 600; color: var(--muted); }
+.chk { display: flex; align-items: center; gap: 10px; min-height: 2.75rem; font-size: .95rem; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--fg); }
+.chk input { width: 1.2rem; height: 1.2rem; min-height: 0; accent-color: var(--accent); }
+.lockrow { margin-bottom: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: end; }
+.lockrow .chk { grid-column: span 2; }
+@media (max-width: 480px) { .lockrow { grid-template-columns: minmax(0, 1fr); } .lockrow .chk { grid-column: auto; } }
+.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+.kv div { background: var(--surface-2); border-radius: 2px; padding: 8px 10px; }
+.kv b { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kv span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.note { font-size: .85rem; color: var(--muted); margin: 0; }
+.method { font-size: .85rem; color: var(--muted); display: grid; gap: 6px; }
+.method p { margin: 0; }
+a { color: var(--accent); }
+[hidden] { display: none !important; }
+</style>
+<main class="wrap">
+  <header class="head">
+    <div>
+      <h1>Cross-Training TSS</h1>
+      <p class="sub">Training stress for a bike, rower, heart-rate based or treadmill walking session, and the share that counts towards CTL.</p>
+    </div>
+    <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
+      <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
+      <svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </header>
+
+  <section class="panel">
+    <h2>Session</h2>
+    <div class="fields">
+      <label>Activity
+        <select id="act">
+          <option value="bike" selected>Bike (power)</option>
+          <option value="row">Rower (Concept2)</option>
+          <option value="hr">Heart rate (elliptical, Stairmaster, other)</option>
+          <option value="walk">Treadmill walking</option>
+        </select>
+      </label>
+      <label>Duration (min)
+        <input id="dur" type="number" inputmode="decimal" min="1" max="600" step="1" value="60">
+      </label>
+      <label>Counts towards CTL (%)
+        <input id="cnt" type="number" inputmode="decimal" min="0" max="150" step="5" value="80">
+      </label>
+    </div>
+
+    <div class="fields grp" data-act="bike">
+      <label>Average power (W)
+        <input id="bpow" type="number" inputmode="decimal" min="1" max="2000" step="1" value="190">
+      </label>
+      <label>Bike FTP (W)
+        <input id="ftp" type="number" inputmode="decimal" min="50" max="600" step="1" value="250">
+      </label>
+    </div>
+
+    <div class="fields grp" data-act="row" hidden>
+      <label>Threshold from
+        <select id="rmode">
+          <option value="p" selected>2k time + 15 s per 500m</option>
+          <option value="w">Threshold watts</option>
+        </select>
+      </label>
+      <label id="r2kl">2k time
+        <input id="r2k" type="text" inputmode="text" autocomplete="off" value="6:50" placeholder="6:50">
+      </label>
+      <label id="rthl" hidden>Threshold watts
+        <input id="rthw" type="number" inputmode="decimal" min="20" max="800" step="1" value="215">
+      </label>
+      <label>Session shown as
+        <select id="rin">
+          <option value="s" selected>Average split, /500m</option>
+          <option value="w">Average watts</option>
+        </select>
+      </label>
+      <label>Value
+        <input id="rval" type="text" inputmode="text" autocomplete="off" value="2:05" placeholder="2:05 or 180">
+      </label>
+    </div>
+
+    <div class="fields grp" data-act="hr" hidden>
+      <label>Average heart rate
+        <input id="hr" type="number" inputmode="decimal" min="40" max="230" step="1" value="135">
+      </label>
+      <label>Resting heart rate
+        <input id="hrr" type="number" inputmode="decimal" min="30" max="100" step="1" value="50">
+      </label>
+      <label>Threshold heart rate
+        <input id="hrt" type="number" inputmode="decimal" min="100" max="220" step="1" value="170">
+      </label>
+    </div>
+
+    <div class="fields grp" data-act="walk" hidden>
+      <label>Belt speed
+        <input id="wsp" type="number" inputmode="decimal" min="2" max="8" step="0.1" value="3">
+      </label>
+      <label>Unit
+        <select id="wun"><option value="mph" selected>mph</option><option value="kmh">km/h</option></select>
+      </label>
+      <label>Incline (%)
+        <input id="wgr" type="number" inputmode="decimal" min="0" max="20" step="0.5" value="12">
+      </label>
+      <label>Threshold pace, /km
+        <input id="wthr" type="text" inputmode="text" autocomplete="off" value="" placeholder="blank = from your saved race result">
+      </label>
+    </div>
+  </section>
+
+  <p class="warn" id="err" hidden></p>
+
+  <section class="panel result" id="res" aria-live="polite">
+    <h2>Training stress</h2>
+    <div class="big"><span id="tss">-</span><small>TSS</small></div>
+    <div class="kv" id="kv"></div>
+    <p class="note" id="note" style="margin:12px 0 0" hidden></p>
+    <p style="margin:12px 0 0"><a id="toplanner" href="run-load-planner.html" hidden>Add the counted TSS to the Run Load Planner &rarr;</a></p>
+  </section>
+
+  <section class="panel">
+    <h2>Weekly balance</h2>
+    <div class="fields">
+      <label>Running this week (h)
+        <input id="wrun" type="number" inputmode="decimal" min="0" max="100" step="0.25" value="">
+      </label>
+      <label>Cross-training this week (h)
+        <input id="wxt" type="number" inputmode="decimal" min="0" max="100" step="0.25" value="">
+      </label>
+    </div>
+    <p class="note" id="bal" style="margin:12px 0 0" hidden></p>
+  </section>
+
+  <section class="method">
+    <h2>How this is calculated</h2>
+    <p>TSS = hours × (intensity factor)² × 100, as for running. The intensity factor depends on the activity.</p>
+    <p>Bike: average power ÷ your bike FTP.</p>
+    <p>Rower: watts from the Concept2 formula, 2.80 ÷ (split in seconds per metre)³. Threshold is the 2k split plus 15 seconds, from Paul's law (add 5 seconds per 500m for each doubling of distance, so 16k is 2k + 15, about an hour for most rowers), or threshold watts you enter. The intensity factor is session watts ÷ threshold watts. Power is used, not pace, because boat speed rises with the cube root of power.</p>
+    <p>Heart rate: intensity = (average HR − resting HR) ÷ (threshold HR − resting HR), squared. This is my formula and a placeholder, not validated.</p>
+    <p>Treadmill walking: the ACSM walking equation gives the flat-run speed with the same oxygen cost; TSS is then scored against your threshold pace as for a run. See the Treadmill Flat Equivalent page.</p>
+    <p>Counts towards CTL: the raw TSS times a percentage, 80 by default. Copeland says cycling should run 20 to 30% longer than running for similar aerobic benefit (Norwegian Singles Method, p. 174), which is about 77 to 83%. He gives nothing for other activities, so 80% is a placeholder for all of them.</p>
+    <p>Weekly balance: Copeland's rough guide is about 60% running and 40% cross-training of training time, from one friend's experience. The check uses plain hours and flags a cross-training share over 40%.</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  /*@@CORE-BEGIN@@ Shared code. Edit shared/core.js and run sync_core.py; do not edit between these markers. */
+  var K = 1.06, HM = 21.0975, MAR = 42.195, MILE = 1.609344;
+  // Slowing applied to the 5km equivalent when the input race is shorter than 5km, in s/km (my estimate).
+  function adj(km) { return km < 5 ? 6.5 * Math.log(5 / km) : 0; }
+  var offM = 5;   // marathon slow-down in s/km, set per page from the weekly distance
+  function off(km) { return km <= HM ? 0 : offM * (Math.min(km, MAR) - HM) / (MAR - HM); }
+  // Marathon time as a multiple of the half marathon, by weekly miles. 2.10 at 70 miles or more (also checked against Kejelcha's 56:51 half and 1:59:41 marathon, ratio 2.105); the lower-mileage points are placeholders.
+  function marathonFactor(weekKm) {
+    var mi = weekKm / 1.609344;
+    var P = [[70, 2.10], [60, 2.13], [50, 2.17], [35, 2.25]];   // [miles per week, marathon / half marathon]
+    if (mi >= P[0][0]) return P[0][1];
+    for (var i = 1; i < P.length; i++) {
+      if (mi >= P[i][0]) { var f = (P[i - 1][0] - mi) / (P[i - 1][0] - P[i][0]); return P[i - 1][1] + f * (P[i][1] - P[i - 1][1]); }
+    }
+    return P[P.length - 1][1];
+  }
+  // p5r = 5km-equivalent pace from Riegel (s/km). Returns the marathon slow-down in s/km.
+  function marathonOff(p5r, weekKm) {
+    if (weekKm === null) weekKm = 70 * 1.609344;
+    var H0 = p5r * Math.pow(HM / 5, K - 1) * HM, M0 = p5r * Math.pow(MAR / 5, K - 1) * MAR;
+    return Math.max(0, (marathonFactor(weekKm) * H0 - M0) / MAR);
+  }
+  function parseTime(str) {
+    str = (str || "").trim();
+    if (!str) return null;
+    if (/^\d{3,6}$/.test(str)) {                                       // digits only: read from the right
+      var sec = str.slice(-2), rest = str.slice(0, -2);
+      if (Number(sec) >= 60) return null;
+      if (rest.length > 2) { if (Number(rest.slice(-2)) >= 60) return null; str = rest.slice(0, -2) + ":" + rest.slice(-2) + ":" + sec; }
+      else str = rest + ":" + sec;
+    }
+    // Strict forms only: plain minutes (1 or 2 digits, decimals allowed), m:ss(.ff), h:mm:ss(.ff); minutes and seconds after the first part must be 00 to 59.
+    if (/^\d{1,2}(\.\d+)?$/.test(str)) return Number(str) * 60;
+    var m = /^(\d+):([0-5]\d(?:\.\d+)?)$/.exec(str);
+    if (m) return Number(m[1]) * 60 + Number(m[2]);
+    m = /^(\d+):([0-5]\d):([0-5]\d(?:\.\d+)?)$/.exec(str);
+    if (m) return Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3]);
+    return null;
+  }
+  function mmss(sec) {
+    sec = Math.round(sec);
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+  function hmmss(sec) {
+    sec = Math.round(sec);
+    var h = Math.floor(sec / 3600), r = sec - h * 3600;
+    return h > 0 ? h + ":" + (Math.floor(r / 60) < 10 ? "0" : "") + mmss(r) : mmss(r);
+  }
+  // Daniels-Gilbert VDOT for a race of `min` minutes over `m` metres.
+  function vdot(min, m) {
+    var v = m / min;
+    var vo2 = -4.60 + 0.182258 * v + 0.000104 * v * v;
+    var pct = 0.8 + 0.1894393 * Math.exp(-0.012778 * min) + 0.2989558 * Math.exp(-0.1932605 * min);
+    return vo2 / pct;
+  }
+  /*@@CORE-END@@*/
+  var SITE = false;   // set to true in the hosted site build, where the Run Load Planner sits next to this page
+  var IDS = ["act", "dur", "cnt", "bpow", "ftp", "rmode", "r2k", "rthw", "rin", "rval", "hr", "hrr", "hrt", "wsp", "wun", "wgr", "wthr", "wrun", "wxt"];
+  function save() { try { var o = {}; IDS.forEach(function (i) { o[i] = $(i).value; }); localStorage.setItem("xtss", JSON.stringify(o)); } catch (e) {} }
+  function restore() {
+    try {
+      var o = JSON.parse(localStorage.getItem("xtss") || "null");
+      if (!o || typeof o !== "object") return;
+      IDS.forEach(function (i) {
+        if (typeof o[i] !== "string") return;
+        var el = $(i);
+        if (el.tagName === "SELECT") { var ok = Array.prototype.some.call(el.options, function (op) { return op.value === o[i]; }); if (ok) el.value = o[i]; }
+        else el.value = o[i];
+      });
+    } catch (e) {}
+  }
+  function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
+  function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("res").hidden = true; }
+  function num(id) { var v = ($(id).value || "").trim(); return v === "" || !/^\d+(\.\d+)?$/.test(v) ? NaN : Number(v); }
+  function r1(x) { return (Math.round(x * 10) / 10).toString(); }
+  var MAX_IF = 1.5;
+  var ACT_NAME = { bike: "Bike", row: "Row", hr: "Session", walk: "Walk" };
+
+  function update() {
+    $("err").hidden = true;
+    var act = $("act").value;
+    Array.prototype.forEach.call(document.querySelectorAll(".grp"), function (g) { g.hidden = g.getAttribute("data-act") !== act; });
+    $("r2kl").hidden = $("rmode").value !== "p"; $("rthl").hidden = $("rmode").value === "p";
+    var dur = num("dur"), cnt = num("cnt");
+    if (!(dur >= 1 && dur <= 600)) return fail("Enter a duration between 1 and 600 minutes.");
+    if (!(cnt >= 0 && cnt <= 150)) return fail("Enter the percentage that counts towards CTL, from 0 to 150.");
+    var h = dur / 60, IF, kv = "", note = "";
+    if (act === "bike") {
+      var p = num("bpow"), ftp = num("ftp");
+      if (!(ftp >= 50 && ftp <= 600)) return fail("Enter your bike FTP between 50 and 600 W.");
+      if (!(p > 0 && p <= 2000)) return fail("Enter your average power in watts, up to 2000.");
+      IF = p / ftp; kv = "<div><b>" + Math.round(p) + "</b><span>Average watts</span></div>";
+    } else if (act === "row") {
+      var wthr, spl;
+      if ($("rmode").value === "p") {
+        var t2 = parseTime($("r2k").value);
+        if (t2 === null || t2 < 300 || t2 > 840) return fail("Enter your 2k time like 6:50, between 5:00 and 14:00.");
+        spl = t2 / 4 + 15; wthr = 2.80 / Math.pow(spl / 500, 3);
+        note = "Threshold split " + mmss(spl) + " /500m, " + Math.round(wthr) + " W (2k + 15 s).";
+      } else {
+        wthr = num("rthw"); if (!(wthr >= 20 && wthr <= 800)) return fail("Enter threshold watts between 20 and 800.");
+      }
+      var w;
+      if ($("rin").value === "s") {
+        var s = parseTime($("rval").value);
+        if (s === null || s < 70 || s > 300) return fail("Enter the average split like 2:05, between 1:10 and 5:00 per 500m.");
+        w = 2.80 / Math.pow(s / 500, 3);
+      } else {
+        w = num("rval"); if (!(w >= 20 && w <= 800)) return fail("Enter average watts between 20 and 800.");
+      }
+      IF = w / wthr; kv = "<div><b>" + Math.round(w) + "</b><span>Average watts</span></div><div><b>" + Math.round(wthr) + "</b><span>Threshold watts</span></div>";
+    } else if (act === "hr") {
+      var hr = num("hr"), rest = num("hrr"), lt = num("hrt");
+      if (!(rest >= 30 && rest <= 100)) return fail("Enter a resting heart rate between 30 and 100.");
+      if (!(lt >= 100 && lt <= 220) || lt - rest < 30) return fail("Enter a threshold heart rate between 100 and 220, at least 30 above resting.");
+      if (!(hr >= rest && hr <= 230)) return fail("Enter an average heart rate from your resting rate up to 230.");
+      IF = (hr - rest) / (lt - rest);
+      kv = "<div><b>" + Math.round(IF * 100) + "%</b><span>Of heart rate reserve at threshold</span></div>";
+    } else {
+      var sp = num("wsp"), gr = num("wgr"), mph = $("wun").value === "mph", kmh = mph ? sp * MILE : sp;
+      if (!(kmh >= 2 && kmh <= 8)) return fail("Enter a belt speed between 2 and 8 km/h (1.2 to 5.0 mph).");
+      if (!(gr >= 0 && gr <= 20)) return fail("Enter an incline between 0 and 20%.");
+      var thr, tt = ($("wthr").value || "").trim();
+      if (tt !== "") { thr = parseTime(tt); if (thr === null || thr < 120 || thr > 900) return fail("Enter the threshold pace like 4:01, between 2:00 and 15:00 per km, or leave it blank."); }
+      else {
+        var pr = profGet(), pt = parseTime(pr.time || ""), pk = parseFloat(pr.km);
+        if (!(pt > 0 && pk > 0)) return fail("Enter a threshold pace, or save a race result on the Race Prediction Calculator in this browser.");
+        thr = (pt * Math.pow(5 / pk, K) / 5 + adj(pk)) * Math.pow(16 / 5, K - 1); note = "Threshold " + mmss(thr) + " /km from your saved race result.";
+      }
+      var flat = kmh * (0.5 + 9 * gr / 100), fp = 3600 / flat;
+      IF = thr / fp; kv = "<div><b>" + mmss(fp) + "</b><span>Flat-equivalent pace, /km</span></div>";
+      if (kmh > 6.4) note = (note ? note + " " : "") + "ACSM states its walking equation for about 3 to 6 km/h; above that the result is less reliable.";
+    }
+    if (!(IF > 0) || IF > MAX_IF) return fail("That works out to " + Math.round(IF * 100) + "% of threshold intensity, above " + Math.round(MAX_IF * 100) + "%. Check the inputs.");
+    var tss = h * IF * IF * 100, counted = tss * cnt / 100;
+    $("tss").textContent = r1(tss);
+    $("kv").innerHTML = "<div><b>" + r1(counted) + "</b><span>Counts towards CTL</span></div><div><b>" + Math.round(IF * 100) + "%</b><span>Intensity factor</span></div>" + kv;
+    $("note").hidden = note === ""; $("note").textContent = note;
+    var tp = $("toplanner"), c = Math.round(counted);
+    tp.hidden = !SITE || c < 1;
+    tp.href = "run-load-planner.html?tss=" + c + "&name=" + encodeURIComponent(ACT_NAME[act] + " " + Math.round(dur) + " min");
+    $("res").hidden = false;
+  }
+  function balance() {
+    var r = num("wrun"), x = num("wxt"), b = $("bal");
+    b.hidden = true;
+    if (!(r >= 0) || !(x >= 0) || r + x <= 0) return;
+    var share = x / (r + x) * 100;
+    b.hidden = false;
+    b.textContent = "Cross-training is " + Math.round(share) + "% of this week's training time." + (share > 40 ? " That is over Copeland's rough 60/40 guide, which comes from one friend's experience: running-specific fitness may suffer." : "");
+  }
+  restore();
+  IDS.forEach(function (id) {
+    var h = function () { save(); update(); balance(); };
+    $(id).addEventListener("input", h); $(id).addEventListener("change", h);
+  });
+  update(); balance();
+})();
+
+(function () {
+  var btn = document.getElementById("themebtn"), order = ["system", "light", "dark"], names = { system: "auto", light: "light", dark: "dark" };
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btn.setAttribute("data-mode", t);
+    btn.setAttribute("aria-label", "Theme: " + names[t] + ". Click to change.");
+    btn.title = "Theme: " + names[t];
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  if (order.indexOf(saved) < 0) saved = "system";
+  apply(saved);
+  btn.addEventListener("click", function () {
+    var t = order[(order.indexOf(btn.getAttribute("data-mode")) + 1) % order.length];
+    apply(t);
+    try { localStorage.setItem("theme-pref", t); } catch (e) {}
+  });
+})();
+</script>
