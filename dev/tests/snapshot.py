@@ -37,7 +37,7 @@ def scenarios():
     out.append(('race-prediction-calculator','blend mile + 10k wr',two('1','5:23.4','4','39:43',cmp='wr')))
     out.append(('race-prediction-calculator','blend mile + 10k pfitz error',two('1','5:23.4','4','39:43',cmp='pfitz')))
     out.append(('race-prediction-calculator','blend 5k + half 50 mi',two('3','18:52','6','1:27:30',week='50')))
-    out.append(('race-prediction-calculator','blend same distance twice',two('3','18:52','3','19:10')))
+    out.append(('race-prediction-calculator','blend same distance rejected',two('3','18:52','3','19:10')))
     out.append(('race-prediction-calculator','blend second time blank',two('3','18:52','4','')))
     out.append(('race-prediction-calculator','blend second time bad',two('3','18:52','4','3:00')))
     out.append(('plan-builder','race week 7 days sub-T',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'week','60'),fill(pg,'wunit','mi'),fill(pg,'days','7'),fill(pg,'ctl','45'),fill(pg,'weeks','16'),fill(pg,'rt','1.2'),fill(pg,'focus','subT'),fill(pg,'taper','7'),pg.eval_on_selector('#wk',LASTWK)]))

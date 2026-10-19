@@ -150,7 +150,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     <p>Short races: a result under 5km is slowed by 6.5s/km × ln(5 ÷ km) to get a 5km equivalent (about 7s/km for the mile). Predictions for short distances are sped up by the same amount.</p>
     <p>Marathon: paces beyond the half marathon are slowed. The marathon is 2.10 times the half marathon at 70 miles (113km) a week or more, 2.13 at 60, 2.17 at 50, and 2.25 at 35 miles (56km) or less. Values between are in a straight line. Blank weekly distance means 70 miles.</p>
     <p>The 5km to half marathon relationship is most reliable for intermediate runners on moderate mileage. It may be less reliable for beginners and low mileage.</p>
-    <p>Two results: each result makes its own full prediction. At each target distance the two predictions are averaged with weights 1 ÷ d, where d = |ln(target ÷ result distance)|. A result at the target distance gets all of the weight. The small figures under each time are the weights in percent, result 1 / result 2. The comparison column is blended the same way, from each result separately. The 1 ÷ d weighting is my choice, not fitted to data.</p>
+    <p>Two results: each result makes its own full prediction. At each target distance the two predictions are averaged with weights 1 ÷ d, where d = |ln(target ÷ result distance)|. A result at the target distance gets all of the weight. The two results must be at different distances. The small figures under each time are the weights in percent, result 1 / result 2. The comparison column is blended the same way, from each result separately. The 1 ÷ d weighting is my choice, not fitted to data.</p>
     <p>Results with a Daniels–Gilbert VDOT outside 15 to 85 are rejected as implausible.</p>
   </section>
   <p class="sitenav"><a href="methods/race-prediction-calculator.html">How it works &rarr;</a></p>
@@ -351,6 +351,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       if (($("time2").value || "").trim() === "") return fail("Second result: enter a time, or set the distance to None.");
       var e2 = checkResult(D2, t2, "Second result: "); if (e2) return fail(e2);
     }
+    if (D2 && d2i === di) return fail("Second result: pick a different distance, or enter only the better result. Two results at the same distance would just be averaged.");
     var two = !!D2, Ds = two ? [D, D2] : [D], ts = two ? [t, t2] : [t];
     var wkTxt = ($("week").value || "").trim(), weekKm = null;
     if (wkTxt !== "") {

@@ -213,4 +213,5 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Optional second result. Each result predicts separately; blend per target distance with weights 1 / |ln(target / result distance)| (power 1 chosen by P as a starting point; mine as a form, not fitted). Result at the target distance takes all the weight.
 - Comparison column uses the same blend of each model's predictions from each result (P).
 - P's reasoning: the mile (5:23.4) is close to a 10/10 effort and shows potential; the 10k (39:43) is the more relevant anchor but was run blind with a strong negative split, so it is slow for his ability. Blend gives 5km 18:51 and half 1:27:06 (22/78); actual 5km 18:52.
+- Both results must be at different distances (P, 2026-10-19): same-distance pairs are rejected with a message.
 - Two results only (P). Other pages still read result 1 only.

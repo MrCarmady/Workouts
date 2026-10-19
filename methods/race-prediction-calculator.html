@@ -185,7 +185,7 @@ time(T) = pace(T) * T
 time(T) = sum(w_i * time_i(T))
 </code></pre>
 <ul>
-<li>A result at the target distance has d = 0 and takes all the weight, so each input reproduces itself. If both results are at the same distance they share the weight equally.</li>
+<li>A result at the target distance has d = 0 and takes all the weight, so each input reproduces itself. Two results at the same distance are rejected (they would only be averaged, which is slower than the better one and gives no way to prefer either).</li>
 <li>The weighting form (inverse of the log distance ratio, power 1) is my choice, set at the author's request as a starting point. Power 2 is the obvious alternative and leans harder on the nearer result. Not fitted to data.</li>
 <li>Idea behind it (author's): a result near the target distance is more informative than a far one, but a best-effort short result is a better measure of potential than a soft near one. The author's example: mile 5:23.4 (counted as a near-10/10 effort) and 10k 39:43 (strong negative split, run blind on over-optimistic watch data, so slower than potential). Blend: 3k 10:44, 5km 18:51, half 1:27:06 (22% mile / 78% 10k), against actual 3k 10:44 and 5km 18:52 (one data point each, and the 3k is one of the inputs to the model's earlier calibration, so this is not a validation).</li>
 <li>The marathon in the blend is not exactly F times the blended half, because the weights differ at the two distances. Each result's own marathon is F times its own half.</li>
