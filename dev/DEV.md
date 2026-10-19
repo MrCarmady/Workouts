@@ -9,4 +9,10 @@ The `dev` folder holds the sources and tools that build the site. GitHub Pages a
 - **Needs:** Python 3 with `markdown` and `playwright` (plus its Chromium), and Node.
 
 ## Parkrun Converter
-Course scores live in data/parkrun-sss.txt (name | SSS). After editing that file or data/parkrun-converter.tpl, run make_parkrun.py to rebuild parkrun-converter.html.
+Course scores live in data/parkrun-sss.txt (name | SSS). After editing that file or data/parkrun-converter.tpl, run make_parkrun.py to rebuild parkrun-converter.html, then run python3 shared/apply_theme.py (the template does not carry the shared theme block).
+
+## Stress tests (added 2026-10-19)
+Not part of run_tests.sh because they take minutes. Run when changing inputs, parsing or models.
+- `python3 tests/fuzz.py full [page-name-fragment]`: feeds every input on every page junk values (letters, huge, negative, "18:75", "Infinity", unicode), random combinations, button clicks, corrupt localStorage and blocked storage. Reports JS errors, NaN/Infinity/undefined text, impossible numbers and horizontal overflow at 390px. Known false positives: negative differences in the comparison column and "-0" inside "-0.6".
+- `python3 tests/seqfuzz.py 25 40`: 25 seeds x 40 random actions per page, to catch crashes that depend on order (late change events, stale panels).
+- `python3 tests/props_race.py`: Race Prediction Calculator properties (input reproduced, times and paces rise with distance, slower input slows everything, mileage only moves the marathon, blend stays between the two predictions and does not depend on result order).

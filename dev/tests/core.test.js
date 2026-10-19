@@ -15,6 +15,11 @@ t("parseTime: digits read from the right", () => {
   assert.strictEqual(a.parseTime("10:44.80"), 644.8);
 });
 t("parseTime: rejects bad input", () => { ["", "abc", "1:2:3:4", "1875", "-5:00"].forEach(x => assert.strictEqual(a.parseTime(x), null, x)); });
+t("parseTime: strict forms (2026-10-19)", () => {
+  ["59:99", "1:75", "0:90", "12:60", "1:60:00", "1:00:75", "0x10", "1e2", "1e2:30", "Infinity", "+5:00", "5:+30", "18:.5", "18.5:30", "18:5", "18:054", "18 : 54", "18:54.", "1854.5", "9999999", "1_000", "٣", "NaN"].forEach(x => assert.strictEqual(a.parseTime(x), null, x));
+  assert.strictEqual(a.parseTime(" 18:54 "), 1134); assert.strictEqual(a.parseTime("18:54.5"), 1134.5); assert.strictEqual(a.parseTime("1.5"), 90);
+  assert.strictEqual(a.parseTime("0:59"), 59); assert.strictEqual(a.parseTime("120:00"), 7200); assert.strictEqual(a.parseTime("1:59:59"), 7199);
+});
 t("mmss and hmmss", () => {
   assert.strictEqual(a.mmss(65), "1:05"); assert.strictEqual(a.mmss(59.6), "1:00"); assert.strictEqual(a.mmss(1134), "18:54");
   assert.strictEqual(a.hmmss(5530), "1:32:10"); assert.strictEqual(a.hmmss(1134), "18:54"); assert.strictEqual(a.hmmss(3600), "1:00:00");

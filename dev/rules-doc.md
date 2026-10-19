@@ -215,3 +215,10 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - P's reasoning: the mile (5:23.4) is close to a 10/10 effort and shows potential; the 10k (39:43) is the more relevant anchor but was run blind with a strong negative split, so it is slow for his ability. Blend gives 5km 18:51 and half 1:27:06 (22/78); actual 5km 18:52.
 - Both results must be at different distances (P, 2026-10-19): same-distance pairs are rejected with a message.
 - Two results only (P). Other pages still read result 1 only.
+
+## Cross-training and the stress test (P, 2026-10-19)
+- Cross-training should count towards CTL (P). Not yet built into the planners: needs a way to enter cross-training TSS (see open questions in the chat of 2026-10-19) and a decision on which planners get the input.
+- Treadmill Flat Equivalent gained a Walking mode (ACSM walking equation) and an optional TSS output (P agreed). The 12/3/30 session is about 13 TSS against about 24 for a 30-minute easy jog.
+- Time parsing is now strict everywhere (shared core): plain minutes (1 or 2 digits, decimals), m:ss, h:mm:ss, with seconds and minutes after the first part 00 to 59. Rejected: 18:75, 18:5, 0x10, 1e2, Infinity, signs, spaces inside, 7+ digit numbers. Digits only (3 to 6 digits) are still read from the right.
+- Range checks added: Lift Scheme Calculator (bodyweight 30 to 250 kg, weight up to 1000 kg, reps up to 30, RIR 0 to 10); Lifting Programme Planner (bodyweight 30 to 250 kg, weight up to 1000 kg, reps up to 30, numbers outside 0 to 1000 read as blank).
+- Fixed crashes in the Lifting Programme Planner from late change events on replaced or hidden fields.

@@ -233,7 +233,8 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
   function fmt(x, d) { return (Math.round(x * Math.pow(10, d)) / Math.pow(10, d)).toString(); }
   function snap(x, step) { return Math.round(x / step) * step; }
   function kg(x) { return fmt(x, 2); }
-  function numOf(el) { var v = parseFloat(el.value); return isNaN(v) ? null : v; }
+  // Anything that is not a plain finite number from 0 to 1000 (weights, reps, percentages) is treated as blank.
+  function numOf(el) { var v = parseFloat(el.value); return (isNaN(v) || !isFinite(v) || v > 1000 || v < 0) ? null : v; }
 
   var rows = [];   // { lift, mode, w, reps, rir, step }
   function newRow(key) {
@@ -321,16 +322,16 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
       var tested = r.src === "max";
       q(p, "repsl").hidden = tested; q(p, "rirl").hidden = tested;
       var reps0 = tested ? 1 : r.reps, rir0 = tested ? 0 : (r.rir || 0);
-      var bwOk = !L.bw || (bw > 0);
+      var bwOk = !L.bw || (bw >= 30 && bw <= 250);
       var load = L.bw ? bw + r.w : r.w;
       var n = reps0 + rir0;
       var P = PROGRAMS[prog];
       var nSess = (P.two && !(L.dl && r.ddays === 1)) ? 2 : 1;
-      if (L.dl) q(p, "dlnote").textContent = "Deadlift: " + r.dsets + (r.dsets === 1 ? " set" : " sets") + " on " + r.ddays + (r.ddays === 1 ? " day" : " days") + " a week, " + (r.dsets * r.ddays) + (r.dsets * r.ddays === 1 ? " set" : " sets") + " in all.";
-      if (P.two) q(p, "zn").textContent = "Trained on day " + r.zday + (nSess === 2 ? ". Where two figures are shown, they are the first and second session of the week." : ", first session of the week only.");
-      if (!bwOk || r.w === null || r.w < 0 || !(reps0 >= 1) || !(load > 0)) {
+      if (L.dl && q(p, "dlnote")) q(p, "dlnote").textContent = "Deadlift: " + r.dsets + (r.dsets === 1 ? " set" : " sets") + " on " + r.ddays + (r.ddays === 1 ? " day" : " days") + " a week, " + (r.dsets * r.ddays) + (r.dsets * r.ddays === 1 ? " set" : " sets") + " in all.";
+      if (P.two && q(p, "zn")) q(p, "zn").textContent = "Trained on day " + r.zday + (nSess === 2 ? ". Where two figures are shown, they are the first and second session of the week." : ", first session of the week only.");
+      if (!bwOk || r.w === null || r.w < 0 || r.w > 1000 || !(reps0 >= 1) || reps0 > 30 || !(load > 0)) {
         q(p, "e1").textContent = "-"; body.innerHTML = "";
-        warn.hidden = false; warn.textContent = "Enter " + (L.bw ? "bodyweight, " : "") + "weight and reps to see the cycle.";
+        warn.hidden = false; warn.textContent = (L.bw && bw > 0 && !bwOk) ? "Bodyweight should be between 30 and 250 kg." : (r.w > 1000 ? "Weight should be 1000 kg or less." : (reps0 > 30 ? "Reps should be 30 or fewer." : "Enter " + (L.bw ? "bodyweight, " : "") + "weight and reps to see the cycle."));
         continue;
       }
       if (n >= 36) {
@@ -746,7 +747,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
   $("lifts").addEventListener("change", function (ev) { onChange(ev, true); });
   function onChange(ev, isChange) {
     var el = ev.target, panel = el.closest("[data-i]");
-    if (!panel || !el.getAttribute("data-f")) return;
+    if (!panel || !el.getAttribute("data-f") || !el.isConnected) return;   // late change events from fields that have just been replaced
     var r = rows[+panel.getAttribute("data-i")], f = el.getAttribute("data-f");
     if (f === "lift") {
       if (!isChange) return;
@@ -781,7 +782,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
   }
   function onOther(ev) {
     var el = ev.target, f = el.getAttribute && el.getAttribute("data-o");
-    if (!f) return;
+    if (!f || !OTHER[prog]) return;   // a field of a hidden or replaced panel can still fire a late change event
     var s = othState(prog);
     if (f === "weeks") s.weeks = parseInt(el.value, 10);
     else if (f === "step") { s.step = parseFloat(el.value); if (OTHER[prog].rm) OTHER[prog].rm.lifts.forEach(function (l) { fillFromRm(OTHER[prog], s, l); }); }

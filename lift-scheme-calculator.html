@@ -315,14 +315,15 @@ td.kg { font-weight: 600; color: var(--accent); }
     if (cfg.bw) $("bwnote").textContent = "Total load = bodyweight + added weight. Table weights show added weight only.";
     if (cfg.hand) $("bwnote").textContent = "Weights are for one dumbbell, not the pair.";
 
-    var ok = bw && bw > 0 && w !== null && w >= 0 && reps && reps >= 1 && sets >= 1 && sets <= 10;
+    var rangeMsg = (bw && (bw < 30 || bw > 250)) ? "Bodyweight should be between 30 and 250 kg." : (w !== null && w > 1000) ? "Weight should be 1000 kg or less." : (reps && reps > 30) ? "Reps should be 30 or fewer." : (rir < 0 || rir > 10) ? "Reps in reserve should be 0 to 10." : null;
+    var ok = !rangeMsg && bw && bw > 0 && w !== null && w >= 0 && reps && reps >= 1 && sets >= 1 && sets <= 10;
     var load = ok ? (cfg.bw ? bw + w : w) : null;
     var warn = $("warn");
     warn.hidden = true;
     if (!ok || load <= 0) {
       ["e1", "range", "ratio"].forEach(function (i) { $(i).textContent = "-"; });
       $("rows").innerHTML = ""; $("rms").innerHTML = "";
-      warn.hidden = false; warn.textContent = "Enter bodyweight, weight and reps to see results.";
+      warn.hidden = false; warn.textContent = rangeMsg || "Enter bodyweight, weight and reps to see results.";
       return;
     }
     var lowerM = cfg.lower ? 1.15 : 1;

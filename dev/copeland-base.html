@@ -238,13 +238,13 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       if (rest.length > 2) { if (Number(rest.slice(-2)) >= 60) return null; str = rest.slice(0, -2) + ":" + rest.slice(-2) + ":" + sec; }
       else str = rest + ":" + sec;
     }
-    var parts = str.split(":");
-    if (parts.length > 3) return null;
-    var nums = parts.map(function (p) { return p === "" ? NaN : Number(p); });
-    if (nums.some(function (x) { return isNaN(x) || x < 0; })) return null;
-    if (parts.length === 1) return nums[0] * 60;                       // plain number = minutes
-    if (parts.length === 2) return nums[0] * 60 + nums[1];
-    return nums[0] * 3600 + nums[1] * 60 + nums[2];
+    // Strict forms only: plain minutes (1 or 2 digits, decimals allowed), m:ss(.ff), h:mm:ss(.ff); minutes and seconds after the first part must be 00 to 59.
+    if (/^\d{1,2}(\.\d+)?$/.test(str)) return Number(str) * 60;
+    var m = /^(\d+):([0-5]\d(?:\.\d+)?)$/.exec(str);
+    if (m) return Number(m[1]) * 60 + Number(m[2]);
+    m = /^(\d+):([0-5]\d):([0-5]\d(?:\.\d+)?)$/.exec(str);
+    if (m) return Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3]);
+    return null;
   }
   function mmss(sec) {
     sec = Math.round(sec);

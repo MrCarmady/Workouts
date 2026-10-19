@@ -138,6 +138,20 @@ S_flat = S * (1 + 4.5 * G)
 display speed   = true belt speed * (1 + display error)
 </code></pre>
 <p>Speeds are rounded to 0.1 and inclines to 0.1, so the flat pace shown in the result can differ from the target by a second or two. A belt speed faster than the flat pace, or one needing more than 20% incline, is refused.</p>
+<h2>Walking mode and TSS (2026-10-19)</h2>
+<p>An Activity switch (Running or Walking). Walking uses the ACSM walking equation:</p>
+<pre><code>VO2 = 0.1 * S + 1.8 * S * G + 3.5      (S in m/min, G as a fraction)
+S_flat = S * (0.5 + 9 * G)             (flat-run speed with the same oxygen cost)
+</code></pre>
+<p>Worked example: 3 mph (80.5 m/min) at 12% is 28.9 ml/kg/min, equal to running 127 m/min on the flat, which is 7:52/km.</p>
+<ul>
+<li>Speed limits for walking are 2 to 8 km/h (a choice). ACSM states the walking equation for about 3 to 6 km/h; the page warns above 6.4 km/h.</li>
+<li>Handrail holding lowers the real cost and is not modelled.</li>
+<li>The incline limit stays 0 to 20% (a choice, not ACSM's).</li>
+<li>Optional TSS: duration in minutes (1 to 600) and a threshold pace. Blank threshold uses the race result saved by the other pages (race(16), same formula as the Run TSS Calculator). TSS = hours x (threshold pace / flat-equivalent pace)^2 x 100.</li>
+<li>TSS here is an aerobic-load score at the flat-equivalent pace. It does not capture the muscle damage or impact of walking or running.</li>
+<li>Example (author's question): 12/3/30 (12%, 3 mph, 30 min) scores about 13 TSS at a 4:01/km threshold. A 30-minute easy jog at 5:46/km scores about 24.</li>
+</ul>
   </article>
 </main>
 <script>(function () {

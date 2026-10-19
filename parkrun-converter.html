@@ -120,9 +120,9 @@ small.info { font-size: .8rem; font-weight: 400; letter-spacing: 0; text-transfo
     return hits.length === 1 ? hits[0] : null;
   }
   function parseTime(x) {
-    var p = x.trim().split(":");
-    if (p.length < 2 || p.length > 3 || p.some(function (v) { return v === "" || isNaN(v); })) return null;
-    var s = p.reduce(function (a, v) { return a * 60 + Number(v); }, 0);
+    x = x.trim();   // strict: m:ss(.ff) or h:mm:ss(.ff), seconds and minutes after the first part 00 to 59
+    var m = /^(\d+):([0-5]\d(?:\.\d+)?)$/.exec(x), h = /^(\d+):([0-5]\d):([0-5]\d(?:\.\d+)?)$/.exec(x), s = null;
+    if (m) s = Number(m[1]) * 60 + Number(m[2]); else if (h) s = Number(h[1]) * 3600 + Number(h[2]) * 60 + Number(h[3]);
     return s > 0 ? s : null;
   }
   function fmt(s) {
