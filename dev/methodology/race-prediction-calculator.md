@@ -1,6 +1,6 @@
 # Race Prediction Calculator: methodology
 
-Takes one race result (distance and time) and predicts times, paces per km and paces per mile for 1500m, mile, 3km, 5km, 10km, 10 miles, half marathon and marathon.
+Takes one race result (distance and time), or two (added 2026-10-19), and predicts times, paces per km and paces per mile for 1500m, mile, 3km, 5km, 10km, 10 miles, half marathon and marathon.
 
 ## What is standard and what is a choice
 
@@ -120,3 +120,19 @@ Every row also shows the predicted time as a percentage of the male world record
 ## Shared race result
 
 This page shares its race distance and time with the Sub-Threshold Session Generator, the Race Prediction Calculator, the Run TSS Calculator and the Run TSS Planner. The values are kept in the browser's local storage under one key. The last page you edited sets the value for the others. It applies only on the hosted site, where the pages share an origin, and only in the same browser on the same device. It does not sync between devices. If a stored distance is missing from a page's list (the 10 miles and marathon options exist only on the predictor), that page keeps its own distance.
+
+## Two results (2026-10-19)
+
+An optional second result (any distance). Each result makes its own full prediction (steps 1 to 4, including its own marathon offset). At each target distance `T` the predictions are averaged:
+
+```
+d_i = |ln(T / D_i)|        w_i = (1 / d_i) / sum(1 / d_j)
+time(T) = sum(w_i * time_i(T))
+```
+
+- A result at the target distance has d = 0 and takes all the weight, so each input reproduces itself. If both results are at the same distance they share the weight equally.
+- The weighting form (inverse of the log distance ratio, power 1) is my choice, set at the author's request as a starting point. Power 2 is the obvious alternative and leans harder on the nearer result. Not fitted to data.
+- Idea behind it (author's): a result near the target distance is more informative than a far one, but a best-effort short result is a better measure of potential than a soft near one. The author's example: mile 5:23.4 (counted as a near-10/10 effort) and 10k 39:43 (strong negative split, run blind on over-optimistic watch data, so slower than potential). Blend: 3k 10:44, 5km 18:51, half 1:27:06 (22% mile / 78% 10k), against actual 3k 10:44 and 5km 18:52 (one data point each, and the 3k is one of the inputs to the model's earlier calibration, so this is not a validation).
+- The marathon in the blend is not exactly F times the blended half, because the weights differ at the two distances. Each result's own marathon is F times its own half.
+- Comparison column (Daniels, Hansons, Pfitzinger, Tinman, % of WR): each model predicts from each result separately and the same weights are applied. If a model cannot take either result's distance (for example Pfitzinger from a mile), the column shows that error.
+- Weekly distance is shared by both results. Other pages (Plan Builder and so on) still use result 1 only.

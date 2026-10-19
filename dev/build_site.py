@@ -9,7 +9,7 @@ OUT=os.environ.get('SITE_OUT') or (os.path.dirname(HERE) if os.path.basename(HER
 os.makedirs(OUT+'/methods',exist_ok=True)
 tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("run-session-calculator.html","run-session-generator.html","Sub-Threshold Session Generator","Rep pace, recovery, rep count and TSS from a race result and rep length.","run-session-calculator.md","run-session-generator","Sessions"),
- ("race-prediction-calculator.html","race-prediction-calculator.html","Race Prediction Calculator","Predicted times for 1500m to the marathon from one race result.","race-prediction-calculator.md","race-prediction-calculator","Race and pace"),
+ ("race-prediction-calculator.html","race-prediction-calculator.html","Race Prediction Calculator","Predicted times for 1500m to the marathon from one or two race results.","race-prediction-calculator.md","race-prediction-calculator","Race and pace"),
  ("classic-session-generator.html","classic-session-generator.html","Classic Session Generator","Paces for tempo, ladders, Aussie quarters, Yasso 800s and more.","classic-session-generator.md","classic-session-generator","Sessions"),
  ("sub-t-trend-tracker.html","sub-t-trend-tracker.html","Sub-Threshold Trend Tracker","Log classic sub-threshold sessions and track the implied threshold pace over time.","sub-t-trend-tracker.md","sub-t-trend-tracker","Sessions"),
 ("hard-workout-predictor.html","hard-workout-predictor.html","Hard Workout Predictor","Predict a race from a hard interval session, using rep length, rest and RPE.","hard-workout-predictor.md","hard-workout-predictor","Race and pace"),

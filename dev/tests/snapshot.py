@@ -30,6 +30,16 @@ def scenarios():
     LASTWK="e=>{var s=document.querySelector('#wk');s.selectedIndex=s.options.length-1;s.dispatchEvent(new Event('change',{bubbles:true}))}"
     for c,d,t in [('wr','5','18:45'),('wr','10','39:43'),('tinman','5','18:30'),('tinman','21.0975','1:27:08'),('tinman','5','12:00'),('daniels','5','18:30'),('hansons','5','18:30'),('pfitz','10','39:43'),('pfitz','5','18:30'),('hansons','3','10:44'),('pfitz','21.0975','1:20:00')]:
         out.append(('race-prediction-calculator','compare '+c+' '+d+' '+t,lambda pg,c=c,d=d,t=t:[fill(pg,'dist',d),fill(pg,'time',t),pg.select_option('#cmp',c)]))
+    def two(d1,t1,d2,t2,**k):
+        return lambda pg:[fill(pg,'dist',d1),fill(pg,'time',t1),fill(pg,'dist2',d2),fill(pg,'time2',t2),fill(pg,'week',k.get('week','70')),fill(pg,'wunit','mi'),pg.select_option('#cmp',k.get('cmp','none'))]
+    out.append(('race-prediction-calculator','blend mile 5:23.4 + 10k 39:43',two('1','5:23.4','4','39:43')))
+    out.append(('race-prediction-calculator','blend 3k 10:44.8 + 10k 39:43 daniels',two('2','10:44.8','4','39:43',cmp='daniels')))
+    out.append(('race-prediction-calculator','blend mile + 10k wr',two('1','5:23.4','4','39:43',cmp='wr')))
+    out.append(('race-prediction-calculator','blend mile + 10k pfitz error',two('1','5:23.4','4','39:43',cmp='pfitz')))
+    out.append(('race-prediction-calculator','blend 5k + half 50 mi',two('3','18:52','6','1:27:30',week='50')))
+    out.append(('race-prediction-calculator','blend same distance twice',two('3','18:52','3','19:10')))
+    out.append(('race-prediction-calculator','blend second time blank',two('3','18:52','4','')))
+    out.append(('race-prediction-calculator','blend second time bad',two('3','18:52','4','3:00')))
     out.append(('plan-builder','race week 7 days sub-T',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'week','60'),fill(pg,'wunit','mi'),fill(pg,'days','7'),fill(pg,'ctl','45'),fill(pg,'weeks','16'),fill(pg,'rt','1.2'),fill(pg,'focus','subT'),fill(pg,'taper','7'),pg.eval_on_selector('#wk',LASTWK)]))
     out.append(('plan-builder','race week 6 days sub-T + intervals',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'week','60'),fill(pg,'wunit','mi'),fill(pg,'days','6'),fill(pg,'ctl','45'),fill(pg,'weeks','12'),fill(pg,'focus','subTI'),fill(pg,'taper','14'),pg.eval_on_selector('#wk',LASTWK)]))
     out.append(('plan-builder','race week 3 days easy cap',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'week','40'),fill(pg,'wunit','mi'),fill(pg,'days','3'),fill(pg,'ctl','35'),fill(pg,'weeks','12'),fill(pg,'rt','1.2'),fill(pg,'focus','subT'),fill(pg,'taper','7'),pg.eval_on_selector('#wk',LASTWK)]))

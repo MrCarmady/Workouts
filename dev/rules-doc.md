@@ -204,3 +204,13 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Base fatigue per set for any rep count read by straight-line interpolation (3: 0.75, 5-6: 1.0, 8: 1.2, 10: 1.5, 12: 1.6). Shows 1RM sensitivity at +/-25% loss per set.
 - Equal sets only. Heavy-vs-light fatigue difference is an unverified assumption (one bench study found no difference in rep sustainability at 80% vs 50%).
 - 3x6 BW pull-ups, 2 min, RIR 2 at 76 kg: e1RM ~102 kg total, fresh set ~10 reps.
+## Hard Workout Predictor validation log (started 2026-10-18)
+- Pre-race prediction (P, set before the race): central 18:45, range about 18:40-19:05.
+- 2026-10-17, Sutcliffe parkrun: 18:52 (+7 s, +0.6% vs central; inside the range). Flat tarmac, fast course, cold, sunny, little wind, no pacer, near-ideal conditions. Even splits by power: 332 W (first ~800 m), 340 W (next ~2 miles), 346 W (last 800 m), 406 W (final 27 s). Normal training week, no extra fatigue. Course has a couple of tight turns and two 180-degree turns. PB before the race was 18:54.
+- One data point, not a calibration. Next: Pymmes, about 2 weeks later.
+
+## Race Prediction Calculator: two results (P, 2026-10-19)
+- Optional second result. Each result predicts separately; blend per target distance with weights 1 / |ln(target / result distance)| (power 1 chosen by P as a starting point; mine as a form, not fitted). Result at the target distance takes all the weight.
+- Comparison column uses the same blend of each model's predictions from each result (P).
+- P's reasoning: the mile (5:23.4) is close to a 10/10 effort and shows potential; the 10k (39:43) is the more relevant anchor but was run blind with a strong negative split, so it is slow for his ability. Blend gives 5km 18:51 and half 1:27:06 (22/78); actual 5km 18:52.
+- Two results only (P). Other pages still read result 1 only.

@@ -59,6 +59,7 @@ tr:last-child td { border-bottom: 0; }
 td.dist { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
 td.time { font-weight: 600; color: var(--accent); }
 tr.input td { background: var(--accent-soft); }
+small.wt { display: block; font-size: .7rem; color: var(--muted); font-weight: 500; }
 tr.input td.dist small { display: block; font-family: var(--font-body); font-weight: 500; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .method { font-size: .85rem; color: var(--muted); display: grid; gap: 6px; }
 .method p { margin: 0; }
@@ -100,6 +101,19 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     </div>
   </section>
 
+  <section class="panel">
+    <h2>Second result (optional)</h2>
+    <div class="fields">
+      <label>Distance
+        <select id="dist2"></select>
+      </label>
+      <label>Time
+        <input id="time2" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="e.g. 5:23.4 or 39:43">
+      </label>
+    </div>
+    <p class="note" style="margin-top:10px">With two results, each makes its own prediction and the two are blended at every distance. The result nearer the target distance counts for more.</p>
+  </section>
+
   <p class="warn" id="err" hidden></p>
 
   <section class="panel">
@@ -136,6 +150,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     <p>Short races: a result under 5km is slowed by 6.5s/km × ln(5 ÷ km) to get a 5km equivalent (about 7s/km for the mile). Predictions for short distances are sped up by the same amount.</p>
     <p>Marathon: paces beyond the half marathon are slowed. The marathon is 2.10 times the half marathon at 70 miles (113km) a week or more, 2.13 at 60, 2.17 at 50, and 2.25 at 35 miles (56km) or less. Values between are in a straight line. Blank weekly distance means 70 miles.</p>
     <p>The 5km to half marathon relationship is most reliable for intermediate runners on moderate mileage. It may be less reliable for beginners and low mileage.</p>
+    <p>Two results: each result makes its own full prediction. At each target distance the two predictions are averaged with weights 1 ÷ d, where d = |ln(target ÷ result distance)|. A result at the target distance gets all of the weight. The small figures under each time are the weights in percent, result 1 / result 2. The comparison column is blended the same way, from each result separately. The 1 ÷ d weighting is my choice, not fitted to data.</p>
     <p>Results with a Daniels–Gilbert VDOT outside 15 to 85 are rejected as implausible.</p>
   </section>
   <p class="sitenav"><a href="methods/race-prediction-calculator.html">How it works &rarr;</a></p>
@@ -279,33 +294,64 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   (function build() {
     var sel = $("dist");
     DISTS.forEach(function (d, i) { sel.insertAdjacentHTML("beforeend", '<option value="' + i + '"' + (d.name === "5km" ? " selected" : "") + ">" + d.name + "</option>"); });
+    var s2 = $("dist2");
+    s2.insertAdjacentHTML("beforeend", '<option value="" selected>None</option>');
+    DISTS.forEach(function (d, i) { s2.insertAdjacentHTML("beforeend", '<option value="' + i + '">' + d.name + "</option>"); });
   })();
 
   // Shared race result for all pages on the same site (browser storage; does not sync between devices).
   function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
   function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
-  function save() { try { profSet("km", String(DISTS[parseInt($("dist").value, 10)].km)); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {} try { localStorage.setItem("racepred", JSON.stringify({ dist: $("dist").value, time: $("time").value, cmp: $("cmp").value })); } catch (e) {} }
+  function save() { try { profSet("km", String(DISTS[parseInt($("dist").value, 10)].km)); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {} try { localStorage.setItem("racepred", JSON.stringify({ dist: $("dist").value, time: $("time").value, cmp: $("cmp").value, dist2: $("dist2").value, time2: $("time2").value })); } catch (e) {} }
   function restore() {
     try {
       var o = JSON.parse(localStorage.getItem("racepred") || "null");
       if (!o) return;
       if (DISTS[parseInt(o.dist, 10)]) $("dist").value = o.dist;
       if (typeof o.time === "string") $("time").value = o.time;
+      if (o.dist2 === "" || DISTS[parseInt(o.dist2, 10)]) $("dist2").value = o.dist2;
+      if (typeof o.time2 === "string") $("time2").value = o.time2;
       if (["none", "daniels", "hansons", "pfitz", "tinman", "wr"].indexOf(o.cmp) >= 0) $("cmp").value = o.cmp;
     } catch (e) {}
   }
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("res").hidden = true; }
 
+  // Checks one result. Returns an error message or null. `pre` prefixes the message for the second result.
+  function checkResult(D, t, pre) {
+    if (t === null || t <= 0) return pre + "Enter a time like 18:54, 1854 or 1:32:10.";
+    var vd = vdot(t / 60, D.km * 1000);
+    if (vd < VDOT_MIN || vd > VDOT_MAX) return pre + "That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of " + VDOT_MIN + " to " + VDOT_MAX + ". Check the distance and time.";
+    var pace = t / D.km;
+    if (pace < 120 || pace > 720) return pre + "That time works out to a pace outside 2:00 to 12:00 per km. Check the distance and time.";
+    return null;
+  }
+  // Predicted time in seconds at every distance in DISTS, from one result. Short targets get the same adjustment back, so the input race reproduces itself.
+  function predictFrom(D, t, weekKm) {
+    var riegel5 = t * Math.pow(5 / D.km, K) / 5;      // s/km at 5km, Riegel only
+    var p5 = riegel5 + adj(D.km);                         // 5km equivalent after the short-race slowing
+    offM = marathonOff(riegel5, weekKm);
+    return DISTS.map(function (T) { return ((p5 - adj(T.km)) * Math.pow(T.km / 5, K - 1) + off(T.km) - off(D.km)) * T.km; });
+  }
+  // Weights on the results at target distance km: 1 / |ln(km / result km)|. A result at the target distance takes all the weight (shared if both are).
+  function blendWeights(km, Ds) {
+    var d = Ds.map(function (D) { return Math.abs(Math.log(km / D.km)); }), w;
+    if (d.some(function (x) { return x < 1e-9; })) w = d.map(function (x) { return x < 1e-9 ? 1 : 0; });
+    else w = d.map(function (x) { return 1 / x; });
+    var sum = w.reduce(function (a, b) { return a + b; }, 0);
+    return w.map(function (x) { return x / sum; });
+  }
+
   function update() {
     $("err").hidden = true;
     var di = parseInt($("dist").value, 10), D = DISTS[di], t = parseTime($("time").value);
-    if (t === null || t <= 0) return fail("Enter a time like 18:54, 1854 or 1:32:10.");
-    var vd = vdot(t / 60, D.km * 1000);
-    if (vd < VDOT_MIN || vd > VDOT_MAX) return fail("That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of " + VDOT_MIN + " to " + VDOT_MAX + ". Check the distance and time.");
-    var pace = t / D.km;
-    if (pace < 120 || pace > 720) return fail("That time works out to a pace outside 2:00 to 12:00 per km. Check the distance and time.");
-    var riegel5 = t * Math.pow(5 / D.km, K) / 5;      // s/km at 5km, Riegel only
-    var p5 = riegel5 + adj(D.km);                         // 5km equivalent after the short-race slowing
+    var e1 = checkResult(D, t, ""); if (e1) return fail(e1);
+    var d2i = $("dist2").value === "" ? -1 : parseInt($("dist2").value, 10), D2 = d2i >= 0 ? DISTS[d2i] : null, t2 = null;
+    if (D2) {
+      t2 = parseTime($("time2").value);
+      if (($("time2").value || "").trim() === "") return fail("Second result: enter a time, or set the distance to None.");
+      var e2 = checkResult(D2, t2, "Second result: "); if (e2) return fail(e2);
+    }
+    var two = !!D2, Ds = two ? [D, D2] : [D], ts = two ? [t, t2] : [t];
     var wkTxt = ($("week").value || "").trim(), weekKm = null;
     if (wkTxt !== "") {
       var wv = Number(wkTxt.replace(",", "."));
@@ -313,27 +359,37 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       weekKm = $("wunit").value === "mi" ? wv * MILE : wv;
       if (weekKm < 30 || weekKm > 300) return fail("Weekly distance should be between 30km (19 miles) and 300km (186 miles). Check the number and unit.");
     }
-    offM = marathonOff(riegel5, weekKm);
-    var html = "", cm = $("cmp").value, cr = compareTimes(cm, D, t), cnote = "";
-    var hasC = cm !== "none";
+    var preds = Ds.map(function (d, k) { return predictFrom(d, ts[k], weekKm); });
+    var W = DISTS.map(function (T) { return blendWeights(T.km, Ds); });
+    var pred = DISTS.map(function (T, i) { return preds.reduce(function (a, p, k) { return a + W[i][k] * p[i]; }, 0); });
+    var html = "", cm = $("cmp").value, cnote = "", crs = Ds.map(function (d, k) { return compareTimes(cm, d, ts[k]); });
+    var hasC = cm !== "none", cerr = null;
+    crs.forEach(function (c, k) { if (c.err && !cerr) cerr = (two ? "Result " + (k + 1) + ": " : "") + c.err; });
+    var cmpT = null;
+    if (hasC && !cerr) cmpT = DISTS.map(function (T, i) {
+      var vals = crs.map(function (c) { return c.t ? c.t[T.name] : null; });
+      if (vals.some(function (v) { return v == null; })) return null;
+      return vals.reduce(function (a, v, k) { return a + W[i][k] * v; }, 0);
+    });
     $("thead").innerHTML = "<th>Distance</th><th>Time</th><th>/km</th><th>/mile</th><th>% WR</th>" + (hasC ? "<th>" + CMP_NAMES[cm] + "</th>" : "");
-    if (hasC && cr.err) cnote = CMP_NAMES[cm] + ": " + cr.err;
+    if (hasC && cerr) cnote = CMP_NAMES[cm] + ": " + cerr;
     DISTS.forEach(function (T, i) {
-      // Short targets get the same adjustment back, so the input race reproduces itself.
-      var p = (p5 - adj(T.km)) * Math.pow(T.km / 5, K - 1) + off(T.km) - off(D.km);
-      var isIn = i === di;
-      html += "<tr" + (isIn ? " class='input'" : "") + "><td class='dist'>" + T.name + (isIn ? "<small>Your result</small>" : "") + "</td>" +
-        "<td class='time'>" + hmmss(p * T.km) + "</td><td>" + mmss(p) + "</td><td>" + mmss(p * MILE) + "</td><td>" + (Math.round(WR[T.name] / (p * T.km) * 1000) / 10).toFixed(1) + "%</td>" +
-        (hasC ? "<td>" + (cr.t && cr.t[T.name] != null ? hmmss(cr.t[T.name]) + " <small>" + dstr(cr.t[T.name] - p * T.km) + "</small>" : "–") + "</td>" : "") + "</tr>";
+      var tt = pred[i], p = tt / T.km;
+      var is1 = i === di, is2 = two && i === d2i, lab = "";
+      if (is1 || is2) lab = !two ? "Your result" : is1 && is2 ? "Results 1 and 2" : is1 ? "Result 1" : "Result 2";
+      var wtxt = two ? "<small class='wt'>" + W[i].map(function (x) { return Math.round(x * 100); }).join(" / ") + "</small>" : "";
+      html += "<tr" + (lab ? " class='input'" : "") + "><td class='dist'>" + T.name + (lab ? "<small>" + lab + "</small>" : "") + "</td>" +
+        "<td class='time'>" + hmmss(tt) + wtxt + "</td><td>" + mmss(p) + "</td><td>" + mmss(p * MILE) + "</td><td>" + (Math.round(WR[T.name] / tt * 1000) / 10).toFixed(1) + "%</td>" +
+        (hasC ? "<td>" + (cmpT && cmpT[i] != null ? hmmss(cmpT[i]) + " <small>" + dstr(cmpT[i] - tt) + "</small>" : "–") + "</td>" : "") + "</tr>";
     });
     $("rows").innerHTML = html;
     var wn = $("weeknote");
     if (weekKm === null) wn.textContent = "No weekly distance entered, so the marathon assumes 70 miles a week: 2.10 times the half marathon.";
     else {
       var x = marathonFactor(weekKm);
-      wn.textContent = "Marathon is set to " + (Math.round(x * 1000) / 1000) + " times the half marathon, for " + (Math.round(weekKm * 10) / 10) + "km a week." + (weekKm / MILE < 35 ? " Below 35 miles a week the adjustment stops at 2.25 times the half marathon; a marathon build on less is not covered." : "");
+      wn.textContent = (two ? "Each result's marathon is " : "Marathon is set to ") + (Math.round(x * 1000) / 1000) + " times " + (two ? "its own " : "the ") + "half marathon, for " + (Math.round(weekKm * 10) / 10) + "km a week." + (weekKm / MILE < 35 ? " Below 35 miles a week the adjustment stops at 2.25 times the half marathon; a marathon build on less is not covered." : "");
     }
-    if (hasC && !cr.err) { var cn = { daniels: "Daniels: VDOT equations, all distances.", hansons: "Hansons: fitted to the book's chart; shown for mile, 5km, 10km, 10 miles, half marathon and marathon.", pfitz: "Pfitzinger: fitted to his table; shown for 10km, 10 miles, half marathon and marathon.", tinman: "Tinman: fitted to sample outputs of his calculator, not his published formula. Same factor curve for input and output, all distances.", wr: "Same % of WR: your result as a percentage of the male world record pace, held constant across distances." }; cnote = cn[cm] + " Small figure = their time minus ours."; }
+    if (hasC && !cerr) { var cn = { daniels: "Daniels: VDOT equations, all distances.", hansons: "Hansons: fitted to the book's chart; shown for mile, 5km, 10km, 10 miles, half marathon and marathon.", pfitz: "Pfitzinger: fitted to his table; shown for 10km, 10 miles, half marathon and marathon.", tinman: "Tinman: fitted to sample outputs of his calculator, not his published formula. Same factor curve for input and output, all distances.", wr: "Same % of WR: your result as a percentage of the male world record pace, held constant across distances." }; cnote = cn[cm] + " Small figure = their time minus ours." + (two ? " Blended from both results the same way as ours." : ""); }
     $("cmpnote").textContent = cnote;
     $("res").hidden = false;
   }
@@ -341,7 +397,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   // Phone keypads often have no colon. Digits only are read from the right: 3943 = 39:43, 12010 = 1:20:10, 415 = 4:15.
   (function () {
     function norm(t) { var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.round(t % 60); return (h ? h + ":" + (m < 10 ? "0" : "") + m : m) + ":" + (s < 10 ? "0" : "") + s; }
-    ["time", "thr", "wpace", "epace", "wcp"].forEach(function (id) {
+    ["time", "time2", "thr", "wpace", "epace", "wcp"].forEach(function (id) {
       var el = $(id); if (!el) return;
       el.addEventListener("change", function () {
         if (!/^\d{3,6}$/.test(el.value.trim())) return;
@@ -359,7 +415,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     if (typeof pr.week === "string") $("week").value = pr.week;
     if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit;
   })();
-  ["dist", "time", "week", "wunit", "cmp"].forEach(function (id) {
+  ["dist", "time", "dist2", "time2", "week", "wunit", "cmp"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });
