@@ -176,7 +176,7 @@ a { color: var(--accent); }
   <section class="method">
     <h2>How this is calculated</h2>
     <p>TSS = hours × (intensity factor)² × 100, as for running. The intensity factor depends on the activity.</p>
-    <p>Bike: average power ÷ your bike FTP.</p>
+    <p>Bike: average power ÷ your bike FTP. Checks: FTP is the power you can hold for about an hour, so an hour or more more than 5% above it is rejected. Between 20 minutes and an hour, a warning appears above the all-out power this FTP predicts (FTP is commonly taken as about 95% of 20-minute power; the curve between the two points is my interpolation).</p>
     <p>Rower: watts from the Concept2 formula, 2.80 ÷ (split in seconds per metre)³. Threshold is the 2k split plus 15 seconds, from Paul's law (add 5 seconds per 500m for each doubling of distance, so 16k is 2k + 15, about an hour for most rowers), or a threshold you enter as a split or in watts. Every rower box takes either: with a colon it is read as a time, a plain number as watts. Checks: a session longer than your 2k can't average more than your 2k watts (rejected), and one above the all-out power Paul's law predicts for that length gets a warning. The intensity factor is session watts ÷ threshold watts. Power is used, not pace, because boat speed rises with the cube root of power.</p>
     <p>Heart rate: intensity = (average HR − resting HR) ÷ (threshold HR − resting HR), squared. This is my formula and a placeholder, not validated.</p>
     <p>Treadmill walking: the ACSM walking equation gives the flat-run speed with the same oxygen cost; TSS is then scored against your threshold pace as for a run. See the Treadmill Flat Equivalent page.</p>
@@ -280,6 +280,11 @@ a { color: var(--accent); }
       var p = num("bpow"), ftp = num("ftp");
       if (!(ftp >= 50 && ftp <= 600)) return fail("Enter your bike FTP between 50 and 600 W.");
       if (!(p > 0 && p <= 2000)) return fail("Enter your average power in watts, up to 2000.");
+      if (dur >= 60 && p > ftp * 1.05) return fail("An average of " + Math.round(p) + " W for " + dur + " minutes is above your FTP (" + Math.round(ftp) + " W), which is the power you can hold for about an hour. Check the FTP or the session value.");
+      if (dur >= 20) {   // soft check: FTP is about 95% of 20-minute power, so scale the all-out power by duration through those two points
+        var pmax = ftp * Math.pow(60 / dur, Math.log(1 / 0.95) / Math.log(3));
+        if (p > pmax * 1.05) note = "Check the session value: " + Math.round(p) + " W is above the all-out power this FTP predicts for " + dur + " minutes (about " + Math.round(pmax) + " W).";
+      }
       IF = p / ftp; kv = "<div><b>" + Math.round(p) + "</b><span>Average watts</span></div>";
     } else if (act === "row") {
       var wthr, spl, w, w2k = null, t2k = null;
