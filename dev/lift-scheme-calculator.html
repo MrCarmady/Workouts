@@ -196,11 +196,40 @@ td.kg { font-weight: 600; color: var(--accent); }
     </div>
   </section>
 
+  <section>
+    <h2>Warm-up</h2>
+    <div class="tools">
+      <label>Top set
+        <select id="wutop">
+          <option value="1">1RM</option>
+          <option value="3" selected>3RM</option>
+          <option value="5">5RM</option>
+          <option value="8">8RM</option>
+          <option value="c">My own weight</option>
+        </select>
+      </label>
+      <label id="wucwrap" hidden><span id="wuclabel">Top set weight (kg)</span>
+        <input id="wuc" type="number" inputmode="decimal" min="0" max="1000" step="0.5" value="">
+      </label>
+      <label id="wubarwrap">Bar weight (kg)
+        <input id="wubar" type="number" inputmode="decimal" min="0" max="50" step="0.5" value="20">
+      </label>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Set</th><th>% of top set</th><th id="kghead3">Weight (kg)</th><th>Reps</th></tr></thead>
+        <tbody id="wurows"></tbody>
+      </table>
+    </div>
+    <p class="note" id="wunote" style="margin-top:12px"></p>
+  </section>
+
   <section class="method">
     <h2>How this is calculated</h2>
     <p>The 1RM uses the average of the Brzycki and Epley formulas, applied to reps completed plus reps left in tank. Brzycki: weight × 36 / (37 − reps). Epley: weight × (1 + reps / 30), set to exactly 1 for a single and blended in by 2 reps. Both get less reliable above about 10 reps.</p>
     <p>Weights come from a fatigue model. The last set is set to your chosen RIR, and each earlier set costs a fixed number of reps of capacity at 3 min rest (0.75 for sets of 3, 1 for sets of 5–6, 1.2 for 8, 1.35–1.6 for 10–12). Shorter rest scales that loss: 1.25× at 1 min, 1.1× at 2 min. "By rep range" assumes 3 min for sets of 3–5, 2 min for 6–8 and 1 min for 10–12. Set 1's fresh capacity is converted back to % of 1RM with the same two formulas.</p>
     <p>Entering a session works backwards from the same model. The reps lost over the earlier sets (fatigue per set × rest multiplier × (sets − 1)) are added to reps and reps in reserve to give the reps the first set could have reached, and the 1RM comes from that. For sets of other lengths the fatigue per set is read in a straight line between the scheme values (a choice made here). A session gives a less certain 1RM than a fresh single set, so the page shows how it moves if the loss per set is 25% lower or higher. Sets must all use the same weight and reps.</p>
+    <p>Warm-up: the top set is the weight for the chosen rep max (from the 1RM above) or one you enter. Sets are 10 reps with the bar (or bodyweight, or the lightest dumbbells), then 50% × 5, 70% × 3 and 85% × 2 of the top set, rounded to your step. A set that rounds to the same weight as the one before it, or to the top set, is dropped. For weighted pull-ups and dips the percentages apply to the added weight. For dumbbell and split-squat lifts they apply per hand. This ladder is a common convention, not from research, and the reps and percentages are not adjustable.</p>
     <p>Calibrate the fatigue and rest values against your own logs. Squat, deadlift and Bulgarian split squat use 1.15× the fatigue.</p>
   </section>
 </main>
@@ -266,16 +295,54 @@ td.kg { font-weight: 600; color: var(--accent); }
   function fmt(x, d) { return (Math.round(x * Math.pow(10, d)) / Math.pow(10, d)).toString(); }
   function snap(x, step) { return Math.round(x / step) * step; }
   function fmtKg(x) { return fmt(x, 2); }
+  function warmup(cfg, key, e1, bw, step) {
+    var wk = $("wutop").value, note = "", rows = "";
+    $("wucwrap").hidden = wk !== "c";
+    $("wubarwrap").hidden = !!(cfg.bw || cfg.hand);
+    $("wuclabel").textContent = cfg.bw ? "Top set added weight (kg)" : (cfg.hand ? "Top set weight per hand (kg)" : "Top set weight (kg)");
+    $("kghead3").textContent = cfg.bw ? "Added weight (kg)" : (cfg.hand ? "Weight per hand (kg)" : "Weight (kg)");
+    var top;
+    if (wk === "c") {
+      top = num("wuc");
+      if (top === null || top < 0 || top > 1000) { $("wunote").textContent = "Enter the weight of your top set."; return; }
+    } else {
+      top = e1 * pct(parseInt(wk, 10)); if (cfg.bw) top -= bw;
+    }
+    top = snap(top, step);
+    var bar = num("wubar"); if (bar === null || bar < 0 || bar > 50) bar = 20;
+    var show = function (w) { return cfg.bw ? (w <= 0 ? "BW" : "+" + fmtKg(w)) : fmtKg(w); };
+    var first, firstW = 0, firstReps = 10, firstTxt = null;
+    if (cfg.bw) { first = "Bodyweight"; firstReps = 8; }
+    else if (cfg.hand) { first = key === "bss" ? "Bodyweight, per leg" : "Lightest dumbbells"; firstTxt = key === "bss" ? "BW" : "lightest"; if (key === "bss") firstReps = 8; }
+    else { first = "Bar"; firstW = bar; }
+    if (top <= firstW) {
+      $("wunote").textContent = cfg.bw ? "The top set is bodyweight or assisted, so there is no added-weight ladder. A few easier reps are enough." : "The top set is at or below the bar, so no ladder is needed.";
+      return;
+    }
+    var list = [[first, firstTxt !== null ? firstTxt : show(firstW), firstReps, firstW > 0 ? Math.round(firstW / top * 100) + "%" : "-"]], prev = firstW, dropped = false;
+    [[0.5, 5], [0.7, 3], [0.85, 2]].forEach(function (st) {
+      var w = snap(top * st[0], step);
+      if (w <= prev || w >= top) { dropped = true; return; }
+      list.push(["Set " + (list.length + 1), show(w), st[1], Math.round(st[0] * 100) + "%"]); prev = w;
+    });
+    list.forEach(function (r) {
+      rows += "<tr><td class='scheme'>" + r[0] + "</td><td>" + r[3] + "</td><td class='kg'>" + r[1] + "</td><td>" + r[2] + "</td></tr>";
+    });
+    rows += "<tr><td class='scheme'>Top set</td><td>100%</td><td class='kg'>" + show(top) + "</td><td>" + (wk === "c" ? "your reps" : wk) + "</td></tr>";
+    $("wurows").innerHTML = rows;
+    note = "A common convention, not from research. Rest 5 minutes or more before a rep-max set." + (dropped ? " Some steps were dropped because they round to the same weight as the set before." : "");
+    $("wunote").textContent = note;
+  }
 
   function save() {
     try {
-      localStorage.setItem("lsc", JSON.stringify({ lift: $("lift").value, bw: $("bw").value, step: $("step").value }));
+      localStorage.setItem("lsc", JSON.stringify({ lift: $("lift").value, bw: $("bw").value, step: $("step").value, bar: $("wubar").value }));
     } catch (e) {}
   }
   function restore() {
     try {
       var s = JSON.parse(localStorage.getItem("lsc") || "null");
-      if (s) { if (LIFTS[s.lift]) $("lift").value = s.lift; if (s.bw) $("bw").value = s.bw; if (s.step && $("step").querySelector('option[value="' + s.step + '"]')) $("step").value = s.step; }
+      if (s) { if (LIFTS[s.lift]) $("lift").value = s.lift; if (s.bw) $("bw").value = s.bw; if (s.bar) $("wubar").value = s.bar; if (s.step && $("step").querySelector('option[value="' + s.step + '"]')) $("step").value = s.step; }
     } catch (e) {}
   }
 
@@ -294,6 +361,7 @@ td.kg { font-weight: 600; color: var(--accent); }
 
   function update() {
     var key = $("lift").value, cfg = LIFTS[key];
+    $("wurows").innerHTML = ""; $("wunote").textContent = "";
     var bw = num("bw"), w = num("w"), reps = num("reps"), rir = num("rir") || 0, sets = mode === "ses" ? Math.round(num("sets") || 1) : 1;
     $("sesrestwrap").hidden = mode !== "ses";
     
@@ -363,6 +431,7 @@ td.kg { font-weight: 600; color: var(--accent); }
         showWeight(e1 * p, cfg, bw, step) + "</td></tr>";
     });
     $("rms").innerHTML = h2;
+    warmup(cfg, key, e1, bw, step);
   }
 
   restore();
@@ -373,7 +442,7 @@ td.kg { font-weight: 600; color: var(--accent); }
     $(id).addEventListener("input", function () { touched = true; });
   });
   $("lift").addEventListener("change", function () { if (!touched) { loadExample(); update(); } });
-  ["lift", "bw", "w", "reps", "rir", "sets", "sesrest", "rirtarget", "step", "rest"].forEach(function (id) {
+  ["lift", "bw", "w", "reps", "rir", "sets", "sesrest", "rirtarget", "step", "rest", "wutop", "wuc", "wubar"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });

@@ -113,3 +113,18 @@ Worked example: 3×5 at 3 min rest, upper body, 1–2 RIR, e1RM 68.7 kg.
 - Rest changes only the fatigue multiplier. Nothing else in the model uses it.
 
 **Dumbbell lifts (incline dumbbell bench, Bulgarian split squat):** the weight entered and shown is per hand, and the 1RM is per hand. The formulas and fatigue model are unchanged. A true single is rarely tested on these lifts, so the estimate rests on a set of 5–10 reps.
+
+## Warm-up (2026-10-20)
+
+The page lists a warm-up ladder for a top set. The top set is the weight for a chosen rep max (1, 3, 5 or 8RM, taken from the 1RM above) or a weight you enter.
+
+```
+barbell lifts:   bar x 10, 50% x 5, 70% x 3, 85% x 2, top set
+pull-up and dip: bodyweight x 8, then the same percentages of the ADDED weight
+dumbbell and split squat: lightest dumbbells x 10 (bodyweight x 8 per leg for the split squat),
+                 then the same percentages of the per-hand weight
+```
+
+Weights are rounded to the page's step. A set that rounds to the same weight as the one before it, or to the top set, is dropped, and a note says so. A top set at or below the bar gets no ladder.
+
+The ladder is the one P described (10 x bar, 10 x 50%, 5 x 70%, 2 to 3 x 85%), with 5 reps at 50% and 2 at 85% as my trims. It is a common convention, not from research. I know of no evidence that one scheme beats another. The reps and percentages are fixed on the page. A note advises 5 minutes or more of rest before a rep-max set (my suggestion).
