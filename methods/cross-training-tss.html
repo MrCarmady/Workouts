@@ -105,6 +105,8 @@ TSS = hours * IF^2 * 100
 <p>Gym bike power displays can be inaccurate. TSS is relative to your own FTP on the same bike, so use one bike consistently. Average power underestimates the stress of very uneven sessions (normalised power would be higher).</p>
 <h2>Bike checks (2026-10-20)</h2>
 <p>FTP is the power held for about an hour, so a session of 60 minutes or more averaging more than 5% above FTP is rejected (P found 60 min at 290 W with a 250 W FTP accepted). From 20 minutes up, a warning (not a block) appears when the average is more than 5% above an all-out ceiling that runs through FTP at 60 minutes and FTP / 0.95 at 20 minutes (power law, exponent ln(1/0.95) / ln 3, about 0.047). The 95% rule is the commonly cited FTP rule of thumb, not checked here; the 5% tolerances and the interpolation are my choices. Below 20 minutes there is no check beyond the IF limit of 1.5.</p>
+<h2>Heart-rate checks (2026-10-20)</h2>
+<p>Threshold heart rate is about the heart rate you can hold for an hour, so a session of 60 minutes or more whose intensity (heart rate reserve fraction) is above 1.05 is rejected. From 20 minutes up, the same excess gives a warning, not a block (heat and cardiac drift can raise heart rate). Below 20 minutes there is no check beyond the IF limit of 1.5. The 5% tolerance and the 20 and 60 minute cut-offs are my choices.</p>
 <h2>Rower</h2>
 <pre><code>watts = 2.80 / (split / 500)^3          split in seconds per 500m
 threshold split = 2k time / 4 + 15 s    (or enter a threshold split or watts)
