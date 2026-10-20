@@ -227,6 +227,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - New page. Activities: bike, Concept2 rower, heart rate (elliptical, Stairmaster, other), treadmill walking.
 - Bike: TSS = hours x (power / FTP)^2 x 100 (P: FTP as the anchor).
 - Rower: watts, not pace (P). Threshold = 2k split + 15 s per 500m from Paul's law (P: add 5 s per 500m for each doubling; 2k + 15 about an hour). Threshold watts can be entered instead.
+- Rower inputs (P, 2026-10-20): the two dropdowns (threshold from, session shown as) removed. Split and watts are the same quantity, so every box takes either: colon = time, plain number = watts. Boxes: 2k time or watts, session average split or watts, optional threshold split or watts (overrides 2k + 15 s). Old saved values for the removed controls are ignored.
 - Heart rate: heart rate reserve against threshold HR (mine, placeholder; P agreed HR is the way for elliptical and Stairmaster).
 - Counts towards CTL: 80% for every activity (P). Source for the bike: Copeland pp. 174 to 175, cycling +20 to 30% time for similar aerobic benefit. Raw TSS shown beside the counted figure.
 - Cross-training share above 40% of weekly time is flagged (P: 60/40 running to cross-training, Copeland's anecdote). Weekly balance check only on the new page so far.

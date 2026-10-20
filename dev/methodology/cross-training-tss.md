@@ -29,9 +29,11 @@ Gym bike power displays can be inaccurate. TSS is relative to your own FTP on th
 
 ```
 watts = 2.80 / (split / 500)^3          split in seconds per 500m
-threshold split = 2k time / 4 + 15 s    (or enter threshold watts)
+threshold split = 2k time / 4 + 15 s    (or enter a threshold split or watts)
 IF = session watts / threshold watts
 ```
+
+Input: split and watts are the same quantity, so each box accepts either. With a colon it is read as a time (2k time, or split per 500m); a plain number is read as watts (optional trailing W). The 2k box takes a 2k time or 2k watts, the session box a split or watts, and an optional threshold box (split or watts) overrides the 2k-based threshold. A 2k time of 6:50 and 2k watts of 325 are the same input (2026-10-20).
 
 Paul's law (author's description, a rowing rule of thumb): for every doubling of distance, add 5 seconds to the 500m split. From a 2k that gives 4k + 5, 8k + 10, 16k + 15. A 16k at 2k + 15 takes about an hour for typical 2k splits (checked: 2k split 1:45 gives about 60 min; 2:00 gives about 61 min), so 2k + 15 is used as the one-hour, FTP-like power. For a 1:45 2k split that is 202 W against 302 W for the 2k, about 67%.
 
