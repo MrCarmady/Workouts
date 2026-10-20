@@ -171,7 +171,7 @@ a { color: var(--accent); }
     <h2>How this is calculated</h2>
     <p>TSS = hours × (intensity factor)² × 100, as for running. The intensity factor depends on the activity.</p>
     <p>Bike: average power ÷ your bike FTP.</p>
-    <p>Rower: watts from the Concept2 formula, 2.80 ÷ (split in seconds per metre)³. Threshold is the 2k split plus 15 seconds, from Paul's law (add 5 seconds per 500m for each doubling of distance, so 16k is 2k + 15, about an hour for most rowers), or a threshold you enter as a split or in watts. Every rower box takes either: with a colon it is read as a time, a plain number as watts. The intensity factor is session watts ÷ threshold watts. Power is used, not pace, because boat speed rises with the cube root of power.</p>
+    <p>Rower: watts from the Concept2 formula, 2.80 ÷ (split in seconds per metre)³. Threshold is the 2k split plus 15 seconds, from Paul's law (add 5 seconds per 500m for each doubling of distance, so 16k is 2k + 15, about an hour for most rowers), or a threshold you enter as a split or in watts. Every rower box takes either: with a colon it is read as a time, a plain number as watts. Checks: a session longer than your 2k can't average more than your 2k watts (rejected), and one above the all-out power Paul's law predicts for that length gets a warning. The intensity factor is session watts ÷ threshold watts. Power is used, not pace, because boat speed rises with the cube root of power.</p>
     <p>Heart rate: intensity = (average HR − resting HR) ÷ (threshold HR − resting HR), squared. This is my formula and a placeholder, not validated.</p>
     <p>Treadmill walking: the ACSM walking equation gives the flat-run speed with the same oxygen cost; TSS is then scored against your threshold pace as for a run. See the Treadmill Flat Equivalent page.</p>
     <p>Counts towards CTL: the raw TSS times a percentage, 80 by default. Copeland says cycling should run 20 to 30% longer than running for similar aerobic benefit (Norwegian Singles Method, p. 174), which is about 77 to 83%. He gives nothing for other activities, so 80% is a placeholder for all of them.</p>
@@ -275,7 +275,7 @@ a { color: var(--accent); }
       if (!(p > 0 && p <= 2000)) return fail("Enter your average power in watts, up to 2000.");
       IF = p / ftp; kv = "<div><b>" + Math.round(p) + "</b><span>Average watts</span></div>";
     } else if (act === "row") {
-      var wthr, spl, w;
+      var wthr, spl, w, w2k = null, t2k = null;
       function rowVal(id, lab) {   // colon = time, plain number = watts; returns seconds ("t") or watts ("w")
         var v = ($(id).value || "").trim().replace(/\s*w$/i, "");
         if (v.indexOf(":") >= 0) { var t = parseTime(v); return t === null ? null : { t: t }; }
@@ -294,6 +294,7 @@ a { color: var(--accent); }
           spl = 500 * Math.pow(2.80 / wthr, 1 / 3);
         }
         note = "Threshold " + mmss(spl) + " /500m, " + Math.round(wthr) + " W (entered).";
+        if (spl > 85) { w2k = wattsOf(spl - 15); t2k = (spl - 15) * 4; }   // 2k power implied by the threshold (2k + 15 s)
       } else {
         var r2 = rowVal("r2k"), s2;
         if (r2 === null) return fail("Enter your 2k as a time like 6:50, or as watts like 325.");
@@ -304,7 +305,7 @@ a { color: var(--accent); }
           if (!(r2.w >= 40 && r2.w <= 850)) return fail("Enter 2k watts between 40 and 850, or a 2k time like 6:50.");
           s2 = 500 * Math.pow(2.80 / r2.w, 1 / 3);
         }
-        spl = s2 + 15; wthr = wattsOf(spl);
+        spl = s2 + 15; wthr = wattsOf(spl); w2k = wattsOf(s2); t2k = s2 * 4;
         note = "2k split " + mmss(s2) + " /500m. Threshold " + mmss(spl) + " /500m, " + Math.round(wthr) + " W (2k + 15 s).";
       }
       var rs = rowVal("rval");
@@ -314,6 +315,13 @@ a { color: var(--accent); }
         w = wattsOf(rs.t);
       } else {
         w = rs.w; if (!(w >= 20 && w <= 800)) return fail("Enter average watts between 20 and 800.");
+      }
+      if (w2k !== null && dur * 60 > t2k && w > w2k * 1.005) return fail("An average of " + Math.round(w) + " W for " + dur + " minutes is above your 2k power (" + Math.round(w2k) + " W, held for " + mmss(t2k) + "). Check the 2k or the session value.");
+      if (w2k !== null && dur * 60 > t2k) {   // soft check: above the all-out power Paul's law predicts for this duration
+        var s2x = t2k / 4, lo = s2x * 0.5, hi = s2x * 4, mid, k;
+        for (k = 0; k < 60; k++) { mid = (lo + hi) / 2; if (mid > s2x + 5 * Math.log(500 * dur * 60 / mid / 2000) / Math.LN2) hi = mid; else lo = mid; }
+        var wmax = wattsOf((lo + hi) / 2);
+        if (w > wmax * 1.05) note = (note ? note + " " : "") + "Check the session value: " + Math.round(w) + " W is above the all-out power this 2k predicts for " + dur + " minutes (about " + Math.round(wmax) + " W, from Paul's law).";
       }
       IF = w / wthr; kv = "<div><b>" + Math.round(w) + "</b><span>Average watts</span></div><div><b>" + Math.round(wthr) + "</b><span>Threshold watts</span></div>";
     } else if (act === "hr") {
