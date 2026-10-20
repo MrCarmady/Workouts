@@ -318,7 +318,6 @@ a { color: var(--accent); }
       if (!(lt >= 100 && lt <= 220) || lt - rest < 30) return fail("Enter a threshold heart rate between 100 and 220, at least 30 above resting.");
       if (!(hr >= rest && hr <= 230)) return fail("Enter an average heart rate from your resting rate up to 230.");
       IF = (hr - rest) / (lt - rest);
-      kv = "<div><b>" + Math.round(IF * 100) + "%</b><span>Of heart rate reserve at threshold</span></div>";
     } else {
       var sp = num("wsp"), gr = num("wgr"), mph = $("wun").value === "mph", kmh = mph ? sp * MILE : sp;
       if (!(kmh >= 2 && kmh <= 8)) return fail("Enter a belt speed between 2 and 8 km/h (1.2 to 5.0 mph).");
