@@ -128,3 +128,9 @@ If the page is opened from the Sub-Threshold Session Generator's link, it shows 
 
 
 The Cross-Training TSS page links here with the raw TSS and its own weight (`tss`, `xt=1`, `xw`, `name`). A hand-off with `xt=1` adds to the cross-training row of the chosen day and sets the weight; the weight is then applied here, not on the sending page, so it is not applied twice.
+
+## Fatigue adjustment (optional, off by default)
+
+Turn it on in forward mode and tick the days with a hard run. A hard run less than 48 hours after the previous hard run is counted as more fatigue than its TSS says. Days are 24 hours apart, so only consecutive days trigger it.
+
+Extra fraction = w × (0.28 + 0.5 × the previous hard run's extra fraction), where w = 1 − gap/48 h, capped at 0.25. Consecutive hard days give about +14%, +17.5%, +19%. The first hard run of a chain gets nothing. The extra counts fully toward ATL and 75% toward CTL. The 0.28, 0.5, 0.75 and the cap are placeholders from a prototype, not published values. Only run TSS is adjusted. Intensity, duration and the 20-hour double-day rule are not included.
