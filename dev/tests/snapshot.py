@@ -92,6 +92,16 @@ def scenarios():
     out.append(('hybrid-load-planner','ctl 70 atl 80 12 weeks',lambda pg:[fill(pg,'ctl','70'),fill(pg,'atl','80'),fill(pg,'wk','12')]))
     out.append(('hybrid-load-planner','bad weight',lambda pg:[fill(pg,'cw','2')]))
     out.append(('hybrid-load-planner','bad sets',lambda pg:[pg.fill('[data-s="0,0"]','0')]))
+    out.append(('run-load-planner','defaults monday start',lambda pg:[pg.select_option('#startday','0')]))
+    out.append(('run-load-planner','cross-training tue 60 thu 40 at 80',lambda pg:[pg.select_option('#startday','0'),fill(pg,'x2','60'),fill(pg,'x4','40')]))
+    out.append(('run-load-planner','cross-training weight 100',lambda pg:[pg.select_option('#startday','0'),fill(pg,'x2','60'),fill(pg,'x4','40'),fill(pg,'xw','100')]))
+    out.append(('run-load-planner','cross-training weight 0',lambda pg:[pg.select_option('#startday','0'),fill(pg,'x2','60'),fill(pg,'xw','0')]))
+    out.append(('run-load-planner','cross-training weight 200 rejected',lambda pg:[pg.select_option('#startday','0'),fill(pg,'x2','60'),fill(pg,'xw','200')]))
+    out.append(('run-load-planner','cross-training 60/40 note over 40 percent',lambda pg:[pg.select_option('#startday','0'),fill(pg,'x2','60'),fill(pg,'wrh','6'),fill(pg,'wxh','5')]))
+    out.append(('run-load-planner','cross-training 60/40 note under 40 percent',lambda pg:[pg.select_option('#startday','0'),fill(pg,'x2','60'),fill(pg,'wrh','8'),fill(pg,'wxh','3')]))
+    out.append(('run-load-planner','run plus counted cross-training over 300 rejected',lambda pg:[pg.select_option('#startday','0'),fill(pg,'d1','250'),fill(pg,'x1','100')]))
+    out.append(('run-load-planner','cross-training negative rejected',lambda pg:[pg.select_option('#startday','0'),fill(pg,'x3','-5')]))
+    out.append(('run-load-planner','10 days with cross-training on day 9',lambda pg:[pg.select_option('#startday','0'),pg.select_option('#ndays','10'),fill(pg,'x9','50')]))
     out.append(('lifting-programme-planner','defaults',lambda pg:None))
     out.append(('lifting-programme-planner','fighter',lambda pg:[pg.select_option('#prog','fighter')]))
     out.append(('lifting-programme-planner','zulu',lambda pg:[pg.select_option('#prog','zulu')]))
@@ -203,13 +213,16 @@ def scenarios():
 def tracker(pg):
     for d,reps,rep,u,pace in [('2026-09-01','4','10','min','4:05'),('2026-09-08','6','1','km','3:58'),('2026-09-15','5','8','min','3:55'),('2026-09-29','3','12','min','4:08'),('2026-10-06','4','10','min','4:00')]:
         fill(pg,'date',d);fill(pg,'reps',reps);fill(pg,'rep',rep);fill(pg,'unit',u);fill(pg,'pace',pace);pg.click('#add')
+# Pages that show "today" or the age of a session (the trend tracker, the Run Load Planner start day) would change the snapshot every day.
+# Freeze the page clock at 2026-10-19 12:00 local time so the baseline does not depend on the date it is run (added 2026-10-21).
+FREEZE_DATE="""(function(){var R=Date,f=new R(2026,9,19,12,0,0).getTime();function F(a,b,c,d,e,g,h){if(arguments.length===0)return new R(f);if(arguments.length===1)return new R(a);return new R(a,b,c,d||0,e||0,g||0,h||0);}F.prototype=R.prototype;F.now=function(){return f;};F.UTC=R.UTC;F.parse=R.parse;window.Date=F;})();"""
 def run():
     res={}
     with sync_playwright() as p:
         b=p.chromium.launch()
         sc=scenarios()+[('sub-t-trend-tracker','5 sessions',tracker)]
         for page,name,fn in sc:
-            ctx=b.new_context(viewport={'width':900,'height':900}); pg=ctx.new_page(); errs=[]; pg.on('pageerror',lambda e:errs.append(str(e)))
+            ctx=b.new_context(viewport={'width':900,'height':900}); ctx.add_init_script(FREEZE_DATE); pg=ctx.new_page(); errs=[]; pg.on('pageerror',lambda e:errs.append(str(e)))
             pg.goto('file://'+os.path.join(PAGES,page+'.html')); fn(pg); pg.wait_for_timeout(50)
             txt=main_text(pg)
             if page=='classic-session-generator' and pg.query_selector('#workout'):

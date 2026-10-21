@@ -82,6 +82,8 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 .plan-opts select { height: 2.4rem; font-size: 1rem; padding: 6px 10px; }
 @media (max-width: 560px) { .plan-opts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .days input { -moz-appearance: textfield; appearance: textfield; }
+.noxt .xcol { display: none; }
+.xhead { margin: 18px 0 8px; }
 .days input::-webkit-outer-spin-button, .days input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); }
 table { border-collapse: collapse; width: 100%; min-width: 440px; font-variant-numeric: tabular-nums; }
@@ -171,6 +173,20 @@ td.day { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; 
         </label>
       </div>
       <div class="days" id="days"></div>
+      <p class="note xhead">Cross-training TSS, as it comes from the Cross-Training TSS page (before weighting). Leave empty for none.</p>
+      <div class="days" id="xdays"></div>
+      <div class="plan-opts" style="margin:14px 0 0">
+        <label>Counts at (%)
+          <input id="xw" type="number" inputmode="decimal" min="0" max="150" step="1" value="80">
+        </label>
+        <label>Run hours, week (optional)
+          <input id="wrh" type="number" inputmode="decimal" min="0" max="60" step="0.5" placeholder="">
+        </label>
+        <label>Cross-training hours (optional)
+          <input id="wxh" type="number" inputmode="decimal" min="0" max="60" step="0.5" placeholder="">
+        </label>
+      </div>
+      <p class="note" id="xbal" style="margin-top:12px" hidden></p>
     </section>
 
     <section class="panel" id="revpanel" hidden>
@@ -203,8 +219,8 @@ td.day { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; 
       <h2>What happens</h2>
       <div class="kv" id="fwdsum"></div>
       <div class="tablewrap" style="margin-top:14px">
-        <table>
-          <thead><tr><th>Day</th><th>TSS</th><th>CTL</th><th>ATL</th><th>TSB</th></tr></thead>
+        <table id="ptable" class="noxt">
+          <thead><tr><th>Day</th><th>Run TSS</th><th class="xcol">Cross-training</th><th>CTL</th><th>ATL</th><th>TSB</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -222,6 +238,7 @@ td.day { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; 
     <h2>How this is calculated</h2>
     <p>ATL is fatigue, a 7-day weighted average of daily TSS. CTL is fitness, a 42-day weighted average. TSB is CTL minus ATL, often called form: positive means fresher, negative means carrying fatigue.</p>
     <p>Each day: new ATL = ATL × e^(−1/7) + TSS × (1 − e^(−1/7)). New CTL = CTL × e^(−1/42) + TSS × (1 − e^(−1/42)). TSB is CTL minus ATL at the end of the same day.</p>
+    <p>Cross-training TSS is multiplied by the weight (80% by default) and then counts the same for CTL and ATL. The weight is a placeholder: for the bike it rests on Copeland's rule that cycling needs 20 to 30% more time for similar aerobic benefit, applied here to every activity. If you give run hours and cross-training hours for the week, a note appears when cross-training is over 40% of the total (a 60/40 guide from one anecdote in Copeland's book, not a research figure). Cross-training applies to the planned days, not to the target mode.</p>
     <p>Targets assume the same TSS every day for the number of weeks you choose. Targets that need negative TSS or more than 150 TSS a day on average (1,050 a week) are rejected, as is any single day over 300 TSS in the plan above.</p>
   </section>
 </main>
@@ -255,11 +272,12 @@ td.day { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; 
     for (i = 1; i <= MAXDAYS_FWD; i++) {
       var v = i <= EXAMPLE.length ? EXAMPLE[i - 1] : "";
       box.insertAdjacentHTML("beforeend", '<label id="dl' + i + '"><span id="dn' + i + '">Day ' + i + '</span><input id="d' + i + '" type="number" inputmode="decimal" min="0" max="400" step="1" placeholder="0" value="' + v + '"></label>');
+      $("xdays").insertAdjacentHTML("beforeend", '<label id="xl' + i + '"><span id="xn' + i + '">Day ' + i + '</span><input id="x' + i + '" type="number" inputmode="decimal" min="0" max="400" step="1" placeholder="0" value=""></label>');
     }
   })();
 
-  var IDS = ["atl", "ctl", "mode", "ndays", "tval", "ttsb", "tdays", "ttaper"];
-  for (var k = 1; k <= MAXDAYS_FWD; k++) IDS.push("d" + k);
+  var IDS = ["atl", "ctl", "mode", "ndays", "tval", "ttsb", "tdays", "ttaper", "xw", "wrh", "wxh"];
+  for (var k = 1; k <= MAXDAYS_FWD; k++) { IDS.push("d" + k); IDS.push("x" + k); }
   function save() {
     try { var o = {}; IDS.forEach(function (i) { o[i] = $(i).value; }); localStorage.setItem("loadplan", JSON.stringify(o)); } catch (e) {}
   }
@@ -289,24 +307,39 @@ td.day { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; 
 
     if (mode === "fwd") {
       var n = parseInt($("ndays").value, 10);
-      for (var i = 1; i <= MAXDAYS_FWD; i++) { $("dl" + i).hidden = i > n; $("dn" + i).textContent = dayName(i); }
-      var a = a0, c = c0, total = 0, rows = '<tr class="start"><td class="day">Start</td><td>-</td><td>' + f1(c0) + "</td><td>" + f1(a0) + "</td><td>" + sgn(c0 - a0) + "</td></tr>";
+      for (var i = 1; i <= MAXDAYS_FWD; i++) { $("dl" + i).hidden = i > n; $("dn" + i).textContent = dayName(i); $("xl" + i).hidden = i > n; $("xn" + i).textContent = dayName(i); }
+      var xwRaw = $("xw").value.trim(), xw = xwRaw === "" ? NaN : parseFloat(xwRaw);
+      if (isNaN(xw) || xw < 0 || xw > 150) return fail("Enter the cross-training weight as a percentage from 0 to 150.");
+      var a = a0, c = c0, total = 0, xtTot = 0, anyX = false, rows = '<tr class="start"><td class="day">Start</td><td>-</td><td class="xcol">-</td><td>' + f1(c0) + "</td><td>" + f1(a0) + "</td><td>" + sgn(c0 - a0) + "</td></tr>";
       var wk = 0;
       for (var d = 1; d <= n; d++) {
         var raw = $("d" + d).value.trim(), t = raw === "" ? 0 : parseFloat(raw);
         if (isNaN(t) || t < 0 || t > 400) return fail(dayName(d) + ": enter a TSS between 0 and 400, or leave it empty for rest.");
-        if (t > CAP_ONE_DAY) return fail(dayName(d) + ": " + Math.round(t) + " TSS in one day is not realistic. The limit here is " + CAP_ONE_DAY + ".");
-        a = a * DA + t * (1 - DA); c = c * DC + t * (1 - DC); total += t; if (d <= 7) wk += t;
-        rows += "<tr><td class='day'>" + dayName(d) + "</td><td>" + (raw === "" ? "rest" : Math.round(t)) + "</td><td>" + f1(c) + "</td><td>" + f1(a) + "</td><td class='z-" + zone(c - a) + "'>" + sgn(c - a) + "</td></tr>";
+        var xraw = $("x" + d).value.trim(), xt = xraw === "" ? 0 : parseFloat(xraw);
+        if (isNaN(xt) || xt < 0 || xt > 400) return fail(dayName(d) + ": enter cross-training TSS between 0 and 400, or leave it empty.");
+        var xc = xt * xw / 100, day = t + xc;
+        if (xt > 0) anyX = true;
+        if (day > CAP_ONE_DAY) return fail(dayName(d) + ": " + Math.round(day) + " TSS in one day is not realistic" + (xt > 0 ? " (running plus counted cross-training)" : "") + ". The limit here is " + CAP_ONE_DAY + ".");
+        a = a * DA + day * (1 - DA); c = c * DC + day * (1 - DC); total += day; xtTot += xc; if (d <= 7) wk += day;
+        rows += "<tr><td class='day'>" + dayName(d) + "</td><td>" + (raw === "" && xraw === "" ? "rest" : (raw === "" ? "-" : Math.round(t))) + "</td><td class='xcol'>" + (xt > 0 ? Math.round(xc) : "-") + "</td><td>" + f1(c) + "</td><td>" + f1(a) + "</td><td class='z-" + zone(c - a) + "'>" + sgn(c - a) + "</td></tr>";
       }
       if (n > 1 && total / n > CAP_AVG) return fail("That plan averages " + Math.round(total / n) + " TSS per day. Above " + CAP_AVG + " per day is not realistic, so check the numbers.");
       $("rows").innerHTML = rows;
+      $("ptable").className = anyX ? "" : "noxt";
+      var rh = parseFloat($("wrh").value), xh = parseFloat($("wxh").value), xb = $("xbal");
+      xb.hidden = true;
+      if (rh >= 0 && xh >= 0 && rh + xh > 0) {
+        var share = xh / (rh + xh) * 100;
+        xb.hidden = false;
+        xb.textContent = "Cross-training is " + Math.round(share) + "% of the week's training time." + (share > 40 ? " That is over Copeland's rough 60/40 guide, which comes from one friend's experience: running-specific fitness may suffer." : "");
+      }
       $("fwdsum").innerHTML =
         "<div><b>" + f1(c) + "</b><span>CTL after " + dayName(n) + "</span></div>" +
         "<div><b>" + f1(a) + "</b><span>ATL after " + dayName(n) + "</span></div>" +
         "<div><b class='z-" + zone(c - a) + "'>" + sgn(c - a) + "</b><span>TSB after " + dayName(n) + " · " + ZONES[zone(c - a)] + "</span></div>" +
-        "<div><b>" + Math.round(total) + "</b><span>Total TSS" + (n > 7 ? "" : " in plan") + "</span></div>" +
-        (n > 7 ? "<div><b>" + Math.round(wk) + "</b><span>TSS in first 7 days</span></div>" : "");
+        "<div><b>" + Math.round(total) + "</b><span>Total TSS" + (n > 7 ? "" : " in plan") + (anyX ? " (counted)" : "") + "</span></div>" +
+        (n > 7 ? "<div><b>" + Math.round(wk) + "</b><span>TSS in first 7 days</span></div>" : "") +
+        (anyX ? "<div><b>" + Math.round(xtTot) + "</b><span>of which cross-training</span></div>" : "");
       $("fwdres").hidden = false; $("revres").hidden = true;
       return;
     }
@@ -346,6 +379,7 @@ td.day { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; 
     var q, tss, name;
     try { q = new URLSearchParams(location.search); } catch (e) { return; }
     tss = parseFloat(q.get("tss")); name = (q.get("name") || "").slice(0, 40);
+    var isx = q.get("xt") === "1", xwq = parseFloat(q.get("xw")), pre = isx ? "x" : "d";
     if (!isFinite(tss) || tss < 1 || tss > CAP_ONE_DAY) return;
     tss = Math.round(tss);
     var box = $("pending"), sel = $("pendday");
@@ -354,18 +388,19 @@ td.day { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; 
       var n = parseInt($("ndays").value, 10), keep = sel.value, firstFree = "";
       sel.innerHTML = "";
       for (var d = 1; d <= n; d++) {
-        if (firstFree === "" && $("d" + d).value.trim() === "") firstFree = String(d);
+        if (firstFree === "" && $(pre + d).value.trim() === "") firstFree = String(d);
         sel.insertAdjacentHTML("beforeend", '<option value="' + d + '">' + dayName(d) + (d > 7 ? " (day " + d + ")" : "") + "</option>");
       }
       sel.value = keep && keep <= n ? keep : (firstFree || "1");
     }
-    $("pendtxt").textContent = tss + " TSS" + (name ? " (" + name + ")" : "") + ". Choose the day. If the day already has TSS, this is added to it.";
+    $("pendtxt").textContent = tss + " TSS" + (isx ? " of cross-training" : "") + (name ? " (" + name + ")" : "") + ". Choose the day. If the day already has " + (isx ? "cross-training " : "") + "TSS, this is added to it." + (isx ? " The weight below is applied when it counts." : "");
     fillDays(); box.hidden = false;
     $("ndays").addEventListener("change", fillDays); $("startday").addEventListener("change", fillDays);
     $("mode").value = "fwd";
     $("pendadd").addEventListener("click", function () {
-      var el = $("d" + sel.value), cur = parseFloat(el.value);
+      var el = $(pre + sel.value), cur = parseFloat(el.value);
       el.value = String((isNaN(cur) ? 0 : cur) + tss);
+      if (isx && isFinite(xwq) && xwq >= 0 && xwq <= 150) $("xw").value = String(xwq);
       box.hidden = true; clearUrl(); save(); update();
     });
     $("penddrop").addEventListener("click", function () { box.hidden = true; clearUrl(); });

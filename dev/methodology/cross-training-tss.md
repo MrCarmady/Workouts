@@ -72,4 +72,4 @@ Copeland's anecdote: a friend who moved to about 60% running and 40% cycling hel
 
 ## Hand-off
 
-The counted TSS can be sent to the Run Load Planner through the same link format as the session generators (tss and name in the address).
+The page sends the raw TSS (before the CTL percentage) to the Run Load Planner, with `xt=1` and its percentage as `xw`. The planner has its own cross-training row and applies the weight itself (changed 2026-10-21; before this the counted TSS was sent and added to the running row).

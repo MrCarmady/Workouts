@@ -46,6 +46,20 @@ Apply the daily update for each planned day. The page shows CTL, ATL and TSB aft
 
 The user picks the weekday the plan starts on (default: today). Day `d` is labelled `Mon…Sun` as `(start + d − 1) mod 7`. The labels are cosmetic and do not change the calculation.
 
+## Cross-training in forward mode (2026-10-21)
+
+Each planned day has a second input for cross-training TSS, taken as it comes from the Cross-Training TSS page (before weighting). The page multiplies it by a weight and adds the result to the day's running TSS:
+
+```
+day TSS = run TSS + cross-training TSS x weight / 100
+```
+
+The weight is one number for both CTL and ATL, default 80 (P: 0.8 for both, 2026-10-20; he thought a lower ATL weight would give odd results). It is a placeholder. For the bike it rests on Copeland's rule that cycling needs 20 to 30% more time for similar aerobic benefit (pp. 174 to 175), applied here to every activity. Weights from 0 to 150 are accepted.
+
+A cross-training column appears in the table once any day has cross-training TSS, showing the counted amount. The single-day limit of 300 and the 150 per day average apply to the counted total. Target mode does not use cross-training.
+
+Optional run hours and cross-training hours for the week drive a note: cross-training over 40% of the total is flagged against Copeland's 60/40 guide, which comes from one friend's experience in the book (P, 2026-10-19). The planner has no running time of its own, so the hours are typed separately and do not change the TSS.
+
 ## Target mode: build, then taper
 
 The user sets a target CTL and a target TSB for the last day, a number of weeks `W`, and a taper length of `k` days (7, 10, 14 or 21). Train at a constant daily TSS `T` for the build phase (`B = 7W − k` days), then at a constant daily TSS `S` for the `k` taper days.
@@ -111,3 +125,6 @@ Nothing is shown when:
 ## Session from the generator
 
 If the page is opened from the Sub-Threshold Session Generator's link, it shows a panel with the session's TSS. You choose the day and press Add. The TSS is added to that day's entry (summed if the day already has TSS), the plan switches to "See the effect of a plan", and the address is cleaned. Dismiss closes the panel without changing the plan. The page accepts TSS values from 1 to 300 only, the same one-day limit as the plan.
+
+
+The Cross-Training TSS page links here with the raw TSS and its own weight (`tss`, `xt=1`, `xw`, `name`). A hand-off with `xt=1` adds to the cross-training row of the chosen day and sets the weight; the weight is then applied here, not on the sending page, so it is not applied twice.

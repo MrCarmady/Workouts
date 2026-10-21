@@ -157,7 +157,7 @@ a { color: var(--accent); }
     <div class="big"><span id="tss">-</span><small>TSS</small></div>
     <div class="kv" id="kv"></div>
     <p class="note" id="note" style="margin:12px 0 0" hidden></p>
-    <p style="margin:12px 0 0"><a id="toplanner" href="run-load-planner.html" hidden>Add the counted TSS to the Run Load Planner &rarr;</a></p>
+    <p style="margin:12px 0 0"><a id="toplanner" href="run-load-planner.html" hidden>Add to the Run Load Planner as cross-training &rarr;</a></p>
   </section>
 
   <section class="panel">
@@ -364,9 +364,9 @@ a { color: var(--accent); }
     $("tss").textContent = r1(tss);
     $("kv").innerHTML = "<div><b>" + r1(counted) + "</b><span>Counts towards CTL</span></div><div><b>" + Math.round(IF * 100) + "%</b><span>Intensity factor</span></div>" + kv;
     $("note").hidden = note === ""; $("note").textContent = note;
-    var tp = $("toplanner"), c = Math.round(counted);
+    var tp = $("toplanner"), c = Math.round(tss);   // the planner gets the raw TSS and applies the weight itself
     tp.hidden = !SITE || c < 1;
-    tp.href = "run-load-planner.html?tss=" + c + "&name=" + encodeURIComponent(ACT_NAME[act] + " " + Math.round(dur) + " min");
+    tp.href = "run-load-planner.html?tss=" + c + "&xt=1&xw=" + encodeURIComponent(String(cnt)) + "&name=" + encodeURIComponent(ACT_NAME[act] + " " + Math.round(dur) + " min");
     $("res").hidden = false;
   }
   function balance() {

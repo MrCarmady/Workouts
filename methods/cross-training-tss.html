@@ -128,7 +128,7 @@ TSS = hours * intensity^2 * 100
 <h2>Weekly balance</h2>
 <p>Copeland's anecdote: a friend who moved to about 60% running and 40% cycling held running performance, and it fell once cycling dominated. Treated as a rough flag, not a limit. The page flags cross-training above 40% of weekly hours. It is not yet part of the load planners.</p>
 <h2>Hand-off</h2>
-<p>The counted TSS can be sent to the Run Load Planner through the same link format as the session generators (tss and name in the address).</p>
+<p>The page sends the raw TSS (before the CTL percentage) to the Run Load Planner, with <code>xt=1</code> and its percentage as <code>xw</code>. The planner has its own cross-training row and applies the weight itself (changed 2026-10-21; before this the counted TSS was sent and added to the running row).</p>
   </article>
 </main>
 <script>(function () {

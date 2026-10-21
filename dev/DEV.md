@@ -16,3 +16,7 @@ Not part of run_tests.sh because they take minutes. Run when changing inputs, pa
 - `python3 tests/fuzz.py full [page-name-fragment]`: feeds every input on every page junk values (letters, huge, negative, "18:75", "Infinity", unicode), random combinations, button clicks, corrupt localStorage and blocked storage. Reports JS errors, NaN/Infinity/undefined text, impossible numbers and horizontal overflow at 390px. Known false positives: negative differences in the comparison column and "-0" inside "-0.6".
 - `python3 tests/seqfuzz.py 25 40`: 25 seeds x 40 random actions per page, to catch crashes that depend on order (late change events, stale panels).
 - `python3 tests/props_race.py`: Race Prediction Calculator properties (input reproduced, times and paces rise with distance, slower input slows everything, mileage only moves the marathon, blend stays between the two predictions and does not depend on result order).
+
+## Snapshot clock (2026-10-21)
+
+tests/snapshot.py freezes the page clock at 2026-10-19 12:00 (FREEZE_DATE, added through an init script). Before this the trend tracker scenario "5 sessions" started failing on 2026-10-21, because its oldest session aged out of the 6-week window, and the Run Load Planner start day follows today's weekday. If a page starts reading the date in a new way, the frozen clock keeps the baseline stable; move the date only on purpose and re-baseline.

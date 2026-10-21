@@ -235,5 +235,5 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Heart rate: heart rate reserve against threshold HR (mine, placeholder; P agreed HR is the way for elliptical and Stairmaster).
 - Counts towards CTL: 80% for every activity (P). Source for the bike: Copeland pp. 174 to 175, cycling +20 to 30% time for similar aerobic benefit. Raw TSS shown beside the counted figure.
 - Cross-training share above 40% of weekly time is flagged (P: 60/40 running to cross-training, Copeland's anecdote). Weekly balance check only on the new page so far.
-- Not yet built: cross-training inputs inside the Run Load Planner (a hand-off link exists), Copeland Base, Hybrid Load Planner.
+- Run Load Planner cross-training (P, 2026-10-21): second row of per-day inputs for raw cross-training TSS, one weight for CTL and ATL (default 80%, placeholder), cross-training column in the table when used, optional weekly run hours and cross-training hours driving the 40% flag. Forward mode only. The Cross-Training TSS page now hands over raw TSS with `xt=1` and its percentage, so the weight is applied once. The planner only takes TSS per day, so the flag needs hours typed separately. Not yet built: cross-training inputs in Copeland Base and the Hybrid Load Planner; the fatigue layer.
 
