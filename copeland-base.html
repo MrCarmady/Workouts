@@ -161,6 +161,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       <label id="xtl">Cross-training TSS per day
         <input id="xt" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="0">
       </label>
+      <label id="xml">Cross-training minutes per day (counts as easy time)
+        <input id="xm" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="0">
+      </label>
       <label id="xwl">Cross-training counts at (%)
         <input id="xw" type="text" inputmode="decimal" autocomplete="off" value="80">
       </label>
@@ -357,7 +360,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     return weekOf([mkDay("E", 60, "Easy"), mkDay("S", PLANSTATE.L), mkDay("E", 60, "Easy"), mkDay("S", PLANSTATE.M), mkDay("E", 60, "Easy"), mkDay("S", PLANSTATE.S), mkDay("E", 110, "Long easy")]);
   }
   // A week of total time H minutes: the furthest ladder state that keeps work at or under 25% of running time.
-  var ND = 7, XC = 0, XW = 80, XSEL = null;
+  var ND = 7, XC = 0, XW = 80, XSEL = null, XM = 0;
   function restDay() { return { rows: [], work: 0, rec: 0, book: "Rest", sec: 0, km: 0, tss: 0, kind: "R" }; }
   function ladderWeek(H) {
     var ne = ND === 7 ? 3 : 2, two = ND === 5;
@@ -370,6 +373,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         ? [restDay(), mkDay("S", st.L), mkDay("E", ez, "Easy"), mkDay("S", st.M), restDay(), mkDay("E", ez, "Easy"), mkDay("E", lg, "Long easy")]
         : [mkDay("E", ez, "Easy"), mkDay("S", st.L), mkDay("E", ez, "Easy"), mkDay("S", st.M), ne === 3 ? mkDay("E", ez, "Easy") : restDay(), mkDay("S", st.S), mkDay("E", lg, "Long easy")]);
       w.x = w.days.map(function (d, i) { return (XSEL ? XSEL[i] : d.kind === "R") ? XC : 0; });
+      w.xmin = w.days.reduce(function (a, d, i) { return a + ((XSEL ? XSEL[i] : d.kind === "R") ? XM : 0); }, 0);
+      w.share = w.work / (w.run + w.xmin);
       if (w.share <= 0.25 || s === 0) { w.state = s; w.min = s === 0 && w.share > 0.25; return w; }
     }
   }
@@ -398,6 +403,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     var xtv = xtRaw === "" ? 0 : Number(xtRaw), xwv = xwRaw === "" ? NaN : Number(xwRaw);
     if (!isFinite(xtv) || xtv < 0 || xtv > 300) return fail("Cross-training TSS per day must be a number from 0 to 300, or empty for none.");
     if (!isFinite(xwv) || xwv < 0 || xwv > 150) return fail("Cross-training weight must be a percentage from 0 to 150.");
+    var xmRaw = ($("xm").value || "").trim().replace(",", "."), xmv = xmRaw === "" ? 0 : Number(xmRaw);
+    if (!isFinite(xmv) || xmv < 0 || xmv > 300) return fail("Cross-training minutes per day must be a number from 0 to 300, or empty for none.");
+    XM = xmv;
     XC = xtv * xwv / 100; XW = xwv;
     if (XSEL === null) { var rest = []; for (var rd = 0; rd < 7; rd++) rest.push(ND === 5 ? (rd === 0 || rd === 4) : ND === 6 ? rd === 4 : false); showX(rest); } else showX(XSEL);
     var tgt = Number(($("ramp").value || "").trim().replace(",", "."));
@@ -449,7 +457,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     });
     $("wrows").innerHTML = h;
     var first = weeks[0];
-    $("wnote").textContent = "Start CTL " + c0.toFixed(1) + ", ATL set equal to it. CTL, ATL and ramp are at the end of each week. Ramp target " + mn(tgt) + " per week. Sub-T is hard-run minutes as a share of running time (walked recoveries excluded)."
+    $("wnote").textContent = "Start CTL " + c0.toFixed(1) + ", ATL set equal to it. CTL, ATL and ramp are at the end of each week. Ramp target " + mn(tgt) + " per week. Sub-T is hard-run minutes as a share of running time (walked recoveries excluded)" + (XM > 0 ? ", plus the cross-training minutes you entered" : "") + "."
       + (base === 0 ? " This CTL already supports plan week 1 within the ramp target, so no base weeks are needed." : "")
       + (weeks.some(function (r) { return r.flag.indexOf("minimum") >= 0; }) ? " A minimum week is the floor this page builds: 4 hours of time and easy runs of at least 30 min. The start CTL is below what it supports at the ramp target, so the ramp is above target until CTL catches up." : "");
     $("notes").innerHTML = [
@@ -492,12 +500,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 
   function save() {
     try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("wunit", $("wunit").value); profSet("ezp", $("ezp").value); profSet("sbf", $("sbf").value); } catch (e) {}
-    try { localStorage.setItem("cb", JSON.stringify({ c: $("ctl").value, r: $("ramp").value, d: $("days").value, x: $("xt").value, w: $("xw").value, xs: XSEL })); } catch (e) {}
+    try { localStorage.setItem("cb", JSON.stringify({ c: $("ctl").value, r: $("ramp").value, d: $("days").value, m: $("xm").value, x: $("xt").value, w: $("xw").value, xs: XSEL })); } catch (e) {}
   }
   function restore() {
     try {
       var s = JSON.parse(localStorage.getItem("cb") || "null");
-      if (s) { if (typeof s.c === "string") $("ctl").value = s.c; if (typeof s.r === "string") $("ramp").value = s.r; if (s.d === "5" || s.d === "6" || s.d === "7") $("days").value = s.d; if (Array.isArray(s.xs) && s.xs.length === 7) XSEL = s.xs.map(Boolean); if (typeof s.x === "string") $("xt").value = s.x; if (typeof s.w === "string") $("xw").value = s.w; }
+      if (s) { if (typeof s.c === "string") $("ctl").value = s.c; if (typeof s.r === "string") $("ramp").value = s.r; if (s.d === "5" || s.d === "6" || s.d === "7") $("days").value = s.d; if (Array.isArray(s.xs) && s.xs.length === 7) XSEL = s.xs.map(Boolean); if (typeof s.m === "string") $("xm").value = s.m; if (typeof s.x === "string") $("xt").value = s.x; if (typeof s.w === "string") $("xw").value = s.w; }
     } catch (e) {}
     var pr = profGet();
     if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km;
@@ -518,7 +526,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
 
   restore();
-  ["dist", "time", "wunit", "ctl", "ramp", "days", "ezp", "sbf", "xt", "xw"].forEach(function (id) {
+  ["dist", "time", "wunit", "ctl", "ramp", "days", "ezp", "sbf", "xt", "xm", "xw"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });

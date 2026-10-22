@@ -102,3 +102,7 @@ These are the Copeland plan's values, restated in time (2026-10-14). "60-min rac
 - The ramp solver includes it, so the running time that fits the ramp target is smaller. Example: start CTL 35, 5 run days, 40 TSS on both rest days: week 1 falls from 4:58 to 4:01 (the minimum week, flagged "ramp above target").
 - The weekly TSS column and week detail show running TSS only. The week note gives the counted cross-training TSS.
 - Limits: 0 to 300 TSS per rest day, weight 0 to 150%.
+
+### Cross-training minutes (2026-10-22)
+
+Optional input: minutes of cross-training per cross-training day. Those minutes are added to the running time in the denominator of the sub-threshold share, so the 25% rule is checked against all easy aerobic time. Without it, cross-training TSS shrinks the running time the ramp allows but gives the sub-threshold rule nothing to offset that, and the ladder stays low. Example (P, 18:52 5k, start CTL 41, 6 run days, 50 TSS on Fridays): Saturday stays at 4 x 3 for four weeks with no minutes, but reaches 6 x 3 in week 1 and 8 x 3 in week 2 with 60 minutes. The ramp itself is unchanged. The week's running time is not changed by the minutes. Leaving it blank gives the old behaviour. This is a choice made here, not from the book: Copeland's 75/25 guide may or may not count cross-training.
