@@ -66,6 +66,7 @@ label.chk input { width: 1.2rem; height: 1.2rem; accent-color: var(--accent); }
 .warn { color: var(--warn); font-size: .88rem; margin: 0; }
 @media (max-width: 600px) { .res { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .tablewrap { overflow-x: auto; }
+.noxt .xcol { display: none; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 th { text-align: left; font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
 td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
@@ -143,6 +144,11 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
         <input id="wk" type="text" inputmode="numeric" autocomplete="off" value="8">
       </label>
     </div>
+    <div class="grid4" style="margin-top:14px">
+      <label>Cross-training counts at (%)
+        <input id="xw" type="text" inputmode="decimal" autocomplete="off" value="80">
+      </label>
+    </div>
     <p class="note">The week starts on Monday morning. Lifting always counts in full for ATL. The weight above sets how much of it counts toward CTL (0 to 1). If your start CTL already includes lifting, for example from a watch, lifting is counted twice.</p>
   </section>
 
@@ -157,8 +163,8 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     <h2>What happens</h2>
     <p class="summary" id="summary"></p>
     <div class="tablewrap">
-      <table>
-        <thead><tr><th>Week</th><th class="num">Run<br>TSS</th><th class="num">Lift<br>TSS</th><th class="num">CTL</th><th class="num">ATL</th><th class="num">TSB</th><th class="num">A:C</th><th class="num">CTL ramp</th></tr></thead>
+      <table id="restbl" class="noxt">
+        <thead><tr><th>Week</th><th class="num">Run<br>TSS</th><th class="num">Lift<br>TSS</th><th class="num xcol">Cross-<br>training</th><th class="num">CTL</th><th class="num">ATL</th><th class="num">TSB</th><th class="num">A:C</th><th class="num">CTL ramp</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
@@ -182,7 +188,7 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
 
   var state = null;   // { run: [7 strings], lifts: [7 arrays of {t, s, r}] }
   function defaults() {
-    var s = { run: ["40", "55", "40", "55", "40", "55", "70"], lifts: [[], [], [], [], [], [], []] };
+    var s = { run: ["40", "55", "40", "55", "40", "55", "70"], x: ["", "", "", "", "", "", ""], lifts: [[], [], [], [], [], [], []] };
     s.lifts[0] = [{ t: "lc", s: "3", r: "1" }];
     s.lifts[3] = [{ t: "uc", s: "3", r: "2" }];
     return s;
@@ -204,7 +210,7 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     var box = $("days"); box.innerHTML = "";
     DAYS.forEach(function (d, i) {
       var div = document.createElement("div"); div.className = "day";
-      var h = '<div class="dayhead"><b>' + d + '</b><label>Running TSS<input data-run="' + i + '" type="text" inputmode="decimal" autocomplete="off" value="' + state.run[i] + '"></label><span class="dtot" id="dt' + i + '"></span></div><div class="lifts">';
+      var h = '<div class="dayhead"><b>' + d + '</b><label>Running TSS<input data-run="' + i + '" type="text" inputmode="decimal" autocomplete="off" value="' + state.run[i] + '"></label><label>Cross-training TSS<input data-x="' + i + '" type="text" inputmode="decimal" autocomplete="off" value="' + state.x[i] + '"></label><span class="dtot" id="dt' + i + '"></span></div><div class="lifts">';
       state.lifts[i].forEach(function (x, j) {
         h += '<div class="lift"><label>Lift type<select data-t="' + i + ',' + j + '">' + Object.keys(CELLS).map(function (k) { return '<option value="' + k + '"' + (k === x.t ? " selected" : "") + ">" + CELLS[k].n + "</option>"; }).join("") + '</select></label>' +
           '<label>Sets<input data-s="' + i + ',' + j + '" type="text" inputmode="numeric" autocomplete="off" value="' + x.s + '"></label>' +
@@ -217,12 +223,16 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   }
 
   function read() {
-    var errs = [], run = [], lifts = [];
+    var errs = [], run = [], lifts = [], xt = [];
     for (var i = 0; i < 7; i++) {
       var r = num(state.run[i]);
       if (r === null) r = 0;
       if (!isFinite(r) || r < 0 || r > 400) errs.push(DAYS[i] + " running TSS must be a number from 0 to 400.");
       run.push(r);
+      var xr = num(state.x[i]);
+      if (xr === null) xr = 0;
+      if (!isFinite(xr) || xr < 0 || xr > 400) errs.push(DAYS[i] + " cross-training TSS must be a number from 0 to 400.");
+      xt.push(xr);
       var arr = [];
       state.lifts[i].forEach(function (x) {
         var s = num(x.s), rr = num(x.r);
@@ -232,7 +242,7 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
       });
       lifts.push(arr);
     }
-    return { errs: errs, run: run, lifts: lifts };
+    return { errs: errs, run: run, lifts: lifts, xt: xt };
   }
 
   function sgn(x) { return (x >= 0 ? "+" : "\u2212") + Math.abs(x).toFixed(1); }
@@ -240,43 +250,49 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
 
   function update() {
     $("err").hidden = true; $("resbox").hidden = false;
-    var c0 = num($("ctl").value), a0 = num($("atl").value), cw = num($("cw").value), wk = num($("wk").value);
+    var c0 = num($("ctl").value), a0 = num($("atl").value), cw = num($("cw").value), wk = num($("wk").value), xw = num($("xw").value);
     function fail(m) { $("err").hidden = false; $("err").textContent = m; $("resbox").hidden = true; }
     if (c0 === null || !isFinite(c0) || c0 < 0 || c0 > 300) return fail("Start CTL must be a number from 0 to 300.");
     if (a0 === null) a0 = c0;
     if (!isFinite(a0) || a0 < 0 || a0 > 300) return fail("Start ATL must be a number from 0 to 300, or blank to use the CTL.");
     if (cw === null || !isFinite(cw) || cw < 0 || cw > 1) return fail("Lifting weight in CTL must be a number from 0 to 1.");
     if (wk === null || !isFinite(wk) || wk < 1 || wk > 12 || wk !== Math.floor(wk)) return fail("Weeks to project must be a whole number from 1 to 12.");
+    if (xw === null || !isFinite(xw) || xw < 0 || xw > 150) return fail("Cross-training weight must be a percentage from 0 to 150.");
     var d = read();
     if (d.errs.length) return fail(d.errs[0]);
+    var xc = d.xt.map(function (v) { return v * xw / 100; }), anyX = xc.some(function (v) { return v > 0; });
+    for (var q = 0; q < 7; q++) if (d.run[q] + xc[q] > 300) return fail(DAYS[q] + ": " + Math.round(d.run[q] + xc[q]) + " TSS of running and counted cross-training in one day is not realistic. The limit here is 300.");
     var lt = d.lifts.map(liftTss);
     for (var i = 0; i < 7; i++) {
       var t = $("dt" + i);
-      t.textContent = lt[i] > 0 ? "Lifting " + f0(lt[i]) + " TSS, day total " + f0(d.run[i] + lt[i]) : (d.run[i] > 0 ? "Day total " + f0(d.run[i]) : "");
+      var tot = d.run[i] + lt[i] + xc[i];
+      t.textContent = (lt[i] > 0 || xc[i] > 0) ? (lt[i] > 0 ? "Lifting " + f0(lt[i]) + " TSS, " : "") + (xc[i] > 0 ? "cross-training counted " + f0(xc[i]) + ", " : "") + "day total " + f0(tot) : (d.run[i] > 0 ? "Day total " + f0(d.run[i]) : "");
     }
-    var cb = c0, cl = 0, ab = a0, al = 0, rows = [], minF = 1e9, wF = 0, maxR = 0, wR = 0;
-    var prevB = cb, prevL = cl;
+    var cb = c0, cl = 0, cx = 0, ab = a0, al = 0, ax = 0, rows = [], minF = 1e9, wF = 0, maxR = 0, wR = 0;
+    var prevB = cb, prevL = cl, prevX = cx;
     for (var w = 1; w <= wk; w++) {
-      var rt = 0, ltt = 0;
+      var rt = 0, ltt = 0, xtt = 0;
       for (var k = 0; k < 7; k++) {
         cb += (d.run[k] - cb) * KC; cl += (cw * lt[k] - cl) * KC;
-        ab += (d.run[k] - ab) * KA; al += (lt[k] - al) * KA;
-        rt += d.run[k]; ltt += lt[k];
-        var ff = cb + cl - ab - al, rr = (ab + al) / Math.max(1e-9, cb + cl);
+        cx += (xc[k] - cx) * KC;
+        ab += (d.run[k] - ab) * KA; al += (lt[k] - al) * KA; ax += (xc[k] - ax) * KA;
+        rt += d.run[k]; ltt += lt[k]; xtt += xc[k];
+        var ff = cb + cl + cx - ab - al - ax, rr = (ab + al + ax) / Math.max(1e-9, cb + cl + cx);
         if (ff < minF) { minF = ff; wF = w; }
         if (rr > maxR) { maxR = rr; wR = w; }
       }
-      var C = cb + cl, A = ab + al;
-      rows.push({ w: w, rt: rt, lt: ltt, C: C, A: A, F: C - A, R: A / C, dB: cb - prevB, dL: cl - prevL });
-      prevB = cb; prevL = cl;
+      var C = cb + cl + cx, A = ab + al + ax;
+      rows.push({ w: w, rt: rt, lt: ltt, xt: xtt, C: C, A: A, F: C - A, R: A / C, dB: cb - prevB, dL: cl - prevL, dX: cx - prevX });
+      prevB = cb; prevL = cl; prevX = cx;
     }
     var last = rows[rows.length - 1], first = rows[0];
     $("summary").textContent = "Week " + last.w + ": CTL " + f0(last.C) + ", ATL " + f0(last.A) + ", TSB " + sgn(last.F).replace(".0", "") + ". Lowest daily TSB " + sgn(minF).replace(".0", "") + " in week " + wF + ".";
     $("rows").innerHTML = rows.map(function (x) {
-      var ramp = x.dB + x.dL, bd = "Running and existing load " + sgn(x.dB) + ", lifting " + sgn(x.dL);
-      if ((x.dB >= 0) === (x.dL >= 0) && Math.abs(ramp) > 1e-9) bd += " (" + Math.round(Math.abs(x.dB) / Math.abs(ramp) * 100) + "% and " + Math.round(Math.abs(x.dL) / Math.abs(ramp) * 100) + "%)";
-      return "<tr><td>" + x.w + "</td><td class='num'>" + f0(x.rt) + "</td><td class='num'>" + f0(x.lt) + "</td><td class='num'>" + f0(x.C) + "</td><td class='num'>" + f0(x.A) + "</td><td class='num'>" + sgn(x.F).replace(".0", "") + "</td><td class='num'>" + x.R.toFixed(2) + "</td><td class='num' title='" + bd + "'>" + sgn(ramp) + "<button type='button' class='info' data-bd='" + x.w + "' aria-label='Ramp breakdown, week " + x.w + "' aria-expanded='false'>i</button></td></tr><tr class='brk' id='bd" + x.w + "' hidden><td colspan='8'>" + bd + ".</td></tr>";
+      var ramp = x.dB + x.dL + x.dX, bd = "Running and existing load " + sgn(x.dB) + ", lifting " + sgn(x.dL) + (anyX ? ", cross-training " + sgn(x.dX) : "");
+      if (!anyX && (x.dB >= 0) === (x.dL >= 0) && Math.abs(ramp) > 1e-9) bd += " (" + Math.round(Math.abs(x.dB) / Math.abs(ramp) * 100) + "% and " + Math.round(Math.abs(x.dL) / Math.abs(ramp) * 100) + "%)";
+      return "<tr><td>" + x.w + "</td><td class='num'>" + f0(x.rt) + "</td><td class='num'>" + f0(x.lt) + "</td><td class='num xcol'>" + f0(x.xt) + "</td><td class='num'>" + f0(x.C) + "</td><td class='num'>" + f0(x.A) + "</td><td class='num'>" + sgn(x.F).replace(".0", "") + "</td><td class='num'>" + x.R.toFixed(2) + "</td><td class='num' title='" + bd + "'>" + sgn(ramp) + "<button type='button' class='info' data-bd='" + x.w + "' aria-label='Ramp breakdown, week " + x.w + "' aria-expanded='false'>i</button></td></tr><tr class='brk' id='bd" + x.w + "' hidden><td colspan='9'>" + bd + ".</td></tr>";
     }).join("");
+    $("restbl").className = anyX ? "" : "noxt";
     $("rnote").textContent = "TSB is CTL minus ATL at the end of each Sunday. CTL ramp is the change in CTL over the week; the i button shows how much comes from running and your existing load versus lifting.";
   }
 
@@ -286,21 +302,22 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
       "<b>Lifting score.</b> Each lift scores max(10, 100 &times; lower 1 or upper 0.33 &times; compound 1 or isolation 0.5 &times; (1 &minus; 0.12 &times; reps left on the last set) &times; &radic;(sets &divide; 3)). Three sets with the last to failure on a lower-body compound lift is 100.",
       "<b>Several lifts in a day.</b> Sets and reps left are pooled within each lift type. The day's total is the largest type plus half of the others.",
       "<b>Where these numbers come from.</b> They are the author's estimates, fitted to a few anchor points (squat to failure 100, overhead press to failure about 33, light curls about 10, a Tactical Barbell style session with reps left about 60). They are not research values. Reps left is self-reported and easy to misjudge.",
+      "<b>Cross-training.</b> Enter each day's cross-training TSS as it comes from the Cross-Training TSS page, before weighting. It is multiplied by the weight (80% by default, a placeholder) and then counts the same for CTL and ATL. The one-day limit of 300 TSS applies to running plus counted cross-training.",
       "<b>CTL and ATL weights.</b> Lifting counts in full for ATL and at the weight you set for CTL. A weight below 1 means a steady lifter shows lower form than a runner with the same total, by design: lifting adds fatigue faster than it adds running fitness.",
       "<b>Limits.</b> Lifting fatigue is treated as a same-day hit, like running TSS. A new or returning exercise can leave you sorer than its score suggests. The model does not know about exercise selection beyond the four types."
     ].map(function (x) { return "<li>" + x + "</li>"; }).join("");
   }
 
-  function save() { try { localStorage.setItem("hl", JSON.stringify({ s: state, c: $("ctl").value, a: $("atl").value, w: $("cw").value, k: $("wk").value })); } catch (e) {} }
+  function save() { try { localStorage.setItem("hl", JSON.stringify({ s: state, x: $("xw").value, c: $("ctl").value, a: $("atl").value, w: $("cw").value, k: $("wk").value })); } catch (e) {} }
   function restore() {
     state = defaults();
     try {
       var o = JSON.parse(localStorage.getItem("hl") || "null");
       if (o && o.s && Array.isArray(o.s.run) && o.s.run.length === 7 && Array.isArray(o.s.lifts) && o.s.lifts.length === 7) {
         var ok = o.s.lifts.every(function (a) { return Array.isArray(a) && a.every(function (x) { return x && CELLS[x.t] && typeof x.s === "string" && typeof x.r === "string"; }); }) && o.s.run.every(function (x) { return typeof x === "string"; });
-        if (ok) state = o.s;
+        if (ok) { state = o.s; if (!Array.isArray(state.x) || state.x.length !== 7) state.x = ["", "", "", "", "", "", ""]; }
         if (typeof o.c === "string") $("ctl").value = o.c; if (typeof o.a === "string") $("atl").value = o.a;
-        if (typeof o.w === "string") $("cw").value = o.w; if (typeof o.k === "string") $("wk").value = o.k;
+        if (typeof o.x === "string") $("xw").value = o.x; if (typeof o.w === "string") $("cw").value = o.w; if (typeof o.k === "string") $("wk").value = o.k;
       }
     } catch (e) {}
   }
@@ -308,9 +325,10 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   document.addEventListener("input", function (e) {
     var t = e.target, v;
     if (t.dataset && t.dataset.run !== undefined) state.run[+t.dataset.run] = t.value;
+    else if (t.dataset && t.dataset.x !== undefined) state.x[+t.dataset.x] = t.value;
     else if (t.dataset && t.dataset.s !== undefined) { v = t.dataset.s.split(","); state.lifts[+v[0]][+v[1]].s = t.value; }
     else if (t.dataset && t.dataset.r !== undefined) { v = t.dataset.r.split(","); state.lifts[+v[0]][+v[1]].r = t.value; }
-    else if (["ctl", "atl", "cw", "wk"].indexOf(t.id) < 0) return;
+    else if (["ctl", "atl", "cw", "wk", "xw"].indexOf(t.id) < 0) return;
     save(); update();
   });
   document.addEventListener("change", function (e) {

@@ -32,7 +32,7 @@ Two easy runs, two sub-threshold sessions and one long run (your split; the days
 
 - The short session is dropped, in line with the ladder rule that short is cut first. The ladder climbs the long and medium sessions only (top state 4 x 10 and 6 x 6), so sub-threshold share tops out near 17% in the biggest weeks.
 - Easy days share the time left after the sub-threshold days and the long run (about 25% of the week).
-- Cross-training is not counted in TSS or CTL.
+- Optional cross-training on the rest days (Mon and Fri with 5 run days, Fri with 6) counts toward CTL and ATL. See Cross-training below.
 - Plan week 1 is still the book's seven-day week. The last row is therefore a step from five runs to seven, and at a start CTL of 30 it shows "ramp above target" (+1.1 against 1.0) because five-day weeks carry less load per hour.
 
 ### Target
@@ -94,3 +94,11 @@ These are the Copeland plan's values, restated in time (2026-10-14). "60-min rac
 
 - Does not adapt to what you actually ran.
 - Only the first week of the marathon add-on is a target.
+
+### Cross-training (2026-10-22)
+
+- Input: TSS per rest day, as it comes from the Cross-Training TSS page, and a weight (default 80%, a placeholder shared with the Run Load Planner). Counted TSS = TSS x weight, added to that rest day's TSS for CTL and ATL.
+- It applies to base weeks only. With 7 run days there are no rest days, so it is off. Plan week 1 is the book's seven-day week with no cross-training.
+- The ramp solver includes it, so the running time that fits the ramp target is smaller. Example: start CTL 35, 5 run days, 40 TSS on both rest days: week 1 falls from 4:58 to 4:01 (the minimum week, flagged "ramp above target").
+- The weekly TSS column and week detail show running TSS only. The week note gives the counted cross-training TSS.
+- Limits: 0 to 300 TSS per rest day, weight 0 to 150%.
