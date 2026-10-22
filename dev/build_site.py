@@ -14,17 +14,17 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("sub-t-trend-tracker.html","sub-t-trend-tracker.html","Sub-Threshold Trend Tracker","Log classic sub-threshold sessions and track implied threshold pace.","sub-t-trend-tracker.md","sub-t-trend-tracker","Sessions"),
 ("hard-workout-predictor.html","hard-workout-predictor.html","Hard Workout Predictor","Predict a race from a hard interval session, using rep length, rest and RPE.","hard-workout-predictor.md","hard-workout-predictor","Race and pace"),
 ("parkrun-converter.html","parkrun-converter.html","Parkrun Converter","Convert a parkrun time to another course, using course difficulty scores.","parkrun-converter.md","parkrun-converter","Race and pace"),
-("plan-builder.html","plan-builder.html","Plan Builder","Weekly distance, quality and easy running for a block, from a race result.","plan-builder.md","plan-builder","Planning and load"),
- ("run-load-planner.html","run-load-planner.html","Run Load Planner","CTL, ATL and TSB from a planned week, or the TSS needed for a target.","run-load-planner.md","run-load-planner","Planning and load"),
- ("run-tss-calculator.html","run-tss-calculator.html","Run TSS Calculator","Training stress score for a run, from your threshold pace and what you ran.","run-tss-calculator.md","run-tss-calculator","Planning and load"),
- ("run-tss-planner.html","run-tss-planner.html","Run TSS Planner","The workout pace that hits a target TSS.","run-tss-planner.md","run-tss-planner","Sessions"),
- ("cross-training-tss.html","cross-training-tss.html","Cross-Training TSS","TSS for a bike, rower, heart-rate or walking session.","cross-training-tss.md","cross-training-tss","Planning and load"),
+("plan-builder.html","plan-builder.html","Plan Builder","Weekly distance, quality and easy running for a block, from a race result.","plan-builder.md","plan-builder","Marathon and plans"),
+ ("run-load-planner.html","run-load-planner.html","Run Load Planner","CTL, ATL and TSB from a planned week, or the TSS needed for a target.","run-load-planner.md","run-load-planner","Load"),
+ ("run-tss-calculator.html","run-tss-calculator.html","Run TSS Calculator","Training stress score for a run, from your threshold pace and what you ran.","run-tss-calculator.md","run-tss-calculator","Load"),
+ ("run-tss-planner.html","run-tss-planner.html","Run TSS Planner","The workout pace that hits a target TSS.","run-tss-planner.md","run-tss-planner","Load"),
+ ("cross-training-tss.html","cross-training-tss.html","Cross-Training TSS","TSS for a bike, rower, heart-rate or walking session.","cross-training-tss.md","cross-training-tss","Load"),
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace, and optional TSS, for a running or walking treadmill setting.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","1RM and Scheme Calculator","1RM estimate, working weights and a warm-up ladder from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
- ("marathon-plans.html","marathon-plans.html","Marathon Plans","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Planning and load"),
- ("copeland-base.html","copeland-base.html","Copeland Base","A ramp from your CTL to week 1 of the Copeland marathon plan.","copeland-base.md","copeland-base","Planning and load"),
- ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Recommender","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Planning and load"),
- ("hybrid-load-planner.html","hybrid-load-planner.html","Hybrid Load Planner","CTL, ATL and TSB from a week of runs and lifts.","hybrid-load-planner.md","hybrid-load-planner","Hybrid"),
+ ("marathon-plans.html","marathon-plans.html","Marathon Plans","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Marathon and plans"),
+ ("copeland-base.html","copeland-base.html","Copeland Base","A ramp from your CTL to week 1 of the Copeland marathon plan.","copeland-base.md","copeland-base","Marathon and plans"),
+ ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Recommender","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Marathon and plans"),
+ ("hybrid-load-planner.html","hybrid-load-planner.html","Hybrid Load Planner","CTL, ATL and TSB from a week of runs and lifts.","hybrid-load-planner.md","hybrid-load-planner","Load"),
  ("lifting-programme-planner.html","lifting-programme-planner.html","Lifting Programme Planner","Tactical Barbell, GZCLP, 5/3/1, nSuns and other lifting plans.","lifting-programme-planner.md","lifting-programme-planner","Lifting"),
 ]
 HEAD='<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>\n'
@@ -58,7 +58,7 @@ THEME_JS='<script>'+THEME.JS+'</script>'
 TOGGLE=THEME.HTML
 FONTS='<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">'
 # index
-ORDER=['Planning and load','Sessions','Race and pace','Hybrid','Lifting']
+ORDER=['Race and pace','Sessions','Marathon and plans','Load','Lifting']
 cards={}
 for src,out,title,desc,md,slug,grp in sorted(tools,key=lambda t:(ORDER.index(t[6]),tools.index(t))):
     cards.setdefault(grp,[]).append(f'''      <li class="card"><div><a class="name" href="{out}">{html.escape(title)}</a><p>{html.escape(desc)}</p></div><a class="meth" href="methods/{slug}.html">How it works</a></li>''')
@@ -71,7 +71,10 @@ def _sec(g,v,lvl):
     </section>
 '''
 RUNNING=['Planning and load','Sessions','Race and pace']
-groups='    <h2 class="big">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in RUNNING if g in cards)+'    <h2 class="big">Hybrid</h2>\n'+_sec('Running and lifting together',cards['Hybrid'],3)+'    <h2 class="big">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3)
+groups=('    <nav class="jump" aria-label="Sections"><a href="#running">Running</a><a href="#load">Load</a><a href="#lifting">Lifting</a></nav>\n'
+ +'    <h2 class="big" id="running">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in ['Race and pace','Sessions','Marathon and plans'])
+ +'    <h2 class="big" id="load">Load</h2>\n'+_sec('Training load and TSS',cards['Load'],3)
+ +'    <h2 class="big" id="lifting">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3))
 START=[ # (question, tool file, tool title); titles must match the tools list
  ("I ran a race. What does it mean for other distances?","race-prediction-calculator.html","Race Prediction Calculator"),
  ("I ran a hard interval session. What race time does it predict?","hard-workout-predictor.html","Hard Workout Predictor"),
@@ -80,6 +83,7 @@ START=[ # (question, tool file, tool title); titles must match the tools list
  ("I run and lift. How hard is my week in total?","hybrid-load-planner.html","Hybrid Load Planner"),
  ("I need paces for a threshold or tempo session.","run-session-generator.html","Sub-Threshold Session Generator"),
  ("I want to know if my weekly load is climbing too fast.","run-load-planner.html","Run Load Planner"),
+ ("I stack hard sessions on back-to-back days. What does it do to my fatigue?","run-load-planner.html","Run Load Planner"),
  ("I want to build a training block from a race result.","plan-builder.html","Plan Builder"),
  ("I cross-trained on a bike, rower or treadmill. How much load is that?","cross-training-tss.html","Cross-Training TSS"),
  ("I want working weights for a lifting scheme.","lift-scheme-calculator.html","1RM and Scheme Calculator"),
@@ -102,6 +106,7 @@ PAGECSS='''
 .start li a { font-weight:600; text-decoration:none; }
 .start li a:hover { text-decoration:underline; }
 .all { font-weight:600; font-size:.95rem; }
+nav.jump { display:flex; flex-wrap:wrap; gap:8px 20px; font-family:var(--font-display); font-weight:600; letter-spacing:.04em; text-transform:uppercase; font-size:.9rem; }
 h2.big { color:var(--fg); font-size:1.5rem; margin:8px 0 0; padding-top:12px; border-top:2px solid var(--fg); }
 h3 { font-family:var(--font-display); font-weight:600; font-size:1.05rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 10px; color:var(--muted); }
 .note { color:var(--muted); font-size:.85rem; margin:0; }
