@@ -127,4 +127,6 @@ dumbbell and split squat: lightest dumbbells x 10 (bodyweight x 8 per leg for th
 
 Weights are rounded to the page's step. A set that rounds to the same weight as the one before it, or to the top set, is dropped, and a note says so. A top set at or below the bar gets no ladder.
 
+Deadlift: the first set is a "Light pull" of 10 reps at a starting weight you set (default 50 kg, P, 2026-10-22), not the bare bar, because nobody pulls the empty bar and the gym's bumper plates (5 to 25 kg) put the usual start between 30 and 70 kg. Other barbell lifts keep the bar weight.
+
 The ladder is the one P described (10 x bar, 10 x 50%, 5 x 70%, 2 to 3 x 85%), with 5 reps at 50% and 2 at 85% as my trims. It is a common convention, not from research. I know of no evidence that one scheme beats another. The reps and percentages are fixed on the page. A note advises 5 minutes or more of rest before a rep-max set (my suggestion).

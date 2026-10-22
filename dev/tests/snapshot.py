@@ -130,6 +130,9 @@ def scenarios():
     out.append(('lift-scheme-calculator','warm-up weighted pull-up 3RM',lambda pg:[pg.select_option('#lift','pullup')]))
     out.append(('lift-scheme-calculator','warm-up incline dumbbell 8RM',lambda pg:[pg.select_option('#lift','incdb'),pg.select_option('#wutop','8')]))
     out.append(('lift-scheme-calculator','warm-up split squat 5RM',lambda pg:[pg.select_option('#lift','bss'),pg.select_option('#wutop','5')]))
+    out.append(('lift-scheme-calculator','warm-up deadlift 3RM from 120x3 default start 50',lambda pg:[pg.select_option('#lift','deadlift'),fill(pg,'w','120'),fill(pg,'reps','3'),fill(pg,'rir','1')]))
+    out.append(('lift-scheme-calculator','warm-up deadlift own weight 140 start 30',lambda pg:[pg.select_option('#lift','deadlift'),pg.select_option('#wutop','c'),fill(pg,'wuc','140'),fill(pg,'wudl','30')]))
+    out.append(('lift-scheme-calculator','warm-up deadlift top set at start weight',lambda pg:[pg.select_option('#lift','deadlift'),pg.select_option('#wutop','c'),fill(pg,'wuc','50')]))
     for page in ['run-tss-calculator','run-tss-planner']:
         out.append((page,'race mode',lambda pg:[fill(pg,'mode','race'),fill(pg,'thr','3:58'),fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'wmin','30'),fill(pg,'wpace','4:00'),fill(pg,'target','60'),fill(pg,'emin','20'),fill(pg,'epace','5:00')]))
     out.append(('classic-session-generator','ladder fixed jog tail 3',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','ladder'),fill(pg,'opt_jogmode','fixed'),fill(pg,'opt_tail','3')]))
