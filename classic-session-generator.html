@@ -183,7 +183,7 @@ tr.easy td:first-child { padding-left: 11px; }
       <li><b>Tempo.</b> 20 minutes runs at threshold, the predicted 16km pace. Longer tempos slow down by 4.9% × ln(minutes ÷ 20), never slower than marathon pace, up to 60 minutes. The scale is a fit to a Daniels-style table (+1.2% at 25 minutes, +5.3% at 60).</li>
       <li><b>Ladder.</b> The 5, 4, 3, 2 and 1 minute reps run at 10k, 5k, 3k, 2k and 1500m pace. The jog after each rep is half its length by default (150, 120, 90 and 60s), as in the Outside article on ladders; a fixed jog is an option. The article's ladder ends with repeats of 1 minute hard and 1 minute easy, which you can add. The article gives effort, not paces, so the paces are this page's own.</li>
       <li><b>Aussie quarters.</b> Always 8 reps: 400m at 4k pace, then 200m floated at M pace to 3% faster, repeated with no stop. That is 4.8km, 5km with an opening 200m float.</li>
-      <li><b>Pre's 200s.</b> Alternating 200m fast and 200m recovery with no stop, as in the Outside article on Pre's 200s. Fast 200s run from mile pace to 2% slower, recovery 200s are 33⅓% slower than the fast ones. Twelve pairs is 4.8km, about three miles.</li>
+      <li><b>Pre's 200s.</b> Alternating 200m fast and 200m float with no stop, as in the Outside article on Pre's 200s. Fast 200s run from mile pace to 2% slower, float 200s are 33⅓% slower than the fast ones: a controlled, steady pace, not a jog. Twelve pairs is 4.8km, about three miles.</li>
       <li><b>Mona fartlek.</b> 2×90s, 4×60s, 4×30s and 4×15s, each followed by a float of the same length, as in Nate Jenkins' article on the Moneghetti fartlek. Efforts run at 5k, 4k, 3k and mile pace. The article says about 5k effort for the 90s, getting faster as reps shorten. Floats run at 85% of 5km speed, about 5s/km slower than marathon pace for an 18:24 runner. The article calls them a quick jog.</li>
       <li><b>Yasso 800s.</b> 800m at 5k pace with a jog of the same time. The old rule (800m time in minutes:seconds = marathon time in hours:minutes) is shown for comparison only.</li>
       <li><b>Rosario 800s.</b> 800m at 5k pace with an 800m float at 5k pace plus 25s per 800m, which is about +31s/km.</li>
@@ -289,7 +289,7 @@ tr.easy td:first-child { padding-left: 11px; }
       { id: "tail", label: "Extra 1 min hard + 1 min easy", def: 0, min: 0, max: 8, int: true }] },
     { key: "aussie", name: "Aussie quarters", opts: [
       { id: "start", type: "check", label: "Start with a 200m float" }] },
-    { key: "pre", name: "Pre's 200s", opts: [{ id: "pairs", label: "Pairs of 200m (fast + recovery)", def: 12, min: 4, max: 30, int: true }] },
+    { key: "pre", name: "Pre's 200s", opts: [{ id: "pairs", label: "Pairs of 200m (fast + float)", def: 12, min: 4, max: 30, int: true }] },
     { key: "mona", name: "Mona fartlek", opts: [] },
     { key: "yasso", name: "Yasso 800s", opts: [{ id: "reps", label: "Reps", def: 10, min: 4, max: 12, int: true }] },
     { key: "rosario", name: "Rosario 800s", opts: [{ id: "reps", label: "Reps", def: 4, min: 2, max: 12, int: true }] },
@@ -386,6 +386,7 @@ tr.easy td:first-child { padding-left: 11px; }
       if (reps < 1) return;
       var pm = (pf + ps) / 2, tMid, dMid, len, eq;
       if (spec.m != null) { dMid = spec.m; tMid = spec.m / 1000 * pm; len = distLabel(spec.m); eq = timeRange(spec.m / 1000 * pf, spec.m / 1000 * ps); }
+      else if (spec.swap) { tMid = spec.s; dMid = spec.s / pm * 1000; len = "ca. " + distLabel(round10(dMid)); eq = secLabel(spec.s); }   // timed rest shown as distance | time, to line up with the rep above it
       else { tMid = spec.s; dMid = spec.s / pm * 1000; len = secLabel(spec.s); eq = "ca. " + distLabel(round10(dMid)); }
       T += reps * tMid; Dm += reps * dMid; TSS += reps * tMid / 3600 * Math.pow(thr / pm, 2) * 100;
       if (main) { mainT += reps * tMid; mainD += reps * dMid; }
@@ -436,10 +437,10 @@ tr.easy td:first-child { padding-left: 11px; }
       notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ".");
     } else if (w.key === "pre") {
       var pm1 = raceP(MILE), pm2 = pm1 * 1.02;   // fast 200s: mile pace to 2% slower
-      struct = o.pairs + " pairs of 200m, fast then recovery, continuous";
+      struct = o.pairs + " pairs of 200m, fast then float, continuous";
       add("Fast", o.pairs, { m: 200 }, pm1, pm2, "hard", true);
-      add("Recovery", o.pairs, { m: 200 }, pm1 * 4 / 3, pm2 * 4 / 3, "easy", true);
-      notes.push("Fast 200s are slightly slower than mile pace (mile pace to 2% slower, my reading of the article). Recovery 200s are 33⅓% slower than the fast ones. There is no standing rest: the slow 200 is the recovery. Stop when you cannot hold the fast pace or the recovery feels too short.");
+      add("Float", o.pairs, { m: 200 }, pm1 * 4 / 3, pm2 * 4 / 3, "easy", true);
+      notes.push("Fast 200s are slightly slower than mile pace (mile pace to 2% slower, my reading of the article). Float 200s are 33⅓% slower than the fast ones. There is no standing rest: the float is the recovery, and it is a steady pace, not a jog. Stop when you cannot hold the fast pace or the float feels too short.");
       notes.push("From the Outside article on Pre's 200s, which credits Bill Bowerman. It suggests three miles or until you cannot hold pace, and using it before the final taper rather than weekly. " + o.pairs + " pairs is " + distLabel(o.pairs * 400) + ".");
     } else if (w.key === "mona") {
       struct = "2×90s, 4×60s, 4×30s, 4×15s, equal-time floats";
@@ -454,7 +455,7 @@ tr.easy td:first-child { padding-left: 11px; }
       var py = raceP(5), rep800 = 0.8 * py;
       struct = o.reps + " × 800m, jog the same time between";
       add("At 5k pace", o.reps, { m: 800 }, py, py, "hard", true);
-      add("Jog (same time as the rep)", o.reps - 1, { s: Math.round(rep800) }, wcPace, wcPace, "easy", true);
+      add("Jog", o.reps - 1, { s: Math.round(rep800), swap: true }, wcPace, wcPace, "easy", true);
       var folk = Math.round(rep800) * 60, pred = mp * MAR, diff = pred - folk;
       notes.push("Old rule: " + mmss(rep800) + " per 800m means a " + hmmss(folk) + " marathon. Predicted: " + hmmss(pred) + ", " + mmss(Math.abs(diff)) + (diff >= 0 ? " slower" : " faster") + ".");
     } else if (w.key === "rosario") {
