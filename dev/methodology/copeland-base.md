@@ -97,8 +97,8 @@ These are the Copeland plan's values, restated in time (2026-10-14). "60-min rac
 
 ### Cross-training (2026-10-22)
 
-- Input: TSS per rest day, as it comes from the Cross-Training TSS page, and a weight (default 80%, a placeholder shared with the Run Load Planner). Counted TSS = TSS x weight, added to that rest day's TSS for CTL and ATL.
-- It applies to base weeks only. With 7 run days there are no rest days, so it is off. Plan week 1 is the book's seven-day week with no cross-training.
+- Input: TSS per cross-training day, as it comes from the Cross-Training TSS page, and a weight (default 80%, a placeholder shared with the Run Load Planner). Counted TSS = TSS x weight, added to that rest day's TSS for CTL and ATL.
+- It applies to the days you tick (Mon to Sun), in base weeks only. Until you tick a box the ticks follow your rest days (Mon and Fri with 5 run days, Fri with 6, none with 7). With 7 run days nothing is ticked by default, so tick the days you cross-train on top of running. Once you tick or untick a box, your choice is kept when you change the run days. Plan week 1 is the book's seven-day week with no cross-training.
 - The ramp solver includes it, so the running time that fits the ramp target is smaller. Example: start CTL 35, 5 run days, 40 TSS on both rest days: week 1 falls from 4:58 to 4:01 (the minimum week, flagged "ramp above target").
 - The weekly TSS column and week detail show running TSS only. The week note gives the counted cross-training TSS.
 - Limits: 0 to 300 TSS per rest day, weight 0 to 150%.
