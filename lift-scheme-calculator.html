@@ -238,7 +238,7 @@ td.kg { font-weight: 600; color: var(--accent); }
     <p>The 1RM uses the average of the Brzycki and Epley formulas, applied to reps completed plus reps left in tank. Brzycki: weight × 36 / (37 − reps). Epley: weight × (1 + reps / 30), set to exactly 1 for a single and blended in by 2 reps. Both get less reliable above about 10 reps.</p>
     <p>Weights come from a fatigue model. The last set is set to your chosen RIR, and each earlier set costs a fixed number of reps of capacity at 3 min rest (0.75 for sets of 3, 1 for sets of 5–6, 1.2 for 8, 1.35–1.6 for 10–12). Shorter rest scales that loss: 1.25× at 1 min, 1.1× at 2 min. "By rep range" assumes 3 min for sets of 3–5, 2 min for 6–8 and 1 min for 10–12. Set 1's fresh capacity is converted back to % of 1RM with the same two formulas.</p>
     <p>Entering a session works backwards from the same model. The reps lost over the earlier sets (fatigue per set × rest multiplier × (sets − 1)) are added to reps and reps in reserve to give the reps the first set could have reached, and the 1RM comes from that. For sets of other lengths the fatigue per set is read in a straight line between the scheme values (a choice made here). A session gives a less certain 1RM than a fresh single set, so the page shows how it moves if the loss per set is 25% lower or higher. Sets must all use the same weight and reps.</p>
-    <p>Warm-up: the top set is the weight for the chosen rep max (from the 1RM above) or one you enter. Sets are 10 reps with the bar (or bodyweight, or the lightest dumbbells; for the deadlift a starting weight of 50 kg by default, since the bar alone is too light, set to whatever bumper plates you load), then 50% × 5, 70% × 3 and 85% × 2 of the top set, rounded to your step. A set that rounds to the same weight as the one before it, or to the top set, is dropped. For weighted pull-ups and dips the percentages apply to the added weight. For dumbbell and split-squat lifts they apply per hand. This ladder is a common convention, not from research, and the reps and percentages are not adjustable.</p>
+    <p>Warm-up: the top set is the weight for the chosen rep max (from the 1RM above) or one you enter. Sets are 10 reps with the bar (or bodyweight, or the lightest dumbbells; for the deadlift a starting weight of 50 kg by default, since the bar alone is too light, set to whatever bumper plates you load), then 50% × 5, 70% × 3 and 85% × 2 of the top set, rounded to your step. A set that rounds to the same weight as the one before it, or to the top set, is dropped. For weighted pull-ups and dips the percentages apply to total load (bodyweight plus added weight), the first set is 5 bodyweight reps, and a step that falls at or below bodyweight is dropped, so a light top set gets only one bodyweight set before it. For dumbbell and split-squat lifts they apply per hand. This ladder is a common convention, not from research, and the reps and percentages are not adjustable.</p>
     <p>Calibrate the fatigue and rest values against your own logs. Squat, deadlift and Bulgarian split squat use 1.15× the fatigue.</p>
   </section>
   <p class="sitenav"><a href="methods/lift-scheme-calculator.html">How it works &rarr;</a></p>
@@ -325,7 +325,7 @@ td.kg { font-weight: 600; color: var(--accent); }
     if (isDL) { bar = num("wudl"); if (bar === null || bar < 0 || bar > 150) bar = 50; }
     var show = function (w) { return cfg.bw ? (w <= 0 ? "BW" : "+" + fmtKg(w)) : fmtKg(w); };
     var first, firstW = 0, firstReps = 10, firstTxt = null;
-    if (cfg.bw) { first = "Bodyweight"; firstReps = 8; }
+    if (cfg.bw) { first = "Bodyweight"; firstReps = 5; }
     else if (cfg.hand) { first = key === "bss" ? "Bodyweight, per leg" : "Lightest dumbbells"; firstTxt = key === "bss" ? "BW" : "lightest"; if (key === "bss") firstReps = 8; }
     else { first = isDL ? "Light pull" : "Bar"; firstW = bar; }
     if (top <= firstW) {
@@ -334,7 +334,7 @@ td.kg { font-weight: 600; color: var(--accent); }
     }
     var list = [[first, firstTxt !== null ? firstTxt : show(firstW), firstReps, firstW > 0 ? Math.round(firstW / top * 100) + "%" : "-"]], prev = firstW, dropped = false;
     [[0.5, 5], [0.7, 3], [0.85, 2]].forEach(function (st) {
-      var w = snap(top * st[0], step);
+      var w = cfg.bw ? snap((bw + top) * st[0], step) - bw : snap(top * st[0], step);
       if (w <= prev || w >= top) { dropped = true; return; }
       list.push(["Set " + (list.length + 1), show(w), st[1], Math.round(st[0] * 100) + "%"]); prev = w;
     });

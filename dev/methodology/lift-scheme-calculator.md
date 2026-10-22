@@ -120,7 +120,7 @@ The page lists a warm-up ladder for a top set. The top set is the weight for a c
 
 ```
 barbell lifts:   bar x 10, 50% x 5, 70% x 3, 85% x 2, top set
-pull-up and dip: bodyweight x 8, then the same percentages of the ADDED weight
+pull-up and dip: bodyweight x 5, then 50%, 70% and 85% of TOTAL load (bodyweight + added), shown as added weight; steps at or below bodyweight are dropped
 dumbbell and split squat: lightest dumbbells x 10 (bodyweight x 8 per leg for the split squat),
                  then the same percentages of the per-hand weight
 ```
@@ -130,3 +130,5 @@ Weights are rounded to the page's step. A set that rounds to the same weight as 
 Deadlift: the first set is a "Light pull" of 10 reps at a starting weight you set (default 50 kg, P, 2026-10-22), not the bare bar, because nobody pulls the empty bar and the gym's bumper plates (5 to 25 kg) put the usual start between 30 and 70 kg. Other barbell lifts keep the bar weight.
 
 The ladder is the one P described (10 x bar, 10 x 50%, 5 x 70%, 2 to 3 x 85%), with 5 reps at 50% and 2 at 85% as my trims. It is a common convention, not from research. I know of no evidence that one scheme beats another. The reps and percentages are fixed on the page. A note advises 5 minutes or more of rest before a rep-max set (my suggestion).
+
+Changed 2026-10-22 (P: the old pull-up ladder was too hard). Percentages on the added weight alone made light top sets look like 8 bodyweight reps then three near-top steps. Total-load percentages ramp the real load. A light top set (for example +10 kg on 76 kg bodyweight) gets just 5 bodyweight reps before it.
