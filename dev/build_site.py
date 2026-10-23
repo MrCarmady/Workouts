@@ -82,8 +82,7 @@ START=[ # (question, tool file, tool title); titles must match the tools list
  ("I want to see a marathon plan's paces and weekly load.","marathon-plans.html","Marathon Plans"),
  ("I run and lift. How hard is my week in total?","hybrid-load-planner.html","Hybrid Load Planner"),
  ("I need paces for a threshold or tempo session.","run-session-generator.html","Sub-Threshold Session Generator"),
- ("I want to know if my weekly load is climbing too fast.","run-load-planner.html","Run Load Planner"),
- ("I stack hard sessions on back-to-back days. What does it do to my fatigue?","run-load-planner.html","Run Load Planner"),
+ ("I want to know if my weekly load is climbing too fast, and what stacking hard sessions on back-to-back days does to my fatigue.","run-load-planner.html","Run Load Planner"),
  ("I want to build a training block from a race result.","plan-builder.html","Plan Builder"),
  ("I cross-trained on a bike, rower or treadmill. How much load is that?","cross-training-tss.html","Cross-Training TSS"),
  ("I want working weights for a lifting scheme.","lift-scheme-calculator.html","1RM and Scheme Calculator"),
@@ -103,7 +102,7 @@ PAGECSS='''
 .start li { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; padding:11px 16px; }
 .start li + li { border-top:1px solid var(--line); }
 .start li span { flex:1 1 280px; min-width:0; }
-.start li a { font-weight:600; text-decoration:none; }
+.start li a { font-weight:600; text-decoration:none; white-space:nowrap; }
 .start li a:hover { text-decoration:underline; }
 .all { font-weight:600; font-size:.95rem; }
 nav.jump { display:flex; flex-wrap:wrap; gap:8px 20px; font-family:var(--font-display); font-weight:600; letter-spacing:.04em; text-transform:uppercase; font-size:.9rem; }
