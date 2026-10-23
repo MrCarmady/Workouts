@@ -82,7 +82,7 @@ START=[ # (question, tool file, tool title); titles must match the tools list
  ("I want to see a marathon plan's paces and weekly load.","marathon-plans.html","Marathon Plans"),
  ("I run and lift. How hard is my week in total?","hybrid-load-planner.html","Hybrid Load Planner"),
  ("I need paces for a threshold or tempo session.","run-session-generator.html","Sub-Threshold Session Generator"),
- ("I want to know if my weekly load is climbing too fast, and what stacking hard sessions on back-to-back days does to my fatigue.","run-load-planner.html","Run Load Planner"),
+ ("Is my load climbing too fast? What do back-to-back hard days do?","run-load-planner.html","Run Load Planner"),
  ("I want to build a training block from a race result.","plan-builder.html","Plan Builder"),
  ("I cross-trained on a bike, rower or treadmill. How much load is that?","cross-training-tss.html","Cross-Training TSS"),
  ("I want working weights for a lifting scheme.","lift-scheme-calculator.html","1RM and Scheme Calculator"),
