@@ -154,7 +154,7 @@ tr.easy td:first-child { padding-left: 11px; }
       <p class="struct" id="struct"></p>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Part</th><th>Reps</th><th>Length</th><th id="eqh">Time / distance</th><th>Pace /km</th></tr></thead>
+          <thead><tr><th>Part</th><th>Reps</th><th>Distance</th><th id="eqh">Time</th><th>Pace /km</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -385,9 +385,9 @@ tr.easy td:first-child { padding-left: 11px; }
     function add(label, reps, spec, pf, ps, cls, main) {
       if (reps < 1) return;
       var pm = (pf + ps) / 2, tMid, dMid, len, eq;
+      // Distance and time columns: the prescribed one is exact, the other is the equivalent ("ca." for a distance worked out from a time).
       if (spec.m != null) { dMid = spec.m; tMid = spec.m / 1000 * pm; len = distLabel(spec.m); eq = timeRange(spec.m / 1000 * pf, spec.m / 1000 * ps); }
-      else if (spec.swap) { tMid = spec.s; dMid = spec.s / pm * 1000; len = "ca. " + distLabel(round10(dMid)); eq = secLabel(spec.s); }   // timed rest shown as distance | time, to line up with the rep above it
-      else { tMid = spec.s; dMid = spec.s / pm * 1000; len = secLabel(spec.s); eq = "ca. " + distLabel(round10(dMid)); }
+      else { tMid = spec.s; dMid = spec.s / pm * 1000; len = "ca. " + distLabel(round10(dMid)); eq = secLabel(spec.s); }
       T += reps * tMid; Dm += reps * dMid; TSS += reps * tMid / 3600 * Math.pow(thr / pm, 2) * 100;
       if (main) { mainT += reps * tMid; mainD += reps * dMid; }
       rows.push('<tr class="' + cls + '"><td>' + label + "</td><td>" + reps + "</td><td>" + len + "</td><td>" + eq + '</td><td class="pace">' + rangeText(mmss(pf), mmss(ps)) + "</td></tr>");
@@ -397,7 +397,7 @@ tr.easy td:first-child { padding-left: 11px; }
     if (wuMin + cdMin > 0) {
       var wcT = (wuMin + cdMin) * 60;
       T += wcT; Dm += wcT / wcPace * 1000; TSS += wcT / 3600 * Math.pow(thr / wcPace, 2) * 100;
-      rows.push('<tr class="easy"><td>Warm-up and cool-down</td><td></td><td>' + wuMin + " + " + cdMin + ' min</td><td>ca. ' + distLabel(round10(wcT / wcPace * 1000)) + '</td><td class="pace">' + mmss(wcPace) + "</td></tr>");
+      rows.push('<tr class="easy"><td>Warm-up and cool-down</td><td></td><td>ca. ' + distLabel(round10(wcT / wcPace * 1000)) + '</td><td>' + wuMin + " + " + cdMin + ' min</td><td class="pace">' + mmss(wcPace) + "</td></tr>");
     }
 
     if (w.key === "tempo") {
@@ -455,7 +455,7 @@ tr.easy td:first-child { padding-left: 11px; }
       var py = raceP(5), rep800 = 0.8 * py;
       struct = o.reps + " × 800m, jog the same time between";
       add("At 5k pace", o.reps, { m: 800 }, py, py, "hard", true);
-      add("Jog", o.reps - 1, { s: Math.round(rep800), swap: true }, wcPace, wcPace, "easy", true);
+      add("Jog", o.reps - 1, { s: Math.round(rep800) }, wcPace, wcPace, "easy", true);
       var folk = Math.round(rep800) * 60, pred = mp * MAR, diff = pred - folk;
       notes.push("Old rule: " + mmss(rep800) + " per 800m means a " + hmmss(folk) + " marathon. Predicted: " + hmmss(pred) + ", " + mmss(Math.abs(diff)) + (diff >= 0 ? " slower" : " faster") + ".");
     } else if (w.key === "rosario") {

@@ -73,4 +73,4 @@ The float pace is race(5) + 25s per 800m. The page shows how far that float is f
 - TSS = hours × (threshold pace ÷ pace)² × 100, summed over every part.
 
 ## Results table layout
-Columns: Part, Reps, Length, Time / distance, Pace /km. For distance reps the time per rep comes first (seconds under a minute, e.g. 41–42s) and pace /km is secondary, because coaches give short reps as times. For timed reps the column shows the approximate distance. The warm-up and cool-down row has no rep count. Labels do not repeat the length.
+Columns: Part, Reps, Distance, Time, Pace /km. Every row fills both Distance and Time. The prescribed one is exact (distance reps: metres; timed reps and jogs: the time); the other is derived from the pace, with "ca." on a distance worked out from a time. Distance reps show a time range (e.g. 41–42s) because coaches give short reps as times. Jogs between reps use the same two columns, so figures line up with the rep above. The warm-up and cool-down row has no rep count. Labels do not repeat the length.
