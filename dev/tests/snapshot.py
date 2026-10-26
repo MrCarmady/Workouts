@@ -226,6 +226,7 @@ def scenarios():
     out.append(('marathon-plan-recommender','race date in the past rejected',cal('2026-10-10')))
     out.append(('marathon-plan-recommender','race date bad cap rejected',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','42'),fill(pg,'rdate','2027-03-15'),fill(pg,'rcap','0')]))
     out.append(('marathon-plan-recommender','race date 6 weeks away ctl 60 no ramp needed',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','60'),fill(pg,'rdate','2026-11-30')]))
+    out.append(('marathon-plan-recommender','chart pfitzinger week labels',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','38:43'),fill(pg,'ctl','50'),pg.click('#rows tr[data-n="Pfitzinger 12/55"]'),pg.evaluate("()=>{var c=document.getElementById('chartbox');var d=document.createElement('p');d.id='svgtxt';d.textContent='AXIS '+Array.prototype.map.call(document.querySelectorAll('#chart text'),function(t){return t.textContent}).join(' | ');c.appendChild(d)}")]))
     out.append(('marathon-plan-recommender','chart hansons beginner table',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','38:43'),fill(pg,'ctl','50'),pg.click('#rows tr[data-n="Hansons Beginner"]'),pg.click('#cbtn')]))
     out.append(('marathon-plan-recommender','defaults',lambda pg:None))
     out.append(('marathon-plan-recommender','18:45 ctl 50',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','50')]))

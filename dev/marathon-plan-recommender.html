@@ -1159,7 +1159,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     });
     var nw = sel.seq.length, step = W < 520 ? (nw > 12 ? 4 : 2) : nw > 20 ? 4 : nw > 10 ? 2 : 1;
     var off = 0;
-    sel.seq.forEach(function (wo, i) { if (i % step === 0) svg.appendChild(se("text", { x: X(off + wo.d7.length / 2), y: H - 8, "text-anchor": "middle" }, wo.lab || "W" + (i + 1))); off += wo.d7.length; });
+    sel.seq.forEach(function (wo, i) { if (i % step === 0) svg.appendChild(se("text", { x: X(off + wo.d7.length / 2), y: H - 8, "text-anchor": "middle" }, (wo.lab && wo.lab.indexOf("<") < 0 ? wo.lab : "W" + (i + 1)))); off += wo.d7.length; });
     svg.appendChild(se("line", { x1: m.l, x2: W - m.r, y1: Y(FLOOR), y2: Y(FLOOR), "class": "ref" }));
     svg.appendChild(se("text", { x: m.l + 4, y: Y(FLOOR) - 4 }, "Form floor " + FLOOR));
     if (sel.mark > 0) {
