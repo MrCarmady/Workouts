@@ -145,3 +145,7 @@ The same page also lays out six routines from The Fitness Wiki. They are summari
 **Not published or chosen by me:** The sources give pounds. Steps are converted to kg as 2.5 lb to 1.25 kg, 5 lb to 2.5 kg and 10 lb to 5 kg. Example start weights are placeholders. Tables assume no missed sessions and no stage changes. The 5/3/1 page lists each lift's day and the three-week percentages separately and applies the same sets to every appearance of a lift (squat and bench appear twice a week). The estimated 1RM uses the same Brzycki and Epley average as above.
 
 **nSuns LP specifics:** the sheet's 6-day versions compute the press training max from the wrong 1RM (bench in the deadlift-focus sheet, deadlift in the squat-focus sheet). The page uses the press 1RM. The sheet leaves the 6-day squat-focus Saturday row name blank, so it is labelled Squat. The sheet's weight rounding is 5 lb or 2.5 kg, the page uses a choice of 1.25, 2.5 or 5 kg. The sheet does not give assistance sets or reps.
+
+## Fixed weights, marking (2026-10-26)
+
+A `*` after a weight marks an exception: a weight that moves by a rule rather than by session while the rest of the routine progresses (GZCLP's T3 lifts). The note explaining `*` shows only on routines that have such exceptions. In a routine where every tracked weight moves by a rule (Dumbbell Stopgap, Dumbbell PPL), no weight is starred. A line under the routine's heading says the table shows starting weights and that you go up one dumbbell step at the top of the rep range.

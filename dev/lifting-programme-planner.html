@@ -132,6 +132,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
 
   <section class="panel" id="other" hidden>
     <h2 style="margin:0" id="otitle"></h2>
+    <p class="note" id="ofixed" style="margin:0" hidden></p>
     <div class="fields" id="ofields"></div>
     <p class="warn" id="owarn" hidden></p>
     <div class="tablewrap"><table><thead id="ohead"></thead><tbody id="obody"></tbody></table></div>
@@ -146,7 +147,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
 
   <section class="method" id="mot" hidden>
     <h2>How the other programmes are calculated</h2>
-    <p>The tables show the sessions you would do if every one went as written. Weights start from the numbers you enter and rise by each routine's own per-session step. Stalls, deloads and stage changes depend on your reps, so a table is a projection, not a prescription. Weights marked * move by a rule, not by session.</p>
+    <p>The tables show the sessions you would do if every one went as written. Weights start from the numbers you enter and rise by each routine's own per-session step. Stalls, deloads and stage changes depend on your reps, so a table is a projection, not a prescription. <span id="astnote">A * marks a weight that moves by a rule, not by session.</span></p>
     <p>The sources give pounds. Steps are converted to practical kilograms: 2.5 lb becomes 1.25 kg, 5 lb becomes 2.5 kg and 10 lb becomes 5 kg. The 5/3/1 training max is 90% of a 1RM estimated from your set, using the same Brzycki and Epley average as above. Rules are summarised in our own words. Check each source for the full text.</p>
   </section>
 </main>
@@ -288,6 +289,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
     var isO = !!OTHER[prog];
     ["lifts", "addwrap", "mtb", "bwl"].forEach(function (id) { $(id).hidden = isO; });
     $("other").hidden = !isO; $("mot").hidden = !isO;
+    $("astnote").hidden = !isO || OTHER[prog].allfixed || !OTHER[prog].slots || !Object.keys(OTHER[prog].slots).some(function (k) { return OTHER[prog].slots[k].fixed; });
     if (isO) { $("zwarn").hidden = true; $("daysnote").textContent = OTHER[prog].days; renderOther(); return; }
     $("daysnote").textContent = PROGRAMS[prog].days;
     $("lifts").innerHTML = rows.map(buildRow).join("");
@@ -588,6 +590,11 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
       ]
     }
   };
+  // A routine whose weights all move by a rule says so once, under its heading, instead of marking every exercise.
+  var FIXEDNOTE = "Weights do not rise by a set amount each session. You go up one dumbbell step when you reach the top of the rep range, so the table shows starting weights.";
+  Object.keys(OTHER).forEach(function (k) {
+    var sl = OTHER[k].slots; if (!sl) return; OTHER[k].allfixed = Object.keys(sl).every(function (i) { return sl[i].nw || sl[i].fixed; }) && Object.keys(sl).some(function (i) { return sl[i].fixed; });
+  });
   var WAVE = [
     { reps: ["5", "5", "5+"], p: [0.65, 0.75, 0.85], fsl: 0.65 },
     { reps: ["3", "3", "3+"], p: [0.70, 0.80, 0.90], fsl: 0.70 },
@@ -635,11 +642,11 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
     if (!D.sheet) h += '<label>Weeks shown<select data-o="weeks">' + D.weeksOpts.map(function (x) { return opt(x, x, x === s.weeks); }).join("") + '</select></label>';
     return h;
   }
-  function loadText(S, w, c) {
+  function loadText(S, w, c, D) {
     if (S.nw) return "—";
     var val = w + (S.fixed ? 0 : S.inc * c);
     var t = S.bw ? (val === 0 ? "BW" : "+" + kg(val)) : kg(val);
-    return t + (S.hand ? " /hand" : "") + (S.fixed ? " *" : "");
+    return t + (S.hand ? " /hand" : "") + (S.fixed && !(D && D.allfixed) ? " *" : "");
   }
   function waveItem(D, s, id, wk) {
     var l = D.lifts.filter(function (x) { return x.id === id; })[0];
@@ -680,7 +687,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
       D.sched.forEach(function (d) {
         d.s.forEach(function (id, j) {
           var S = D.slots[id];
-          html += "<tr>" + (j === 0 ? "<td class='wk' rowspan='" + d.s.length + "'>" + d.n + "</td>" : "") + "<td class='ex'>" + esc(S.n) + "</td><td>" + S.s + "</td><td class='kg'>" + loadText(S, s.w[id], 0) + "</td></tr>";
+          html += "<tr>" + (j === 0 ? "<td class='wk' rowspan='" + d.s.length + "'>" + d.n + "</td>" : "") + "<td class='ex'>" + esc(S.n) + "</td><td>" + S.s + "</td><td class='kg'>" + loadText(S, s.w[id], 0, D) + "</td></tr>";
         });
       });
       body.innerHTML = html; return;
@@ -691,7 +698,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
       day.s.forEach(function (id) {
         if (D.kind === "wave") { items.push(waveItem(D, s, id, wk)); return; }
         var S = D.slots[id], c = cnt[id] || 0; cnt[id] = c + 1;
-        items.push({ n: esc(S.n), sch: S.s, load: loadText(S, s.w[id], c) });
+        items.push({ n: esc(S.n), sch: S.s, load: loadText(S, s.w[id], c, D) });
       });
       ses.push({ wk: wk + 1, ses: k % D.per + 1, day: day.n, items: items });
       wkRows[wk + 1] = (wkRows[wk + 1] || 0) + items.length;
@@ -712,6 +719,7 @@ small.tm { color: var(--muted); font-weight: 500; margin-left: 6px; }
   function renderOther() {
     var D = OTHER[prog], s = othState(prog);
     $("otitle").textContent = D.name;
+    $("ofixed").hidden = !D.allfixed; $("ofixed").textContent = D.allfixed ? FIXEDNOTE : "";
     $("ofields").innerHTML = otherFields(D, s);
     var notes = D.rules.map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("");
     $("onotes").innerHTML = notes + '<li>Source: ' + (D.srcNote ? esc(D.srcNote) + ' Wiki page: ' : '') + '<a href="' + D.src + '" target="_blank" rel="noopener">' + D.src.replace("https://", "") + '</a></li>';
