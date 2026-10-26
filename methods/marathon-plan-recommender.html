@@ -104,6 +104,20 @@ a { color:var(--accent); }
 <li>0 = start at week 1, no skipping. "Never reaches your load" is flagged if no week gets there.</li>
 <li>Peak 4-week TSS/day is taken from the join week on.</li>
 </ul>
+<h3>Race date and ramp</h3>
+<p>Optional. With a race date, the page plans the calendar as well as the load. Blank = the behaviour above, unchanged.</p>
+<ul>
+<li>Plan placement: the plan's last day is race day, so a plan of L weeks starts 7 x L - 1 days before it. Days between today and that start are spare.</li>
+<li>Ramp (Pavel's choices, 2026-10-26): the page finds, for each plan, the lowest CTL at which the plan passes the fit test when it starts. It reaches that CTL by the slowest ramp: a straight rise in CTL spread over all the spare days. The rise may not exceed the weekly cap (default 1.0 CTL per week, Pavel's choice; input limit 0.1 to 10 is mine).</li>
+<li>Daily load for the ramp comes from CTL's own update rule: TSS = CTL(yesterday) + (CTL(today) - CTL(yesterday)) / k, with k = 1 - exp(-1/42). ATL is run on the same daily loads, so ATL at the plan start is real. After a ramp it sits above CTL, by about 5 points for every 1.0 CTL a week of ramp.</li>
+<li>The plan's fit test then starts from the ramp's end CTL and ATL. The ramp's own form is not tested.</li>
+<li>If the plan fits with no ramp, the current load is held until it starts, so ATL settles to CTL. A tired start ATL therefore recovers during the spare days.</li>
+<li>If the plan does not fit even at the cap, the table says how many more weeks of ramp it needs (found by search, up to 52 weeks; "does not fit at this rate" beyond that).</li>
+<li>If there are fewer weeks than the plan has, the plan is joined part-way at the next week boundary, holding the current load until then. Spare days of fewer than a week are held. A race less than one plan-week away shows "Race is too soon".</li>
+<li>Join percentage is not used when a race date is set (the input is disabled). A ramp makes the load-based skip unnecessary.</li>
+<li>Columns change: Result moves next to the plan name; Plan starts and Ramp to CTL replace Joins week.</li>
+<li>Limits: the cap applies to the ramp only. The plans themselves raise CTL faster than that once they start (Copeland add-on at CTL 42 rises about 3 CTL a week in its first weeks). Session content for the ramp weeks is not planned.</li>
+</ul>
 <h3>Estimating CTL from recent hours</h3>
 <ul>
 <li>Inputs: average hours per week over the last 6 weeks, hours in the last 7 days (blank = same as average), and a rough percentage of running time at threshold or harder (blank = 15, limit 0 to 50, my limit).</li>

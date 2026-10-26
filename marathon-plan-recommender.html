@@ -188,6 +188,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       <label>Join plan once load is (% of yours)
         <input id="join" type="text" inputmode="decimal" autocomplete="off" value="85">
       </label>
+      <label>Race date (optional)
+        <input id="rdate" type="date" value="">
+      </label>
+      <label>Max CTL rise per week
+        <input id="rcap" type="text" inputmode="decimal" autocomplete="off" value="1.0">
+      </label>
       <label>Easy pace (% of 5km speed)
         <input id="ezp" type="text" inputmode="decimal" autocomplete="off" value="65">
       </label>
@@ -199,7 +205,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 
   <section class="panel">
     <h2>Don't know your CTL?</h2>
-    <p class="note">Estimate it from your recent running. This is a rough estimate: it assumes your training was steady and uses a typical TSS per hour for your race time, with easy running at your average easy pace, or 65% of 5km speed if you leave it blank. Slower easy running than you enter makes the estimate run high, faster makes it run low. A CTL from your watch or training log is better.</p>
+    <p class="note">Rough estimate from your recent running. It assumes steady training and a typical TSS per hour for your race time. Easy pace defaults to 65% of 5km speed. If the pace you enter is faster than you really run, the estimate comes out too high; if slower, too low. A CTL from your watch or training log is better.</p>
     <div class="grid4">
       <label>Average hours per week, last 6 weeks
         <input id="eh" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="6.5 or 6:30">
@@ -1082,13 +1088,54 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   }
 
 
+  // ---- Race date: ramp from today to the plan's first day ----
+  var MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], DAYMS = 86400000;
+  function todayUTC() { var n = new Date(); return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()); }
+  function parseDate(v) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v); if (!m) return null;
+    var t = Date.UTC(+m[1], +m[2] - 1, +m[3]), d = new Date(t);
+    return d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3] ? t : null;
+  }
+  function dshort(t) { var d = new Date(t); return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getUTCDay()] + " " + d.getUTCDate() + " " + MN[d.getUTCMonth()]; }
+  function dlab(t) { var d = new Date(t); return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getUTCDay()] + " " + d.getUTCDate() + " " + MN[d.getUTCMonth()] + " " + d.getUTCFullYear(); }
+  // Daily TSS that lifts CTL in a straight line from c0 to T over D days (x = c + (c' - c) / KC, from CTL's own update rule).
+  function rampDays(c0, T, D) {
+    var out = [], c = c0;
+    for (var t = 1; t <= D; t++) { var nc = c0 + (T - c0) * t / D; out.push(Math.max(0, c + (nc - c) / KC)); c = nc; }
+    return out;
+  }
+  function endState(lead, c, a) { lead.forEach(function (x) { c += (x - c) * KC; a += (x - a) * KA; }); return { c: c, a: a }; }
+  function fitFor(weeks, lead, c0, a0, floor, maxr) {
+    var st = endState(lead, c0, a0), s = sim(weeks, st.c, st.a);
+    return { st: st, s: s, ok: s.minF >= floor - 1e-9 && s.maxR <= maxr + 1e-9 };
+  }
+  // Lowest end CTL (so the slowest ramp, spread over all D days) at which the plan passes, rising no faster than cap CTL per week.
+  function scanRamp(weeks, D, c0, a0, cap, floor, maxr, step) {
+    var top = c0 + cap * D / 7, last = null;
+    for (var k = 0; ; k++) {
+      var T = Math.min(c0 + k * step, top), lead = rampDays(c0, T, D), f = fitFor(weeks, lead, c0, a0, floor, maxr);
+      last = { ok: f.ok, T: T, lead: lead, f: f };
+      if (f.ok || T >= top - 1e-9) return last;
+    }
+  }
+  // Extra weeks of ramp needed when the weeks you have are not enough (more time never hurts, so a binary search is safe).
+  function moreWeeks(weeks, D, c0, a0, cap, floor, maxr) {
+    var lo = 1, hi = 52;
+    function ok(e) { return scanRamp(weeks, D + 7 * e, c0, a0, cap, floor, maxr, 0.5).ok; }
+    if (!ok(hi)) return null;
+    while (lo < hi) { var mid = (lo + hi) >> 1; if (ok(mid)) hi = mid; else lo = mid + 1; }
+    return lo;
+  }
+
   // ---- Load chart for the chosen plan ----
+  var ORIGHEAD = null, CALHEAD = '<th>Plan</th><th class="q2">Result</th><th class="num">Plan<br>starts</th><th class="num">Ramp to<br>CTL</th><th class="num">Weeks</th><th class="num">First week<br>TSS/day</th><th class="num">Peak 4-wk<br>TSS/day</th><th class="num">Avg time<br>/week</th><th class="num">Peak time<br>/week</th><th class="num">Lowest<br>TSB</th><th class="num">Highest<br>A:C</th>';
   var RES = [], C0 = 0, A0 = 0, FLOOR = -20, SELN = null, SER = null, CIDX = -1, DN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   var SVGNS = "http://www.w3.org/2000/svg";
   function se(n, at, txt) { var e = document.createElementNS(SVGNS, n); for (var k in at) e.setAttribute(k, at[k]); if (txt !== undefined) e.textContent = txt; return e; }
   function series(x) {
     var c = C0, a = A0, o = [{ w: 0, d: -1, c: c, a: a }];
-    x.seq.forEach(function (w, i) { w.d7.forEach(function (t, d) { c += (t - c) * KC; a += (t - a) * KA; o.push({ w: i + 1, d: d, c: c, a: a }); }); });
+    var k = 0;
+    x.seq.forEach(function (w, i) { w.d7.forEach(function (t, d) { c += (t - c) * KC; a += (t - a) * KA; o.push({ w: i + 1, d: d, c: c, a: a, dt: x.t0 === undefined ? null : x.t0 + k * DAYMS, tag: w.tag }); k++; }); });
     return o;
   }
   function nice(lo, hi, n) {
@@ -1100,11 +1147,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   function drawChart() {
     var box = $("chartbox"), sel = null;
     RES.forEach(function (x) { if (x.name === SELN) sel = x; });
-    if (!sel) { box.hidden = true; return; }
+    if (!sel || sel.soon) { box.hidden = true; return; }
     box.hidden = false;
     var svg0 = $("chart"), S = series(sel); SER = S;
     $("ctitle").textContent = sel.name + ": CTL, ATL and form";
-    $("csub").textContent = "Daily values from your start CTL " + C0.toFixed(0) + " and ATL " + A0.toFixed(0) + (sel.j > 0 ? ", holding your current load until week " + (sel.j + 1) + "." : ".") + " Click another plan in the table to change it.";
+    $("csub").textContent = sel.cal ? "Daily values from today, CTL " + C0.toFixed(0) + " and ATL " + A0.toFixed(0) + ". " + sel.calnote + " Click another plan in the table to change it."
+      : "Daily values from your start CTL " + C0.toFixed(0) + " and ATL " + A0.toFixed(0) + (sel.j > 0 ? ", holding your current load until week " + (sel.j + 1) + "." : ".") + " Click another plan in the table to change it.";
     var W = Math.max(300, Math.min(760, svg0.parentNode.clientWidth || 760)), H = W < 520 ? 270 : 320, m = { l: 34, r: W < 520 ? 62 : 74, t: 14, b: 28 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
     var lo = FLOOR, hi = 0;
     S.forEach(function (p) { lo = Math.min(lo, p.c - p.a); hi = Math.max(hi, p.c, p.a); });
@@ -1117,12 +1165,13 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       svg.appendChild(se("text", { x: m.l - 6, y: Y(v) + 4, "text-anchor": "end" }, String(v)));
     });
     var nw = sel.seq.length, step = W < 520 ? (nw > 12 ? 4 : 2) : nw > 20 ? 4 : nw > 10 ? 2 : 1;
-    for (var wk = 1; wk <= nw; wk += step) svg.appendChild(se("text", { x: X((wk - 1) * 7 + 3.5), y: H - 8, "text-anchor": "middle" }, "W" + wk));
+    var off = 0;
+    sel.seq.forEach(function (wo, i) { if (i % step === 0) svg.appendChild(se("text", { x: X(off + wo.d7.length / 2), y: H - 8, "text-anchor": "middle" }, wo.lab || "W" + (i + 1))); off += wo.d7.length; });
     svg.appendChild(se("line", { x1: m.l, x2: W - m.r, y1: Y(FLOOR), y2: Y(FLOOR), "class": "ref" }));
     svg.appendChild(se("text", { x: m.l + 4, y: Y(FLOOR) - 4 }, "Form floor " + FLOOR));
-    if (sel.j > 0) {
-      svg.appendChild(se("line", { x1: X(sel.j * 7), x2: X(sel.j * 7), y1: m.t, y2: H - m.b, "class": "ref" }));
-      svg.appendChild(se("text", { x: X(sel.j * 7) + 4, y: m.t + 10 }, "Joins W" + (sel.j + 1)));
+    if (sel.mark > 0) {
+      svg.appendChild(se("line", { x1: X(sel.mark), x2: X(sel.mark), y1: m.t, y2: H - m.b, "class": "ref" }));
+      svg.appendChild(se("text", { x: X(sel.mark) + 4, y: m.t + 10 }, sel.marklab));
     }
     var KEYS = [["c", "CTL", "--c-ctl"], ["a", "ATL", "--c-atl"], ["f", "Form", "--c-tsb"]];
     KEYS.forEach(function (k) {
@@ -1138,9 +1187,11 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     svg.__g = { X: X, Y: Y, N: N, W: W, m: m, hair: hair, dots: dots };
     // table
     var rows = ["<table><thead><tr><th>Week</th><th class='num'>Plan TSS/day</th><th class='num'>CTL</th><th class='num'>ATL</th><th class='num'>Form</th><th class='num'>ATL / CTL</th></tr></thead><tbody>"];
+    var acc = 0;
     sel.seq.forEach(function (w, i) {
-      var p = S[(i + 1) * 7], tss = sumArr(w.d7) / 7;
-      rows.push("<tr><td>W" + (i + 1) + (i < sel.j ? " (held)" : "") + "</td><td class='num'>" + tss.toFixed(0) + "</td><td class='num'>" + p.c.toFixed(1) + "</td><td class='num'>" + p.a.toFixed(1) + "</td><td class='num'>" + sgn(p.c - p.a) + "</td><td class='num'>" + (p.a / p.c).toFixed(2) + "</td></tr>");
+      acc += w.d7.length;
+      var p = S[acc], tss = sumArr(w.d7) / w.d7.length;
+      rows.push("<tr><td>" + (w.tag ? w.tag.replace("Plan week ", "W").replace("Ramp week ", "Ramp ") : "W" + (i + 1) + (i < sel.j ? " (held)" : "")) + "</td><td class='num'>" + tss.toFixed(0) + "</td><td class='num'>" + p.c.toFixed(1) + "</td><td class='num'>" + p.a.toFixed(1) + "</td><td class='num'>" + sgn(p.c - p.a) + "</td><td class='num'>" + (p.a / p.c).toFixed(2) + "</td></tr>");
     });
     $("ctab").innerHTML = rows.join("") + "</tbody></table><p class='note'>Values at the end of each week.</p>";
   }
@@ -1151,7 +1202,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     g.hair.setAttribute("x1", g.X(i)); g.hair.setAttribute("x2", g.X(i)); g.hair.setAttribute("visibility", "visible");
     [p.c, p.a, f].forEach(function (v, k) { g.dots[k].setAttribute("cx", g.X(i)); g.dots[k].setAttribute("cy", g.Y(v)); g.dots[k].setAttribute("visibility", "visible"); });
     tip.textContent = "";
-    var h = document.createElement("div"); h.className = "h"; h.textContent = p.w === 0 ? "Start" : "Week " + p.w + ", " + DN[p.d]; tip.appendChild(h);
+    var h = document.createElement("div"); h.className = "h"; h.textContent = p.w === 0 ? "Start" : p.dt !== null ? dlab(p.dt) + ", " + p.tag.toLowerCase() : "Week " + p.w + ", " + DN[p.d]; tip.appendChild(h);
     [["CTL", p.c, "--c-ctl"], ["ATL", p.a, "--c-atl"], ["Form", f, "--c-tsb"]].forEach(function (r) {
       var d = document.createElement("div"); d.className = "r";
       var l = document.createElement("span"), ic = document.createElement("i"); ic.style.borderColor = "var(" + r[2] + ")"; l.appendChild(ic); l.appendChild(document.createTextNode(r[0]));
@@ -1189,22 +1240,72 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     if (t === null || t <= 0) return fail("Enter a race time like 18:54, 1854 or 1:32:10.");
     var vd = vdot(t / 60, D * 1000);
     if (vd < 15 || vd > 85) return fail("That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of 15 to 85. Check the distance and time.");
-    var c0 = num("ctl"), a0 = num("atl"), floor = num("floor"), maxr = num("maxr"), jp = num("join");
+    var c0 = num("ctl"), a0 = num("atl"), floor = num("floor"), maxr = num("maxr"), jp = num("join"), rdv = ($("rdate").value || "").trim(), cap = num("rcap");
     if (c0 === null || !isFinite(c0) || c0 < 5 || c0 > 200) return fail("Start CTL must be a number from 5 to 200.");
     if (a0 === null) a0 = c0;
     if (!isFinite(a0) || a0 < 1 || a0 > 300) return fail("Start ATL must be a number from 1 to 300, or blank to use the CTL.");
     if (floor === null || !isFinite(floor) || floor > 0 || floor < -60) return fail("Lowest form must be a number from -60 to 0.");
     if (maxr === null || !isFinite(maxr) || maxr < 1 || maxr > 3) return fail("Highest ATL / CTL must be a number from 1 to 3.");
     if (jp === null || !isFinite(jp) || jp < 0 || jp > 100) return fail("Join percentage must be a number from 0 to 100. 0 means start every plan at week 1.");
+    var rd = null, today = todayUTC(), Davail = 0;
+    if (rdv !== "") {
+      rd = parseDate(rdv);
+      if (rd === null) return fail("Enter the race date as a date, or leave it blank.");
+      Davail = Math.round((rd - today) / DAYMS);
+      if (Davail < 1) return fail("The race date must be after today.");
+      if (Davail > 730) return fail("The race date must be within two years.");
+      if (cap === null || !isFinite(cap) || cap < 0.1 || cap > 10) return fail("Max CTL rise per week must be a number from 0.1 to 10.");
+    }
+    $("join").disabled = rd !== null;
+    // With a race date the Result column moves next to the plan name, so it stays on screen, and Plan starts and Ramp to CTL replace Joins week.
+    var hr = document.querySelector("#resbox thead tr");
+    if (ORIGHEAD === null) ORIGHEAD = hr.innerHTML;
+    hr.innerHTML = rd === null ? ORIGHEAD : CALHEAD;
     var pv = pers(); if (pv.err) return fail(pv.err);
     U = "mi";
     var riegel5 = t * Math.pow(5 / D, K) / 5, p5 = riegel5 + adj(D), c = { D: D, t: t, riegel5: riegel5, p5: p5 };
     var res = [];
+    var planStats = function (w, j) {
+      var tp = w.map(function (x) { return sumArr(x.d7); }).slice(j), pk = 0;
+      for (var i = 0; i + 4 <= tp.length; i++) pk = Math.max(pk, sumArr(tp.slice(i, i + 4)) / 28);
+      var ws = w.slice(j, w.length - 1).map(function (x) { return x.sec; });
+      return { w1: tp[0] / 7, pk: pk, avgS: ws.length ? sumArr(ws) / ws.length : 0, maxS: ws.length ? Math.max.apply(null, ws) : 0 };
+    };
+    var span = function (d) { return d % 7 === 0 ? d / 7 + (d === 7 ? " week" : " weeks") : d < 7 ? d + (d === 1 ? " day" : " days") : Math.floor(d / 7) + " weeks " + d % 7 + (d % 7 === 1 ? " day" : " days"); };
     LIST.forEach(function (p) {
       SHIM.week.value = String(p[3]);
       var r = MODS[p[0]].build(p[1], c);
       if (r.err) return;
       var w = r.weeks, tss = w.map(function (x) { return sumArr(x.d7); }), pk = 0, j = 0, light = false;
+      if (rd !== null) {
+        // Race date given: the plan's last day is race day, so it starts L x 7 - 1 days before it. Spare days before that are a ramp from today.
+        var L = w.length, Dd = Davail - (7 * L - 1), seqc = [], row = { name: p[2], weeks: L, cal: true, t0: today, light: false, mode: "ramp", need: null, T: c0 };
+        if (Dd >= 0) {
+          var sc = scanRamp(w, Dd, c0, a0, cap, floor, maxr, 0.1), rem = Dd % 7, nR = Math.ceil(Dd / 7), pos = 0, f = sc.f, st = planStats(w, 0), ramped = sc.T > c0 + 0.05;
+          for (var q = 0; q < nR; q++) { var len = q === 0 && rem ? rem : 7; seqc.push({ d7: sc.lead.slice(pos, pos + len), tag: "Ramp week " + (q + 1) + (len < 7 ? " (" + len + (len === 1 ? " day)" : " days)") : ""), lab: "R" + (q + 1) }); pos += len; }
+          w.forEach(function (x, i) { seqc.push({ d7: x.d7, tag: "Plan week " + (i + 1), lab: "W" + (i + 1) }); });
+          row.D = Dd; row.T = sc.T; row.stC = f.st.c; row.stA = f.st.a; row.ramped = ramped; row.fits = sc.ok;
+          row.need = sc.ok ? null : moreWeeks(w, Dd, c0, a0, cap, floor, maxr);
+          row.start = dshort(today + Dd * DAYMS); row.join = 1; row.j = 0; row.mark = Dd; row.marklab = "Plan starts";
+          row.calnote = Dd === 0 ? "The plan starts today."
+            : ramped ? "A " + span(Dd) + " ramp takes CTL from " + c0.toFixed(0) + " to " + sc.T.toFixed(1) + " (ATL " + f.st.a.toFixed(0) + " when the plan starts on " + dlab(today + Dd * DAYMS) + ")."
+            : "Hold your current load for " + span(Dd) + " (ATL settles to " + f.st.a.toFixed(0) + "), then the plan starts on " + dlab(today + Dd * DAYMS) + ".";
+          row.seq = seqc; row.w1 = st.w1; row.pk = st.pk; row.avgS = st.avgS; row.maxS = st.maxS;
+          row.minF = f.s.minF; row.wF = f.s.wF; row.maxR = f.s.maxR; row.wR = f.s.wR; row.okF = f.s.minF >= floor - 1e-9; row.okR = f.s.maxR <= maxr + 1e-9;
+        } else {
+          var j2 = Math.ceil(-Dd / 7);
+          if (j2 >= L) { row.mode = "soon"; row.soon = true; row.join = 0; row.okF = false; row.okR = false; row.seq = []; row.w1 = row.pk = row.avgS = row.maxS = row.minF = row.maxR = 0; res.push(row); return; }
+          var gap = 7 * j2 + Dd, lead = []; for (var g = 0; g < gap; g++) lead.push(c0);
+          var ws2 = w.slice(j2), f2 = fitFor(ws2, lead, c0, a0, floor, maxr), st2 = planStats(w, j2);
+          if (gap > 0) seqc.push({ d7: lead, tag: "Hold", lab: "H" });
+          ws2.forEach(function (x, i) { seqc.push({ d7: x.d7, tag: "Plan week " + (j2 + i + 1), lab: "W" + (j2 + i + 1) }); });
+          row.mode = "late"; row.D = Dd; row.j = j2; row.join = j2 + 1; row.mark = gap; row.marklab = "Joins W" + (j2 + 1); row.fits = f2.ok; row.start = "Week " + (j2 + 1);
+          row.calnote = "Not enough weeks for the whole plan, so it is joined at week " + (j2 + 1) + (gap > 0 ? ", holding your current load for " + span(gap) + " until then." : ".");
+          row.seq = seqc; row.w1 = st2.w1; row.pk = st2.pk; row.avgS = st2.avgS; row.maxS = st2.maxS;
+          row.minF = f2.s.minF; row.wF = f2.s.wF + j2; row.maxR = f2.s.maxR; row.wR = f2.s.wR + j2; row.okF = f2.s.minF >= floor - 1e-9; row.okR = f2.s.maxR <= maxr + 1e-9;
+        }
+        res.push(row); return;
+      }
       // Weeks that are lighter than your current load are skipped: you keep running at your current load until the plan catches up.
       var need = jp / 100 * 7 * c0;
       if (jp > 0) {
@@ -1218,19 +1319,32 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       for (var i = 0; i + 4 <= tp.length; i++) pk = Math.max(pk, sumArr(tp.slice(i, i + 4)) / 28);
       var ws = w.slice(j, w.length - 1).map(function (x) { return x.sec; }), avgS = ws.length ? sumArr(ws) / ws.length : 0, maxS = ws.length ? Math.max.apply(null, ws) : 0;
       var okF = s.minF >= floor - 1e-9, okR = s.maxR <= maxr + 1e-9;
-      res.push({ seq: seq, j: j, name: p[2], weeks: w.length, join: j + 1, light: light, w1: tp[0] / 7, pk: pk, avgS: avgS, maxS: maxS, minF: s.minF, wF: s.wF, maxR: s.maxR, wR: s.wR, okF: okF, okR: okR });
+      res.push({ mark: j > 0 ? j * 7 : 0, marklab: "Joins W" + (j + 1), seq: seq, j: j, name: p[2], weeks: w.length, join: j + 1, light: light, w1: tp[0] / 7, pk: pk, avgS: avgS, maxS: maxS, minF: s.minF, wF: s.wF, maxR: s.maxR, wR: s.wR, okF: okF, okR: okR });
     });
     var fits = res.filter(function (x) { return x.okF && x.okR; });
     var top = null; fits.forEach(function (x) { if (!top || x.pk > top.pk) top = x; });
-    $("rtitle").textContent = "Plans from CTL " + c0.toFixed(0) + ", ATL " + a0.toFixed(0);
-    $("summary").textContent = fits.length === 0 ? "None of the " + res.length + " plans fit." : fits.length + " of " + res.length + " plans fit. The most demanding that fits is " + top.name + ", peaking at " + top.pk.toFixed(0) + " TSS a day.";
+    $("rtitle").textContent = "Plans from CTL " + c0.toFixed(0) + ", ATL " + a0.toFixed(0) + (rd !== null ? ", race on " + dlab(rd) : "");
+    if (rd !== null) $("summary").textContent = (fits.length === 0 ? "None of the " + res.length + " plans fit" : fits.length + " of " + res.length + " plans fit") + " in the " + span(Davail) + " to the race, with CTL rising at most " + cap + " a week." + (top ? " The most demanding that fits is " + top.name + ", peaking at " + top.pk.toFixed(0) + " TSS a day." : "");
+    else $("summary").textContent = fits.length === 0 ? "None of the " + res.length + " plans fit." : fits.length + " of " + res.length + " plans fit. The most demanding that fits is " + top.name + ", peaking at " + top.pk.toFixed(0) + " TSS a day.";
     $("rows").innerHTML = res.map(function (x) {
       var msg = [];
       if (!x.okF) msg.push("TSB " + sgn(x.minF) + " in W" + x.wF);
       if (!x.okR) msg.push("A:C " + x.maxR.toFixed(2) + " in W" + x.wR);
       var cell = msg.length ? "<span class='flag red'>" + msg.join("; ") + "</span>" : "Fits";
       if (x.light) cell += " <span class='flag'>Never reaches your load</span>";
-      return "<tr class='pick" + (x.name === SELN ? " sel" : "") + "' tabindex='0' data-n='" + x.name + "'><td>" + x.name + "</td><td class='num'>" + x.weeks + "</td><td class='num'>" + x.join + "</td><td class='num'>" + x.w1.toFixed(0) + "</td><td class='num'>" + x.pk.toFixed(0) + "</td><td class='num'>" + hm(x.avgS) + "</td><td class='num'>" + hm(x.maxS) + "</td><td class='num'>" + sgn(x.minF) + "</td><td class='num'>" + x.maxR.toFixed(2) + "</td><td class='q2'>" + cell + "</td></tr>";
+      var head = "<tr class='pick" + (x.name === SELN ? " sel" : "") + "' tabindex='0' data-n='" + x.name + "'><td>" + x.name + "</td>";
+      if (!x.cal) return head + "<td class='num'>" + x.weeks + "</td><td class='num'>" + x.join + "</td><td class='num'>" + x.w1.toFixed(0) + "</td><td class='num'>" + x.pk.toFixed(0) + "</td><td class='num'>" + hm(x.avgS) + "</td><td class='num'>" + hm(x.maxS) + "</td><td class='num'>" + sgn(x.minF) + "</td><td class='num'>" + x.maxR.toFixed(2) + "</td><td class='q2'>" + cell + "</td></tr>";
+      var dash = "<td class='num'>-</td>", when, ramp;
+      if (x.soon) { cell = "<span class='flag red'>Race is too soon for this plan</span>"; when = dash; ramp = dash; }
+      else {
+        if (x.mode === "ramp") {
+          if (x.fits) cell = x.D === 0 ? "Fits as you are" : (x.ramped ? "Fits after a ramp" : "Fits, holding your load") + " (ATL " + x.stA.toFixed(0) + " at start)";
+          else cell += x.need !== null ? " <span class='flag red'>Needs " + x.need + (x.need === 1 ? " more week" : " more weeks") + "</span>" : " <span class='flag red'>Does not fit at this rate</span>";
+        } else if (x.fits) cell = "Fits, joined at week " + x.join;
+        when = "<td class='num' style='white-space:nowrap'>" + x.start + "</td>"; ramp = "<td class='num'>" + (x.mode === "ramp" ? x.T.toFixed(1) : "-") + "</td>";
+      }
+      var st = x.soon ? dash + dash + dash + dash + dash + dash : "<td class='num'>" + x.w1.toFixed(0) + "</td><td class='num'>" + x.pk.toFixed(0) + "</td><td class='num'>" + hm(x.avgS) + "</td><td class='num'>" + hm(x.maxS) + "</td><td class='num'>" + sgn(x.minF) + "</td><td class='num'>" + x.maxR.toFixed(2) + "</td>";
+      return head + "<td class='q2'>" + cell + "</td>" + when + ramp + "<td class='num'>" + x.weeks + "</td>" + st + "</tr>";
     }).join("");
     RES = res; C0 = c0; A0 = a0; FLOOR = floor;
     if (!res.some(function (x) { return x.name === SELN; })) SELN = (top || res[0] || {}).name;
@@ -1241,10 +1355,11 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); SELN = tr.getAttribute("data-n"); update(); } });
     });
     drawChart();
-    $("rnote").textContent = "Form is CTL minus ATL at the end of each day, from your start values, through the last full day before the marathon. Week numbers say where the lowest form and highest ratio occur.";
+    $("rnote").textContent = "Form is CTL minus ATL at the end of each day, from your start values, through the last full day before the marathon. Week numbers say where the lowest form and highest ratio occur." + (rd !== null ? " With a race date, the form test starts from the load and ATL the ramp ends on, and the join percentage is not used." : "");
     $("notes").innerHTML = [
       "<b>Test.</b> Each plan is run day by day from your start CTL and ATL (see Joining late). A plan fits if form never drops below the lowest form allowed and ATL / CTL never exceeds the limit. The defaults are -20 and 1.3.",
       "<b>Where the defaults come from.</b> TrainerPlan's ATL to CTL bands put 0.8 to 1.3 as the sweet spot and flag above 1.3 and 1.5, and its own alerts sit at form -10 and -20. The -20 floor is a more cautious choice for running than its -30 high-strain mark. It is not a research threshold.",
+      "<b>Race date and ramp.</b> Optional. The plan's last day is race day, so a plan of L weeks starts 7 x L - 1 days before it. Any days between today and that start are a ramp. For each plan the page finds the lowest CTL that lets the plan fit when you start it, reached by the slowest ramp (a straight rise in CTL spread over all the spare days). The daily load needed for that rise is worked out from the CTL formula, so ATL at the plan start is real: it sits above CTL after a ramp. The ramp may not raise CTL by more than the weekly cap (default 1.0, my choice). If the plan fits without a ramp you hold your current load until it starts. If it does not fit even at the cap, the table says how many more weeks of ramp it needs. If there are fewer weeks than the plan has, the plan is joined part-way. The ramp's own form is not tested. Session content for the ramp weeks is not planned yet.",
       "<b>Joining late.</b> Many plans start well below a fit runner's current load, and following them from week 1 would let CTL fall and then make the harder weeks look worse. So the test skips the leading weeks that are lighter than the join percentage of your current load (default 85%) and assumes you hold your current load until then. The Joins column gives the week the plan is picked up. A plan that never reaches that load is tested from week 1 and marked as never reaching it. Set the percentage to 0 to test every plan from week 1.",
       "<b>Start values.</b> Enter your own CTL and ATL. ATL blank means the same as CTL, which is a flat start. A hard recent week raises ATL and makes early weeks fit worse.",
       "<b>Plan settings.</b> Daniels at the top of each plan's mileage band, 6 run days, short threshold reps for slower runners on. Pfitzinger long runs at 85% of marathon speed, 10km tune-up, no recovery weeks. Copeland 5km reps at 16.5 min. Change these on Marathon Plans.",
@@ -1257,12 +1372,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 
   function save() {
     try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("ezp", $("ezp").value); profSet("sbf", $("sbf").value); } catch (e) {}
-    try { localStorage.setItem("mr", JSON.stringify({ c: $("ctl").value, a: $("atl").value, f: $("floor").value, r: $("maxr").value, j: $("join").value })); } catch (e) {}
+    try { localStorage.setItem("mr", JSON.stringify({ c: $("ctl").value, a: $("atl").value, f: $("floor").value, r: $("maxr").value, j: $("join").value, d: $("rdate").value, p: $("rcap").value })); } catch (e) {}
   }
   function restore() {
     try {
       var s = JSON.parse(localStorage.getItem("mr") || "null");
-      if (s) { if (typeof s.c === "string") $("ctl").value = s.c; if (typeof s.a === "string") $("atl").value = s.a; if (typeof s.f === "string") $("floor").value = s.f; if (typeof s.r === "string") $("maxr").value = s.r; if (typeof s.j === "string") $("join").value = s.j; }
+      if (s) { if (typeof s.c === "string") $("ctl").value = s.c; if (typeof s.a === "string") $("atl").value = s.a; if (typeof s.f === "string") $("floor").value = s.f; if (typeof s.r === "string") $("maxr").value = s.r; if (typeof s.j === "string") $("join").value = s.j; if (typeof s.d === "string") $("rdate").value = s.d; if (typeof s.p === "string") $("rcap").value = s.p; }
     } catch (e) {}
     var pr = profGet();
     if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km;
@@ -1322,7 +1437,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   estimate();
 
   restore();
-  ["dist", "time", "ctl", "atl", "floor", "maxr", "join", "ezp", "sbf"].forEach(function (id) {
+  ["dist", "time", "ctl", "atl", "floor", "maxr", "join", "rdate", "rcap", "ezp", "sbf"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });
