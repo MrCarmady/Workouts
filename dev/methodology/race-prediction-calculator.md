@@ -1,6 +1,6 @@
 # Race Prediction Calculator: methodology
 
-Takes one race result (distance and time), or two (added 2026-10-19), and predicts times, paces per km and paces per mile for 1500m, mile, 3km, 5km, 10km, 10 miles, half marathon and marathon.
+Takes one race result (distance and time), or two (added 2026-10-19), and predicts times, paces per km and paces per mile for 400m, 800m, 1000m (added 2026-10-26, output only), 1500m, mile, 3km, 5km, 10km, 10 miles, half marathon and marathon.
 
 ## What is standard and what is a choice
 
@@ -136,3 +136,11 @@ time(T) = sum(w_i * time_i(T))
 - The marathon in the blend is not exactly F times the blended half, because the weights differ at the two distances. Each result's own marathon is F times its own half.
 - Comparison column (Daniels, Hansons, Pfitzinger, Tinman, % of WR): each model predicts from each result separately and the same weights are applied. If a model cannot take either result's distance (for example Pfitzinger from a mile), the column shows that error.
 - Weekly distance is shared by both results. Other pages (Plan Builder and so on) still use result 1 only.
+
+## 400m, 800m and 1000m rows (2026-10-26)
+
+Output-only rows, not offered as inputs. They use the same Riegel formula and short-race adjustment (`adj` is 16.4 s/km at 400m, 11.9 at 800m, 10.5 at 1000m). The 6.5 coefficient was set from 1500m to 3km; the VDOT comparison in step 2 suggests about 5 to 6 at 800m and 1000m, and nothing was checked at 400m. Treat these rows as rough. Example: mile 5:23.4 gives 400m 1:11, 800m 2:31, 1000m 3:12 (not checked against a real result).
+
+Comparison models give "–" on these rows: Daniels-Gilbert VDOT is not meant for races this short, and the Hansons, Pfitzinger and Tinman tables have no such columns. The % WR column works. Records used (men, outdoor, from Track & Field News, fetched 2026-10-26): 400m 43.03 (van Niekerk, 2016), 800m 1:40.91 (Rudisha, 2012), 1000m 2:11.83 (Wanyonyi, Monaco, 10 Jul 2026).
+
+Saved page state now carries a version flag; state saved before this change has its distance indexes shifted by 3.

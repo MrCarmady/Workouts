@@ -143,6 +143,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     <p>Base: Riegel's formula (time × distance ratio ^ 1.06), plus two adjustments:</p>
     <p>Short races: a result under 5km is slowed by 6.5s/km × ln(5 ÷ km) to get a 5km equivalent (about 7s/km for the mile). Predictions for short distances are sped up by the same amount.</p>
     <p>Marathon: paces beyond the half marathon are slowed. The marathon is 2.10 times the half marathon at 70 miles (113km) a week or more, 2.13 at 60, 2.17 at 50, and 2.25 at 35 miles (56km) or less. Values between are in a straight line. Blank weekly distance means 70 miles.</p>
+    <p>400m, 800m and 1000m rows use the same formula, extended past the range it was set on (1500m to 3km). They are rough, are not offered as inputs, and have no comparison-model values.</p>
     <p>The 5km to half marathon relationship is most reliable for intermediate runners on moderate mileage. It may be less reliable for beginners and low mileage.</p>
     <p>Two results: each result makes its own full prediction. At each target distance the two predictions are averaged with weights 1 ÷ d, where d = |ln(target ÷ result distance)|. A result at the target distance gets all of the weight. The two results must be at different distances. The small figures under each time are the weights in percent, result 1 / result 2. The comparison column is blended the same way, from each result separately. The 1 ÷ d weighting is my choice, not fitted to data.</p>
     <p>Results with a Daniels–Gilbert VDOT outside 15 to 85 are rejected as implausible.</p>
@@ -209,7 +210,11 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     return vo2 / pct;
   }
   /*@@CORE-END@@*/
+  // o: true marks output-only rows (not offered as inputs, no comparison-model values).
   var DISTS = [
+    { name: "400m", km: 0.4, o: true },
+    { name: "800m", km: 0.8, o: true },
+    { name: "1000m", km: 1, o: true },
     { name: "1500m", km: 1.5 },
     { name: "Mile", km: MILE },
     { name: "3km", km: 3 },
@@ -248,12 +253,12 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   function tinF(T) { return TIN_SHORT[T.name] !== undefined ? TIN_SHORT[T.name] : Math.pow(T.km / 5, 1.0579); }
   // Male world records in seconds (author-supplied mile; marathon 1:59:30 and half 56:51 not yet ratified as of 2026-10-16).
   // 10 miles: Haile Gebrselassie 44:24 (road, ratified; author's choice over a faster time by a sanctioned athlete).
-  var WR = { "1500m": 206.00, "Mile": 222.66, "3km": 437.55, "5km": 755.36, "10km": 1571.00, "10 miles": 2664, "Half marathon": 3411, "Marathon": 7170 };
+  var WR = { "400m": 43.03, "800m": 100.91, "1000m": 131.83, "1500m": 206.00, "Mile": 222.66, "3km": 437.55, "5km": 755.36, "10km": 1571.00, "10 miles": 2664, "Half marathon": 3411, "Marathon": 7170 };
   function danielsT(v, km) { var lo = 60, hi = 40000; for (var i = 0; i < 80; i++) { var m = (lo + hi) / 2; if (vdot(m / 60, km * 1000) > v) lo = m; else hi = m; } return (lo + hi) / 2; }
   // Returns {name: seconds or null} for every distance, or an {err} when the input is outside the model's table.
   function compareTimes(model, D, t) {
     var out = {}, i;
-    if (model === "daniels") { var v = vdot(t / 60, D.km * 1000); DISTS.forEach(function (T) { out[T.name] = danielsT(v, T.km); }); return { t: out }; }
+    if (model === "daniels") { var v = vdot(t / 60, D.km * 1000); DISTS.forEach(function (T) { out[T.name] = T.o ? null : danielsT(v, T.km); }); return { t: out }; }
     if (model === "hansons") {
       var k = HKEY[D.name]; if (!k) return { err: "Hansons chart has no " + D.name + " column. Enter a mile, 5km, 10km, 10 miles, half marathon or marathon result." };
       var t5 = hansTo5(k, t); if (t5 === null) return { err: "Outside the Hansons chart (5km equivalent 13:30 to 45:00)." };
@@ -273,7 +278,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     }
     if (model === "tinman") {
       var t5 = t / tinF(D); if (t5 < 780 || t5 > 1740) return { err: "Outside the tested Tinman range (5km equivalent 13:00 to 29:00)." };
-      DISTS.forEach(function (T) { out[T.name] = t5 * tinF(T); });
+      DISTS.forEach(function (T) { out[T.name] = T.o ? null : t5 * tinF(T); });
       return { t: out };
     }
     return { t: null };
@@ -286,23 +291,24 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
 
   (function build() {
     var sel = $("dist");
-    DISTS.forEach(function (d, i) { sel.insertAdjacentHTML("beforeend", '<option value="' + i + '"' + (d.name === "5km" ? " selected" : "") + ">" + d.name + "</option>"); });
+    DISTS.forEach(function (d, i) { if (d.o) return; sel.insertAdjacentHTML("beforeend", '<option value="' + i + '"' + (d.name === "5km" ? " selected" : "") + ">" + d.name + "</option>"); });
     var s2 = $("dist2");
     s2.insertAdjacentHTML("beforeend", '<option value="" selected>None</option>');
-    DISTS.forEach(function (d, i) { s2.insertAdjacentHTML("beforeend", '<option value="' + i + '">' + d.name + "</option>"); });
+    DISTS.forEach(function (d, i) { if (d.o) return; s2.insertAdjacentHTML("beforeend", '<option value="' + i + '">' + d.name + "</option>"); });
   })();
 
   // Shared race result for all pages on the same site (browser storage; does not sync between devices).
   function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
   function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
-  function save() { try { profSet("km", String(DISTS[parseInt($("dist").value, 10)].km)); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {} try { localStorage.setItem("racepred", JSON.stringify({ dist: $("dist").value, time: $("time").value, cmp: $("cmp").value, dist2: $("dist2").value, time2: $("time2").value })); } catch (e) {} }
+  function save() { try { profSet("km", String(DISTS[parseInt($("dist").value, 10)].km)); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {} try { localStorage.setItem("racepred", JSON.stringify({ dist: $("dist").value, time: $("time").value, cmp: $("cmp").value, dist2: $("dist2").value, time2: $("time2").value, v: 2 })); } catch (e) {} }
   function restore() {
     try {
       var o = JSON.parse(localStorage.getItem("racepred") || "null");
       if (!o) return;
-      if (DISTS[parseInt(o.dist, 10)]) $("dist").value = o.dist;
+      if (o.v !== 2) { o.dist = String(parseInt(o.dist, 10) + 3); if (o.dist2 !== "") o.dist2 = String(parseInt(o.dist2, 10) + 3); }   // rows added in front of the old list
+      if (DISTS[parseInt(o.dist, 10)] && !DISTS[parseInt(o.dist, 10)].o) $("dist").value = o.dist;
       if (typeof o.time === "string") $("time").value = o.time;
-      if (o.dist2 === "" || DISTS[parseInt(o.dist2, 10)]) $("dist2").value = o.dist2;
+      if (o.dist2 === "" || (DISTS[parseInt(o.dist2, 10)] && !DISTS[parseInt(o.dist2, 10)].o)) $("dist2").value = o.dist2;
       if (typeof o.time2 === "string") $("time2").value = o.time2;
       if (["none", "daniels", "hansons", "pfitz", "tinman", "wr"].indexOf(o.cmp) >= 0) $("cmp").value = o.cmp;
     } catch (e) {}
@@ -404,7 +410,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   restore();
   (function () {
     var pr = profGet();
-    if (pr.km) DISTS.forEach(function (d, i) { if (String(d.km) === String(pr.km)) $("dist").value = String(i); });
+    if (pr.km) DISTS.forEach(function (d, i) { if (!d.o && String(d.km) === String(pr.km)) $("dist").value = String(i); });
     if (pr.time) $("time").value = pr.time;
     if (typeof pr.week === "string") $("week").value = pr.week;
     if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit;

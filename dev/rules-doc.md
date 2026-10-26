@@ -196,6 +196,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Tinman added (2026-10-16): reverse-engineered from six sample sheets (5k 13:00-29:00). Pure scaling: time = 5k time x factor(d). d >= 3000m: (d/5000)^1.0579, no marathon fade. Mile 0.29447, 1500m 0.2723. Author accepted a broad fit (his tool's input and output curves differ slightly, e.g. 2400m by 1.26%, mile 0.17%). Range 13:00-29:00 5k equivalent. At 18:30 5k: marathon 2:56:39.
 ## % of world record (2026-10-16)
 - Race Prediction Calculator: '% WR' column on every row, plus a 'Same % of world record' compare option (constant % of WR pace across distances).
+- Race Prediction Calculator: 400m, 800m and 1000m rows (P, 2026-10-26), output only, same formula, no comparison-model values; 1000m record 2:11.83 (Wanyonyi, 2026).
 - Male WRs (s): 1500m 206.00, mile 222.66 (3:42.66, author), 3km 437.55, 5km 755.36, 10km 1571.00, 10 miles 2664 (44:24 Gebrselassie, ratified; author chose it over a faster time by a sanctioned athlete; a 10km-to-half power law would give 42:55, so % at 10 miles reads high), half 3411 (56:51 Kejelcha, unratified; author's choice, revert to 57:20 Kiplimo if rejected), marathon 7170 (1:59:30 Sawe, London 2026, author-supplied, unverified by me).
 - Planned later: women's and masters' records.
 - At 18:45 5k our model gives ~67.1% (5k) and 66.0% (marathon).

@@ -12,6 +12,8 @@ for _f in glob.glob(os.path.join(PAGES_SRC,'*.html')):
 KMIDX={'3':'2','5':'3','10':'4','21.0975':'6'}
 RACES=[('5','18:54','70','mi'),('3','10:44.80','45','mi'),('10','39:10','','mi'),('21.0975','1:25:00','100','km')]
 def fill(pg,id,v):
+    # Race Prediction Calculator: three output-only rows (400m, 800m, 1000m) sit in front of the list, so old list positions move up by 3.
+    if 'race-prediction-calculator' in pg.url and id in ('dist','dist2') and v.isdigit(): v=str(int(v)+3)
     if pg.query_selector('#'+id):
         el=pg.query_selector('#'+id)
         try:
