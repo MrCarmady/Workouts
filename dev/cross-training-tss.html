@@ -66,7 +66,7 @@ a { color: var(--accent); }
   <header class="head">
     <div>
       <h1>Cross-Training TSS</h1>
-      <p class="sub">Training stress for a bike, rower, heart-rate based or treadmill walking session, and the share that counts towards CTL.</p>
+      <p class="sub">TSS for a bike, rower, heart-rate or walking session, and the share that counts towards CTL.</p>
     </div>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
@@ -80,9 +80,9 @@ a { color: var(--accent); }
     <div class="fields">
       <label>Activity
         <select id="act">
-          <option value="bike" selected>Bike (power)</option>
-          <option value="row">Rower (Concept2)</option>
-          <option value="hr">Heart rate (elliptical, Stairmaster, other)</option>
+          <option value="bike" selected>Bike</option>
+          <option value="row">Rower</option>
+          <option value="hr">Other (heart rate)</option>
           <option value="walk">Treadmill walking</option>
         </select>
       </label>
@@ -172,7 +172,7 @@ a { color: var(--accent); }
     <p>TSS = hours × (intensity factor)² × 100, as for running. The intensity factor depends on the activity.</p>
     <p>Bike: average power ÷ your bike FTP. Checks: FTP is the power you can hold for about an hour, so an hour or more more than 5% above it is rejected. Between 20 minutes and an hour, a warning appears above the all-out power this FTP predicts (FTP is commonly taken as about 95% of 20-minute power; the curve between the two points is my interpolation).</p>
     <p>Rower: watts from the Concept2 formula, 2.80 ÷ (split in seconds per metre)³. Threshold is the 2k split plus 15 seconds, from Paul's law (add 5 seconds per 500m for each doubling of distance, so 16k is 2k + 15, about an hour for most rowers), or a threshold you enter as a split or in watts. Every rower box takes either: with a colon it is read as a time, a plain number as watts. Checks: a session longer than your 2k can't average more than your 2k watts (rejected), and one above the all-out power Paul's law predicts for that length gets a warning. The intensity factor is session watts ÷ threshold watts. Power is used, not pace, because boat speed rises with the cube root of power.</p>
-    <p>Heart rate: intensity = (average HR − resting HR) ÷ (threshold HR − resting HR), squared. This is my formula and a placeholder, not validated. Checks: threshold heart rate is about what you can hold for an hour, so an hour or more with an average more than 5% of your heart rate reserve above it is rejected. From 20 minutes up, the same excess gets a warning. Below 20 minutes there is no check.</p>
+    <p>Other (heart rate): for the elliptical, Stairmaster or any activity without a power or pace measure. Intensity = (average HR − resting HR) ÷ (threshold HR − resting HR), squared. This is my formula and a placeholder, not validated. Checks: threshold heart rate is about what you can hold for an hour, so an hour or more with an average more than 5% of your heart rate reserve above it is rejected. From 20 minutes up, the same excess gets a warning. Below 20 minutes there is no check.</p>
     <p>Treadmill walking: the ACSM walking equation gives the flat-run speed with the same oxygen cost; TSS is then scored against your threshold pace as for a run. See the Treadmill Flat Equivalent page.</p>
     <p>Counts towards CTL: the raw TSS times a percentage, 80 by default. Copeland says cycling should run 20 to 30% longer than running for similar aerobic benefit (Norwegian Singles Method, p. 174), which is about 77 to 83%. He gives nothing for other activities, so 80% is a placeholder for all of them.</p>
     <p>Weekly balance: Copeland's rough guide is about 60% running and 40% cross-training of training time, from one friend's experience. The check uses plain hours and flags a cross-training share over 40%.</p>

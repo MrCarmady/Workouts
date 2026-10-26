@@ -226,7 +226,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Fixed crashes in the Lifting Programme Planner from late change events on replaced or hidden fields.
 
 ## Cross-Training TSS (P, 2026-10-19)
-- New page. Activities: bike, Concept2 rower, heart rate (elliptical, Stairmaster, other), treadmill walking.
+- New page. Activities: bike, rower, treadmill walking, other (heart rate; elliptical, Stairmaster). Dropdown labels cleaned 2026-10-26 (P).
 - Bike: TSS = hours x (power / FTP)^2 x 100 (P: FTP as the anchor).
 - Rower: watts, not pace (P). Threshold = 2k split + 15 s per 500m from Paul's law (P: add 5 s per 500m for each doubling; 2k + 15 about an hour). Threshold watts can be entered instead.
 - Lift Scheme Calculator warm-up (P, 2026-10-20): section under the scheme tables. Top set from 1/3/5/8RM or own weight. Ladder bar x 10 (bodyweight x 8 for pull-ups and dips; lightest dumbbells x 10 for dumbbell lifts; bodyweight x 8 per leg for split squat), 50% x 5, 70% x 3, 85% x 2 of the top set (P's scheme with my trims). Included for bodyweight and dumbbell lifts too (P asked why not). Convention, not research; reps and percentages not adjustable; duplicate steps dropped.
