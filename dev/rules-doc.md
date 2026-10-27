@@ -124,7 +124,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 ### Hansons Plans (Beginner, Advanced)
 - Beginner (Table 4.3): same pace rules as Advanced; warm-up/cooldown 1 mile (the book's note, and it fits the totals), Advanced 1.5. Marathon pace at 55 mi/week for Beginner (choice), 70 for Advanced.
 - Book's Advanced program (Table 4.4), 18 weeks, 6 days a week, mileage as printed (26 to 63 mi), not scaled. Tue: speed weeks 2-10, strength weeks 11-17. Thu: tempo. Sun: long run every other week from week 3. Totals include 1.5 mi warm-up and cooldown on speed, strength and tempo days.
-- Paces: marathon = predicted from the race result (70 mi a week; the book's 18:30 -> 3:00:21, page gives 2:58:43 since the 2026-10-15 factor change, was 3:00:12), no goal-time input because sessions run at current fitness, not goal pace (P), tempo = MP, strength = MP - 10 s/mi, speed = 5km pace, easy and recoveries = 65% of 5km speed.
+- Paces: marathon = predicted from the race result (70 mi a week; the book's 18:30 -> 3:00:21, page gives 2:58:43 since the 2026-10-15 factor change, was 3:00:12), no goal-time input because sessions run at current fitness, not goal pace (P), tempo = MP, strength = MP - 10 s/mi, speed = 5km pace. Easy running follows the book's Table 3.5 (audiobook supplement p. 33) by predicted marathon time, interpolated, nearest row outside 2:10-5:00 (P, 2026-10-27: plans follow the books as printed, the load assumes perfect execution): Easy Aerobic A on easy days, warm-ups, cooldowns and rep recoveries; Easy Aerobic B on Saturdays (Table 3.1 note); Moderate Aerobic/Long Run column on long runs. The column-to-day mapping other than Saturday is my reading (supplement does not give it). Recovery column unused. Easy % input does not apply to Hansons. Recommender and Marathon Plans share the code.
 - Load: same TSS rule as the Daniels page; race day not scored; start CTL = week 1 TSS / 7 if blank.
 - 2QD (71-85 mi) added. Backlog: none open for Daniels.
 ### Copeland Marathon Plan
@@ -180,7 +180,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 
 ## Personal pace inputs (2026-10-15)
 - Easy pace % of 5km speed (default 65, range 50 to 85) and sub-threshold buffer % slower (default 0, range 0 to 10), on Plan Builder, Marathon Plans, Copeland Base and the Recommender. Saved in the shared browser profile.
-- Easy % feeds E paces (and the Recommender load estimate). Buffer slows Plan Builder sub-threshold (race 21) and the Copeland rep paces (3 to 12 min); 5km reps, race paces and Hansons fixed paces are unchanged.
+- Easy % feeds E paces (and the Recommender load estimate), except Hansons. Buffer slows Plan Builder sub-threshold (race 21) and the Copeland rep paces (3 to 12 min); 5km reps, race paces and the Hansons table paces are unchanged.
 - Plan Builder keeps its easy pace box; if filled it overrides the percentage.
 - Recommender: the buffer box is hidden unless the Copeland row is selected or the value is invalid; a hidden buffer still applies to the Copeland row. Invalid easy % or buffer shows an error.
 

@@ -585,14 +585,28 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   var NAME = { E: "Easy", L: "Long", T: "Tempo", S: "Speed", K: "Strength" };
 
     var P = {}, THR = 0, WUM = 1.5;   // P: seconds per mile; THR: threshold pace for TSS, s per mile
+    // Table 3.5 (Hansons Marathon Method, audiobook supplement p. 33): goal marathon time and paces per mile.
+    var BK = (function () {
+      function s(x) { var q = x.split(":").map(Number); return q.length === 3 ? q[0] * 3600 + q[1] * 60 + q[2] : q[0] * 60 + q[1]; }
+      var g = "5:00 4:45 4:30 4:15 4:00 3:55 3:50 3:45 3:40 3:35 3:30 3:25 3:20 3:15 3:10 3:05 3:00 2:55 2:50 2:45 2:40 2:35 2:30 2:25 2:20 2:15 2:10".split(" ").map(function (x) { return s(x) * 60; });
+      var a = "13:32 12:55 12:16 11:38 11:00 10:40 10:34 10:21 10:08 9:55 9:41 9:28 9:16 9:02 8:49 8:36 8:23 8:10 7:56 7:43 7:30 7:17 7:03 6:50 6:36 6:23 6:09".split(" ").map(s);
+      var b = "12:41 12:05 11:28 10:52 10:15 10:00 9:51 9:39 9:27 9:14 9:02 8:49 8:38 8:25 8:13 8:01 7:48 7:36 7:23 7:11 6:58 6:46 6:34 6:21 6:08 5:56 5:43".split(" ").map(s);
+      var l = "12:16 11:41 11:05 10:29 9:53 9:38 9:29 9:18 9:06 8:53 8:42 8:29 8:18 8:05 7:54 7:42 7:29 7:17 7:05 6:53 6:41 6:29 6:17 6:05 5:52 5:40 5:28".split(" ").map(s);
+      function at(col, goal) {   // linear between rows, nearest row outside the table
+        if (goal >= g[0]) return col[0];
+        if (goal <= g[g.length - 1]) return col[col.length - 1];
+        for (var i = 0; i < g.length - 1; i++) if (goal <= g[i] && goal >= g[i + 1]) return col[i] + (col[i + 1] - col[i]) * (g[i] - goal) / (g[i] - g[i + 1]);
+      }
+      return { a: function (x) { return at(a, x); }, b: function (x) { return at(b, x); }, l: function (x) { return at(l, x); }, lo: g[g.length - 1], hi: g[0] };
+    })();
     function tssOf(sec, pace) { return sec / 3600 * Math.pow(THR / pace, 2) * 100; }
     function mlabel(m) { if (m >= MI - 1 && Math.abs(m / MI - Math.round(m / MI * 2) / 2) < 0.002) return (Math.round(m / MI * 2) / 2) + " mi"; return m + "m"; }
-    function pkey(x) { return { E: P.E, L: P.E, T: P.T, S: P.S, K: P.K }[x]; }
+    function pkey(x) { return { E: P.E, E2: P.E2, L: P.L, T: P.T, S: P.S, K: P.K }[x]; }
     function rowOf(lbl, p, mi, sec, ts) { return { lbl: lbl, p: p, mi: mi, sec: sec, tss: ts }; }
-    function day(d) {
+    function day(d, j) {
       var rows = [];
       if (d.k === "OFF" || d.k === "NONE" || d.k === "RACE") return { k: d.k, rows: [{ lbl: d.k === "OFF" ? "Off" : d.k === "RACE" ? "Marathon" : "-", p: d.k === "RACE" ? "T" : "", mi: d.k === "RACE" ? 26.2 : 0, sec: d.k === "RACE" ? 26.2 * P.T : 0, tss: 0, race: d.k === "RACE" }], mi: 0, sec: d.k === "RACE" ? 26.2 * P.T : 0, tss: 0, off: true };
-      if (d.k === "E" || d.k === "L") { var s = d.mi * P.E; rows.push(rowOf(NAME[d.k] + " " + ds(d.mi) + " " + U, "E", d.mi, s, tssOf(s, P.E))); }
+      if (d.k === "E" || d.k === "L") { var pc = d.k === "L" ? "L" : j === 5 ? "E2" : "E", s = d.mi * pkey(pc); rows.push(rowOf(NAME[d.k] + " " + ds(d.mi) + " " + U, pc, d.mi, s, tssOf(s, pkey(pc)))); }
       else {
         var wu = WUM * P.E;
         rows.push(rowOf("Warm-up " + ds(WUM) + " " + U, "E", WUM, wu, tssOf(wu, P.E)));
@@ -611,7 +625,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       return o;
     }
     function rowHtml(r) {
-      var pn = { E: "Easy", T: "MP", S: "5k", K: "MP-10" }[r.p] || "";
+      var pn = { E: "Easy A", E2: "Easy B", L: "Long", T: "MP", S: "5k", K: "MP-10" }[r.p] || "";
       return trow(r.lbl, r.p ? pn + " " + pm(pkey(r.p)) : "", r.mi > 0 ? ds(r.mi) + " " + U : "", r.sec > 0 ? tm(r.sec) : "", r.tss > 0 ? Math.round(r.tss) : "");
     }
     function build(planId, c) {
@@ -621,8 +635,10 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       offM = marathonOff(c.riegel5, BEG ? 55 * 1.609344 : null);   // 55 miles a week (beginner) or 70 (advanced)
       var raceP = mkRaceP(c), mp = raceP(MAR);
       THR = raceP(16) * MILE;
-      P = { E: raceP(5) / pz.e * MILE, T: mp * MILE, K: (mp * MILE) - 10, S: raceP(5) * MILE };
-      var paces = [["E", "Easy cap"], ["S", "Speed"], ["K", "Strength"], ["T", "Tempo and marathon"]].map(function (x) { return [x[1], pm(P[x[0]]), "/" + U]; });
+      var goalT = mp * MAR;
+      P = { E: BK.a(goalT), E2: BK.b(goalT), L: BK.l(goalT), T: mp * MILE, K: (mp * MILE) - 10, S: raceP(5) * MILE };
+      var outside = goalT < BK.lo || goalT > BK.hi;
+      var paces = [["E", "Easy A"], ["E2", "Easy B (Saturday)"], ["L", "Long run"], ["S", "Speed"], ["K", "Strength"], ["T", "Tempo and marathon"]].map(function (x) { return [x[1], pm(P[x[0]]), "/" + U]; });
       paces.push(["Marathon", hmmss(mp * MAR), "predicted"]);
       var weeks = [], diffs = [];
       PL.forEach(function (w, i) {
@@ -650,7 +666,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         notes: [
           (BEG ? "<b>Program.</b> Beginner, Table 4.3. Speed work is Tuesday in weeks 6 to 10 and strength work in weeks 11 to 17; Thursday is tempo from week 6. Long runs of 10 to 16 miles are on Sundays from week 7." : "<b>Program.</b> Advanced, Table 4.4."),
           "<b>Mileage.</b> Distances and weekly totals are the book's. Totals include a " + (BEG ? "1" : "1.5") + "-mile warm-up and cooldown on speed, strength and tempo days. The detail adds up to within a mile or two of the printed total.",
-          "<b>Paces.</b> Marathon pace is the Race Prediction Calculator's marathon (" + (BEG ? 55 : 70) + " miles a week), so every session is set from your current fitness rather than a goal. Tempo is marathon pace, strength is 10 s/mile faster, and speed is 5km pace. Easy and recovery jogs are at 65% of 5km speed by default, as a cap.",
+          "<b>Paces.</b> Marathon pace is the Race Prediction Calculator's marathon (" + (BEG ? 55 : 70) + " miles a week), so every session is set from your current fitness rather than a goal. Tempo is marathon pace, strength is 10 s/mile faster, and speed is 5km pace. Easy running follows the book's Table 3.5, looked up by that predicted marathon time (between rows, nearest row outside 2:10 to 5:00" + (outside ? "; yours is outside, so the nearest row is used" : "") + "): Easy Aerobic A on easy days, warm-ups, cooldowns and rep recoveries, Easy Aerobic B on Saturdays (the book: the faster end of the easy range), and the Moderate Aerobic/Long Run column on long runs. The easy percentage does not apply to Hansons: the load assumes the paces as printed, so running slower than the book will make the real load lower than shown.",
           "<b>Load.</b> " + LOADNOTE + " The marathon on the last Sunday is added to week 18's TSS, but CTL and ATL are for the morning of the race."
         ]
       };
