@@ -415,7 +415,8 @@ td.kg { font-weight: 600; color: var(--accent); }
       var nLo = reps + rir + lost * 0.75, nHi = reps + rir + lost * 1.25;
       var eLo = load / pct(nLo), eHi = load / pct(nHi);
       $("sesnote").hidden = false;
-      $("sesnote").textContent = "Assumes " + fmt(fS, 2) + " reps of capacity lost per set, " + fmt(lost, 1) + " over the " + (sets - 1) + " earlier sets, so a fresh set to failure would reach about " + fmt(n, 1) + " reps. This is a model estimate. If the real loss is 25% lower or higher, the 1RM is " + fmt(eLo, 1) + " to " + fmt(eHi, 1) + " kg.";
+      var rp = function (t) { return t === "1" ? " rep" : " reps"; };
+      $("sesnote").textContent = "Model estimate: each set costs about " + fmt(fS, 2) + rp(fmt(fS, 2)) + " on the next, so by your last set you had lost about " + fmt(lost, 1) + rp(fmt(lost, 1)) + ". Fresh, you could have done about " + fmt(n, 1) + " reps to failure. If the real loss is 25% lower or higher, the 1RM is " + fmt(eLo, 1) + " to " + fmt(eHi, 1) + " kg.";
     }
     if (n > 10) { warn.hidden = false; warn.textContent = "Above about 10 reps the estimate gets less reliable. A heavier set of 3–6 reps gives a better 1RM."; }
 
