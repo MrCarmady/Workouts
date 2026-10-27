@@ -1123,10 +1123,18 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       if (f.ok || T >= top - 1e-9) return last;
     }
   }
-  // Extra weeks of ramp needed when the weeks you have are not enough (more time never hurts, so a binary search is safe).
-  function moreWeeks(weeks, D, c0, a0, cap, floor, maxr) {
+  // Entry week: the earliest week not lighter than jp % of the CTL the ramp reaches. Weeks skipped are added to the ramp. Fit does not choose the week, so a plan cannot dodge its own spike by joining late. jp 0 means week 1.
+  function chooseEntry(weeks, D, c0, a0, cap, floor, maxr, jp, step) {
+    for (var j = 0; j < weeks.length; j++) {
+      var sc = scanRamp(weeks.slice(j), D + 7 * j, c0, a0, cap, floor, maxr, step);
+      if (sumArr(weeks[j].d7) / 7 >= jp / 100 * sc.T - 1e-9) return { j: j, sc: sc, light: false };
+    }
+    return { j: 0, sc: scanRamp(weeks, D, c0, a0, cap, floor, maxr, step), light: true };
+  }
+  // Extra weeks of ramp needed when the weeks you have are not enough (more time never hurts, so a binary search is safe). The entry week is chosen again for each length.
+  function moreWeeks(weeks, D, c0, a0, cap, floor, maxr, jp) {
     var lo = 1, hi = 52;
-    function ok(e) { return scanRamp(weeks, D + 7 * e, c0, a0, cap, floor, maxr, 0.5).ok; }
+    function ok(e) { return chooseEntry(weeks, D + 7 * e, c0, a0, cap, floor, maxr, jp, 0.5).sc.ok; }
     if (!ok(hi)) return null;
     while (lo < hi) { var mid = (lo + hi) >> 1; if (ok(mid)) hi = mid; else lo = mid + 1; }
     return lo;
@@ -1261,8 +1269,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       if (Davail > 730) return fail("The race date must be within two years.");
       if (cap === null || !isFinite(cap) || cap < 0.1 || cap > 10) return fail("Max CTL rise per week must be a number from 0.1 to 10.");
     }
-    $("join").disabled = rd !== null;
-    // With a race date the Result column moves next to the plan name, so it stays on screen, and Plan starts and Ramp to CTL replace Joins week.
+        // With a race date the Result column moves next to the plan name, so it stays on screen, and Plan starts and Ramp to CTL replace Joins week.
     var hr = document.querySelector("#resbox thead tr");
     if (ORIGHEAD === null) ORIGHEAD = hr.innerHTML;
     hr.innerHTML = rd === null ? ORIGHEAD : CALHEAD;
@@ -1286,17 +1293,18 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         // Race date given: the plan's last day is race day, so it starts L x 7 - 1 days before it. Spare days before that are a ramp from today.
         var L = w.length, Dd = Davail - (7 * L - 1), seqc = [], row = { name: p[2], weeks: L, cal: true, t0: today, light: false, mode: "ramp", need: null, T: c0 };
         if (Dd >= 0) {
-          var sc = scanRamp(w, Dd, c0, a0, cap, floor, maxr, 0.1), rem = Dd % 7, nR = Math.ceil(Dd / 7), pos = 0, f = sc.f, st = planStats(w, 0), ramped = sc.T > c0 + 0.05;
+          var ce = chooseEntry(w, Dd, c0, a0, cap, floor, maxr, jp, 0.1), jx = ce.j, sc = ce.sc; if (ce.light) row.light = true;
+          var D2 = Dd + 7 * jx, wj = w.slice(jx), rem = D2 % 7, nR = Math.ceil(D2 / 7), pos = 0, f = sc.f, st = planStats(w, jx), ramped = sc.T > c0 + 0.05;
           for (var q = 0; q < nR; q++) { var len = q === 0 && rem ? rem : 7; seqc.push({ d7: sc.lead.slice(pos, pos + len), tag: "Ramp week " + (q + 1) + (len < 7 ? " (" + len + (len === 1 ? " day)" : " days)") : ""), lab: "R" + (q + 1) }); pos += len; }
-          w.forEach(function (x, i) { seqc.push({ d7: x.d7, tag: "Plan week " + (i + 1), lab: "W" + (i + 1) }); });
-          row.D = Dd; row.T = sc.T; row.stC = f.st.c; row.stA = f.st.a; row.ramped = ramped; row.fits = sc.ok;
-          row.need = sc.ok ? null : moreWeeks(w, Dd, c0, a0, cap, floor, maxr);
-          row.start = dshort(today + Dd * DAYMS); row.join = 1; row.j = 0; row.mark = Dd; row.marklab = "Plan starts";
-          row.calnote = Dd === 0 ? "The plan starts today."
-            : ramped ? "A " + span(Dd) + " ramp takes CTL from " + c0.toFixed(0) + " to " + sc.T.toFixed(1) + " (ATL " + f.st.a.toFixed(0) + " when the plan starts on " + dlab(today + Dd * DAYMS) + ")."
-            : "Hold your current load for " + span(Dd) + " (ATL settles to " + f.st.a.toFixed(0) + "), then the plan starts on " + dlab(today + Dd * DAYMS) + ".";
+          wj.forEach(function (x, i) { seqc.push({ d7: x.d7, tag: "Plan week " + (jx + i + 1), lab: "W" + (jx + i + 1) }); });
+          row.D = D2; row.T = sc.T; row.stC = f.st.c; row.stA = f.st.a; row.ramped = ramped; row.fits = sc.ok;
+          row.need = sc.ok ? null : moreWeeks(w, Dd, c0, a0, cap, floor, maxr, jp);
+          row.start = dshort(today + D2 * DAYMS); row.join = jx + 1; row.j = jx; row.mark = D2; row.marklab = jx > 0 ? "Joins W" + (jx + 1) : "Plan starts";
+          row.calnote = (jx > 0 ? "Joined at plan week " + (jx + 1) + ", so the " + span(D2) + " before it is ramp. " : "") + (D2 === 0 ? "The plan starts today."
+            : ramped ? "A " + span(D2) + " ramp takes CTL from " + c0.toFixed(0) + " to " + sc.T.toFixed(1) + " (ATL " + f.st.a.toFixed(0) + " when the plan starts on " + dlab(today + D2 * DAYMS) + ")."
+            : "Hold your current load for " + span(D2) + " (ATL settles to " + f.st.a.toFixed(0) + "), then the plan starts on " + dlab(today + D2 * DAYMS) + ".");
           row.seq = seqc; row.w1 = st.w1; row.pk = st.pk; row.avgS = st.avgS; row.maxS = st.maxS;
-          row.minF = f.s.minF; row.wF = f.s.wF; row.maxR = f.s.maxR; row.wR = f.s.wR; row.okF = f.s.minF >= floor - 1e-9; row.okR = f.s.maxR <= maxr + 1e-9;
+          row.minF = f.s.minF; row.wF = f.s.wF + jx; row.maxR = f.s.maxR; row.wR = f.s.wR + jx; row.okF = f.s.minF >= floor - 1e-9; row.okR = f.s.maxR <= maxr + 1e-9;
         } else {
           var j2 = Math.ceil(-Dd / 7);
           if (j2 >= L) { row.mode = "soon"; row.soon = true; row.join = 0; row.okF = false; row.okR = false; row.seq = []; row.w1 = row.pk = row.avgS = row.maxS = row.minF = row.maxR = 0; res.push(row); return; }
@@ -1343,7 +1351,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       if (x.soon) { cell = "<span class='flag red'>Race is too soon for this plan</span>"; when = dash; ramp = dash; }
       else {
         if (x.mode === "ramp") {
-          if (x.fits) cell = x.D === 0 ? "Fits as you are" : (x.ramped ? "Fits after a ramp" : "Fits, holding your load") + " (ATL " + x.stA.toFixed(0) + " at start)";
+          if (x.fits) cell = (x.D === 0 ? "Fits as you are" : (x.ramped ? "Fits after a ramp" : "Fits, holding your load") + " (ATL " + x.stA.toFixed(0) + " at start)") + (x.j > 0 ? ", joined at week " + x.join : "");
           else cell += x.need !== null ? " <span class='flag red'>Needs " + x.need + (x.need === 1 ? " more week" : " more weeks") + "</span>" : " <span class='flag red'>Does not fit at this rate</span>";
         } else if (x.fits) cell = "Fits, joined at week " + x.join;
         when = "<td class='num' style='white-space:nowrap'>" + x.start + "</td>"; ramp = "<td class='num'>" + (x.mode === "ramp" ? x.T.toFixed(1) : "-") + "</td>";
@@ -1360,12 +1368,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); SELN = tr.getAttribute("data-n"); update(); } });
     });
     drawChart();
-    $("rnote").textContent = "Form is CTL minus ATL at the end of each day, from your start values, through the last full day before the marathon. Week numbers say where the lowest form and highest ratio occur." + (rd !== null ? " With a race date, the form test starts from the load and ATL the ramp ends on, and the join percentage is not used." : "");
+    $("rnote").textContent = "Form is CTL minus ATL at the end of each day, from your start values, through the last full day before the marathon. Week numbers say where the lowest form and highest ratio occur." + (rd !== null ? " With a race date, the form test starts from the load and ATL the ramp ends on." : "");
     $("notes").innerHTML = [
       "<b>Test.</b> Each plan is run day by day from your start CTL and ATL (see Joining late). A plan fits if form never drops below the lowest form allowed and ATL / CTL never exceeds the limit. The defaults are -20 and 1.3.",
       "<b>Where the defaults come from.</b> TrainerPlan's ATL to CTL bands put 0.8 to 1.3 as the sweet spot and flag above 1.3 and 1.5, and its own alerts sit at form -10 and -20. The -20 floor is a more cautious choice for running than its -30 high-strain mark. It is not a research threshold.",
-      "<b>Race date and ramp.</b> Optional. The plan's last day is race day, so a plan of L weeks starts 7 x L - 1 days before it. Any days between today and that start are a ramp. For each plan the page finds the lowest CTL that lets the plan fit when you start it, reached by the slowest ramp (a straight rise in CTL spread over all the spare days). The daily load needed for that rise is worked out from the CTL formula, so ATL at the plan start is real: it sits above CTL after a ramp. The ramp may not raise CTL by more than the weekly cap (default 1.0, my choice). If the plan fits without a ramp you hold your current load until it starts. If it does not fit even at the cap, the table says how many more weeks of ramp it needs. If there are fewer weeks than the plan has, the plan is joined part-way. The ramp's own form is not tested. Session content for the ramp weeks is not planned yet.",
-      "<b>Joining late.</b> Many plans start well below a fit runner's current load, and following them from week 1 would let CTL fall and then make the harder weeks look worse. So the test skips the leading weeks that are lighter than the join percentage of your current load (default 85%) and assumes you hold your current load until then. The Joins column gives the week the plan is picked up. A plan that never reaches that load is tested from week 1 and marked as never reaching it. Set the percentage to 0 to test every plan from week 1.",
+      "<b>Race date and ramp.</b> Optional. The plan's last day is race day, so a plan of L weeks starts 7 x L - 1 days before it. Any days between today and that start are a ramp. For each plan the page finds the lowest CTL that lets the plan fit when you start it, reached by the slowest ramp (a straight rise in CTL spread over all the spare days). The daily load needed for that rise is worked out from the CTL formula, so ATL at the plan start is real: it sits above CTL after a ramp. The ramp may not raise CTL by more than the weekly cap (default 1.0, my choice). If the plan fits without a ramp you hold your current load until it starts. If it does not fit even at the cap, the table says how many more weeks of ramp it needs. The plan is joined at the earliest week that is not lighter than the join percentage of the CTL the ramp reaches (a week skipped adds seven days to the ramp); join 0 means week 1. Fit does not choose the week, so a plan cannot avoid its own spike by joining late. If no week qualifies, week 1 is used and the plan is marked as never reaching your load. If there are fewer weeks than the plan has, the plan is joined part-way. The ramp's own form is not tested. Session content for the ramp weeks is not planned yet.",
+      "<b>Joining late.</b> Many plans start well below a fit runner's current load, and following them from week 1 would let CTL fall and then make the harder weeks look worse. So the test skips the leading weeks that are lighter than the join percentage of your current load (default 85%) and assumes you hold your current load until then. The Joins column gives the week the plan is picked up. A plan that never reaches that load is tested from week 1 and marked as never reaching it. Set the percentage to 0 to test every plan from week 1. With a race date the comparison is against the CTL the ramp reaches, not your current CTL.",
       "<b>Start values.</b> Enter your own CTL and ATL. ATL blank means the same as CTL, which is a flat start. A hard recent week raises ATL and makes early weeks fit worse.",
       "<b>Plan settings.</b> Daniels at the top of each plan's mileage band, 6 run days, short threshold reps for slower runners on. Pfitzinger long runs at 85% of marathon speed, 10km tune-up, no recovery weeks. Copeland 5km reps at 16.5 min. Change these on Marathon Plans.",
       "<b>Load.</b> " + LOADNOTE + " Peak 4-week TSS/day is the highest average over four consecutive weeks. The marathon itself is not scored. Time per week is the plan's running time including warm-up, cooldown and walked recoveries, from the join week to the week before race week; the average is the mean of those weeks and the peak is the longest single week.",
