@@ -135,7 +135,7 @@ td.kg { font-weight: 600; color: var(--accent); }
           </select>
         </label>
       </div>
-      <p class="note" id="inputnote" style="margin-top:12px">Reps in reserve: 0 means the set was to failure. Values shown are an example. Replace them with your own set.</p>
+      <p class="note" id="inputnote" style="margin-top:12px">Values shown are an example.</p>
     </div>
 
     <div class="panel result" aria-live="polite">
@@ -261,8 +261,8 @@ td.kg { font-weight: 600; color: var(--accent); }
     $("replabel").textContent = m === "ses" ? "Reps per set" : "Reps completed";
     $("modesub").textContent = m === "ses" ? "Enter a session of identical sets (same weight and reps). Get an estimated 1RM, then weights for common set and rep schemes." : "Enter one set. Get an estimated 1RM and the weights for common set and rep schemes.";
     $("inputnote").textContent = m === "ses"
-      ? "Use the weight and reps from every set (all the same), the rest you took, and the reps in reserve after the last set. 0 means the last set was to failure. Values shown are an example. Replace them with your own."
-      : "Reps in reserve: 0 means the set was to failure. Values shown are an example. Replace them with your own set.";
+      ? "All sets must use the same weight and reps. Reps in reserve is for the last set. Values shown are an example."
+      : "Values shown are an example.";
   }
   function loadExample() {
     var e = EXAMPLES[$("lift").value];
