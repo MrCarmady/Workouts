@@ -14,7 +14,7 @@
   --accent-fg: #ffffff;
   --accent-soft: #f6dcd9;
   --warn: #a35a00;
-  --c-ctl: #2a78d6; --c-atl: #eb6834; --c-tsb: #1baf7a;
+  --c-ctl: #2a78d6; --c-atl: #eb6834; --c-tsb: #1baf7a; --z1: #d9e6f2; --z2: #9cc3e0; --z3: #5b9bc9; --z4: #2a6f97; --z5: #e9c46a; --z6: #e08a2c; --z7: #b23a1e;
   --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
   --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -127,6 +127,21 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .85rem; color: var(--muted); }
 .legend i { display: inline-block; width: 18px; height: 0; border-top: 3px solid; vertical-align: middle; margin-right: 6px; }
 .chartwrap { position: relative; min-width: 0; }
+.zhead { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+.zbtns { display: inline-flex; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; }
+.zbtns button { border: 0; background: transparent; color: var(--ink); padding: 5px 12px; font: inherit; font-size: .85rem; cursor: pointer; }
+.zbtns button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.zleg { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .8rem; color: var(--muted); }
+.zleg span { display: inline-flex; align-items: center; gap: 6px; }
+.zleg i { width: 12px; height: 12px; display: inline-block; border-radius: 2px; }
+.zrows { display: grid; gap: 5px; }
+.zrow { display: grid; grid-template-columns: minmax(96px, 150px) minmax(0, 1fr); gap: 10px; align-items: center; cursor: pointer; padding: 1px 0; }
+.zrow .zn { font-size: .85rem; overflow-wrap: anywhere; }
+.zrow.sel .zn { font-weight: 700; }
+.zbar { display: flex; gap: 2px; height: 26px; min-width: 0; }
+.zbar span { display: flex; align-items: center; justify-content: center; font-size: .74rem; font-variant-numeric: tabular-nums; min-width: 0; overflow: hidden; }
+.zrow.sel .zbar { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (max-width: 520px) { .zrow { grid-template-columns: 1fr; gap: 3px; } }
 #chart { width: 100%; height: auto; display: block; touch-action: pan-y; }
 #chart text { fill: var(--muted); font-family: var(--font-body); font-size: 11px; }
 #chart .ax { stroke: var(--line); stroke-width: 1; }
@@ -247,6 +262,16 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     <div class="chartwrap"><svg id="chart" role="img" tabindex="0" aria-label="CTL, ATL and form by day for the chosen plan"></svg><div id="ctip" hidden></div></div>
     <button type="button" id="cbtn" aria-expanded="false">Show as table</button>
     <div class="tablewrap" id="ctab" hidden></div>
+  </section>
+
+  <section id="zonebox" class="panel" hidden>
+    <div class="zhead"><h2>Intensity mix</h2>
+      <div class="zbtns" role="group" aria-label="Measure"><button type="button" id="zt" aria-pressed="true">Time</button><button type="button" id="zd" aria-pressed="false">Distance</button></div></div>
+    <p class="note" id="zsub"></p>
+    <div class="zleg" id="zleg"></div>
+    <div class="zrows" id="zrows"></div>
+    <button type="button" id="zbtn" aria-expanded="false">Show as table</button>
+    <div class="tablewrap" id="ztab" hidden></div>
   </section>
 
   <section class="panel method">
@@ -1083,7 +1108,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 
   // The sub-threshold buffer only changes the Copeland add-on, so its box shows only while that plan is selected, or while its value is invalid.
   function syncBuf() { $("sbf").parentNode.hidden = SELN !== "Copeland add-on" && !pers().err; }
-  function fail(msg) { syncBuf(); $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("chartbox").hidden = true; }
+  function fail(msg) { syncBuf(); $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("chartbox").hidden = true; $("zonebox").hidden = true; }
   function num(id) { var s = ($(id).value || "").trim().replace(",", "."); return s === "" ? null : Number(s); }
   function sumArr(a) { return a.reduce(function (s, x) { return s + x; }, 0); }
 
@@ -1285,7 +1310,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     var pv = pers(); if (pv.err) return fail(pv.err);
     U = "mi";
     var riegel5 = t * Math.pow(5 / D, K) / 5, p5 = riegel5 + adj(D), c = { D: D, t: t, riegel5: riegel5, p5: p5 };
-    var res = [];
+    var res = []; ZM = {};
     var planStats = function (w, j) {
       var tp = w.map(function (x) { return sumArr(x.d7); }).slice(j), pk = 0;
       for (var i = 0; i + 4 <= tp.length; i++) pk = Math.max(pk, sumArr(tp.slice(i, i + 4)) / 28);
@@ -1297,6 +1322,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       SHIM.week.value = String(p[3]);
       var r = MODS[p[0]].build(p[1], c);
       if (r.err) return;
+      ZM[p[2]] = zmix(p[2].split(" ")[0], r.weeks);
       var w = r.weeks, tss = w.map(function (x) { return sumArr(x.d7); }), pk = 0, j = 0, light = false;
       if (rd !== null) {
         // Race date given: the plan's last day is race day, so it starts L x 7 - 1 days before it. Spare days before that are a ramp from today.
@@ -1376,7 +1402,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       tr.addEventListener("click", function () { SELN = tr.getAttribute("data-n"); update(); });
       tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); SELN = tr.getAttribute("data-n"); update(); } });
     });
-    drawChart();
+    drawChart(); drawZones();
     $("rnote").textContent = "Form is CTL minus ATL at the end of each day, from your start values, through the last full day before the marathon. Week numbers say where the lowest form and highest ratio occur." + (rd !== null ? " With a race date, the form test starts from the load and ATL the ramp ends on." : "");
     $("notes").innerHTML = [
       "<b>Test.</b> Each plan is run day by day from your start CTL and ATL (see Joining late). A plan fits if form never drops below the lowest form allowed and ATL / CTL never exceeds the limit. The defaults are -20 and 1.3.",
@@ -1386,9 +1412,69 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       "<b>Start values.</b> Enter your own CTL and ATL. ATL blank means the same as CTL, which is a flat start. A hard recent week raises ATL and makes early weeks fit worse.",
       "<b>Plan settings.</b> Daniels at the top of each plan's mileage band, 6 run days, short threshold reps for slower runners on. Pfitzinger long runs at 85% of marathon speed, 10km tune-up, no recovery weeks. Copeland 5km reps at 16.5 min. Change these on Marathon Plans.",
       "<b>Load.</b> " + LOADNOTE + " Peak 4-week TSS/day is the highest average over four consecutive weeks. The marathon itself is not scored. Time per week is the plan's running time including warm-up, cooldown and walked recoveries, from the join week to the week before race week; the average is the mean of those weeks and the peak is the longest single week.",
+      "<b>Intensity mix.</b> Zones follow each plan's own session labels, not a speed cutoff: Recovery is Pfitzinger's recovery runs only; Easy is Daniels E, Copeland easy, Hansons Easy A and B, and Pfitzinger general aerobic; Long and steady is Hansons long runs, Pfitzinger's long pace (long and medium-long runs, 85% of marathon speed) and Copeland's 92 and 93% of marathon speed progression; Marathon pace is the plan's own; Faster than marathon pace is Hansons strength (MP minus 10 s) and Copeland's 150, 120 and 90 minute reps; Threshold is Daniels T, Pfitzinger LT and Copeland's 60 minute reps. Daniels and Copeland easy pace is the 65% of 5km speed assumption, not their books' paces, so their large easy blocks are an assumption. Distance shares divide each row's time by its pace. Copeland rows with mixed paces and no time are left out.",
       "<b>Limits.</b> A plan that fits is not a plan that suits you. It says nothing about the mileage you can absorb, the long run, or injury history."
     ].map(function (x) { return "<li>" + x + "</li>"; }).join("");
   }
+
+  // ---- Intensity mix: share of each plan's running time (or distance) by zone ----
+  var ZN = ["Recovery", "Easy", "Long and steady", "Marathon pace", "Faster than marathon pace", "Threshold", "5k pace and faster, races"], ZT = ["#222", "#222", "#fff", "#fff", "#222", "#222", "#fff"];
+  var ZM = {}, ZMODE = "t";
+  function zoneOf(au, lab) {
+    var m = {
+      Copeland: { "Easy": 1, "180-min race": 3, "150-min race": 4, "120-min race": 4, "90-min race": 4, "60-min race": 5, "Race": 6 },
+      Daniels: { "E": 1, "M": 3, "T": 5, "I": 6, "R": 6 },
+      Hansons: { "Easy A": 1, "Easy B": 1, "Long": 2, "MP": 3, "MP-10": 4, "5k": 6 },
+      Pfitzinger: { "Recovery": 0, "GA": 1, "Long pace": 2, "MP": 3, "LT": 5, "5K": 6, "Race": 6 }
+    }[au];
+    if (m[lab] !== undefined) return m[lab];
+    if (au === "Copeland") { if (/^MP\/0\./.test(lab)) return 2; if (/^MP/.test(lab)) return 3; }
+    return null;
+  }
+  function tsecZ(s) {
+    if (s.indexOf("-") > 0) { var a = s.split("-"); return (tsecZ(a[0]) + tsecZ(a[1])) / 2; }
+    var p = s.split(":").map(Number); return p.length === 2 ? p[0] * 60 + p[1] : p[0] * 3600 + p[1] * 60 + p[2];
+  }
+  // Reads each plan's own detail rows, so the mix always matches what the plan pages show. Marathon day is left out.
+  function zmix(au, weeks) {
+    var t = [0, 0, 0, 0, 0, 0, 0], d = [0, 0, 0, 0, 0, 0, 0], tb = document.createElement("table");
+    weeks.forEach(function (w) {
+      tb.innerHTML = "<tbody>" + (w.detail || "") + "</tbody>";
+      Array.prototype.forEach.call(tb.querySelectorAll("tr"), function (tr) {
+        var td = tr.children; if (td.length < 5) return;
+        var lbl = td[0].textContent.trim(), pc = td[1].textContent.trim(), tm = td[3].textContent.replace("each", "").trim();
+        if (!pc || !tm || lbl === "Marathon") return;
+        var mult = 1; if (/each/.test(td[3].textContent)) { var m0 = /^(\d+)/.exec(lbl); mult = m0 ? parseInt(m0[1], 10) : 1; }
+        var sec = mult * tsecZ(tm), parts = pc.split(/,\s*/);
+        parts.forEach(function (e) {
+          var pm0 = /(\d+:\d+)\s*$/.exec(e); if (!pm0) return;
+          var z = zoneOf(au, e.replace(/\s*\d+:\d+\s*$/, "").trim()); if (z === null) return;
+          t[z] += sec / parts.length; d[z] += sec / parts.length / tsecZ(pm0[1]);
+        });
+      });
+    });
+    return { t: t, d: d };
+  }
+  function drawZones() {
+    var box = $("zonebox"), names = RES.map(function (x) { return x.name; }).filter(function (n) { return ZM[n]; });
+    if (!names.length) { box.hidden = true; return; }
+    box.hidden = false;
+    var k = ZMODE, unit = k === "t" ? "running time" : "distance";
+    $("zt").setAttribute("aria-pressed", k === "t"); $("zd").setAttribute("aria-pressed", k === "d");
+    $("zsub").textContent = "Share of each plan's " + unit + " by zone, whole plan from week 1 to race week, marathon day left out. Warm-ups, cooldowns and recoveries are counted at their own pace. Click a plan to select it.";
+    $("zleg").innerHTML = ZN.map(function (z, i) { return "<span><i style='background:var(--z" + (i + 1) + ")'></i>" + z + "</span>"; }).join("");
+    var sh = {};
+    $("zrows").innerHTML = names.map(function (n) {
+      var v = ZM[n][k], T = sumArr(v) || 1; sh[n] = v.map(function (x) { return x / T * 100; });
+      return "<div class='zrow" + (n === SELN ? " sel" : "") + "' data-n='" + n + "'><div class='zn'>" + n + "</div><div class='zbar' role='img' aria-label='" + n + ": " + ZN.map(function (z, i) { return z + " " + sh[n][i].toFixed(0) + "%"; }).join(", ") + "'>" +
+        sh[n].map(function (x, i) { return x > 0 ? "<span style='flex:" + x.toFixed(3) + " 1 0;background:var(--z" + (i + 1) + ");color:" + ZT[i] + "' title='" + n + ", " + ZN[i] + ": " + x.toFixed(1) + "%'>" + (x >= 5 ? x.toFixed(0) : "") + "</span>" : ""; }).join("") + "</div></div>";
+    }).join("");
+    Array.prototype.forEach.call($("zrows").querySelectorAll(".zrow"), function (r) { r.addEventListener("click", function () { SELN = r.getAttribute("data-n"); update(); }); });
+    $("ztab").innerHTML = "<table><thead><tr><th>Plan</th>" + ZN.map(function (z) { return "<th class='num'>" + z + "</th>"; }).join("") + "</tr></thead><tbody>" + names.map(function (n) { return "<tr><td>" + n + "</td>" + sh[n].map(function (x) { return "<td class='num'>" + x.toFixed(1) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>";
+  }
+  $("zt").addEventListener("click", function () { ZMODE = "t"; drawZones(); });
+  $("zd").addEventListener("click", function () { ZMODE = "d"; drawZones(); });
+  $("zbtn").addEventListener("click", function () { var o = $("ztab").hidden; $("ztab").hidden = !o; $("zbtn").setAttribute("aria-expanded", o); $("zbtn").textContent = o ? "Show as chart" : "Show as table"; $("zrows").hidden = o; $("zleg").hidden = o; });
 
   function hm(sec) { var m = Math.round(sec / 60); return Math.floor(m / 60) + ":" + ("0" + (m % 60)).slice(-2); }
 

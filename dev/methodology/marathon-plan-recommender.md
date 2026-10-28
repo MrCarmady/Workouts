@@ -83,3 +83,13 @@ Optional. With a race date, the page plans the calendar as well as the load. Bla
 
 ## Sub-threshold buffer box
 The buffer only changes the Copeland add-on, so its input is shown only while the Copeland row is selected, or while its value is invalid (so it can be fixed). A hidden buffer still applies to the Copeland row in the table. An invalid easy % or buffer now shows an error instead of an empty table.
+
+### Intensity mix (2026-10-28)
+
+A stacked bar per plan (all 13) showing the share of running time or distance in each zone, over the whole plan from week 1 to race week with marathon day left out. A Time / Distance toggle, a table view, and click-to-select a plan (same selection as the load chart). It does not depend on CTL, ATL or the join week.
+
+- Zones follow each plan's own session labels, not a speed cutoff. A cutoff on % of 5km speed misplaces plans: marathon pace depends on the plan's weekly mileage (about 85% of 5km speed for the 55-mile plans, 87% at 70 or more), so Pfitzinger's 55-mile long runs fell under any common "steady" cutoff.
+- Recovery: Pfitzinger recovery runs only. Easy: Daniels E, Copeland easy, Hansons Easy A and B, Pfitzinger general aerobic. Long and steady: Hansons long runs, Pfitzinger long pace (long and medium-long runs, 85% of marathon speed), Copeland's 92% and 93% of marathon speed blocks. Marathon pace: each plan's own. Faster than marathon pace: Hansons strength (MP minus 10 s) and Copeland's 150, 120 and 90 minute reps. Threshold: Daniels T, Pfitzinger LT, Copeland's 60 minute reps. 5k pace and faster, races: Daniels I and R, Hansons speed, Pfitzinger 5K and races, Copeland races.
+- Daniels and Copeland easy pace is the 65% of 5km speed assumption, not their books' paces, so their large easy blocks come from that assumption. Hansons easy uses Table 3.5, Pfitzinger recovery and GA use his 60% and 70%.
+- Warm-ups, cooldowns and recoveries count at their own pace. Distance shares divide each row's time by its pace. The mix is read from each plan's detail rows, so it matches the plan pages. Copeland rows with mixed paces and no time (about 2%) are left out.
+- Example at an 18:52 5km, time share: Daniels 2QC 70 is 84% easy, 7% marathon pace, 7% threshold; Hansons Advanced is 69% easy, 11% long, 12% marathon pace, 5% faster than marathon pace; Pfitzinger 18/70 is 28% recovery, 18% easy, 45% long and steady.
