@@ -21,9 +21,9 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("cross-training-tss.html","cross-training-tss.html","Cross-Training TSS","TSS for bike, rower, treadmill walking and other cross-training.","cross-training-tss.md","cross-training-tss","Load"),
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace, and optional TSS, for a running or walking treadmill setting.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","1RM and Scheme Calculator","1RM estimate, working weights and a warm-up ladder from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
- ("marathon-plans.html","marathon-plans.html","Marathon Plans","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Marathon and plans"),
+ ("marathon-plans.html","marathon-plans.html","Marathon Plan Viewer","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Marathon and plans"),
  ("copeland-base.html","copeland-base.html","Copeland Base","A ramp from your CTL to week 1 of the Copeland marathon plan.","copeland-base.md","copeland-base","Marathon and plans"),
- ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Recommender","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Marathon and plans"),
+ ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Finder","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Marathon and plans"),
  ("hybrid-load-planner.html","hybrid-load-planner.html","Hybrid Load Planner","CTL, ATL and TSB from a week of runs and lifts.","hybrid-load-planner.md","hybrid-load-planner","Load"),
  ("lifting-programme-planner.html","lifting-programme-planner.html","Lifting Programme Planner","Tactical Barbell, GZCLP, 5/3/1, nSuns and other lifting plans.","lifting-programme-planner.md","lifting-programme-planner","Lifting"),
 ]
@@ -78,8 +78,8 @@ groups=('    <nav class="jump" aria-label="Sections"><a href="#running">Running<
 START=[ # (question, tool file, tool title); titles must match the tools list
  ("I ran a race. What does it mean for other distances?","race-prediction-calculator.html","Race Prediction Calculator"),
  ("I ran a hard interval session. What race time does it predict?","hard-workout-predictor.html","Hard Workout Predictor"),
- ("I want a marathon plan that fits my current fitness.","marathon-plan-recommender.html","Marathon Plan Recommender"),
- ("I want to see a marathon plan's paces and weekly load.","marathon-plans.html","Marathon Plans"),
+ ("I want a marathon plan that fits my current fitness.","marathon-plan-recommender.html","Marathon Plan Finder"),
+ ("I want to see a marathon plan's paces and weekly load.","marathon-plans.html","Marathon Plan Viewer"),
  ("I run and lift. How hard is my week in total?","hybrid-load-planner.html","Hybrid Load Planner"),
  ("I need paces for a threshold or tempo session.","run-session-generator.html","Sub-Threshold Session Generator"),
  ("Is my load climbing too fast? What do back-to-back hard days do?","run-load-planner.html","Run Load Planner"),

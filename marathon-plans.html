@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
-<title>Marathon Plans</title>
+<title>Marathon Plan Viewer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
 <style>
@@ -114,8 +114,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   <p class="sitenav"><a href="tools.html">&larr; All tools</a></p>
   <header class="head">
     <div>
-      <h1>Marathon Plans</h1>
-      <p class="sub">Copeland, Daniels, Hansons and Pfitzinger marathon plans from a race result, with paces and load.</p>
+      <h1>Marathon Plan Viewer</h1>
+      <p class="sub">Copeland, Daniels, Hansons and Pfitzinger marathon plans from a race result, with paces and load. To see which plans fit your current CTL and ATL, use the <a href="marathon-plan-recommender.html">Marathon Plan Finder</a>.</p>
     </div>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
@@ -1151,6 +1151,14 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
 
   restore();
+  // Deep link from the Marathon Plan Finder: #author.plan, with "-" standing for "/" in Pfitzinger's plan names.
+  (function () {
+    var m = /^#([a-z]+)\.([a-z0-9-]+)$/.exec(location.hash || ""); if (!m || !AUTH[m[1]]) return;
+    $("author").value = m[1]; fillPlans();
+    var pid = m[1] === "pfitzinger" ? m[2].replace("-", "/") : m[2];
+    if ($("plan").querySelector('option[value="' + pid + '"]')) $("plan").value = pid;
+    save();
+  })();
   ["dist", "time", "wunit", "author", "plan", "ctl", "week", "days", "adjt", "rep5", "lp", "rd", "rec", "ezp", "sbf"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });

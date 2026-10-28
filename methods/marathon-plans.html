@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Marathon Plans: how it works</title>
+<title>Marathon Plan Viewer: how it works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
 <style>
@@ -41,7 +41,7 @@ a { color:var(--accent); }
 </style>
 <main class="wrap">
   <header class="head">
-    <nav class="crumbs"><a href="../tools.html">All tools</a><a href="../marathon-plans.html">Open Marathon Plans</a></nav>
+    <nav class="crumbs"><a href="../tools.html">All tools</a><a href="../marathon-plans.html">Open Marathon Plan Viewer</a></nav>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
       <svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
@@ -49,7 +49,7 @@ a { color:var(--accent); }
     </button>
   </header>
   <article class="doc">
-<h1>Marathon Plans: methodology</h1>
+<h1>Marathon Plan Viewer: methodology</h1>
 <p>One page, four authors. Choose the author, then the plan. The race, time, units and starting CTL are shared. Load (TSS, CTL, ATL, ramp) is calculated the same way for all authors; each section below covers what is specific to that author.</p>
 <p>The marathon itself is scored with the same formula at the plan's marathon pace (about 255 to 265 TSS for an 18:45 5km). It is added to the final week's TSS, time and distance. CTL, ATL and ramp for that week are for the morning of the race, so form on race morning is visible; the page notes what CTL and ATL would be after the marathon.</p>
 <hr />
@@ -402,6 +402,8 @@ a { color:var(--accent); }
 <li>12/85 week 5 (7 to go, a recovery week): the days as printed add to 74 miles, the book prints 70. Built as printed.</li>
 <li>The recovery block for these plans is the book's 85-mile block (16, 31, 36, 42 and 50 miles).</li>
 </ul>
+<h2>Names and links (2026-10-28)</h2>
+<p>Called Marathon Plan Viewer since 2026-10-28 (file name unchanged); the page that checks which plans fit your CTL and ATL is the Marathon Plan Finder. Opening the Viewer with <code>#author.plan</code> (for example <code>#hansons.adv</code>, <code>#pfitzinger.18-70</code>) selects that author and plan.</p>
   </article>
 </main>
 <script>(function () {

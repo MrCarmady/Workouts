@@ -1,4 +1,4 @@
-# Marathon Plans: methodology
+# Marathon Plan Viewer: methodology
 
 One page, four authors. Choose the author, then the plan. The race, time, units and starting CTL are shared. Load (TSS, CTL, ATL, ramp) is calculated the same way for all authors; each section below covers what is specific to that author.
 
@@ -205,3 +205,7 @@ Lays out Pfitzinger's 18-week and 12-week "up to 55 miles per week" and "55 to 7
 - 18/85 and 12/85 are transcribed from the book's tables as given by the author. Marathon pace is the site's prediction at 85 miles a week (the same as at 80 or more). Mondays are recovery runs, with doubles in several weeks; AM medium-long runs with a PM recovery run appear as one day.
 - 12/85 week 5 (7 to go, a recovery week): the days as printed add to 74 miles, the book prints 70. Built as printed.
 - The recovery block for these plans is the book's 85-mile block (16, 31, 36, 42 and 50 miles).
+
+## Names and links (2026-10-28)
+
+Called Marathon Plan Viewer since 2026-10-28 (file name unchanged); the page that checks which plans fit your CTL and ATL is the Marathon Plan Finder. Opening the Viewer with `#author.plan` (for example `#hansons.adv`, `#pfitzinger.18-70`) selects that author and plan.

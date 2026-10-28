@@ -1,4 +1,4 @@
-<title>Marathon Plan Recommender</title>
+<title>Marathon Plan Finder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
 <style>
@@ -131,9 +131,11 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 .zbtns { display: inline-flex; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; }
 .zbtns button { border: 0; background: transparent; color: var(--ink); padding: 5px 12px; font: inherit; font-size: .85rem; cursor: pointer; }
 .zbtns button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
-.zleg { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .8rem; color: var(--muted); }
-.zleg span { display: inline-flex; align-items: center; gap: 6px; }
-.zleg i { width: 12px; height: 12px; display: inline-block; border-radius: 2px; }
+.zleg { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 14px; font-size: .8rem; color: var(--muted); }
+.zleg span { display: grid; grid-template-columns: 12px 1fr; column-gap: 7px; align-items: start; line-height: 1.3; }
+.zleg i { width: 12px; height: 12px; display: block; border-radius: 2px; margin-top: 2px; }
+.zleg b { color: var(--ink); font-weight: 600; }
+.zleg em { font-style: normal; font-variant-numeric: tabular-nums; }
 .zrows { display: grid; gap: 5px; }
 .zrow { display: grid; grid-template-columns: minmax(96px, 150px) minmax(0, 1fr); gap: 10px; align-items: center; cursor: pointer; padding: 1px 0; }
 .zrow .zn { font-size: .85rem; overflow-wrap: anywhere; }
@@ -161,8 +163,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 <main class="wrap">
   <header class="head">
     <div>
-      <h1>Marathon Plan Recommender</h1>
-      <p class="sub">Which Copeland, Daniels, Hansons and Pfitzinger plans fit your current CTL and ATL, judged on form and the ATL to CTL ratio.</p>
+      <h1>Marathon Plan Finder</h1>
+      <p class="sub">Which Copeland, Daniels, Hansons and Pfitzinger plans fit your current CTL and ATL, judged on form and the ATL to CTL ratio. To read a plan week by week, open it in the <a href="marathon-plans.html">Marathon Plan Viewer</a>.</p>
     </div>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
@@ -259,6 +261,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     <div class="chead"><h2 id="ctitle">Load</h2>
       <div class="legend"><span><i style="border-color:var(--c-ctl)"></i>CTL</span><span><i style="border-color:var(--c-atl)"></i>ATL</span><span><i style="border-color:var(--c-tsb)"></i>Form (CTL - ATL)</span></div></div>
     <p class="note" id="csub"></p>
+    <p class="note"><a id="vlink" href="marathon-plans.html">Open this plan in the Marathon Plan Viewer</a></p>
     <div class="chartwrap"><svg id="chart" role="img" tabindex="0" aria-label="CTL, ATL and form by day for the chosen plan"></svg><div id="ctip" hidden></div></div>
     <button type="button" id="cbtn" aria-expanded="false">Show as table</button>
     <div class="tablewrap" id="ctab" hidden></div>
@@ -290,7 +293,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     if (!isFinite(b) || b < 0 || b > 10) return { err: "Sub-threshold buffer must be 0 to 10% slower." };
     return { e: e / 100, b: 1 + b / 100 };
   }
-  // Inputs the plan builders read on Marathon Plans, fixed here at that page's defaults.
+  // Inputs the plan builders read on Marathon Plan Viewer, fixed here at that page's defaults.
   var SHIM = { week: { value: "40" }, adjt: { checked: true }, days: { value: "6" }, rep5: { value: "16.5" }, lp: { value: "85" }, rd: { value: "10" }, rec: { checked: false } };
   /*@@CORE-BEGIN@@ Shared code. Edit shared/core.js and run sync_core.py; do not edit between these markers. */
   var K = 1.06, HM = 21.0975, MAR = 42.195, MILE = 1.609344;
@@ -1198,6 +1201,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     box.hidden = false;
     var svg0 = $("chart"), S = series(sel); SER = S;
     $("ctitle").textContent = sel.name + ": CTL, ATL and form";
+    LIST.forEach(function (p) { if (p[2] === sel.name) { $("vlink").href = "marathon-plans.html#" + p[0] + "." + p[1].replace("/", "-"); $("vlink").textContent = "Open " + sel.name + " in the Marathon Plan Viewer"; } });
     $("csub").textContent = sel.cal ? "Daily values from today, CTL " + C0.toFixed(0) + " and ATL " + A0.toFixed(0) + ". " + sel.calnote + " Click another plan in the table to change it."
       : "Daily values from your start CTL " + C0.toFixed(0) + " and ATL " + A0.toFixed(0) + (sel.j > 0 ? ", holding your current load until week " + (sel.j + 1) + "." : ".") + " Click another plan in the table to change it.";
     var W = Math.max(300, Math.min(760, svg0.parentNode.clientWidth || 760)), H = W < 520 ? 270 : 320, m = { l: 34, r: W < 520 ? 62 : 74, t: 14, b: 28 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
@@ -1322,7 +1326,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       SHIM.week.value = String(p[3]);
       var r = MODS[p[0]].build(p[1], c);
       if (r.err) return;
-      ZM[p[2]] = zmix(p[2].split(" ")[0], r.weeks, p5 * MILE);
+      ZP5 = p5 * MILE; ZM[p[2]] = zmix(p[2].split(" ")[0], r.weeks, ZP5);
       var w = r.weeks, tss = w.map(function (x) { return sumArr(x.d7); }), pk = 0, j = 0, light = false;
       if (rd !== null) {
         // Race date given: the plan's last day is race day, so it starts L x 7 - 1 days before it. Spare days before that are a ramp from today.
@@ -1399,7 +1403,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     syncBuf();
     Array.prototype.forEach.call($("rows").querySelectorAll("tr.pick"), function (tr) {
       tr.classList.toggle("sel", tr.getAttribute("data-n") === SELN);
-      tr.addEventListener("click", function () { SELN = tr.getAttribute("data-n"); update(); });
+      tr.addEventListener("mousedown", function () { SELN = tr.getAttribute("data-n"); update(); });   // mousedown, not click: a pending change event on an input re-renders the rows between mousedown and mouseup and the click is lost
       tr.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); SELN = tr.getAttribute("data-n"); update(); } });
     });
     drawChart(); drawZones();
@@ -1410,7 +1414,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       "<b>Race date and ramp.</b> Optional. The plan's last day is race day, so a plan of L weeks starts 7 x L - 1 days before it. Any days between today and that start are a ramp. For each plan the page finds the lowest CTL that lets the plan fit when you start it, reached by the slowest ramp (a straight rise in CTL spread over all the spare days). The daily load needed for that rise is worked out from the CTL formula, so ATL at the plan start is real: it sits above CTL after a ramp. The ramp may not raise CTL by more than the weekly cap (default 1.0, my choice). If the plan fits without a ramp you hold your current load until it starts. If it does not fit even at the cap, the table says how many more weeks of ramp it needs. The plan is joined at the earliest week that is not lighter than the join percentage of the CTL the ramp reaches (a week skipped adds seven days to the ramp); join 0 means week 1. Fit does not choose the week, so a plan cannot avoid its own spike by joining late. If no week qualifies, week 1 is used and the plan is marked as never reaching your load. If there are fewer weeks than the plan has, the plan is joined part-way. The ramp's own form is not tested. Session content for the ramp weeks is not planned yet.",
       "<b>Joining late.</b> Many plans start well below a fit runner's current load, and following them from week 1 would let CTL fall and then make the harder weeks look worse. So the test skips the leading weeks that are lighter than the join percentage of your current load (default 85%) and assumes you hold your current load until then. The Joins column gives the week the plan is picked up. A plan that never reaches that load is tested from week 1 and marked as never reaching it. Set the percentage to 0 to test every plan from week 1. With a race date the comparison is against the CTL the ramp reaches, not your current CTL.",
       "<b>Start values.</b> Enter your own CTL and ATL. ATL blank means the same as CTL, which is a flat start. A hard recent week raises ATL and makes early weeks fit worse.",
-      "<b>Plan settings.</b> Daniels at the top of each plan's mileage band, 6 run days, short threshold reps for slower runners on. Pfitzinger long runs at 85% of marathon speed, 10km tune-up, no recovery weeks. Copeland 5km reps at 16.5 min. Change these on Marathon Plans.",
+      "<b>Plan settings.</b> Daniels at the top of each plan's mileage band, 6 run days, short threshold reps for slower runners on. Pfitzinger long runs at 85% of marathon speed, 10km tune-up, no recovery weeks. Copeland 5km reps at 16.5 min. Change these on Marathon Plan Viewer.",
       "<b>Load.</b> " + LOADNOTE + " Peak 4-week TSS/day is the highest average over four consecutive weeks. The marathon itself is not scored. Time per week is the plan's running time including warm-up, cooldown and walked recoveries, from the join week to the week before race week; the average is the mean of those weeks and the peak is the longest single week.",
       "<b>Intensity mix.</b> Zones follow each plan's own session labels, not a speed cutoff: Recovery is Pfitzinger's recovery runs only; Easy is Daniels E, Copeland easy, Hansons Easy A and B, and Pfitzinger general aerobic; Long and steady is Hansons long runs, Pfitzinger's long pace (long and medium-long runs, 85% of marathon speed) and Copeland's 92 and 93% of marathon speed progression; Marathon pace is the plan's own; Faster than marathon pace is Hansons strength (MP minus 10 s) and Copeland's 150, 120 and 90 minute reps; Threshold is Daniels T, Pfitzinger LT and Copeland's 60 minute reps. Daniels and Copeland easy pace is the 65% of 5km speed assumption, not their books' paces, so their large easy blocks are an assumption. Distance shares divide each row's time by its pace. Copeland rows with mixed paces and no time are left out. Races are placed by pace (98% of 5km speed or more is 5k pace and faster, 89.5 to 98% is threshold), since a 10km or half marathon is slower than 5k pace. The brackets in the key give the range of each zone as a percentage of your 5km speed, across all plans.",
       "<b>Limits.</b> A plan that fits is not a plan that suits you. It says nothing about the mileage you can absorb, the long run, or injury history."
@@ -1419,7 +1423,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 
   // ---- Intensity mix: share of each plan's running time (or distance) by zone ----
   var ZN = ["Recovery", "Easy", "Long and steady", "Marathon pace", "Faster than marathon pace", "Threshold", "5k pace and faster"], ZT = ["#222", "#222", "#fff", "#fff", "#222", "#222", "#fff"];
-  var ZM = {}, ZMODE = "t";
+  var ZM = {}, ZMODE = "t", ZP5 = 0;
   function zoneOf(au, lab) {
     var m = {
       Copeland: { "Easy": 1, "180-min race": 3, "150-min race": 4, "120-min race": 4, "90-min race": 4, "60-min race": 5 },
@@ -1464,17 +1468,25 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     box.hidden = false;
     var k = ZMODE, unit = k === "t" ? "running time" : "distance";
     $("zt").setAttribute("aria-pressed", k === "t"); $("zd").setAttribute("aria-pressed", k === "d");
-    $("zsub").textContent = "Share of each plan's " + unit + " by zone, whole plan from week 1 to race week, marathon day left out. Warm-ups, cooldowns and recoveries are counted at their own pace. Click a plan to select it.";
+    $("zsub").textContent = "Share of each plan's " + unit + " by zone, whole plan from week 1 to race week, marathon day left out. Warm-ups, cooldowns and recoveries are counted at their own pace. Zones under 3% are too narrow to label; hover for the value, or use the table. Click a plan to select it.";
     var lo = [], hi = [];
     names.forEach(function (n) { ZM[n].rg.forEach(function (r, i) { if (r) { lo[i] = lo[i] === undefined ? r[0] : Math.min(lo[i], r[0]); hi[i] = hi[i] === undefined ? r[1] : Math.max(hi[i], r[1]); } }); });
-    $("zleg").innerHTML = ZN.map(function (z, i) { var g = lo[i] === undefined ? "" : Math.round(lo[i]) === Math.round(hi[i]) ? " (" + Math.round(lo[i]) + "%)" : " (" + Math.round(lo[i]) + "-" + Math.round(hi[i]) + "%)"; return "<span><i style='background:var(--z" + (i + 1) + ")'></i>" + z + g + "</span>"; }).join("") + "<span>Brackets: % of your 5km speed</span>";
+    function pc(s) { var m = Math.floor(s / 60), x = Math.round(s - m * 60); if (x === 60) { m++; x = 0; } return m + ":" + (x < 10 ? "0" : "") + x; }
+    $("zleg").innerHTML = ZN.map(function (z, i) {
+      var g = "";
+      if (lo[i] !== undefined) {
+        var a = Math.round(lo[i]), b = Math.round(hi[i]);
+        g = "<em>" + (a === b ? a + "%" : a + "-" + b + "%") + " of 5k speed</em><br><em>" + (a === b ? pc(ZP5 * 100 / lo[i]) : pc(ZP5 * 100 / lo[i]) + "-" + pc(ZP5 * 100 / hi[i])) + " /mi at your 5k</em>";
+      }
+      return "<span><i style='background:var(--z" + (i + 1) + ")'></i><div><b>" + z + "</b><br>" + g + "</div></span>";
+    }).join("");
     var sh = {};
     $("zrows").innerHTML = names.map(function (n) {
       var v = ZM[n][k], T = sumArr(v) || 1; sh[n] = v.map(function (x) { return x / T * 100; });
       return "<div class='zrow" + (n === SELN ? " sel" : "") + "' data-n='" + n + "'><div class='zn'>" + n + "</div><div class='zbar' role='img' aria-label='" + n + ": " + ZN.map(function (z, i) { return z + " " + sh[n][i].toFixed(0) + "%"; }).join(", ") + "'>" +
         sh[n].map(function (x, i) { return x > 0 ? "<span style='flex:" + x.toFixed(3) + " 1 0;background:var(--z" + (i + 1) + ");color:" + ZT[i] + "' title='" + n + ", " + ZN[i] + ": " + x.toFixed(1) + "%'>" + (x >= 3 ? x.toFixed(0) : "") + "</span>" : ""; }).join("") + "</div></div>";
     }).join("");
-    Array.prototype.forEach.call($("zrows").querySelectorAll(".zrow"), function (r) { r.addEventListener("click", function () { SELN = r.getAttribute("data-n"); update(); }); });
+    Array.prototype.forEach.call($("zrows").querySelectorAll(".zrow"), function (r) { r.addEventListener("mousedown", function () { SELN = r.getAttribute("data-n"); update(); }); });
     $("ztab").innerHTML = "<table><thead><tr><th>Plan</th>" + ZN.map(function (z) { return "<th class='num'>" + z + "</th>"; }).join("") + "</tr></thead><tbody>" + names.map(function (n) { return "<tr><td>" + n + "</td>" + sh[n].map(function (x) { return "<td class='num'>" + x.toFixed(1) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>";
   }
   $("zt").addEventListener("click", function () { ZMODE = "t"; drawZones(); });

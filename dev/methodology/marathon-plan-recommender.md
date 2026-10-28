@@ -1,6 +1,6 @@
-# Marathon Plan Recommender: methodology
+# Marathon Plan Finder: methodology
 
-Tests all 13 marathon plans on Marathon Plans against your starting CTL and ATL, and says which fit. It does not rank plans by how good they are for you.
+Tests all 13 marathon plans on Marathon Plan Viewer against your starting CTL and ATL, and says which fit. It does not rank plans by how good they are for you.
 
 ### Test
 
@@ -22,14 +22,14 @@ Tests all 13 marathon plans on Marathon Plans against your starting CTL and ATL,
 
 ### Plan settings
 
-These are Marathon Plans' defaults, fixed here:
+These are Marathon Plan Viewer's defaults, fixed here:
 
 | Setting | Value |
 |---|---|
 | Daniels | Top of each plan's band (40, 55, 70, 85 mi), 6 run days, short threshold reps on |
 | Pfitzinger | Long runs at 85% of marathon speed, 10km tune-up, no recovery weeks |
 | Copeland | 5km reps 16.5 min |
-| Hansons | As on Marathon Plans |
+| Hansons | As on Marathon Plan Viewer |
 
 ### Joining late
 
@@ -58,7 +58,7 @@ Optional. With a race date, the page plans the calendar as well as the load. Bla
 - Inputs: average hours per week over the last 6 weeks, hours in the last 7 days (blank = same as average), and a rough percentage of running time at threshold or harder (blank = 15, limit 0 to 50, my limit).
 - TSS per hour = (1 - q) x 100 x (race(16) pace / easy pace)^2 + q x 100, with easy pace = race(5) / 0.65 (the engine's easy cap) and threshold work scored at 100 TSS/hour. About 49, 56 and 61 TSS/hour for 0, 15 and 25%.
 - CTL = average hours x TSS/hour / 7, which assumes steady training. ATL = (last-7-days x 0.632 + average x 0.368) x TSS/hour / 7, which is the 7-day time constant on a steady week followed by one different week.
-- Optional average easy pace (per km or per mile) replaces the easy percentage (65% by default) used for the load estimate. The plans use the same easy percentage and sub-threshold buffer inputs as Marathon Plans: easy TSS/hour = 100 x (race(16) pace / easy pace)^2. The page shows the pace as a percentage of 5km speed and flags values under 50% or over 80% (my limits, to catch unit mistakes), and rejects paces at or faster than threshold pace or outside 2:30 to 10:00 per km. Slower real easy running than the default lowers TSS and faster raises it. The 15% mix and 25% mix are my choices, not tested against real logs.
+- Optional average easy pace (per km or per mile) replaces the easy percentage (65% by default) used for the load estimate. The plans use the same easy percentage and sub-threshold buffer inputs as Marathon Plan Viewer: easy TSS/hour = 100 x (race(16) pace / easy pace)^2. The page shows the pace as a percentage of 5km speed and flags values under 50% or over 80% (my limits, to catch unit mistakes), and rejects paces at or faster than threshold pace or outside 2:30 to 10:00 per km. Slower real easy running than the default lowers TSS and faster raises it. The 15% mix and 25% mix are my choices, not tested against real logs.
 - "Use these" copies the numbers into start CTL and ATL. Nothing is saved.
 
 ### Columns
@@ -72,7 +72,7 @@ Optional. With a race date, the page plans the calendar as well as the load. Bla
 ### Limits
 
 - A plan that fits is not a plan that suits you. It says nothing about mileage you can absorb, long-run length or injury history.
-- The plan code is a copy of Marathon Plans'. A build test fails if the two differ.
+- The plan code is a copy of Marathon Plan Viewer's. A build test fails if the two differ.
 
 ### Load chart
 
@@ -90,7 +90,11 @@ A stacked bar per plan (all 13) showing the share of running time or distance in
 
 - Zones follow each plan's own session labels, not a speed cutoff. A cutoff on % of 5km speed misplaces plans: marathon pace depends on the plan's weekly mileage (about 85% of 5km speed for the 55-mile plans, 87% at 70 or more), so Pfitzinger's 55-mile long runs fell under any common "steady" cutoff.
 - Recovery: Pfitzinger recovery runs only. Easy: Daniels E, Copeland easy, Hansons Easy A and B, Pfitzinger general aerobic. Long and steady: Hansons long runs, Pfitzinger long pace (long and medium-long runs, 85% of marathon speed), Copeland's 92% and 93% of marathon speed blocks. Marathon pace: each plan's own. Faster than marathon pace: Hansons strength (MP minus 10 s) and Copeland's 150, 120 and 90 minute reps. Threshold: Daniels T, Pfitzinger LT, Copeland's 60 minute reps. 5k pace and faster: Daniels I and R, Hansons speed, Pfitzinger 5K, and any race at 98% of 5km speed or more. Races are placed by pace, not label (changed 2026-10-28): a 10km or half marathon is slower than 5k pace, so the 10km and half marathon races in Copeland and Pfitzinger's 10km tune-up land in Threshold (89.5 to 98% of 5km speed; about halfway from marathon to threshold pace is the cut).
-- The key shows each zone's range as a % of the runner's 5km speed across all plans (at 18:52: Recovery 60, Easy 65-77, Long and steady 73-81, Marathon pace 85-89, Faster than marathon pace 87-92, Threshold 92-96, 5k and faster 100-110). Ranges overlap because zones are by role, not by speed. Segments of 3% or more carry their value; the hover text and table give all.
+- The key shows each zone's range as a % of the runner's 5km speed across all plans (at 18:52: Recovery 60, Easy 65-77, Long and steady 73-81, Marathon pace 85-89, Faster than marathon pace 87-92, Threshold 92-96, 5k and faster 100-110). Ranges overlap because zones are by role, not by speed. Segments of 3% or more carry their value inside the bar; smaller ones are in the hover text and the table. Each key entry gives the zone's % of 5km speed range and the matching pace per mile at the runner's 5km, across all plans.
 - Daniels and Copeland easy pace is the 65% of 5km speed assumption, not their books' paces, so their large easy blocks come from that assumption. Hansons easy uses Table 3.5, Pfitzinger recovery and GA use his 60% and 70%.
 - Warm-ups, cooldowns and recoveries count at their own pace. Distance shares divide each row's time by its pace. The mix is read from each plan's detail rows, so it matches the plan pages. Copeland rows with mixed paces and no time (about 2%) are left out.
 - Example at an 18:52 5km, time share: Daniels 2QC 70 is 84% easy, 7% marathon pace, 7% threshold; Hansons Advanced is 69% easy, 11% long, 12% marathon pace, 5% faster than marathon pace; Pfitzinger 18/70 is 28% recovery, 18% easy, 45% long and steady.
+
+### Names and links (2026-10-28)
+
+The page is called Marathon Plan Finder (file name unchanged) and the plan page is called Marathon Plan Viewer. The Finder links the selected plan to the Viewer, which opens on that author and plan through a link of the form `marathon-plans.html#hansons.adv` (Pfitzinger plans use "-" for "/", for example `#pfitzinger.18-70`). The Viewer links back to the Finder. The race result carries over through the shared saved profile, the plan settings do not: the Finder uses the Viewer's defaults. Plan rows and intensity bars select on mouse press, not click, because a pending change on an input re-renders the rows between press and release and swallowed the first click.

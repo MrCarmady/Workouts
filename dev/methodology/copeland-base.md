@@ -37,7 +37,7 @@ Two easy runs, two sub-threshold sessions and one long run (your split; the days
 
 ### Target
 
-Plan week 1 is the first week of the Copeland marathon add-on: Tue 3 x 12 min, Thu 6 x 6 min, Sat 10 x 3 min, Sun 110 min, other days 60 min. It is the same week as on Marathon Plans (about 7:51 h and 451 TSS at an 18:45 5km). The table stops at this week.
+Plan week 1 is the first week of the Copeland marathon add-on: Tue 3 x 12 min, Thu 6 x 6 min, Sat 10 x 3 min, Sun 110 min, other days 60 min. It is the same week as on Marathon Plan Viewer (about 7:51 h and 451 TSS at an 18:45 5km). The table stops at this week.
 
 ### Ramp
 
@@ -88,7 +88,7 @@ These are the Copeland plan's values, restated in time (2026-10-14). "60-min rac
 - TSS per segment = hours x (threshold pace / pace)^2 x 100, threshold = race(16).
 - Recoveries are walked at 6 km/h (100 m per minute). They count for time, TSS and distance.
 - CTL has a 42-day and ATL a 7-day time constant. CTL, ATL and ramp are at the end of each week.
-- The race model's 70-mile marathon slow-down applies to long-race paces, as on Marathon Plans.
+- The race model's 70-mile marathon slow-down applies to long-race paces, as on Marathon Plan Viewer.
 
 ### Limits
 
