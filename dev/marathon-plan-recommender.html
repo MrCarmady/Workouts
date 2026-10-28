@@ -272,6 +272,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       <div class="zbtns" role="group" aria-label="Measure"><button type="button" id="zt" aria-pressed="true">Time</button><button type="button" id="zd" aria-pressed="false">Distance</button></div></div>
     <p class="note" id="zsub"></p>
     <div class="zleg" id="zleg"></div>
+    <p class="note" id="zkey"></p>
     <div class="zrows" id="zrows"></div>
     <button type="button" id="zbtn" aria-expanded="false">Show as table</button>
     <div class="tablewrap" id="ztab" hidden></div>
@@ -1471,12 +1472,15 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     $("zsub").textContent = "Share of each plan's " + unit + " by zone, whole plan from week 1 to race week, marathon day left out. Warm-ups, cooldowns and recoveries are counted at their own pace. Zones under 3% are too narrow to label; hover for the value, or use the table. Click a plan to select it.";
     var lo = [], hi = [];
     names.forEach(function (n) { ZM[n].rg.forEach(function (r, i) { if (r) { lo[i] = lo[i] === undefined ? r[0] : Math.min(lo[i], r[0]); hi[i] = hi[i] === undefined ? r[1] : Math.max(hi[i], r[1]); } }); });
+    var mi = profGet().wunit === "mi";
+    var zp = mi ? ZP5 : ZP5 / 1.609344;   // 5k pace per km unless the saved units are miles
+    $("zkey").textContent = "Under each zone: % of 5k speed, then pace per " + (mi ? "mile" : "km") + " from your race result. Ranges across all plans.";
     function pc(s) { var m = Math.floor(s / 60), x = Math.round(s - m * 60); if (x === 60) { m++; x = 0; } return m + ":" + (x < 10 ? "0" : "") + x; }
     $("zleg").innerHTML = ZN.map(function (z, i) {
       var g = "";
       if (lo[i] !== undefined) {
         var a = Math.round(lo[i]), b = Math.round(hi[i]);
-        g = "<em>" + (a === b ? a + "%" : a + "-" + b + "%") + " of 5k speed</em><br><em>" + (a === b ? pc(ZP5 * 100 / lo[i]) : pc(ZP5 * 100 / lo[i]) + "-" + pc(ZP5 * 100 / hi[i])) + " /mi at your 5k</em>";
+        g = "<em>" + (a === b ? a + "%" : a + "-" + b + "%") + " &middot; " + (a === b ? pc(zp * 100 / lo[i]) : pc(zp * 100 / lo[i]) + "-" + pc(zp * 100 / hi[i])) + "</em>";
       }
       return "<span><i style='background:var(--z" + (i + 1) + ")'></i><div><b>" + z + "</b><br>" + g + "</div></span>";
     }).join("");
