@@ -255,8 +255,8 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     return (lo + hi) / 2;
   }
   // Tinman: fitted to sample outputs of his calculator (13:00 to 29:00 5k). Every time is the 5k time x a fixed factor.
-  // 3000m and up: (d / 5000) ^ 1.0579. Below that, factors read from his output table (1500m and mile).
-  var TIN_SHORT = { "1500m": 0.2723, "Mile": 0.29447 };
+  // 3000m and up: (d / 5000) ^ 1.0579. Below that, factors read from his output table (400m, 800m, 1000m, 1500m and mile).
+  var TIN_SHORT = { "400m": 0.056878, "800m": 0.13338, "1000m": 0.17358, "1500m": 0.2723, "Mile": 0.29447 };
   function tinF(T) { return TIN_SHORT[T.name] !== undefined ? TIN_SHORT[T.name] : Math.pow(T.km / 5, 1.0579); }
   // Male world records in seconds (author-supplied mile; marathon 1:59:30 and half 56:51 not yet ratified as of 2026-10-16).
   // 10 miles: Haile Gebrselassie 44:24 (road, ratified; author's choice over a faster time by a sanctioned athlete).
@@ -285,7 +285,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     }
     if (model === "tinman") {
       var t5 = t / tinF(D); if (t5 < 780 || t5 > 1740) return { err: "Outside the tested Tinman range (5km equivalent 13:00 to 29:00)." };
-      DISTS.forEach(function (T) { out[T.name] = T.o ? null : t5 * tinF(T); });
+      DISTS.forEach(function (T) { out[T.name] = t5 * tinF(T); });
       return { t: out };
     }
     return { t: null };

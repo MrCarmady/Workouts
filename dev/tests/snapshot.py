@@ -32,6 +32,7 @@ def scenarios():
     LASTWK="e=>{var s=document.querySelector('#wk');s.selectedIndex=s.options.length-1;s.dispatchEvent(new Event('change',{bubbles:true}))}"
     for c,d,t in [('wr','5','18:45'),('wr','10','39:43'),('tinman','5','18:30'),('tinman','21.0975','1:27:08'),('tinman','5','12:00'),('daniels','5','18:30'),('hansons','5','18:30'),('pfitz','10','39:43'),('pfitz','5','18:30'),('hansons','3','10:44'),('pfitz','21.0975','1:20:00')]:
         out.append(('race-prediction-calculator','compare '+c+' '+d+' '+t,lambda pg,c=c,d=d,t=t:[fill(pg,'dist',d),fill(pg,'time',t),pg.select_option('#cmp',c)]))
+    out.append(('race-prediction-calculator','compare tinman 5km 19:00 short rows',lambda pg:[fill(pg,'dist',KMIDX['5']),fill(pg,'time','19:00'),pg.select_option('#cmp','tinman')]))
     def two(d1,t1,d2,t2,**k):
         return lambda pg:[fill(pg,'dist',d1),fill(pg,'time',t1),fill(pg,'dist2',d2),fill(pg,'time2',t2),fill(pg,'week',k.get('week','70')),fill(pg,'wunit','mi'),pg.select_option('#cmp',k.get('cmp','none'))]
     out.append(('race-prediction-calculator','blend mile 5:23.4 + 10k 39:43',two('1','5:23.4','4','39:43')))
