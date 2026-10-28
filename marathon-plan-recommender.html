@@ -19,7 +19,7 @@
   --accent-fg: #ffffff;
   --accent-soft: #f6dcd9;
   --warn: #a35a00;
-  --c-ctl: #2a78d6; --c-atl: #eb6834; --c-tsb: #1baf7a; --z1: #d9e6f2; --z2: #9cc3e0; --z3: #5b9bc9; --z4: #2a6f97; --z5: #e9c46a; --z6: #e08a2c; --z7: #b23a1e;
+  --c-ctl: #2a78d6; --c-atl: #eb6834; --c-tsb: #1baf7a; --z1: #c9ced2; --z2: #d9e6f2; --z3: #9cc3e0; --z4: #5b9bc9; --z5: #2a6f97; --z6: #e9c46a; --z7: #e08a2c; --z8: #b23a1e;
   --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
   --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -1424,13 +1424,13 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       "<b>Start values.</b> Enter your own CTL and ATL. ATL blank means the same as CTL, which is a flat start. A hard recent week raises ATL and makes early weeks fit worse.",
       "<b>Plan settings.</b> Daniels at the top of each plan's mileage band, 6 run days, short threshold reps for slower runners on. Pfitzinger long runs at 85% of marathon speed, 10km tune-up, no recovery weeks. Copeland 5km reps at 16.5 min. Change these on Marathon Plan Viewer.",
       "<b>Load.</b> " + LOADNOTE + " Peak 4-week TSS/day is the highest average over four consecutive weeks. The marathon itself is not scored. Time per week is the plan's running time including warm-up, cooldown and walked recoveries, from the join week to the week before race week; the average is the mean of those weeks and the peak is the longest single week.",
-      "<b>Intensity mix.</b> Zones follow each plan's own session labels, not a speed cutoff: Recovery is Pfitzinger's recovery runs only; Easy is Daniels E, Copeland easy, Hansons Easy A and B, and Pfitzinger general aerobic; Long and steady is Hansons long runs, Pfitzinger's long pace (long and medium-long runs, 85% of marathon speed) and Copeland's 92 and 93% of marathon speed progression; Marathon pace is the plan's own; Sub-threshold is Hansons strength (MP minus 10 s) and Copeland's 150, 120 and 90 minute reps; Threshold is Daniels T, Pfitzinger LT and Copeland's 60 minute reps. Daniels and Copeland easy running is at your easy-pace setting (65% of 5km speed by default), which is a deliberate choice for truly easy running and slower than both books: Copeland's table gives a ceiling of 70% of 5km speed, and Daniels' range is about 70 to 78% at an 18:52 5km. Hansons easy uses Table 3.5 and Pfitzinger recovery and GA use his 60% and 70%, so the Easy range in the key spans different sources. Distance shares divide each row's time by its pace. Copeland rows with mixed paces and no time are left out. Races are placed by pace (98% of 5km speed or more is 5k pace and faster, 89.5 to 98% is threshold), since a 10km or half marathon is slower than 5k pace. The brackets in the key give the range of each zone as a percentage of your 5km speed, across all plans.",
+      "<b>Intensity mix.</b> Zones follow each plan's own session labels, not a speed cutoff: Recovery is Pfitzinger's recovery runs only; Easy is Daniels E, Copeland easy, Hansons Easy A and B, and Pfitzinger general aerobic; Long and steady is Hansons long runs, Pfitzinger's long pace (long and medium-long runs, 85% of marathon speed) and Copeland's 92 and 93% of marathon speed progression; Marathon pace is the plan's own; Sub-threshold is Hansons strength (MP minus 10 s) and Copeland's 150, 120 and 90 minute reps; Threshold is Daniels T, Pfitzinger LT and Copeland's 60 minute reps. Daniels and Copeland easy running is at your easy-pace setting (65% of 5km speed by default), which is a deliberate choice for truly easy running and slower than both books: Copeland's table gives a ceiling of 70% of 5km speed, and Daniels' range is about 70 to 78% at an 18:52 5km. Hansons easy uses Table 3.5 and Pfitzinger recovery and GA use his 60% and 70%, so the Easy range in the key spans different sources. Copeland's walked rep recoveries (6 km/h) are split out as their own Walking zone, not counted in the rep zone. Distance shares divide each row's time by its pace. Copeland rows with mixed paces and no time are left out. Races are placed by pace (98% of 5km speed or more is 5k pace and faster, 89.5 to 98% is threshold), since a 10km or half marathon is slower than 5k pace. The brackets in the key give the range of each zone as a percentage of your 5km speed, across all plans.",
       "<b>Limits.</b> A plan that fits is not a plan that suits you. It says nothing about the mileage you can absorb, the long run, or injury history."
     ].map(function (x) { return "<li>" + x + "</li>"; }).join("");
   }
 
   // ---- Intensity mix: share of each plan's running time (or distance) by zone ----
-  var ZN = ["Recovery", "Easy", "Long and steady", "Marathon pace", "Sub-threshold", "Threshold", "5k pace and faster"], ZT = ["#222", "#222", "#fff", "#fff", "#222", "#222", "#fff"];
+  var ZN = ["Walking", "Recovery", "Easy", "Long and steady", "Marathon pace", "Sub-threshold", "Threshold", "5k pace and faster"], ZT = ["#222", "#222", "#222", "#fff", "#fff", "#222", "#222", "#fff"];
   var ZM = {}, ZMODE = "t", ZP5 = 0;
   function zoneOf(au, lab) {
     var m = {
@@ -1451,7 +1451,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   // A race is placed by its pace, not its label: a 10km or half marathon is slower than 5k pace. 98% of 5k speed or more is 5k pace and faster; down to 89.5% (about halfway from marathon to threshold pace) is threshold; slower is sub-threshold.
   function raceZone(pct) { return pct >= 98 ? 6 : pct >= 89.5 ? 5 : 4; }
   function zmix(au, weeks, p5mi) {
-    var t = [0, 0, 0, 0, 0, 0, 0], d = [0, 0, 0, 0, 0, 0, 0], rg = [null, null, null, null, null, null, null], tb = document.createElement("table");
+    var t = [0, 0, 0, 0, 0, 0, 0, 0], d = [0, 0, 0, 0, 0, 0, 0, 0], rg = [null, null, null, null, null, null, null, null], tb = document.createElement("table");
     weeks.forEach(function (w) {
       tb.innerHTML = "<tbody>" + (w.detail || "") + "</tbody>";
       Array.prototype.forEach.call(tb.querySelectorAll("tr"), function (tr) {
@@ -1460,9 +1460,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         if (!pc || !tm || lbl === "Marathon") return;
         var mult = 1; if (/each/.test(td[3].textContent)) { var m0 = /^(\d+)/.exec(lbl); mult = m0 ? parseInt(m0[1], 10) : 1; }
         var sec = mult * tsecZ(tm), parts = pc.split(/,\s*/);
+        // Copeland rep rows carry their walked recoveries in the row time: split them out as their own zone, at 6 km/h.
+        var wm = /^(\d+) \u00d7 [\d.]+ min.*w\/ (\d+) (s walk|min rests)/.exec(lbl);
+        if (wm) { var wsec = mult * (parseInt(wm[1], 10) - 1) * parseInt(wm[2], 10) * (wm[3] === "s walk" ? 1 : 60); t[0] += wsec; d[0] += wsec / (600 * MILE); sec -= wsec; }
         parts.forEach(function (e) {
           var pm0 = /(\d+:\d+)\s*$/.exec(e); if (!pm0) return;
-          var el = e.replace(/\s*\d+:\d+\s*$/, "").trim(), ps = tsecZ(pm0[1]), pct = 100 * p5mi / ps, z = el === "Race" ? raceZone(pct) : zoneOf(au, el); if (z === null) return;
+          var el = e.replace(/\s*\d+:\d+\s*$/, "").trim(), ps = tsecZ(pm0[1]), pct = 100 * p5mi / ps, z = el === "Race" ? raceZone(pct) : zoneOf(au, el); if (z === null) return; z += 1;
           t[z] += sec / parts.length; d[z] += sec / parts.length / ps;
           rg[z] = rg[z] === null ? [pct, pct] : [Math.min(rg[z][0], pct), Math.max(rg[z][1], pct)];
         });
@@ -1476,7 +1479,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     box.hidden = false;
     var k = ZMODE, unit = k === "t" ? "running time" : "distance";
     $("zt").setAttribute("aria-pressed", k === "t"); $("zd").setAttribute("aria-pressed", k === "d");
-    $("zsub").textContent = "Share of each plan's " + unit + " by zone, whole plan from week 1 to race week, marathon day left out. Warm-ups, cooldowns and recoveries are counted at their own pace. Zones under 3% are too narrow to label; hover for the value, or use the table. Click a plan to select it.";
+    $("zsub").textContent = "Share of each plan's " + unit + " by zone, whole plan from week 1 to race week, marathon day left out. Warm-ups and cooldowns are counted at their own pace; Copeland\u2019s walked rep recoveries are their own zone. Zones under 3% are too narrow to label; hover for the value, or use the table. Click a plan to select it.";
     var lo = [], hi = [];
     names.forEach(function (n) { ZM[n].rg.forEach(function (r, i) { if (r) { lo[i] = lo[i] === undefined ? r[0] : Math.min(lo[i], r[0]); hi[i] = hi[i] === undefined ? r[1] : Math.max(hi[i], r[1]); } }); });
     var mi = profGet().wunit === "mi";
@@ -1485,7 +1488,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     function pc(s) { var m = Math.floor(s / 60), x = Math.round(s - m * 60); if (x === 60) { m++; x = 0; } return m + ":" + (x < 10 ? "0" : "") + x; }
     $("zleg").innerHTML = ZN.map(function (z, i) {
       var g = "";
-      if (lo[i] !== undefined) {
+      if (i === 0) g = "<em>" + (mi ? "3.7 mph" : "6 km/h") + "</em>";
+      else if (lo[i] !== undefined) {
         var a = Math.round(lo[i]), b = Math.round(hi[i]);
         g = "<em>" + (a === b ? a + "%" : a + "-" + b + "%") + " &middot; " + (a === b ? pc(zp * 100 / lo[i]) : pc(zp * 100 / lo[i]) + "-" + pc(zp * 100 / hi[i])) + "</em>";
       }
