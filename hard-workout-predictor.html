@@ -294,6 +294,15 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     for (var i = 0; i < STD.length; i++) if (STD[i][0] <= x * 1.05) lab = STD[i][1];
     return lab;
   }
+  // Warnings (placeholders): RPE below 7 or above 9, and rep counts below 0.6 or above 2 times the typical count for the rep length.
+  var WARN_RPE_LO = 7, WARN_RPE_HI = 9, WARN_R_LO = 0.6, WARN_R_HI = 2;
+  var LOW_MSG = "Too easy for a meaningful prediction. Try a harder effort or more reps next time.";
+  var HIGH_MSG = "Don't leave the race in training. The prediction is solid, but recovery may be excessive.";
+  function typN(m) {
+    if (m <= ANCH[0].m) return ANCH[0].n;
+    for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return ANCH[i].n * (1 - w) + ANCH[i + 1].n * w; }
+    return ANCH[ANCH.length - 1].n;
+  }
   function stdRest(m) {
     if (m <= ANCH[0].m) return ANCH[0].rest;
     for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return ANCH[i].rest * (1 - w) + ANCH[i + 1].rest * w; }
@@ -341,7 +350,8 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tFor(pm)) + "</b><small>" + hmmss(tFor(pf)) + "–" + hmmss(tFor(ps)) + "</small></div>" +
       "<div><span>5km pace</span><b>" + mmss(pm) + "</b><small>/km, in race shape</small></div>";
     var fl = [];
-    if (rpe < 7) fl.push("RPE below 7: an easier effort than a hard session, so the estimate is less reliable. Treat it with caution.");
+    if (rpe < WARN_RPE_LO) fl.push(LOW_MSG);
+    if (rpe > WARN_RPE_HI) fl.push(HIGH_MSG);
     if (D / km > 3 || D / km < 1 / 3) fl.push("Predicting a " + $("target").options[$("target").selectedIndex].text + " from a " + lab + " effort is a long extrapolation, so treat it with caution.");
     fl.push("Heat, surface, wind and hills are not adjusted for.");
     $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
@@ -393,8 +403,8 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       if (d > 2) fl.push("The second half of the hard 400s was " + d.toFixed(1) + "% slower than the first. That suggests the opening reps were above a sustainable pace, so the estimate may be too fast.");
       if (d < -2) fl.push("The second half of the hard 400s was " + (-d).toFixed(1) + "% faster than the first. That suggests reserve, so the estimate may be too slow.");
     }
-    if (rpe < 7) fl.push("RPE below 7: an easier effort than a hard session, so the estimate is less reliable. Treat it with caution.");
-    if (rpe > 9.5) fl.push("RPE above 9.5: close to all-out. Treat the estimate with caution.");
+    if (rpe < WARN_RPE_LO) fl.push(LOW_MSG);
+    if (rpe > WARN_RPE_HI) fl.push(HIGH_MSG);
     if (D / X > 3 || D / X < 1 / 3) fl.push("These reps equal about " + xText(X) + " pace. Predicting a " + $("target").options[$("target").selectedIndex].text + " from that is a long extrapolation, so treat it with caution.");
     fl.push("Heat, surface, wind and hills are not adjusted for.");
     $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
@@ -463,8 +473,11 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (rest < 20) fl.push("Rest under 20s is close to continuous running, which this model is not built for. Consider the Continuous option.");
     else if (rest > sr * REST_LIM) fl.push("Rest is more than " + REST_LIM + " times the standard " + Math.round(sr) + "s for this rep length, so this is closer to separate efforts than one session. The rest adjustment stops at " + REST_LIM + " times.");
     else if (Math.abs(rest / sr - 1) > 0.1) { var ch = (restF(m, rest) - 1) * 100; fl.push("Rest of " + Math.round(rest) + "s against the standard " + Math.round(sr) + "s: the reps equal a race about " + Math.abs(ch).toFixed(0) + "% " + (ch < 0 ? "shorter, because the longer rest makes the session easier." : "longer, because the shorter rest makes the session harder.")); }
-    if (rpe < 7) fl.push("RPE below 7: an easier effort than a hard session, so the estimate is less reliable. Treat it with caution.");
-    if (rpe > 9.5) fl.push("RPE above 9.5: close to all-out. Treat the estimate with caution.");
+    var tn = typN(m), rr = nReps / tn;
+    if (rr < WARN_R_LO) fl.push("Too few reps for a meaningful prediction (typical for " + (m >= 1000 ? m / 1000 + "km" : m + "m") + " is about " + Math.round(tn) + "). Try more reps next time.");
+    if (rr > WARN_R_HI) fl.push("Many more reps than the typical " + Math.round(tn) + " for " + (m >= 1000 ? m / 1000 + "km" : m + "m") + ". The prediction is solid, but don't leave the race in training: recovery may be excessive.");
+    if (rpe < WARN_RPE_LO) fl.push(LOW_MSG);
+    if (rpe > WARN_RPE_HI) fl.push(HIGH_MSG);
     if (D / xEq > 3 || D / xEq < 1 / 3) fl.push("These reps equal about " + xText(xEq) + " pace. Predicting a " + $("target").options[$("target").selectedIndex].text + " from that is a long extrapolation, so treat it with caution.");
     fl.push("Heat, surface, wind and hills are not adjusted for.");
     $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
