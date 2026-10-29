@@ -264,6 +264,13 @@ def scenarios():
 def tracker(pg):
     for d,reps,rep,u,pace in [('2026-09-01','4','10','min','4:05'),('2026-09-08','6','1','km','3:58'),('2026-09-15','5','8','min','3:55'),('2026-09-29','3','12','min','4:08'),('2026-10-06','4','10','min','4:00')]:
         fill(pg,'date',d);fill(pg,'reps',reps);fill(pg,'rep',rep);fill(pg,'unit',u);fill(pg,'pace',pace);pg.click('#add')
+def tracker_race(pg):
+    tracker(pg)
+    fill(pg,'rdate','2026-10-17');fill(pg,'rdist','5');fill(pg,'rtime','18:52');pg.click('#radd')
+def tracker_race_only(pg):
+    fill(pg,'rdate','2026-10-17');fill(pg,'rdist','5');fill(pg,'rtime','18:52');pg.click('#radd')
+def tracker_race_bad(pg):
+    fill(pg,'rdist','5');fill(pg,'rtime','18:75');pg.click('#radd')
 # Pages that show "today" or the age of a session (the trend tracker, the Run Load Planner start day) would change the snapshot every day.
 # Freeze the page clock at 2026-10-19 12:00 local time so the baseline does not depend on the date it is run (added 2026-10-21).
 FREEZE_DATE="""(function(){var R=Date,f=new R(2026,9,19,12,0,0).getTime();function F(a,b,c,d,e,g,h){if(arguments.length===0)return new R(f);if(arguments.length===1)return new R(a);return new R(a,b,c,d||0,e||0,g||0,h||0);}F.prototype=R.prototype;F.now=function(){return f;};F.UTC=R.UTC;F.parse=R.parse;window.Date=F;})();"""
@@ -271,7 +278,7 @@ def run():
     res={}
     with sync_playwright() as p:
         b=p.chromium.launch()
-        sc=scenarios()+[('sub-t-trend-tracker','5 sessions',tracker)]
+        sc=scenarios()+[('sub-t-trend-tracker','5 sessions',tracker),('sub-t-trend-tracker','5 sessions and 5k race',tracker_race),('sub-t-trend-tracker','race, no sessions',tracker_race_only),('sub-t-trend-tracker','bad race time',tracker_race_bad)]
         for page,name,fn in sc:
             ctx=b.new_context(viewport={'width':900,'height':900}); ctx.add_init_script(FREEZE_DATE); pg=ctx.new_page(); errs=[]; pg.on('pageerror',lambda e:errs.append(str(e)))
             pg.goto('file://'+os.path.join(PAGES,page+'.html')); fn(pg); pg.wait_for_timeout(50)

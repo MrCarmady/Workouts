@@ -97,6 +97,7 @@ svg.chart .pt { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
 svg.chart .pt.old { opacity: .35; }
 svg.chart .wh.old { opacity: .2; }
 svg.chart .wh { stroke: var(--accent); stroke-width: 1.5; opacity: .55; }
+svg.chart .rc { fill: var(--fg); stroke: var(--surface); stroke-width: 2; }
 svg.chart .tr { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
 .btn { font: inherit; font-size: .85rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-fg); background: var(--accent); border: 0; border-radius: 2px; height: 2.75rem; padding: 0 18px; cursor: pointer; }
 .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
@@ -115,7 +116,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   <header class="head">
     <div>
       <h1>Sub-Threshold Trend Tracker</h1>
-      <p class="sub">Log classic sub-threshold sessions. Each one gives an implied threshold pace. Repeated sessions show the trend.</p>
+      <p class="sub">Log classic sub-threshold sessions. Each one gives an implied threshold pace. Repeated sessions show the trend. Log race results to see how they compare.</p>
     </div>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
@@ -154,6 +155,21 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   </section>
 
   <section class="panel">
+    <h2>Race results</h2>
+    <div class="grid4">
+      <label>Date <input id="rdate" type="date"></label>
+      <label>Race
+        <select id="rdist"><option value="1.5">1500 m</option><option value="1.609344">Mile</option><option value="3">3 km</option><option value="5" selected>5 km</option><option value="10">10 km</option><option value="21.0975">Half marathon</option><option value="42.195">Marathon</option></select>
+      </label>
+      <label>Finish time <input id="rtime" placeholder="18:52"></label>
+      <div class="row"><button class="btn" id="radd" type="button">Add race</button></div>
+    </div>
+    <p class="note">Each race is converted to a threshold pace with the same race model. It is compared with the sub-threshold estimate from the 6 weeks before the race: the median of up to 6 counted sessions. Log all-out efforts only. Races do not change the estimate above.</p>
+    <p class="warn" id="rerr" hidden></p>
+    <div class="tablewrap"><table id="rtbl"></table></div>
+  </section>
+
+  <section class="panel">
     <h2>Sessions</h2>
     <div class="tablewrap"><table id="tbl"></table></div>
     <div class="row" id="clearrow" style="margin-top:8px">
@@ -175,6 +191,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       <li><b>Estimate.</b> The median of the last 6 counted sessions within the past 6 weeks. With fewer than 3 in that window, it uses the last 6 counted sessions and is marked stale.</li>
       <li><b>Confidence.</b> Counted sessions in the last 6 weeks. Fewer than 3: stale. 3–5: low. 6–9: moderate. 10 or more: good.</li>
       <li><b>Trend.</b> Straight-line fit to the counted sessions in the last 12 weeks, shown from 4 sessions spanning 14 days. Pace noise, heat, hills and fatigue are not corrected for.</li>
+      <li><b>Race results.</b> The race time is run through the race model to a 5km pace (for races under 5km the same slowing as the Session Generator's input is applied). Threshold is the pace for a 16km race at that 5km pace. The comparison uses the sessions logged in the 6 weeks up to the race date, and shows the race time those sessions predicted. A negative gap means the race was faster than the sessions suggested.</li>
     </ul>
   </section>
   <p class="sitenav"><a href="methods/sub-t-trend-tracker.html">How it works &rarr;</a></p>
@@ -306,14 +323,15 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     return { p5: m, thr: thr(m), thrFast: thr(a), thrSlow: thr(b) };   // slow end of the table => faster runner
   }
 
-  var S = [];
+  var S = [], R = [];
   function load() {
     try {
       var o = JSON.parse(localStorage.getItem("stt") || "null");
-      if (o) S = o.sessions || [];
+      if (o) { S = o.sessions || []; R = Array.isArray(o.races) ? o.races : []; }
     } catch (e) {}
   }
-  function save() { try { localStorage.setItem("stt", JSON.stringify({ sessions: S })); } catch (e) {} $("json").value = JSON.stringify({ sessions: S }); }
+  function dump() { return JSON.stringify({ sessions: S, races: R }); }
+  function save() { try { localStorage.setItem("stt", dump()); } catch (e) {} $("json").value = dump(); }
   function today() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
   function dayNum(s) { var p = s.split("-"); return Date.UTC(+p[0], +p[1] - 1, +p[2]) / 864e5; }
   function fmtDate(s) { var p = s.split("-"), M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return +p[2] + " " + M[+p[1] - 1]; }
@@ -336,6 +354,32 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (!imp) return err("That rep length and pace fall outside the supported range. Check the entries.");
     S.push({ id: Date.now() + Math.random(), date: $("date").value || today(), reps: reps, rpe: rpe, t: t, lbl: unit === "min" ? "" : rv.replace(",", ".") + unit, p: p, hr: hr, ha: ha === undefined ? null : ha, thr: imp.thr, lo: imp.thrFast, hi: imp.thrSlow, p5: imp.p5 });
     save(); render();
+  }
+
+  // Race results. A race time gives a 5km pace by solving the race model; races under 5km get the same slowing the Session Generator applies.
+  var RACES = { "1.5": "1500 m", "1.609344": "Mile", "3": "3 km", "5": "5 km", "10": "10 km", "21.0975": "Half marathon", "42.195": "Marathon" };
+  function raceP5(km, sec) {
+    var lo = 120, hi = 600;
+    for (var i = 0; i < 60; i++) { var m = (lo + hi) / 2; if (model(m, null)(km) * km < sec) lo = m; else hi = m; }
+    return (lo + hi) / 2 + adj(km);
+  }
+  function raceTime(p5, km) { return model(p5 - adj(km), null)(km) * km; }
+  function addRace() {
+    var e = function (m) { $("rerr").hidden = !m; $("rerr").textContent = m || ""; return false; };
+    e("");
+    var km = parseFloat($("rdist").value), sec = parseTime($("rtime").value);
+    if (sec === null || sec <= 0) return e("Enter the finish time, like 18:52 or 1:21:30.");
+    var p = sec / km;
+    if (p < 120 || p > 600) return e("That time is outside the supported range for this distance. Check the entry.");
+    var p5 = raceP5(km, sec);
+    if (!(p5 >= 120 && p5 <= 600)) return e("That time is outside the supported range for this distance. Check the entry.");
+    R.push({ id: Date.now() + Math.random(), date: $("rdate").value || today(), km: km, sec: sec, p5: p5, thr: model(p5, null)(16) });
+    save(); render();
+  }
+  // Sub-threshold sessions in the 6 weeks up to the race date: up to the last 6 counted ones.
+  function priorSessions(r) {
+    var d = dayNum(r.date);
+    return S.filter(function (s) { var a = d - dayNum(s.date); return valid(s) && a >= 0 && a <= EST_DAYS; }).slice(-EST_N);
   }
 
   // Recency windows (placeholders). Estimate: last 6 counted sessions within 6 weeks; stale fallback below 3. Trend: counted sessions within 12 weeks.
@@ -372,13 +416,24 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
         : "Median of the last " + last.length + " counted sessions within 6 weeks.";
     }
     chart(V);
+    R.sort(function (a, b) { return dayNum(a.date) - dayNum(b.date); });
+    var rh = "<thead><tr><th>Date</th><th>Race</th><th class=\"num\">Time</th><th class=\"num\">Race threshold</th><th class=\"num\">Sub-T threshold</th><th class=\"num\">Sub-T predicted time</th><th class=\"num\">Gap</th><th></th></tr></thead><tbody>";
+    R.slice().reverse().forEach(function (r) {
+      var P = priorSessions(r), nm = RACES[String(r.km)] || (Math.round(r.km * 100) / 100 + " km"), c;
+      if (P.length) {
+        var st = median(P.map(function (s) { return s.thr; })), pt = raceTime(median(P.map(function (s) { return s.p5; })), r.km), gap = r.sec - pt;
+        c = "<td class=\"num pace\">" + mmss(st) + "<br><span class=\"flag\">" + P.length + " session" + (P.length === 1 ? "" : "s") + "</span></td><td class=\"num\">" + hmmss(pt) + "</td><td class=\"num\">" + (gap > 0 ? "+" : gap < 0 ? "−" : "") + hmmss(Math.abs(gap)) + "<br><span class=\"flag\">" + (r.thr - st > 0 ? "+" : r.thr - st < 0 ? "−" : "") + Math.abs(Math.round((r.thr - st) * 10) / 10) + " s/km</span></td>";
+      } else c = "<td class=\"num\">–<br><span class=\"flag\">no sessions in the 6 weeks before</span></td><td class=\"num\">–</td><td class=\"num\">–</td>";
+      rh += "<tr><td>" + fmtDate(r.date) + "</td><td>" + nm + "</td><td class=\"num\">" + hmmss(r.sec) + "</td><td class=\"num pace\">" + mmss(r.thr) + "</td>" + c + "<td><button class=\"xbtn\" data-rid=\"" + r.id + "\" aria-label=\"Delete race\">✕</button></td></tr>";
+    });
+    $("rtbl").innerHTML = R.length ? rh + "</tbody>" : "<tbody><tr><td>No races logged.</td></tr></tbody>";
     var h = "<thead><tr><th>Date</th><th>Session</th><th class=\"num\">Avg pace</th><th class=\"num\">RPE</th><th class=\"num hr\">Peak HR</th><th class=\"num\">Threshold</th><th></th></tr></thead><tbody>";
     S.slice().reverse().forEach(function (s) {
       var ok = valid(s);
       h += "<tr class=\"" + (ok ? (age(s) > TREND_DAYS ? "old" : "") : "out") + "\"><td>" + fmtDate(s.date) + "</td><td>" + repText(s) + (ok ? "" : "<br><span class=\"flag\">Excluded: " + why(s) + "</span>") + "</td><td class=\"num\">" + mmss(s.p) + "</td><td class=\"num\">" + (s.rpe == null ? "–" : s.rpe) + "</td><td class=\"num hr\">" + (s.hr === null ? "–" : s.hr + "%") + "</td><td class=\"num pace\">" + mmss(s.thr) + "</td><td><button class=\"xbtn\" data-id=\"" + s.id + "\" aria-label=\"Delete session\">✕</button></td></tr>";
     });
     $("tbl").innerHTML = S.length ? h + "</tbody>" : "<tbody><tr><td>No sessions logged.</td></tr></tbody>";
-    $("json").value = JSON.stringify({ sessions: S });
+    $("json").value = dump();
   }
   function trend(V) {
     if (V.length < 4) return null;
@@ -393,16 +448,16 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   }
   function chart(V) {
     var el = $("chart");
-    if (V.length < 2) { el.innerHTML = "<p class=\"note\">Log at least 2 counted sessions to see the chart.</p>"; return; }
-    var W = Math.max(300, Math.round(el.clientWidth || 640)), H = W < 500 ? 220 : 260, L = 48, R = 14, T = 12, B = 30;
-    var x = V.map(function (s) { return dayNum(s.date); }), x0 = Math.min.apply(null, x), x1 = Math.max.apply(null, x);
+    if (V.length < 2 && !R.length) { el.innerHTML = "<p class=\"note\">Log at least 2 counted sessions to see the chart.</p>"; return; }
+    var W = Math.max(300, Math.round(el.clientWidth || 640)), H = W < 500 ? 220 : 260, L = 48, RM = 14, T = 12, B = 30;
+    var x = V.map(function (s) { return dayNum(s.date); }), xr = R.map(function (r) { return dayNum(r.date); }), xa = x.concat(xr), x0 = Math.min.apply(null, xa), x1 = Math.max.apply(null, xa);
     if (x1 === x0) x1 = x0 + 1;
-    var ys = []; V.forEach(function (s) { ys.push(s.lo, s.hi); });
+    var ys = []; V.forEach(function (s) { ys.push(s.lo, s.hi); }); R.forEach(function (r) { ys.push(r.thr); });
     var y0 = Math.floor((Math.min.apply(null, ys) - 3) / 5) * 5, y1 = Math.ceil((Math.max.apply(null, ys) + 3) / 5) * 5;
-    var sx = function (v) { return L + (v - x0) / (x1 - x0) * (W - L - R); };
+    var sx = function (v) { return L + (v - x0) / (x1 - x0) * (W - L - RM); };
     var sy = function (v) { return T + (v - y0) / (y1 - y0) * (H - T - B); };   // slower pace lower, faster upward
     var g = "", step = (y1 - y0) > 40 ? 10 : 5;
-    for (var v = y0; v <= y1; v += step) g += "<line class=\"grid\" x1=\"" + L + "\" x2=\"" + (W - R) + "\" y1=\"" + sy(v) + "\" y2=\"" + sy(v) + "\"/><text x=\"" + (L - 6) + "\" y=\"" + (sy(v) + 4) + "\" text-anchor=\"end\">" + mmss(v) + "</text>";
+    for (var v = y0; v <= y1; v += step) g += "<line class=\"grid\" x1=\"" + L + "\" x2=\"" + (W - RM) + "\" y1=\"" + sy(v) + "\" y2=\"" + sy(v) + "\"/><text x=\"" + (L - 6) + "\" y=\"" + (sy(v) + 4) + "\" text-anchor=\"end\">" + mmss(v) + "</text>";
     var xt = [x0, (x0 + x1) / 2, x1];
     xt.forEach(function (d, i) { var dt = new Date(d * 864e5), s = dt.getUTCFullYear() + "-" + ("0" + (dt.getUTCMonth() + 1)).slice(-2) + "-" + ("0" + dt.getUTCDate()).slice(-2); g += "<text x=\"" + sx(d) + "\" y=\"" + (H - 8) + "\" text-anchor=\"" + (i === 0 ? "start" : i === 2 ? "end" : "middle") + "\">" + fmtDate(s) + "</text>"; });
     var tr = "";
@@ -415,7 +470,11 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     V.forEach(function (s, i) {
       pts += "<line class=\"wh" + (age(s) > TREND_DAYS ? " old" : "") + "\" x1=\"" + sx(x[i]) + "\" x2=\"" + sx(x[i]) + "\" y1=\"" + sy(s.lo) + "\" y2=\"" + sy(s.hi) + "\"/><circle class=\"pt" + (age(s) > TREND_DAYS ? " old" : "") + "\" cx=\"" + sx(x[i]) + "\" cy=\"" + sy(s.thr) + "\" r=\"5\"><title>" + fmtDate(s.date) + ": " + repText(s) + " at " + mmss(s.p) + " gives threshold " + mmss(s.thr) + " /km (" + mmss(s.lo) + "–" + mmss(s.hi) + ")</title></circle>";
     });
-    el.innerHTML = "<svg class=\"chart\" viewBox=\"0 0 " + W + " " + H + "\" role=\"img\" aria-label=\"Implied threshold pace per counted session over time, faster pace upward\">" + g + tr + pts + "</svg><p class=\"note\">Implied threshold pace per counted session, faster upward. Bars show the range. Dashed line is the trend over the last 12 weeks. Faded points are older than that.</p>";
+    R.forEach(function (r, i) {
+      var cx = sx(xr[i]), cy = sy(r.thr), d = 7;
+      pts += "<path class=\"rc\" d=\"M" + cx + " " + (cy - d) + " L" + (cx + d) + " " + cy + " L" + cx + " " + (cy + d) + " L" + (cx - d) + " " + cy + " Z\"><title>" + fmtDate(r.date) + ": " + (RACES[String(r.km)] || r.km + " km") + " in " + hmmss(r.sec) + " gives threshold " + mmss(r.thr) + " /km</title></path>";
+    });
+    el.innerHTML = "<svg class=\"chart\" viewBox=\"0 0 " + W + " " + H + "\" role=\"img\" aria-label=\"Implied threshold pace per counted session over time, faster pace upward\">" + g + tr + pts + "</svg><p class=\"note\">Implied threshold pace per counted session, faster upward. Bars show the range. Dashed line is the trend over the last 12 weeks. Faded points are older than that." + (R.length ? " Diamonds are race results converted to threshold." : "") + "</p>";
   }
 
   function askClear(on) {
@@ -426,14 +485,19 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   $("no").addEventListener("click", function () { askClear(false); });
   $("yes").addEventListener("click", function () { S = []; save(); render(); askClear(false); });
   load();
-  $("date").value = today();
+  $("date").value = today(); $("rdate").value = today();
+  $("radd").addEventListener("click", addRace);
+  $("rtbl").addEventListener("click", function (e) {
+    var id = e.target.getAttribute && e.target.getAttribute("data-rid");
+    if (id) { R = R.filter(function (r) { return String(r.id) !== id; }); save(); render(); }
+  });
   $("add").addEventListener("click", add);
   $("tbl").addEventListener("click", function (e) {
     var id = e.target.getAttribute && e.target.getAttribute("data-id");
     if (id) { S = S.filter(function (s) { return String(s.id) !== id; }); save(); render(); }
   });
   $("load").addEventListener("click", function () {
-    try { var o = JSON.parse($("json").value); if (!o || !Array.isArray(o.sessions)) throw 0; S = o.sessions; save(); render(); err(""); }
+    try { var o = JSON.parse($("json").value); if (!o || !Array.isArray(o.sessions)) throw 0; S = o.sessions; R = Array.isArray(o.races) ? o.races : []; save(); render(); err(""); }
     catch (e) { err("Could not read that text. Paste the full backup."); }
   });
   render();

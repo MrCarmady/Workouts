@@ -16,3 +16,14 @@ Logs classic sub-threshold sessions and turns each into an implied threshold pac
 | Trend: straight-line fit to counted sessions within the past 12 weeks (84 days), shown from 4 sessions spanning 14 days, in s/km per 4 weeks. Older sessions stay in the table and chart, faded | 12 weeks is the author's; the rest is my choice |
 
 Not corrected for: heat, hills, wind, fatigue, pacing errors. Data is stored in the browser only (key `stt`). "Clear all sessions" deletes every logged session after a second confirmation click; the backup text box can be copied first.
+
+## Race results (added 2026-10-29)
+
+| Item | Status |
+|---|---|
+| A race time (1500 m, mile, 3 km, 5 km, 10 km, half, marathon) is converted to a 5km pace by solving the same race model; races under 5km get the same short-race slowing. Threshold = race(16) at that 5km pace | Author's model, applied to a real result |
+| Comparison: the median of up to the last 6 counted sessions in the 6 weeks up to the race date gives the sub-T threshold and a predicted race time. Gap = race minus predicted (positive = slower than predicted) | My construction; same window as the estimate |
+| Races are shown as diamonds on the trend chart and do not change the estimate, the trend or the confidence | Author's decision: tighten the model against reality first |
+| Races are stored with the sessions (key `stt`, field `races`) and included in the backup text. "Clear all sessions" does not delete races | My choice |
+
+The race is assumed to be an all-out effort in normal conditions. Heat, hills, wind and tactics are not corrected for.
