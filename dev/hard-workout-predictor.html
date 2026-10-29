@@ -161,12 +161,13 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     <h2>How it works</h2>
     <ul>
       <li><b>Anchors.</b> Each rep length is tied to a race pace, at standard rest and RPE 8. Other lengths are interpolated, then converted to a 5km pace.</li>
-      <li><b>Volume.</b> Each anchor has a typical rep count. Above it, the equivalent race gets longer (power 1.25). Below it, shorter (power 0.8). The result shows the nearest common distance. Over 25km of work, or a race under 400m, is refused. Beyond the marathon is capped at the marathon.</li>
+      <li><b>Volume.</b> Each anchor has a typical rep count. Up to 1.6 times it, the equivalent race grows in step with the reps (8×1k is about 8k). Beyond that it grows faster, because pace holds up less well with volume (12×1k at 60s is about 17.5k). Below the typical count it shortens more gently (power 0.8). The result shows the nearest common distance. Over 25km of work, or a race under 400m, is refused. Beyond the marathon is capped at the marathon.</li>
       <li><b>RPE.</b> Each point above 8 slows the pace used by 1%. Each point below 8 speeds it up by 1%.</li>
       <li><b>Aussie quarters.</b> Always 8 × (400m hard + 200m float), run without stopping. The floats count: the total session time for the 4800m is read as the 5k time, and the real race is quicker, by up to 15 seconds. The range runs from that total (slow end) to 15 seconds off it (fast end). RPE adjusts the total as for other reps.</li>
       <li><b>Continuous.</b> The pace is sped up by 1% for each RPE point below 10, then by a 2.5% race-day effect, and converted to a 5km pace with the race model.</li>
       <li><b>Range.</b> Each anchor has a 1% pace band (5000m: marathon pace to 2% faster).</li>
-      <li><b>Not adjusted.</b> Rest, heat, surface, wind and hills. The tool warns when rest is far from standard.</li>
+      <li><b>Rest.</b> The anchors assume the standard rest. Longer rest makes the session easier, so the reps equal a shorter race: the equivalent race is multiplied by (standard rest ÷ your rest)^0.38, limited to 2.5 times either way. 12×1k at 90s instead of 60s reads as about 15k instead of 17.5k.</li>
+      <li><b>Not adjusted.</b> Heat, surface, wind and hills.</li>
       <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. The 5km to half marathon part is most reliable for intermediate runners on moderate mileage, and may be less reliable for beginners and low mileage.</li>
     </ul>
   </section>
@@ -241,33 +242,39 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   // Volume slide: the race the reps equal scales with total work, x = typical race distance * (reps / typical reps)^GAMMA, a gentler exponent below the typical count. All three limits are placeholders.
   var RPE_REF = 8, RPE_K = 0.01;   // pace used = pace x (1 + RPE_K x (RPE - RPE_REF)); placeholders
   var CONT_K = 0.01, CONT_BOOST = 0.025;   // continuous: pace used = pace x (1 + CONT_K x (RPE - 10)) x (1 - CONT_BOOST); placeholders
-  var GAMMA_HI = 1.25, GAMMA_LO = 0.8, MAXWORK = 25, MINX = 0.4;   // exponent above / below the typical rep count   // MAXWORK: total work in km; MINX: shortest equivalent race in km
+  var GAMMA_LO = 0.8, R_KNEE = 1.6, P_HI = 0.93, MAXWORK = 25, MINX = 0.4;   // below the typical rep count: exponent GAMMA_LO; up to R_KNEE times it: linear; beyond: steeper by (r / R_KNEE)^P_HI   // MAXWORK: total work in km; MINX: shortest equivalent race in km
+  var REST_K = 0.38, REST_MIN = 15, REST_LIM = 2.5;   // rest effect: equivalent race x (standard rest / rest)^REST_K, ratio limited to 1/REST_LIM .. REST_LIM; all placeholders fitted to P's examples
+  // How much the equivalent race grows with volume: r = reps / typical reps.
+  function vol(r) { return r < 1 ? Math.pow(r, GAMMA_LO) : r <= R_KNEE ? r : r * Math.pow(r / R_KNEE, P_HI); }
   var ANCH = [
     { m: 400, rest: 60, n: 9, km: 1.609344, name: "mile pace", lo: 1 - BAND, hi: 1 + BAND },
     { m: 600, rest: 75, n: 6, km: 2, name: "2k pace", lo: 1 - BAND, hi: 1 + BAND },
     { m: 800, rest: 90, n: 6, km: 3, name: "3k pace", lo: 1 - BAND, hi: 1 + BAND },
-    { m: 1000, rest: 60, n: 6, km: 5, name: "5k pace", lo: 1 - BAND, hi: 1 + BAND },
+    { m: 1000, rest: 60, n: 5, km: 5, name: "5k pace", lo: 1 - BAND, hi: 1 + BAND },
     { m: 1200, rest: 90, n: 4, km: 5, name: "5k pace", lo: 1 - BAND, hi: 1 + BAND },
     { m: 1600, rest: 120, n: 4, km: 8, name: "8k pace", lo: 1 - BAND, hi: 1 + BAND },
     { m: 2000, rest: 120, n: 3, km: 8, name: "8k pace", lo: 1 - BAND, hi: 1 + BAND },
     { m: 3000, rest: 180, n: 3, km: 10, name: "10k pace", lo: 1 - BAND, hi: 1 + BAND },
     { m: 5000, rest: 180, n: 5, km: 42.195, name: "marathon pace", lo: 0.98, hi: 1.0 }
   ];
-  function lerpA(p5, m, which, n) {
-    var v = function (a) { var base = race(p5, Math.min(MAR, a.km * Math.pow(n / a.n, n < a.n ? GAMMA_LO : GAMMA_HI))); return which === "fast" ? base * a.lo : which === "slow" ? base * a.hi : base * (a.lo + a.hi) / 2; };
+  function restF(m, rest) { return Math.pow(Math.max(1 / REST_LIM, Math.min(REST_LIM, stdRest(m) / Math.max(rest, REST_MIN))), REST_K); }
+  function lerpA(p5, m, which, n, rest) {
+    var rf = restF(m, rest);
+    var v = function (a) { var base = race(p5, Math.min(MAR, a.km * vol(n / a.n) * rf)); return which === "fast" ? base * a.lo : which === "slow" ? base * a.hi : base * (a.lo + a.hi) / 2; };
     if (m <= ANCH[0].m) return v(ANCH[0]);
     for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return v(ANCH[i]) * (1 - w) + v(ANCH[i + 1]) * w; }
     return v(ANCH[ANCH.length - 1]);
   }
-  function invert(p, m, which, n) {
+  function invert(p, m, which, n, rest) {
     var lo = 120, hi = 700;
-    if (lerpA(lo, m, which, n) > p || lerpA(hi, m, which, n) < p) return null;
-    for (var i = 0; i < 50; i++) { var mid = (lo + hi) / 2; if (lerpA(mid, m, which, n) < p) lo = mid; else hi = mid; }
+    if (lerpA(lo, m, which, n, rest) > p || lerpA(hi, m, which, n, rest) < p) return null;
+    for (var i = 0; i < 50; i++) { var mid = (lo + hi) / 2; if (lerpA(mid, m, which, n, rest) < p) lo = mid; else hi = mid; }
     return (lo + hi) / 2;
   }
   // Race distance (km) the reps equal for n reps of m metres, interpolated between anchors in log distance.
-  function equivX(m, n, nocap) {
-    var x = function (a) { return Math.log(Math.min(nocap ? Infinity : MAR, a.km * Math.pow(n / a.n, n < a.n ? GAMMA_LO : GAMMA_HI))); };
+  function equivX(m, n, rest, nocap) {
+    var rf = restF(m, rest);
+    var x = function (a) { return Math.log(Math.min(nocap ? Infinity : MAR, a.km * vol(n / a.n) * rf)); };
     if (m <= ANCH[0].m) return Math.exp(x(ANCH[0]));
     for (var i = 0; i < ANCH.length - 1; i++) if (m <= ANCH[i + 1].m) { var w = (m - ANCH[i].m) / (ANCH[i + 1].m - ANCH[i].m); return Math.exp(x(ANCH[i]) * (1 - w) + x(ANCH[i + 1]) * w); }
     return Math.exp(x(ANCH[ANCH.length - 1]));
@@ -349,7 +356,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (fperKm) favg = favg * 0.2;
     var havg = times.reduce(function (a, b) { return a + b; }, 0) / times.length;
     if (nReps * AUS_KM > MAXWORK) return fail("Total distance is " + (nReps * AUS_KM).toFixed(1) + "km. The tool supports up to " + MAXWORK + "km in a session.");
-    var X = 5 * Math.pow(nReps / AUS_REPS, nReps < AUS_REPS ? GAMMA_LO : GAMMA_HI), capped = X > MAR * 1.001;
+    var X = 5 * vol(nReps / AUS_REPS), capped = X > MAR * 1.001;
     if (capped) X = MAR;
     if (X < MINX) return fail("This many reps equals a race shorter than 400m, outside what the tool supports.");
     var T = nReps * (havg + favg) * (1 + RPE_K * (rpe - RPE_REF));
@@ -422,13 +429,13 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (times.length > 1 && !aus) $("reps").value = times.length;
     if (aus) return updateAus(times, nReps, rpe);
     if (nReps * m / 1000 > MAXWORK) return fail("Total work is " + (nReps * m / 1000).toFixed(1) + "km. The tool supports up to " + MAXWORK + "km of work in a session.");
-    var xEq = equivX(m, nReps), capped = equivX(m, nReps, true) > MAR * 1.001;
+    var xEq = equivX(m, nReps, rest), capped = equivX(m, nReps, rest, true) > MAR * 1.001;
     if (xEq < MINX) return fail("This many reps equals the pace of a race shorter than 400m, outside what the tool supports.");
     // more volume than a marathon is read as marathon-pace fitness, not beyond it (the cap is applied inside equivX and lerpA)
     var avg = times.reduce(function (a, b) { return a + b; }, 0) / times.length;
     var pRaw = avg / (m / 1000);
     var p = pRaw * (1 + RPE_K * (rpe - RPE_REF));
-    var pm = invert(p, m, "mid", nReps), pf = invert(p, m, "fast", nReps), ps = invert(p, m, "slow", nReps);
+    var pm = invert(p, m, "mid", nReps, rest), pf = invert(p, m, "fast", nReps, rest), ps = invert(p, m, "slow", nReps, rest);
     if (pm === null || pf === null || ps === null) return fail("That pace is outside the range the anchors support for this rep length. Check the times and the distance.");
     var D = Number($("target").value);
     var tFor = function (p5) { return race(p5, D) * D; };
@@ -447,8 +454,8 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     }
     var sr = stdRest(m);
     if (rest < 20) fl.push("Rest under 20s is close to continuous running, which this model is not built for. Consider the Continuous option.");
-    else if (rest < sr * 0.8) fl.push("Rest is shorter than the standard " + Math.round(sr) + "s for this rep length, which makes the session harder. The estimate is not adjusted for this.");
-    else if (rest > sr * 1.25) fl.push("Rest is longer than the standard " + Math.round(sr) + "s for this rep length, which makes the session easier. The estimate is not adjusted for this.");
+    else if (rest > sr * REST_LIM) fl.push("Rest is more than " + REST_LIM + " times the standard " + Math.round(sr) + "s for this rep length, so this is closer to separate efforts than one session. The rest adjustment stops at " + REST_LIM + " times.");
+    else if (Math.abs(rest / sr - 1) > 0.1) { var ch = (restF(m, rest) - 1) * 100; fl.push("Rest of " + Math.round(rest) + "s against the standard " + Math.round(sr) + "s: the reps equal a race about " + Math.abs(ch).toFixed(0) + "% " + (ch < 0 ? "shorter, because the longer rest makes the session easier." : "longer, because the shorter rest makes the session harder.")); }
     if (rpe < 6) fl.push("RPE below 6: too easy to predict a race well. Treat the estimate with caution.");
     if (rpe > 9.5) fl.push("RPE above 9.5: close to all-out. Treat the estimate with caution.");
     if (D / xEq > 3 || D / xEq < 1 / 3) fl.push("These reps equal about " + xText(xEq) + " pace. Predicting a " + $("target").options[$("target").selectedIndex].text + " from that is a long extrapolation, so treat it with caution.");

@@ -104,12 +104,16 @@ a { color:var(--accent); }
 <td>Author's decision. The tool warns if the floats were as fast as the hard 400s (inputs swapped) or more than 10% slower than marathon pace (a jog); the 10% is my placeholder. M pace is from the race model at 70 miles a week</td>
 </tr>
 <tr>
-<td>Typical rep counts: 400m 9 (author: 8–10), 600m 6, 800m 6, 1000m 6, 1200m 4, 1600m 4, 2000m 3, 3000m 3, 5000m 5 (3×5km is too little volume for a marathon prediction); interpolated for other rep lengths</td>
-<td>400m from the author; the rest are my placeholders</td>
+<td>Typical rep counts: 400m 9 (author: 8–10), 600m 6, 800m 6, 1000m 5 (author, 2026-10-29: 5×1k is the classic 5k predictor; was 6), 1200m 4, 1600m 4, 2000m 3, 3000m 3, 5000m 5 (3×5km is too little volume for a marathon prediction); interpolated for other rep lengths</td>
+<td>400m and 1000m from the author; the rest are my placeholders</td>
 </tr>
 <tr>
-<td>Volume slide: the race the reps equal is the anchor race distance × (reps / typical reps)^1.25 above the typical count and ^0.8 below it. Examples: 5×400m ≈ 1.0k pace, 18×400m ≈ 3.8k, 2×2000m ≈ 5.8k, 10×1.2km ≈ 15.7k, 3×5km ≈ 28k</td>
-<td>Exponents are my choice, fitted to the author's examples (5×400m closer to 1000–1200m pace than 800m, 18×400m at 3–5k, 2×2000m at 6–8k, 10×1.2km at 15k to HM). Where two distances fit, the shorter, rounder one was preferred so the tool does not over-predict</td>
+<td>Volume slide (changed 2026-10-29): the race the reps equal is the anchor race distance × g(r), where r is reps ÷ typical reps. Below the typical count g = r^0.8. From 1 to 1.6 times it, g = r (8×1k is about 8k). Beyond 1.6 times, g = r × (r ÷ 1.6)^0.93, so pace holds up less well with volume. Examples at standard rest: 5×400m ≈ 1.0k pace, 18×400m ≈ 4.0k, 2×2000m ≈ 5.8k, 10×1.2km ≈ 18.9k, 3×5km ≈ 28k, 12×1k ≈ 17.5k</td>
+<td>The 1.6 knee and the 0.93 are fitted to the author's 1k examples (5×1k = 5k, 8×1k about 8k, 12×1k at 60s = 17.5k). Earlier version: ^1.25 above the typical count, which read 12×1k as 12k</td>
+</tr>
+<tr>
+<td>Rest (added 2026-10-29): the anchors assume the standard rest. The equivalent race is multiplied by (standard rest ÷ rest)^0.38, with the ratio limited to between 0.4 and 2.5 and rest under 15s treated as 15s. Longer rest means an easier session, so the same pace reads as a shorter race. 12×1k at 90s = 15k against 17.5k at 60s; 6×1k at 90s ≈ 5.1k, about the same as 5×1k at 60s</td>
+<td>The author's judgement: extra rest roughly offsets an extra rep (6×1k at 90s ≈ 5×1k at 60s), and 12×1k is 17.5k at 60s and 15k at 90s. The 0.38 is fitted to the second pair and checks against the first. The standard rest is the anchor rest, interpolated by rep length; it does not itself grow with volume, since the volume slide carries that. Not validated against real sessions</td>
 </tr>
 <tr>
 <td>The equivalent race is shown as the largest common distance at or below the computed one, or the next one up if the computed one is within 5% of it: 400m, 600m, 800m, 1000m, 1200m, 1500m, mile, 2k, 3k, 4k, 5k, 8k, 10k, 12k, 15k, 10 mile, half marathon, 30k, 20 mile, marathon. The prediction itself uses the unrounded distance</td>
@@ -147,7 +151,7 @@ a { color:var(--accent); }
 </table>
 <p>Continuous mode accepts 1.5 to 30km (a solo effort longer than that is not supported).</p>
 <p>The 2.5% race-day effect is a placeholder. It is the author's conservative pick from a recalled 2.3 to 4% range. Published evidence is mixed: one running study found about 4% over 3km, and some cycling studies found little or no effect. Cross-checks against the 3.25 to 3.75km solo pace and 4800m solo time rules of thumb imply roughly 2.7 to 4.4%.</p>
-<p>Not adjusted: rest, heat, surface, wind, hills. The tool warns when rest is more than 20% shorter or 25% longer than standard, when RPE is below 6 or above 9.5, and when the second half of the reps differs from the first by more than 2%.</p>
+<p>Not adjusted: heat, surface, wind, hills. The tool notes how much the equivalent race changed when rest differs from standard by more than 10%, warns when rest is under 20s or more than 2.5 times standard, when RPE is below 6 or above 9.5, and when the second half of the reps differs from the first by more than 2%.</p>
 <p>Check against posted cases: 6×800 averaging 2:38.5 gives a 5k of 17:22 (range 17:12–17:32); the poster ran 17:07. One case, not a calibration.</p>
   </article>
 </main>

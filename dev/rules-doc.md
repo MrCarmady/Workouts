@@ -66,7 +66,8 @@ Status: prototypes built (Plan Builder, Sub-Threshold Trend Tracker, Hard Workou
 ## 9. Hard Workout Predictor
 - Anchors (P): 400m with 60s rest = mile pace (8 to 10 reps); 800m, 90s = 3k; 1000m, 60s = 5k; 1600m, 2 min = 8k (4x1600m); 3000m, 3 min = 10k; 5000m, 3 min = marathon pace to 2% faster. 2000m, 2 min = 8k confirmed (P, 2026-10-13: 3x2000m at RPE 8 is a light 10k session; 6k would be extra cautious). Placeholders: 600m = 2k, 1200m = 5k.
 - Anchors apply at RPE 8 and standard rest (P).
-- Rep count must change the answer (P). Short-distance predictors carry more volume than the race, long ones less; the crossover is about 5 to 10km. Equivalent race = anchor race x (reps / typical reps)^1.25 above the typical count, ^0.8 below. Exponents and typical counts are my placeholders, fitted to P's examples.
+- Rep count must change the answer (P). Volume slide (changed 2026-10-29): equivalent race = anchor race x g(r), r = reps / typical reps; r below 1: r^0.8; 1 to 1.6: r; above 1.6: r x (r/1.6)^0.93. Fitted to P's 1k points (5 reps = 5k, 8 about 8k, 12 = 17.5k at 60 s); typical reps for 1000m now 5. Placeholders.
+- Rest (P, 2026-10-29): equivalent race x (standard rest / rest)^0.38, ratio limited to 0.4 to 2.5, rest under 15 s treated as 15 s. More rest = easier session = shorter equivalent race: 12 x 1k is 17.5k at 60 s and 15k at 90 s; 6 x 1k at 90 s about 5.1k (about 5 x 1k at 60 s). P's own example 12 x 1k at 4:00, 60 s, RPE 8: 5k 18:33, 10k 38:41 (was 18:59 and 39:35). Standard rest is the anchor rest, not growing with volume. Placeholders, not validated.
 - Show the nearest common race distance, preferring the shorter, rounder one (P). The 5% round-up and the distance list are mine.
 - Limits (placeholders): 25km of work; equivalent race under 400m refused; beyond the marathon capped at marathon pace.
 - RPE moves the estimate (P): pace used = pace x (1 + 0.01 x (RPE - 8)). The 1% is a placeholder.
