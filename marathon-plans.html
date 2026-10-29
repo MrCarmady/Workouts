@@ -106,7 +106,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 @media (max-width: 600px) { .paces { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .paces div { background: var(--surface-2); border-radius: 2px; padding: 10px 10px; min-width: 0; }
 .paces b { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
-.paces span { font-size: .7rem; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.paces span { display: block; min-height: 2.3em; font-size: .7rem; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); overflow-wrap: anywhere; }
 .paces small { display: block; font-size: .78rem; color: var(--muted); margin-top: 2px; }
 </style>
 
@@ -640,9 +640,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       THR = raceP(16) * MILE;
       var goalT = mp * MAR;
       P = { E: BK.a(goalT), E2: BK.b(goalT), L: BK.l(goalT), T: mp * MILE, K: (mp * MILE) - 10, S: raceP(5) * MILE };
-      if (!pz.bk) { P.E = P.E2 = raceP(5) * MILE / pz.e; }   // easy pace basis "my setting": Easy A and B both at the setting
+      if (!pz.bk) { var eShift = raceP(5) * MILE / pz.e - P.E2; P.E = P.E2 = raceP(5) * MILE / pz.e; P.L += eShift; }   // easy pace basis "my setting": Easy A and B both at the setting; long runs move by the same seconds as Easy B (the book's nearest pace), so they stay as far from easy as the book has them
       var outside = goalT < BK.lo || goalT > BK.hi;
-      var paces = [["E", "Easy A"], ["E2", "Easy B (Saturday)"], ["L", "Long run"], ["S", "Speed"], ["K", "Strength"], ["T", "Tempo and marathon"]].map(function (x) { return [x[1], pm(P[x[0]]), "/" + U]; });
+      var paces = (P.E === P.E2 ? [["E", "Easy (A and B)"]] : [["E", "Easy A"], ["E2", "Easy B (Saturday)"]]).concat([["L", "Long run"], ["S", "Speed"], ["K", "Strength"], ["T", "Tempo and marathon"]]).map(function (x) { return [x[1], pm(P[x[0]]), "/" + U]; });
       paces.push(["Marathon", hmmss(mp * MAR), "predicted"]);
       var weeks = [], diffs = [];
       PL.forEach(function (w, i) {
@@ -1058,7 +1058,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   };
   var ALLF = ["f-rep5", "f-week", "f-days", "f-adjt", "f-lp", "f-rd", "f-rec"];
   var out = null;
-  function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("detail").hidden = true; }
+  function fail(msg) { syncBuf(); $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("detail").hidden = true; }
 
   function fillPlans() {
     var a = AUTH[$("author").value], sel = $("plan"), cur = sel.value, o = "";
@@ -1066,7 +1066,10 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     if (sel.innerHTML !== o) sel.innerHTML = o;
     if (cur && sel.querySelector('option[value="' + cur + '"]')) sel.value = cur; else if (a.def) sel.value = a.def;
     ALLF.forEach(function (f) { $(f).hidden = a.fields.indexOf(f) < 0; });
+    syncBuf();
   }
+  // The sub-threshold buffer only changes Copeland's sub-threshold reps, so it shows for Copeland (or when the value is invalid).
+  function syncBuf() { $("sbf").parentNode.hidden = $("author").value !== "copeland" && !pers().err; }
 
   function update() {
     fillPlans();

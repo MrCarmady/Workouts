@@ -688,9 +688,9 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       THR = raceP(16) * MILE;
       var goalT = mp * MAR;
       P = { E: BK.a(goalT), E2: BK.b(goalT), L: BK.l(goalT), T: mp * MILE, K: (mp * MILE) - 10, S: raceP(5) * MILE };
-      if (!pz.bk) { P.E = P.E2 = raceP(5) * MILE / pz.e; }   // easy pace basis "my setting": Easy A and B both at the setting
+      if (!pz.bk) { var eShift = raceP(5) * MILE / pz.e - P.E2; P.E = P.E2 = raceP(5) * MILE / pz.e; P.L += eShift; }   // easy pace basis "my setting": Easy A and B both at the setting; long runs move by the same seconds as Easy B (the book's nearest pace), so they stay as far from easy as the book has them
       var outside = goalT < BK.lo || goalT > BK.hi;
-      var paces = [["E", "Easy A"], ["E2", "Easy B (Saturday)"], ["L", "Long run"], ["S", "Speed"], ["K", "Strength"], ["T", "Tempo and marathon"]].map(function (x) { return [x[1], pm(P[x[0]]), "/" + U]; });
+      var paces = (P.E === P.E2 ? [["E", "Easy (A and B)"]] : [["E", "Easy A"], ["E2", "Easy B (Saturday)"]]).concat([["L", "Long run"], ["S", "Speed"], ["K", "Strength"], ["T", "Tempo and marathon"]]).map(function (x) { return [x[1], pm(P[x[0]]), "/" + U]; });
       paces.push(["Marathon", hmmss(mp * MAR), "predicted"]);
       var weeks = [], diffs = [];
       PL.forEach(function (w, i) {
