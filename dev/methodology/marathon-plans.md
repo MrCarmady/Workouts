@@ -34,7 +34,7 @@ Lays out the 15-week Copeland marathon add-on ("My Marathon Build") from a race 
 
 - Rep pace is the pace of a race lasting that many minutes (see Copeland Base for the fit to the book's table; the 120 and 180 min anchors are my extension). Reps are set by time at current fitness, with the book's rep counts. The 2000m pace is slightly slower than half marathon pace, by the author's choice.
 - Marathon pace: the Race Prediction Calculator's marathon, assuming 70 miles a week.
-- Easy and long runs: 65% of 5km speed by default, a cap. The easy percentage (50 to 85) is an input. Pfitzinger plans keep their own fixed recovery (60%) and general aerobic (70%) paces, and Hansons uses the book's Table 3.5 paces (see the Hansons section), so the easy percentage does not apply to either.
+- Easy and long runs: an Easy pace basis switch (added 2026-10-29, default as written) picks the pace. As written: 74% of 5km speed (the middle of the range the author quoted for an 18:52 5km, 4:52 to 5:22 per km; one point, Daniels' table not seen), a cap. "My easy pace setting": the easy percentage (50 to 85, default 65) is used instead.
 - Warm-up and cooldown: 10 min each at the easy pace. 5km and 10km races use a 20 min warm-up (easy, 2 x 2 min at half marathon pace, 4 strides of 17 s at mile pace).
 
 ### Load
@@ -68,7 +68,7 @@ Lays out the 18-week 2QA plan from a race result. Two quality sessions a week (Q
 
 ### Paces
 
-- Easy: 65% of 5km speed by default (input, 50 to 85). This is a cap rather than a target.
+- Easy: 70% of 5km speed as written (his Table 2.3, a ceiling; checked in 11 rows, 15:20 to 30:00 5km), or the easy percentage (default 65, input 50 to 85) when the Easy pace basis is set to "My easy pace setting". A cap rather than a target.
 - Copeland add-on: the sub-threshold buffer (percent slower, default 0, up to 10) slows the 3 to 12 minute rep paces. The 5km reps and race paces are not changed.
 - Marathon: plain Riegel prediction (exponent 1.06), with no extra slowdown for weekly distance. The Race Prediction Calculator's marathon pace is slower.
 - Threshold: race(17).
@@ -135,6 +135,7 @@ Lays out the 18-week Hansons Marathon Method Beginner (Table 4.3) or Advanced (T
 - Marathon pace: the Race Prediction Calculator's marathon, assuming 70 miles a week (2.10 × half marathon). There is no goal-time input: every session is set from current fitness, so tempo and strength cannot come out faster than speed work. The book quotes 3:00:21 for an 18:30 5km; the page gives 2:58:43 for the same result (3:00:12 before the marathon factor change of 2026-10-15, which makes faster halves faster).
 - Tempo: marathon pace. Strength: marathon pace minus 10 s per mile. Speed: race(5).
 - Easy, long runs and recoveries: Table 3.5 of the book, rows keyed by goal marathon time. The page uses the predicted marathon time as the goal, interpolates linearly between rows, and uses the nearest row outside 2:10 to 5:00. At a 3:00 goal the table gives Recovery 8:57, Easy A 8:23, Easy B 7:48 and Moderate/Long 7:29 against marathon pace 6:52 (72%, 77% and 81% of 5km speed for A, B and Long; Recovery 67%). The book fixes marathon pace at 88% of its 5km-speed column in every row.
+- With the Easy pace basis set to "My easy pace setting" (added 2026-10-29), Easy A and Easy B (and so warm-ups, cooldowns and recoveries) both run at the easy percentage of 5km speed instead of the table; long runs, tempo, strength and speed are unchanged.
 - A Letsrun quote (unverified) gives the book's rule as easy runs 1 to 2 minutes per mile slower than goal marathon pace (p. 45 of the 2012 edition); at 2:55 the table's Easy B to Recovery columns (7:36 to 8:43) fit that. The audiobook supplement has no pace rule beyond Table 3.5, Table 3.1's notes and the two example runners in Table 4.1 (easy 9:00 and 7:30 per mile).
 - The easy percentage input has no effect on Hansons. Slower real running than the table lowers the real load below the page's figure.
 
@@ -176,6 +177,7 @@ Lays out Pfitzinger's 18-week and 12-week "up to 55 miles per week" and "55 to 7
 |---|---|---|
 | Recovery | 60% of 5km speed | Author's choice |
 | General aerobic, warm-up, cooldown | 70% of 5km speed | Author's choice |
+| With the Easy pace basis set to "My easy pace setting" (added 2026-10-29) | General aerobic and the warm-ups, cooldowns and jogs that use it run at the easy percentage; recovery is 60% or the setting if lower | Author's choice |
 | Medium-long and long runs | 85% of marathon-pace speed (input, 80 to 90%) | Book's 80 to 90% range, author's reading; applied to medium-long runs as well |
 | LT | race(21) | Author's choice; the book gives 15K to half marathon pace |
 | 5K reps | race(5) | Book; jogs of 70% of rep time at recovery pace (book says 50 to 90%) |
