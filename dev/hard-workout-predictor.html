@@ -126,7 +126,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
         <span class="combo"><input id="rep" inputmode="decimal" value="1000"><select id="unit"><option value="m">m</option><option value="km">km</option></select></span>
       </label>
       <label id="lbRest">Rest between reps, s <input id="rest" inputmode="numeric" value="60"></label>
-      <label>RPE at the end (1–10) <input id="rpe" inputmode="decimal" value="8"></label>
+      <label>RPE at the end (6–10) <input id="rpe" inputmode="decimal" value="8"></label>
       <label>Predict
         <select id="target">
           <option value="1.5">1500m</option>
@@ -162,7 +162,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     <ul>
       <li><b>Anchors.</b> Each rep length is tied to a race pace, at standard rest and RPE 8. Other lengths are interpolated, then converted to a 5km pace.</li>
       <li><b>Volume.</b> Each anchor has a typical rep count. Up to 1.6 times it, the equivalent race grows in step with the reps (8×1k is about 8k). Beyond that it grows faster, because pace holds up less well with volume (12×1k at 60s is about 17.5k). Below the typical count it shortens more gently (power 0.8). The result shows the nearest common distance. Over 25km of work, or a race under 400m, is refused. Beyond the marathon is capped at the marathon.</li>
-      <li><b>RPE.</b> Each point above 8 slows the pace used by 1%. Each point below 8 speeds it up by 1%.</li>
+      <li><b>RPE.</b> 6 to 10 only: below 6 the session is too easy for its pace to say much about race fitness. Each point above 8 slows the pace used by 1%. Each point below 8 speeds it up by 1%. The Session equals box does not change with RPE: it shows what the reps and rest equal at an RPE 8 effort.</li>
       <li><b>Aussie quarters.</b> Always 8 × (400m hard + 200m float), run without stopping. The floats count: the total session time for the 4800m is read as the 5k time, and the real race is quicker, by up to 15 seconds. The range runs from that total (slow end) to 15 seconds off it (fast end). RPE adjusts the total as for other reps.</li>
       <li><b>Continuous.</b> The pace is sped up by 1% for each RPE point below 10, then by a 2.5% race-day effect, and converted to a 5km pace with the race model.</li>
       <li><b>Range.</b> Each anchor has a 1% pace band (5000m: marathon pace to 2% faster).</li>
@@ -240,7 +240,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   // The 5000m anchor is marathon pace to 2% faster. The 1% band elsewhere is a placeholder.
   var BAND = 0.01;
   // Volume slide: the race the reps equal scales with total work, x = typical race distance * (reps / typical reps)^GAMMA, a gentler exponent below the typical count. All three limits are placeholders.
-  var RPE_REF = 8, RPE_K = 0.01;   // pace used = pace x (1 + RPE_K x (RPE - RPE_REF)); placeholders
+  var RPE_REF = 8, RPE_K = 0.01, RPE_MIN = 6;   // pace used = pace x (1 + RPE_K x (RPE - RPE_REF)); placeholders
   var CONT_K = 0.01, CONT_BOOST = 0.025;   // continuous: pace used = pace x (1 + CONT_K x (RPE - 10)) x (1 - CONT_BOOST); placeholders
   var GAMMA_LO = 0.8, R_KNEE = 1.6, P_HI = 0.93, MAXWORK = 25, MINX = 0.4;   // below the typical rep count: exponent GAMMA_LO; up to R_KNEE times it: linear; beyond: steeper by (r / R_KNEE)^P_HI   // MAXWORK: total work in km; MINX: shortest equivalent race in km
   var REST_K = 0.38, REST_MIN = 15, REST_LIM = 2.5;   // rest effect: equivalent race x (standard rest / rest)^REST_K, ratio limited to 1/REST_LIM .. REST_LIM; all placeholders fitted to P's examples
@@ -311,7 +311,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   function updateCont(m) {
     if (m < 1500 || m > 30000) return fail("Distance should be between 1.5km and 30km for a continuous effort.");
     var rpe = Number($("rpe").value.replace(",", "."));
-    if (!(rpe >= 1 && rpe <= 10)) return fail("Enter the end RPE, 1 to 10.");
+    if (!(rpe >= RPE_MIN && rpe <= 10)) return fail("Enter the end RPE, 6 to 10. Below 6 the session is too easy for its pace to say much about race fitness; use a harder session.");
     var raw = $("splits").value.trim();
     if (!raw) { $("res").innerHTML = ""; $("flags").textContent = ""; $("eq").innerHTML = ""; return; }
     var perKm = /\/km\s*$/i.test(raw); raw = raw.replace(/\/km\s*$/i, "");
@@ -334,7 +334,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tFor(pm)) + "</b><small>" + hmmss(tFor(pf)) + "–" + hmmss(tFor(ps)) + "</small></div>" +
       "<div><span>5km pace</span><b>" + mmss(pm) + "</b><small>/km, in race shape</small></div>";
     var fl = [];
-    if (rpe < 7) fl.push("RPE below 7: too easy to predict a race well. Treat the estimate with caution.");
+    if (rpe < 7) fl.push("RPE below 7: an easier effort than a hard session, so the estimate is less reliable. Treat it with caution.");
     if (D / km > 3 || D / km < 1 / 3) fl.push("Predicting a " + $("target").options[$("target").selectedIndex].text + " from a " + lab + " effort is a long extrapolation, so treat it with caution.");
     fl.push("Heat, surface, wind and hills are not adjusted for.");
     $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
@@ -376,7 +376,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     $("res").innerHTML =
       "<div><span>Session total</span><b>" + hmmss(T) + "</b><small>" + nReps + " × (" + mmss(havg) + " + " + mmss(favg) + "), " + (nReps * AUS_KM).toFixed(1) + "km</small></div>" +
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
-      "<div><span>Reps equal about</span><b>" + xText(X) + "</b><small>" + (nReps === AUS_REPS ? "race, session time = race time" : "race, for this many reps") + "</small></div>";
+      "<div><span>Session equals</span><b>" + xText(X) + "</b><small>" + (nReps === AUS_REPS ? "race, session time = race time" : "race, for this many reps") + "</small></div>";
     var fl = [];
     if (capped) fl.push("This many reps would equal a race longer than the marathon. The tool caps it at the marathon.");
     if (fpace <= hpace) fl.push("The floats are as fast as the hard 400s. Check the times are in the right boxes.");
@@ -386,7 +386,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       if (d > 2) fl.push("The second half of the hard 400s was " + d.toFixed(1) + "% slower than the first. That suggests the opening reps were above a sustainable pace, so the estimate may be too fast.");
       if (d < -2) fl.push("The second half of the hard 400s was " + (-d).toFixed(1) + "% faster than the first. That suggests reserve, so the estimate may be too slow.");
     }
-    if (rpe < 6) fl.push("RPE below 6: too easy to predict a race well. Treat the estimate with caution.");
+    if (rpe < 7) fl.push("RPE below 7: an easier effort than a hard session, so the estimate is less reliable. Treat it with caution.");
     if (rpe > 9.5) fl.push("RPE above 9.5: close to all-out. Treat the estimate with caution.");
     if (D / X > 3 || D / X < 1 / 3) fl.push("These reps equal about " + xText(X) + " pace. Predicting a " + $("target").options[$("target").selectedIndex].text + " from that is a long extrapolation, so treat it with caution.");
     fl.push("Heat, surface, wind and hills are not adjusted for.");
@@ -416,7 +416,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (m < ANCH[0].m || m > ANCH[ANCH.length - 1].m) return fail("Rep distance should be between 400m and 5000m.");
     var rest = aus ? 0 : Number($("rest").value), rpe = Number($("rpe").value.replace(",", "."));
     if (isNaN(rest) || rest < 0 || rest > 900) return fail("Enter the rest in seconds, 0 to 900.");
-    if (!(rpe >= 1 && rpe <= 10)) return fail("Enter the end RPE, 1 to 10.");
+    if (!(rpe >= RPE_MIN && rpe <= 10)) return fail("Enter the end RPE, 6 to 10. Below 6 the session is too easy for its pace to say much about race fitness; use a harder session.");
     var raw = $("splits").value.trim();
     if (!raw) { $("res").innerHTML = ""; $("flags").textContent = ""; $("eq").innerHTML = ""; renderAnch(m); return; }
     var perKm = /\/km\s*$/i.test(raw); raw = raw.replace(/\/km\s*$/i, "");
@@ -441,9 +441,9 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var tFor = function (p5) { return race(p5, D) * D; };
     var tMid = tFor(pm), tLo = tFor(ps), tHi = tFor(pf);   // slow end of the anchor => faster runner
     $("res").innerHTML =
-      "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + (aus ? " + 200m float" : "") + ", " + mmss(pRaw) + " /km</small></div>" +
+      "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + (aus ? " + 200m float" : "") + ", " + mmss(pRaw) + " /km" + (rpe !== RPE_REF ? ", counted as " + mmss(p) + " at RPE " + rpe : "") + "</small></div>" +
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
-      "<div><span>Reps equal about</span><b>" + xText(xEq) + "</b><small>pace, for this many reps</small></div>";
+      "<div><span>Session equals</span><b>" + xText(xEq) + "</b><small>pace, at RPE 8 effort and standard rest</small></div>";
     var fl = [];
     if (capped) fl.push("This many reps would equal a race longer than the marathon. The tool caps it at marathon pace.");
     if (times.length > 1) {
@@ -456,7 +456,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (rest < 20) fl.push("Rest under 20s is close to continuous running, which this model is not built for. Consider the Continuous option.");
     else if (rest > sr * REST_LIM) fl.push("Rest is more than " + REST_LIM + " times the standard " + Math.round(sr) + "s for this rep length, so this is closer to separate efforts than one session. The rest adjustment stops at " + REST_LIM + " times.");
     else if (Math.abs(rest / sr - 1) > 0.1) { var ch = (restF(m, rest) - 1) * 100; fl.push("Rest of " + Math.round(rest) + "s against the standard " + Math.round(sr) + "s: the reps equal a race about " + Math.abs(ch).toFixed(0) + "% " + (ch < 0 ? "shorter, because the longer rest makes the session easier." : "longer, because the shorter rest makes the session harder.")); }
-    if (rpe < 6) fl.push("RPE below 6: too easy to predict a race well. Treat the estimate with caution.");
+    if (rpe < 7) fl.push("RPE below 7: an easier effort than a hard session, so the estimate is less reliable. Treat it with caution.");
     if (rpe > 9.5) fl.push("RPE above 9.5: close to all-out. Treat the estimate with caution.");
     if (D / xEq > 3 || D / xEq < 1 / 3) fl.push("These reps equal about " + xText(xEq) + " pace. Predicting a " + $("target").options[$("target").selectedIndex].text + " from that is a long extrapolation, so treat it with caution.");
     fl.push("Heat, surface, wind and hills are not adjusted for.");
