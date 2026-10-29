@@ -473,9 +473,9 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (rest < 20) fl.push("Rest under 20s is close to continuous running, which this model is not built for. Consider the Continuous option.");
     else if (rest > sr * REST_LIM) fl.push("Rest is more than " + REST_LIM + " times the standard " + Math.round(sr) + "s for this rep length, so this is closer to separate efforts than one session. The rest adjustment stops at " + REST_LIM + " times.");
     else if (Math.abs(rest / sr - 1) > 0.1) { var ch = (restF(m, rest) - 1) * 100; fl.push("Rest of " + Math.round(rest) + "s against the standard " + Math.round(sr) + "s: the reps equal a race about " + Math.abs(ch).toFixed(0) + "% " + (ch < 0 ? "shorter, because the longer rest makes the session easier." : "longer, because the shorter rest makes the session harder.")); }
-    var tn = typN(m), rr = nReps / tn;
-    if (rr < WARN_R_LO) fl.push("Too few reps for a meaningful prediction (typical for " + (m >= 1000 ? m / 1000 + "km" : m + "m") + " is about " + Math.round(tn) + "). Try more reps next time.");
-    if (rr > WARN_R_HI) fl.push("Many more reps than the typical " + Math.round(tn) + " for " + (m >= 1000 ? m / 1000 + "km" : m + "m") + ". The prediction is solid, but don't leave the race in training: recovery may be excessive.");
+    var tn = typN(m), rr = nReps / tn, tl = Math.round(tn) + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m");
+    if (rr < WARN_R_LO) fl.push("Too few reps for a meaningful prediction. The usual session is about " + tl + ". Try more reps next time.");
+    if (rr > WARN_R_HI) fl.push("That is far more reps than the usual " + tl + ". The prediction is solid, but don't leave the race in training: recovery may be excessive.");
     if (rpe < WARN_RPE_LO) fl.push(LOW_MSG);
     if (rpe > WARN_RPE_HI) fl.push(HIGH_MSG);
     if (D / xEq > 3 || D / xEq < 1 / 3) fl.push("These reps equal about " + xText(xEq) + " pace. Predicting a " + $("target").options[$("target").selectedIndex].text + " from that is a long extrapolation, so treat it with caution.");
