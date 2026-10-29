@@ -121,8 +121,8 @@ The page lists a warm-up ladder for a top set. The top set is the weight for a c
 ```
 barbell lifts:   bar x 10, 50% x 5, 70% x 3, 85% x 2, top set
 pull-up and dip: bodyweight x 5, then 50%, 70% and 85% of TOTAL load (bodyweight + added), shown as added weight; steps at or below bodyweight are dropped
-dumbbell and split squat: lightest dumbbells x 10 (bodyweight x 8 per leg for the split squat),
-                 then the same percentages of the per-hand weight
+dumbbell lifts:  50% x 10, 70% x 3, 85% x 2, top set (per-hand weight; changed 2026-10-29, P's habit; the old "lightest dumbbells x 10" set was near zero load)
+split squat:     bodyweight x 8 per leg, then 50% x 5, 70% x 3, 85% x 2 of the per-hand weight
 ```
 
 Weights are rounded to the page's step. A set that rounds to the same weight as the one before it, or to the top set, is dropped, and a note says so. A top set at or below the bar gets no ladder.
