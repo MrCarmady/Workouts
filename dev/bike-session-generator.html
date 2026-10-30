@@ -119,7 +119,7 @@ td.w { font-weight: 600; white-space: nowrap; }
   <section class="method">
     <h2>How this is calculated</h2>
     <p>Powers are percentages of your FTP, the power you can hold for about an hour. The endurance (56 to 75%), threshold (91 to 105%) and VO2max (106 to 120%) bands are Coggan's power levels as I recall them; I have not checked them against the source here. Sweet spot at 88 to 94% is the common coaching convention. The ranges used for each set (for example 98 to 105% for 10-minute threshold reps, lower for longer ones) are my choice. All are conventions, not measurements of you, so adjust to how the session feels.</p>
-    <p>Sessions and set sizes are my selection of common ones, not a plan from a specific book. Recoveries between reps are easy spinning at 55% of FTP (50% for VO2max).</p>
+    <p>Sessions and set sizes are my selection of common ones, not a plan from a specific book. Recoveries between reps are easy spinning at 55% of FTP (50% for VO2max). For sweet spot, threshold and over-unders the recovery is about a third of the rep length, rounded to a whole minute (my placeholder); for VO2max it equals the work.</p>
     <p>TSS = hours × (power ÷ FTP)² × 100, summed over each block at the middle of its range. This uses average power per block, so it is a little below a normalised-power figure for the variable blocks. Counts towards CTL: the raw TSS times a percentage, 80 by default, as in Cross-Training TSS (Copeland: cycling needs 20 to 30% more time than running for similar aerobic benefit).</p>
     <p>Not adjusted for: heat, hills, fatigue, cadence, indoor versus outdoor.</p>
   </section>
@@ -132,23 +132,23 @@ td.w { font-weight: 600; white-space: nowrap; }
   var REC = [0.55, 0.55];
   // Each session: label, one-line description, sets. A set is { n, kind: "steady" | "ou", min, pw, rec, ... }.
   var TYPES = [
-    { id: "ss", name: "Sweet spot", desc: "Long reps just under threshold, with 5 minutes of easy spinning between.", sets: [
-      { l: "3 × 10 min", n: 3, min: 10, pw: [0.88, 0.94], rec: 5 },
+    { id: "ss", name: "Sweet spot", desc: "Long reps just under threshold, with easy spinning between (about a third of the rep length).", sets: [
+      { l: "3 × 10 min", n: 3, min: 10, pw: [0.88, 0.94], rec: 3 },
       { l: "3 × 15 min", n: 3, min: 15, pw: [0.88, 0.94], rec: 5 },
-      { l: "2 × 20 min", n: 2, min: 20, pw: [0.88, 0.94], rec: 5 },
-      { l: "3 × 20 min", n: 3, min: 20, pw: [0.88, 0.94], rec: 5 } ] },
+      { l: "2 × 20 min", n: 2, min: 20, pw: [0.88, 0.94], rec: 7 },
+      { l: "3 × 20 min", n: 3, min: 20, pw: [0.88, 0.94], rec: 7 } ] },
     { id: "thr", name: "Threshold", desc: "Reps at about FTP. The longer the rep, the lower in the range.", sets: [
-      { l: "3 × 10 min", n: 3, min: 10, pw: [0.98, 1.05], rec: 5 },
+      { l: "3 × 10 min", n: 3, min: 10, pw: [0.98, 1.05], rec: 3 },
       { l: "3 × 15 min", n: 3, min: 15, pw: [0.95, 1.02], rec: 5 },
-      { l: "2 × 20 min", n: 2, min: 20, pw: [0.95, 1.00], rec: 5 } ] },
+      { l: "2 × 20 min", n: 2, min: 20, pw: [0.95, 1.00], rec: 7 } ] },
     { id: "v2", name: "VO2max", desc: "Hard reps with recovery equal to the work, at 50% of FTP.", sets: [
       { l: "5 × 3 min", n: 5, min: 3, pw: [1.12, 1.20], rec: 3, rpw: [0.5, 0.5] },
       { l: "6 × 3 min", n: 6, min: 3, pw: [1.12, 1.20], rec: 3, rpw: [0.5, 0.5] },
       { l: "5 × 4 min", n: 5, min: 4, pw: [1.08, 1.15], rec: 4, rpw: [0.5, 0.5] },
       { l: "5 × 5 min", n: 5, min: 5, pw: [1.06, 1.12], rec: 5, rpw: [0.5, 0.5] } ] },
-    { id: "ou", name: "Over-unders", desc: "Blocks that alternate just under and just over FTP, with 5 minutes of easy spinning between blocks.", sets: [
-      { l: "3 × 12 min (3 min at 95%, 1 min at 105%)", n: 3, min: 12, rec: 5, ou: { under: 3, over: 1, up: 0.95, op: 1.05 } },
-      { l: "2 × 20 min (4 min at 95%, 1 min at 105%)", n: 2, min: 20, rec: 5, ou: { under: 4, over: 1, up: 0.95, op: 1.05 } } ] },
+    { id: "ou", name: "Over-unders", desc: "Blocks that alternate just under and just over FTP, with easy spinning between blocks (about a third of the block length).", sets: [
+      { l: "3 × 12 min (3 min at 95%, 1 min at 105%)", n: 3, min: 12, rec: 4, ou: { under: 3, over: 1, up: 0.95, op: 1.05 } },
+      { l: "2 × 20 min (4 min at 95%, 1 min at 105%)", n: 2, min: 20, rec: 7, ou: { under: 4, over: 1, up: 0.95, op: 1.05 } } ] },
     { id: "end", name: "Endurance", desc: "Steady riding in the endurance zone.", sets: [
       { l: "60 min", steady: 60, pw: [0.56, 0.75] },
       { l: "90 min", steady: 90, pw: [0.56, 0.75] },

@@ -260,6 +260,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 ## Bike Session Generator (P, 2026-10-30)
 - New page. P's brief: power-based (FTP in watts), sessions: sweet spot, threshold, VO2max, over-unders, endurance. P chose the session-generator form over a run-equivalent or weekly plan.
 - Output: warm-up, main set with watts, recoveries, cool-down; total time, average power, TSS, counted towards CTL (80%, as Cross-Training TSS).
+- Recovery scales with rep length (P, 2026-10-30): about a third of the rep or block length (10 min 3, 15 min 5, 20 min 7; over-unders 12 min 4, 20 min 7); was a flat 5 min, which P found too generous. P's running comparison (10-minute reps get 90 to 120 s) suggests shorter still; the third is my placeholder. Spelling: 'sweet spot' (two words).
 - Placeholders (mine, listed in the methodology): per-set power ranges, set sizes, recoveries, warm-up 10 min and cool-down 5 min. Zone bands are Coggan's as I recall them, not checked against the source.
 - Not built: weekly plan, run-equivalent conversion, heart-rate version, hand-off to the Run Load Planner.
 
