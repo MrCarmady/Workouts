@@ -52,6 +52,10 @@ def scenarios():
     out.append(('lift-scheme-calculator','bodyweight 5 rejected',lambda pg:[fill(pg,'bw','5')]))
     out.append(('race-prediction-calculator','time 18:75 rejected',lambda pg:[fill(pg,'time','18:75')]))
     out.append(('run-tss-calculator','time Infinity rejected',lambda pg:[pg.select_option('#mode','race'),fill(pg,'time','Infinity')]))
+    for ti,vi,nm in [(0,0,'sweet spot 3x10'),(1,2,'threshold 2x20'),(2,0,'vo2 5x3'),(3,1,'over-unders 2x20'),(4,4,'recovery spin')]:
+        out.append(('bike-session-generator',nm,lambda pg,ti=ti,vi=vi:[pg.select_option('#type',str(ti)),pg.select_option('#var',str(vi))]))
+    out.append(('bike-session-generator','FTP 300 no warm-up',lambda pg:[fill(pg,'ftp','300'),fill(pg,'wu','0'),fill(pg,'cd','0')]))
+    out.append(('bike-session-generator','FTP invalid',lambda pg:[fill(pg,'ftp','20')]))
     out.append(('cross-training-tss','bike 60 min 187.5 / 250',lambda pg:[fill(pg,'bpow','187.5'),fill(pg,'ftp','250')]))
     out.append(('cross-training-tss','bike 60 min 290 W FTP 250 rejected',lambda pg:[fill(pg,'dur','60'),fill(pg,'bpow','290'),fill(pg,'ftp','250')]))
     out.append(('cross-training-tss','bike 60 min 260 W FTP 250 allowed',lambda pg:[fill(pg,'dur','60'),fill(pg,'bpow','260'),fill(pg,'ftp','250')]))

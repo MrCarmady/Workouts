@@ -18,6 +18,7 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("run-load-planner.html","run-load-planner.html","Run Load Planner","CTL, ATL and TSB from a planned week, or the TSS needed for a target.","run-load-planner.md","run-load-planner","Load"),
  ("run-tss-calculator.html","run-tss-calculator.html","Run TSS Calculator","Training stress score for a run, from your threshold pace and what you ran.","run-tss-calculator.md","run-tss-calculator","Load"),
  ("run-tss-planner.html","run-tss-planner.html","Run TSS Planner","The workout pace that hits a target TSS.","run-tss-planner.md","run-tss-planner","Load"),
+ ("bike-session-generator.html","bike-session-generator.html","Bike Session Generator","Sweet spot, threshold, VO2max, over-under and endurance sessions in watts from your FTP.","bike-session-generator.md","bike-session-generator","Sessions"),
  ("cross-training-tss.html","cross-training-tss.html","Cross-Training TSS","TSS for bike, rower, treadmill walking and other cross-training.","cross-training-tss.md","cross-training-tss","Load"),
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace, and optional TSS, for a running or walking treadmill setting.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","1RM and Scheme Calculator","1RM estimate, working weights and a warm-up ladder from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),

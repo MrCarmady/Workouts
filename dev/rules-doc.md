@@ -257,5 +257,11 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Copeland Base cross-training minutes (P, 2026-10-22): P found Saturday stuck at 4 x 3 for four weeks with 50 TSS cross-training on Fridays (18:52 5k, CTL 41, 6 run days). Cause: cross-training TSS uses ramp room, so running time falls, and the 25% sub-threshold rule then binds. Fix: optional minutes per cross-training day that count as easy time in the 25% denominator. Blank keeps the old behaviour. Open: whether Copeland's 75/25 counts cross-training; a double (easy AM run) is already running time and needs no input.
 - Pre's 200s label (P, 2026-10-22): the slow 200 is called "float", not "recovery", because recovery implies an easy pace. Pace unchanged (33 1/3% slower than the fast 200).
 
+## Bike Session Generator (P, 2026-10-30)
+- New page. P's brief: power-based (FTP in watts), sessions: sweet spot, threshold, VO2max, over-unders, endurance. P chose the session-generator form over a run-equivalent or weekly plan.
+- Output: warm-up, main set with watts, recoveries, cool-down; total time, average power, TSS, counted towards CTL (80%, as Cross-Training TSS).
+- Placeholders (mine, listed in the methodology): per-set power ranges, set sizes, recoveries, warm-up 10 min and cool-down 5 min. Zone bands are Coggan's as I recall them, not checked against the source.
+- Not built: weekly plan, run-equivalent conversion, heart-rate version, hand-off to the Run Load Planner.
+
 ## Page names (P, 2026-10-28)
 - Marathon Plans is now Marathon Plan Viewer; Marathon Plan Recommender is now Marathon Plan Finder. File names unchanged. Kept as two pages (P): Viewer = one plan in detail with its own settings; Finder = all 13 plans against CTL/ATL with the load chart and intensity mix. The Finder links the selected plan to the Viewer (#author.plan), the Viewer links to the Finder. Finder uses the Viewer's default plan settings.
