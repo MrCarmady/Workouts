@@ -18,8 +18,8 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("run-load-planner.html","run-load-planner.html","Run Load Planner","CTL, ATL and TSB from a planned week, or the TSS needed for a target.","run-load-planner.md","run-load-planner","Load"),
  ("run-tss-calculator.html","run-tss-calculator.html","Run TSS Calculator","Training stress score for a run, from your threshold pace and what you ran.","run-tss-calculator.md","run-tss-calculator","Load"),
  ("run-tss-planner.html","run-tss-planner.html","Run TSS Planner","The workout pace that hits a target TSS.","run-tss-planner.md","run-tss-planner","Load"),
- ("bike-session-generator.html","bike-session-generator.html","Bike Session Generator","Sweet spot, threshold, VO2max, over-under and endurance sessions in watts from your FTP.","bike-session-generator.md","bike-session-generator","Sessions"),
- ("cross-training-tss.html","cross-training-tss.html","Cross-Training TSS","TSS for bike, rower, treadmill walking and other cross-training.","cross-training-tss.md","cross-training-tss","Load"),
+ ("bike-session-generator.html","bike-session-generator.html","Bike Session Generator","Sweet spot, threshold, VO2max, over-under and endurance sessions in watts from your FTP.","bike-session-generator.md","bike-session-generator","Cross-training"),
+ ("cross-training-tss.html","cross-training-tss.html","Cross-Training TSS","TSS for bike, rower, treadmill walking and other cross-training.","cross-training-tss.md","cross-training-tss","Cross-training"),
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace, and optional TSS, for a running or walking treadmill setting.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","1RM and Scheme Calculator","1RM estimate, working weights and a warm-up ladder from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
  ("marathon-plans.html","marathon-plans.html","Marathon Plan Viewer","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Marathon and plans"),
@@ -59,7 +59,7 @@ THEME_JS='<script>'+THEME.JS+'</script>'
 TOGGLE=THEME.HTML
 FONTS='<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">'
 # index
-ORDER=['Race and pace','Sessions','Marathon and plans','Load','Lifting']
+ORDER=['Race and pace','Sessions','Marathon and plans','Cross-training','Load','Lifting']
 cards={}
 for src,out,title,desc,md,slug,grp in sorted(tools,key=lambda t:(ORDER.index(t[6]),tools.index(t))):
     cards.setdefault(grp,[]).append(f'''      <li class="card"><div><a class="name" href="{out}">{html.escape(title)}</a><p>{html.escape(desc)}</p></div><a class="meth" href="methods/{slug}.html">How it works</a></li>''')
@@ -72,8 +72,9 @@ def _sec(g,v,lvl):
     </section>
 '''
 RUNNING=['Planning and load','Sessions','Race and pace']
-groups=('    <nav class="jump" aria-label="Sections"><a href="#running">Running</a><a href="#load">Load</a><a href="#lifting">Lifting</a></nav>\n'
+groups=('    <nav class="jump" aria-label="Sections"><a href="#running">Running</a><a href="#crosstraining">Cross-training</a><a href="#load">Load</a><a href="#lifting">Lifting</a></nav>\n'
  +'    <h2 class="big" id="running">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in ['Race and pace','Sessions','Marathon and plans'])
+ +'    <h2 class="big" id="crosstraining">Cross-training</h2>\n'+_sec('Bike and other cross-training',cards['Cross-training'],3)
  +'    <h2 class="big" id="load">Load</h2>\n'+_sec('Training load and TSS',cards['Load'],3)
  +'    <h2 class="big" id="lifting">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3))
 START=[ # (question, tool file, tool title); titles must match the tools list
