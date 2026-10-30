@@ -52,7 +52,7 @@ def scenarios():
     out.append(('lift-scheme-calculator','bodyweight 5 rejected',lambda pg:[fill(pg,'bw','5')]))
     out.append(('race-prediction-calculator','time 18:75 rejected',lambda pg:[fill(pg,'time','18:75')]))
     out.append(('run-tss-calculator','time Infinity rejected',lambda pg:[pg.select_option('#mode','race'),fill(pg,'time','Infinity')]))
-    for ti,vi,nm in [(0,0,'sweet spot 3x10'),(1,2,'threshold 2x20'),(2,0,'vo2 5x3'),(3,1,'over-unders 2x20'),(4,4,'recovery spin')]:
+    for ti,vi,nm in [(0,0,'sweet spot 3x10'),(1,4,'threshold 2x20'),(0,4,'sweet spot 2x30'),(1,0,'threshold 4x8'),(2,0,'vo2 5x3'),(3,1,'over-unders 2x20'),(4,4,'recovery spin')]:
         out.append(('bike-session-generator',nm,lambda pg,ti=ti,vi=vi:[pg.select_option('#type',str(ti)),pg.select_option('#var',str(vi))]))
     out.append(('bike-session-generator','FTP 300 no warm-up',lambda pg:[fill(pg,'ftp','300'),fill(pg,'wu','0'),fill(pg,'cd','0')]))
     out.append(('bike-session-generator','FTP invalid',lambda pg:[fill(pg,'ftp','20')]))
