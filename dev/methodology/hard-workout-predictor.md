@@ -35,3 +35,5 @@ The 2.5% race-day effect is a placeholder. It is the author's conservative pick 
 Not adjusted: heat, surface, wind, hills. The tool notes how much the equivalent race changed when rest differs from standard by more than 10%, warns when rest is under 20s or more than 2.5 times standard, when RPE is below 6 or above 9.5, and when the second half of the reps differs from the first by more than 2%.
 
 Check against posted cases: 6×800 averaging 2:38.5 gives a 5k of 17:22 (range 17:12–17:32); the poster ran 17:07. One case, not a calibration.
+
+Display (2026-10-30): the Session equals box shows the actual race distance (for example 6.9k) unless it is within 5% of a standard distance, when it shows that name. It used to round down to the next standard distance, so 6.9k read as 5k. The box includes the rest adjustment; RPE is not applied to it. The rest note compares the session with the same session at standard rest.

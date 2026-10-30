@@ -281,11 +281,13 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   }
   // Common race distances (km). The label is the largest one at or below the computed distance, or the next one up if the computed distance is within 5% of it.
   var STD = [[0.4, "400m"], [0.6, "600m"], [0.8, "800m"], [1, "1000m"], [1.2, "1200m"], [1.5, "1500m"], [1.609344, "mile"], [2, "2k"], [3, "3k"], [4, "4k"], [5, "5k"], [8, "8k"], [10, "10k"], [12, "12k"], [15, "15k"], [16.09344, "10 mile"], [21.0975, "half marathon"], [30, "30k"], [32.18688, "20 mile"], [42.195, "marathon"]];
+  // Name of the race the session equals: a standard distance if within 5% of one, otherwise the distance itself (6.9k, not "5k").
   function xText(x) {
     if (x < STD[0][0] * 0.95) return "under 400m";
-    var lab = STD[0][1];
-    for (var i = 0; i < STD.length; i++) if (STD[i][0] <= x * 1.05) lab = STD[i][1];
-    return lab;
+    var best = null;
+    for (var i = 0; i < STD.length; i++) if (Math.abs(x / STD[i][0] - 1) <= 0.05 && (best === null || Math.abs(x / STD[i][0] - 1) < Math.abs(x / best[0] - 1))) best = STD[i];
+    if (best) return best[1];
+    return x < 1 ? Math.round(x * 100) * 10 + "m" : (Math.round(x * 10) / 10) + "k";
   }
   // Warnings (placeholders): RPE below 7 or above 9, and rep counts below 0.6 or above 2 times the typical count for the rep length.
   var WARN_RPE_LO = 7, WARN_RPE_HI = 9, WARN_R_LO = 0.6, WARN_R_HI = 2;
@@ -453,7 +455,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     $("res").innerHTML =
       "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + (aus ? " + 200m float" : "") + ", " + mmss(pRaw) + " /km" + (rpe !== RPE_REF ? ", counted as " + mmss(p) + " at RPE " + rpe : "") + "</small></div>" +
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
-      "<div><span>Session equals</span><b>" + xText(xEq) + "</b><small>pace, at RPE 8 effort and standard rest</small></div>";
+      "<div><span>Session equals</span><b>" + xText(xEq) + "</b><small>pace, at RPE 8 effort, rest included</small></div>";
     var fl = [];
     if (capped) fl.push("This many reps would equal a race longer than the marathon. The tool caps it at marathon pace.");
     if (times.length > 1) {
@@ -465,7 +467,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var sr = stdRest(m);
     if (rest < 20) fl.push("Rest under 20s is close to continuous running, which this model is not built for. Consider the Continuous option.");
     else if (rest > sr * REST_LIM) fl.push("Rest is more than " + REST_LIM + " times the standard " + Math.round(sr) + "s for this rep length, so this is closer to separate efforts than one session. The rest adjustment stops at " + REST_LIM + " times.");
-    else if (Math.abs(rest / sr - 1) > 0.1) { var ch = (restF(m, rest) - 1) * 100; fl.push("Rest of " + Math.round(rest) + "s against the standard " + Math.round(sr) + "s: the reps equal a race about " + Math.abs(ch).toFixed(0) + "% " + (ch < 0 ? "shorter, because the longer rest makes the session easier." : "longer, because the shorter rest makes the session harder.")); }
+    else if (Math.abs(rest / sr - 1) > 0.1) { var ch = (restF(m, rest) - 1) * 100; fl.push("Rest of " + Math.round(rest) + "s against the standard " + Math.round(sr) + "s: this session counts as a race about " + Math.abs(ch).toFixed(0) + "% " + (ch < 0 ? "shorter" : "longer") + " than the same session at " + Math.round(sr) + "s rest, because the " + (ch < 0 ? "longer rest makes it easier." : "shorter rest makes it harder.")); }
     var tn = typN(m), rr = nReps / tn, tl = Math.round(tn) + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m");
     if (rr < WARN_R_LO) fl.push("Too few reps for a meaningful prediction. The usual session is about " + tl + ". Try more reps next time.");
     if (rr > WARN_R_HI) fl.push("That is far more reps than the usual " + tl + ". The prediction is solid, but don't leave the race in training: recovery may be excessive.");
