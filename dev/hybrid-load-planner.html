@@ -177,7 +177,7 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   var DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   // Lifting cells: L = lower 1, upper 0.33; C = compound 1, isolation 0.5. These are the author's estimates, not research values.
   var CELLS = { lc: { n: "Lower, compound", L: 1, C: 1 }, li: { n: "Lower, isolation", L: 1, C: 0.5 }, uc: { n: "Upper, compound", L: 0.33, C: 1 }, ui: { n: "Upper, isolation", L: 0.33, C: 0.5 } };
-  var RIRSTEP = 0.12, STD_SETS = 3, FLOOR = 10, CROSS = 0.5;
+  var RIRSTEP = 0.12, STD_SETS = 3, FLOOR = 10, CROSS = 0.5, BASE = 70;   // BASE: score for 3 sets of a lower-body compound lift to failure (was 100; 70 from 2026-10-30)
 
   var state = null;   // { run: [7 strings], lifts: [7 arrays of {t, s, r}] }
   function defaults() {
@@ -192,7 +192,7 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
     if (!any) return 0;
     var scores = Object.keys(pool).map(function (k) {
       var p = pool[k], rir = p.rn / p.n, c = CELLS[k];
-      return Math.max(FLOOR, 100 * c.L * c.C * (1 - RIRSTEP * rir) * Math.sqrt(p.n / STD_SETS));
+      return Math.max(FLOOR, BASE * c.L * c.C * (1 - RIRSTEP * rir) * Math.sqrt(p.n / STD_SETS));
     });
     var mx = Math.max.apply(null, scores), sum = scores.reduce(function (a, b) { return a + b; }, 0);
     return mx + CROSS * (sum - mx);
@@ -292,9 +292,9 @@ button.info:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
   function fill() {
     $("notes").innerHTML = [
       "<b>Running.</b> Enter each day's running TSS. The Run TSS Calculator and Run TSS Planner give it for a session. CTL has a 42-day and ATL a 7-day time constant.",
-      "<b>Lifting score.</b> Each lift scores max(10, 100 &times; lower 1 or upper 0.33 &times; compound 1 or isolation 0.5 &times; (1 &minus; 0.12 &times; reps left on the last set) &times; &radic;(sets &divide; 3)). Three sets with the last to failure on a lower-body compound lift is 100.",
+      "<b>Lifting score.</b> Each lift scores max(10, 70 &times; lower 1 or upper 0.33 &times; compound 1 or isolation 0.5 &times; (1 &minus; 0.12 &times; reps left on the last set) &times; &radic;(sets &divide; 3)). Three sets with the last to failure on a lower-body compound lift is 70.",
       "<b>Several lifts in a day.</b> Sets and reps left are pooled within each lift type. The day's total is the largest type plus half of the others.",
-      "<b>Where these numbers come from.</b> They are the author's estimates, fitted to a few anchor points (squat to failure 100, overhead press to failure about 33, light curls about 10, a Tactical Barbell style session with reps left about 60). They are not research values. Reps left is self-reported and easy to misjudge.",
+      "<b>Where these numbers come from.</b> They are the author's estimates, fitted to a few anchor points (squat to failure was 100, overhead press to failure about 33, light curls about 10, a Tactical Barbell style session with reps left about 60). The squat anchor was lowered to 70 on 2026-10-30 after five sets of squats with 3 reps left scored 83, more than an all-out 10k (about 70 TSS for a 39:43 runner); the upper-body factor and the other anchors scale with it, and the 10-point floor is unchanged. They are not research values. Reps left is self-reported and easy to misjudge.",
       "<b>Cross-training.</b> Enter each day's cross-training TSS as it comes from the Cross-Training TSS page, before weighting. It is multiplied by the weight (80% by default, a placeholder) and then counts the same for CTL and ATL. The one-day limit of 300 TSS applies to running plus counted cross-training.",
       "<b>CTL and ATL weights.</b> Lifting counts in full for ATL and at the weight you set for CTL. A weight below 1 means a steady lifter shows lower form than a runner with the same total, by design: lifting adds fatigue faster than it adds running fitness.",
       "<b>Limits.</b> Lifting fatigue is treated as a same-day hit, like running TSS. A new or returning exercise can leave you sorer than its score suggests. The model does not know about exercise selection beyond the four types."
