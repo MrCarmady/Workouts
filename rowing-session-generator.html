@@ -80,7 +80,7 @@ td.w { font-weight: 600; white-space: nowrap; }
   <header class="head">
     <div>
       <h1>Rowing Session Generator</h1>
-      <p class="sub">Splits and watts from your 2k time: steady state, threshold, race-pace intervals and pyramids on the erg, with TSS and the share that counts towards CTL.</p>
+      <p class="sub">Splits and watts from your 2k time: steady state, threshold, race-pace intervals, 5k-pace intervals and pyramids on the erg, with TSS and the share that counts towards CTL.</p>
     </div>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
@@ -125,7 +125,7 @@ td.w { font-weight: 600; white-space: nowrap; }
   <section class="method">
     <h2>How this is calculated</h2>
     <p>Every target is a split per 500m set relative to your 2k split, so the session scales with your fitness. Watts come from the Concept2 formula, 2.80 ÷ (split in seconds per metre)³. Threshold is your 2k split plus 15 seconds, as in Cross-Training TSS (Paul's law: add 5 seconds per 500m for each doubling of distance, so 16k is 2k + 15, about an hour for most rowers).</p>
-    <p>The offsets for each session type (steady state 2k + 22 to 28 s, threshold 2k + 13 to 18 s depending on rep length, race pace 2k − 2 to + 4 s depending on rep length, pyramids 2k + 1 to + 6 s), the set sizes and the rests are my selection, not from a specific programme, and are not checked against a source. Adjust to how the session feels. Rests are light rowing at 2k + 35 s: a third of the rep for threshold, fixed times for race-pace reps (90 s for 500m, 2 min for 750m, 3 min for 1000m) and half of the preceding rep for pyramids.</p>
+    <p>The offsets for each session type (steady state 2k + 22 to 28 s, threshold 2k + 13 to 18 s depending on rep length, race pace 2k − 2 to + 4 s depending on rep length, 5k pace 2k + 6 to + 8.5 s, pyramids 2k + 1 to + 6 s), the set sizes and the rests are my selection, not from a specific programme, and are not checked against a source. Adjust to how the session feels. Rests are light rowing at 2k + 35 s: a third of the rep for threshold, fixed times for race-pace reps (90 s for 500m, 2 min for 750m, 3 min for 1000m) and 5 min for the 5k-pace reps and half of the preceding rep for pyramids. The 5k-pace session is modelled on the long intervals in the Pete Plan (5×1500, 4×2000, 3k/2.5k/2k, 5 min rest). I read a summary of that page, not the page itself, and the paces are my translation to a 5k split from Paul's law (2k split + 5·log2(5/2), about 6.6 s), not a measured 5k.</p>
     <p>TSS = hours × (watts ÷ threshold watts)² × 100, summed over each block at the middle of its split range, as in Cross-Training TSS. Counts towards CTL: the raw TSS times a percentage, 80 by default (a placeholder for all non-running activities there).</p>
     <p>Distance for timed blocks is the time divided by the middle split. Concept2 ergometer only. Not adjusted for drag factor, rate or fatigue.</p>
   </section>
@@ -150,6 +150,10 @@ td.w { font-weight: 600; white-space: nowrap; }
       { l: "8 × 500 m", n: 8, m: 500, off: [-2, 0], rest: 90 },
       { l: "6 × 750 m", n: 6, m: 750, off: [0, 2], rest: 120 },
       { l: "4 × 1000 m", n: 4, m: 1000, off: [2, 4], rest: 180 } ] },
+    { id: "k5", name: "5k pace", desc: "Long reps at about 5k pace (2k split + 6 to 8.5 s, the 5k split worked out from the 2k by Paul's law), with 5 min of light rowing between.", sets: [
+      { l: "5 × 1500 m", n: 5, m: 1500, off: [6, 7], rest: 300 },
+      { l: "4 × 2000 m", n: 4, m: 2000, off: [7, 8], rest: 300 },
+      { l: "3000-2500-2000 m", ms: [3000, 2500, 2000], off: [7.5, 8.5], rest: 300 } ] },
     { id: "pyr", name: "Pyramid", desc: "Reps that go up and down in distance, with rest equal to half of the preceding rep.", sets: [
       { l: "500-1000-1500-1000-500 m", ms: [500, 1000, 1500, 1000, 500], off: [4, 6] },
       { l: "250-500-750-1000-750-500-250 m", ms: [250, 500, 750, 1000, 750, 500, 250], off: [1, 3] } ] }
@@ -191,10 +195,10 @@ td.w { font-weight: 600; white-space: nowrap; }
       rows.push(timed((s.n - 1) + " × " + (s.rest >= 120 ? s.rest / 60 + " min" : s.rest + " s") + " light rowing between", (s.n - 1) * s.rest, [REST_OFF, REST_OFF]));
     } else {
       var mid = sp + (s.off[0] + s.off[1]) / 2, rest = 0;
-      s.ms.forEach(function (m, i) { if (i < s.ms.length - 1) rest += Math.round(m / 500 * mid / 2 / 10) * 10; });
+      s.ms.forEach(function (m, i) { if (i < s.ms.length - 1) rest += s.rest || Math.round(m / 500 * mid / 2 / 10) * 10; });
       var tot = s.ms.reduce(function (a, b) { return a + b; }, 0);
       rows.push(dist(s.l, tot, s.off, 1));
-      rows.push(timed("Light rowing between, half of each rep", rest, [REST_OFF, REST_OFF]));
+      rows.push(timed(s.rest ? (s.ms.length - 1) + " × " + s.rest / 60 + " min light rowing between" : "Light rowing between, half of each rep", rest, [REST_OFF, REST_OFF]));
     }
     if (cd > 0) rows.push(timed("Cool-down", cd * 60, COOL));
     var secT = 0, mT = 0, tss = 0, wsum = 0;

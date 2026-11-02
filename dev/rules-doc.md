@@ -268,6 +268,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - New page, in the Cross-training group. P's brief: 2k time input; steady state, threshold, race-pace intervals and pyramids; output as the Bike Session Generator (block table with split and watts, total time and distance, TSS, counted towards CTL at 80%).
 - Reuses Cross-Training TSS: Concept2 watts, threshold = 2k split + 15 s, IF = watts / threshold watts.
 - Placeholders (mine, listed in the methodology): offsets from the 2k split, set sizes, rests (threshold rest a third of the rep, as the bike over-unders; P's view for the erg not yet known), warm-up and cool-down.
+- 5k-pace type added 2026-11-02 (P chose this option after the Pete Plan comparison; race-pace offsets and rests left as they were). Sets 5 x 1500, 4 x 2000, 3000-2500-2000 m, 5 min light rowing between, offsets 2k + 6 to 8.5 s. Source: my reading of a summarised fetch of the Pete Plan page (5k pace for 1500 m, 5k + 0.5 s for 2000 m, 5k + 1 s for the 3k/2.5k/2k, 5 min rest), not a verbatim read. 5k split = 2k split + 5 log2(5/2) s (Paul's law), about 6.6 s, not a measured 5k. At a 6:50 2k, Pete's session loads are 59 to 84 TSS against 51 to 80 for ours.
 - Not built: heart-rate version, pace-boat or on-water use, weekly rowing plan, hand-off to the Run Load Planner.
 
 ## Page names (P, 2026-10-28)
