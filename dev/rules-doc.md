@@ -264,5 +264,11 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Placeholders (mine, listed in the methodology): per-set power ranges, set sizes, recoveries, warm-up 10 min and cool-down 5 min. Zone bands are Coggan's as I recall them, not checked against the source.
 - Not built: weekly plan, run-equivalent conversion, heart-rate version, hand-off to the Run Load Planner.
 
+## Rowing Session Generator (P, 2026-11-02)
+- New page, in the Cross-training group. P's brief: 2k time input; steady state, threshold, race-pace intervals and pyramids; output as the Bike Session Generator (block table with split and watts, total time and distance, TSS, counted towards CTL at 80%).
+- Reuses Cross-Training TSS: Concept2 watts, threshold = 2k split + 15 s, IF = watts / threshold watts.
+- Placeholders (mine, listed in the methodology): offsets from the 2k split, set sizes, rests (threshold rest a third of the rep, as the bike over-unders; P's view for the erg not yet known), warm-up and cool-down.
+- Not built: heart-rate version, pace-boat or on-water use, weekly rowing plan, hand-off to the Run Load Planner.
+
 ## Page names (P, 2026-10-28)
 - Marathon Plans is now Marathon Plan Viewer; Marathon Plan Recommender is now Marathon Plan Finder. File names unchanged. Kept as two pages (P): Viewer = one plan in detail with its own settings; Finder = all 13 plans against CTL/ATL with the load chart and intensity mix. The Finder links the selected plan to the Viewer (#author.plan), the Viewer links to the Finder. Finder uses the Viewer's default plan settings.

@@ -54,6 +54,10 @@ def scenarios():
     out.append(('run-tss-calculator','time Infinity rejected',lambda pg:[pg.select_option('#mode','race'),fill(pg,'time','Infinity')]))
     for ti,vi,nm in [(0,0,'sweet spot 3x10'),(1,4,'threshold 2x20'),(0,4,'sweet spot 2x30'),(1,0,'threshold 4x8'),(2,0,'vo2 5x3'),(3,1,'over-unders 2x20'),(4,4,'recovery spin')]:
         out.append(('bike-session-generator',nm,lambda pg,ti=ti,vi=vi:[pg.select_option('#type',str(ti)),pg.select_option('#var',str(vi))]))
+    for ti,vi,nm in [(0,1,'steady 60'),(1,0,'threshold 4x10'),(2,0,'race 8x500'),(2,2,'race 4x1000'),(3,0,'pyramid 500-1500'),(3,1,'pyramid 250-1000')]:
+        out.append(('rowing-session-generator',nm,lambda pg,ti=ti,vi=vi:[pg.select_option('#type',str(ti)),pg.select_option('#var',str(vi))]))
+    out.append(('rowing-session-generator','2k 7:30 no warm-up',lambda pg:[fill(pg,'t2k','7:30'),fill(pg,'wu','0'),fill(pg,'cd','0')]))
+    out.append(('rowing-session-generator','2k invalid',lambda pg:[fill(pg,'t2k','4:00')]))
     out.append(('bike-session-generator','FTP 300 no warm-up',lambda pg:[fill(pg,'ftp','300'),fill(pg,'wu','0'),fill(pg,'cd','0')]))
     out.append(('bike-session-generator','FTP invalid',lambda pg:[fill(pg,'ftp','20')]))
     out.append(('cross-training-tss','bike 60 min 187.5 / 250',lambda pg:[fill(pg,'bpow','187.5'),fill(pg,'ftp','250')]))
