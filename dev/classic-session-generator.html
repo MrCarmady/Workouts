@@ -433,8 +433,7 @@ tr.easy td:first-child { padding-left: 11px; }
       struct = o.pairs + " pairs of 200m, fast then float, continuous";
       add("Fast", o.pairs, { m: 200 }, pm1, pm2, "hard", true);
       add("Float", o.pairs, { m: 200 }, pm1 * 4 / 3, pm2 * 4 / 3, "easy", true);
-      notes.push("Fast 200s are slightly slower than mile pace (mile pace to 2% slower, my reading of the article). Float 200s are 33⅓% slower than the fast ones. There is no standing rest: the float is the recovery, and it is a steady pace, not a jog. Stop when you cannot hold the fast pace or the float feels too short.");
-      notes.push("From the Outside article on Pre's 200s, which credits Bill Bowerman. It suggests three miles or until you cannot hold pace, and using it before the final taper rather than weekly. " + o.pairs + " pairs is " + distLabel(o.pairs * 400) + ".");
+      notes.push("Fast 200s at mile pace to 2% slower, with floats 33\u2153% slower. Aim for three miles (" + o.pairs + " pairs is " + distLabel(o.pairs * 400) + "), or stop when you cannot hold the fast pace. Use it before the final taper, not weekly. Source: Outside article on Pre's 200s.");
     } else if (w.key === "mona") {
       struct = "2×90s, 4×60s, 4×30s, 4×15s, equal-time floats";
       var pq = p5 / 0.85;   // float: 85% of 5km speed
