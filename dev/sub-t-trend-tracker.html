@@ -133,7 +133,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       <label>Session avg HR, % of max (optional) <input id="hra" inputmode="decimal" placeholder="80"></label>
       <div class="row"><button class="btn" id="add" type="button">Add</button></div>
     </div>
-    <p class="note">Log sessions that ended at RPE 7 or lower. HR is optional. Sessions are excluded if peak HR (last 1–2 minutes of the last rep) is above 90% of max, or average HR (warm-up and cool-down included) is above 82%.</p>
+    <p class="note">Log sessions that ended at RPE 7 or lower. Sessions above RPE 7 are excluded: for one hard workout use the Hard Workout Predictor. HR is optional. Sessions are excluded if peak HR (last 1–2 minutes of the last rep) is above 90% of max, or average HR (warm-up and cool-down included) is above 82%.</p>
     <p class="warn" id="err" hidden></p>
   </section>
 
@@ -182,6 +182,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     <h2>How it works</h2>
     <ul>
       <li><b>Implied threshold.</b> The pace and rep length are run backwards through the Sub-Threshold Session Generator's rep-to-race-pace table to find your 5km pace. Threshold is the pace for a 16km race at that fitness. The range spans the fast and slow ends of the table for that rep length.</li>
+      <li><b>Which tool.</b> This is for repeatable sub-threshold sessions at RPE 7 or below, the kind you can run several times a week. It gives a fitness floor, not a race prediction, and ignores rep count and rest. For one hard workout at RPE 8.5 or above, use the Hard Workout Predictor. The two are expected to give different numbers for the same pace.</li>
       <li><b>Estimate.</b> The median of the last 6 counted sessions within the past 6 weeks. With fewer than 3 in that window, it uses the last 6 counted sessions and is marked stale.</li>
       <li><b>Confidence.</b> Counted sessions in the last 6 weeks. Fewer than 3: stale. 3–5: low. 6–9: moderate. 10 or more: good.</li>
       <li><b>Trend.</b> Straight-line fit to the counted sessions in the last 12 weeks, shown from 4 sessions spanning 14 days. Pace noise, heat, hills and fatigue are not corrected for.</li>
@@ -378,8 +379,9 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   // Recency windows (placeholders). Estimate: last 6 counted sessions within 6 weeks; stale fallback below 3. Trend: counted sessions within 12 weeks.
   var EST_DAYS = 42, TREND_DAYS = 84, EST_MIN = 3, EST_N = 6;
   function age(s) { return dayNum(today()) - dayNum(s.date); }
-  function valid(s) { return (s.hr === null || s.hr <= 90) && (s.ha == null || s.ha <= 82); }
-  function why(s) { var r = []; if (s.hr !== null && s.hr > 90) r.push("peak HR " + s.hr + "%"); if (s.ha != null && s.ha > 82) r.push("avg HR " + s.ha + "%"); return r.join(", "); }
+  var RPE_MAX = 7;   // sessions above this are not repeatable sub-threshold work and are excluded (placeholder gate, the author's rule)
+  function valid(s) { return (s.hr === null || s.hr <= 90) && (s.ha == null || s.ha <= 82) && !(s.rpe > RPE_MAX); }
+  function why(s) { var r = []; if (s.rpe > RPE_MAX) r.push("RPE " + s.rpe + ", above " + RPE_MAX); if (s.hr !== null && s.hr > 90) r.push("peak HR " + s.hr + "%"); if (s.ha != null && s.ha > 82) r.push("avg HR " + s.ha + "%"); return r.join(", "); }
   function repText(s) { return s.reps + " × " + (s.lbl ? s.lbl : s.t >= 120 ? Math.round(s.t / 6) / 10 + " min" : Math.round(s.t) + "s"); }
 
   function render() {

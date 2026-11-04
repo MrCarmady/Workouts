@@ -126,7 +126,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
         <span class="combo"><input id="rep" inputmode="decimal" value="1000"><select id="unit"><option value="m">m</option><option value="km">km</option></select></span>
       </label>
       <label id="lbRest">Rest between reps, s <input id="rest" inputmode="numeric" value="60"></label>
-      <label>RPE at the end (6–10) <input id="rpe" inputmode="decimal" value="8"></label>
+      <label>RPE at the end (6–10) <input id="rpe" inputmode="decimal" value="8.5"></label>
       <label>Predict
         <select id="target">
           <option value="1.5">1500m</option>
@@ -160,9 +160,10 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   <section class="panel method">
     <h2>How it works</h2>
     <ul>
-      <li><b>Anchors.</b> Each rep length is tied to a race pace, at standard rest and RPE 8. Other lengths are interpolated, then converted to a 5km pace.</li>
+      <li><b>Anchors.</b> Each rep length is tied to a race pace, at standard rest and RPE 8.5. Other lengths are interpolated, then converted to a 5km pace.</li>
       <li><b>Volume.</b> Each anchor has a typical rep count. Up to 1.6 times it, the equivalent race grows in step with the reps (8×1k is about 8k). Beyond that it grows faster, because pace holds up less well with volume (12×1k at 60s is about 17.5k). Below the typical count it shortens more gently (power 0.8). The result shows the nearest common distance. Over 25km of work, or a race under 400m, is refused. Beyond the marathon is capped at the marathon.</li>
-      <li><b>RPE.</b> 6 to 10 only: below 6 the session is too easy for its pace to say much about race fitness. Each point above 8 slows the pace used by 1%. Each point below 8 speeds it up by 1%. The Session equals box does not change with RPE: it shows what the reps and rest equal at an RPE 8 effort.</li>
+      <li><b>RPE.</b> 6 to 10 only: below 6 the session is too easy for its pace to say much about race fitness. Each point above 8.5 slows the pace used by 1%. Each point below 8.5 speeds it up by 1%. The Session equals box does not change with RPE: it shows what the reps and rest equal at an RPE 8.5 effort.</li>
+      <li><b>Which tool.</b> This is for one hard workout at RPE 8.5 or above. Repeatable sessions at RPE 7 or below belong in the Sub-Threshold Trend Tracker, which reads them as sub-threshold work and gives a fitness floor, not a race prediction. The two are expected to give different numbers for the same pace. Between 7 and 8.5, neither is a reliable fitness reading.</li>
       <li><b>Aussie quarters.</b> Always 8 × (400m hard + 200m float), run without stopping. The floats count: the total session time for the 4800m is read as the 5k time, and the real race is quicker, by up to 15 seconds. The range runs from that total (slow end) to 15 seconds off it (fast end). RPE adjusts the total as for other reps.</li>
       <li><b>Continuous.</b> The pace is sped up by 1% for each RPE point below 10, then by a 2.5% race-day effect, and converted to a 5km pace with the race model.</li>
       <li><b>Range.</b> Each anchor has a 1% pace band (5000m: marathon pace to 2% faster).</li>
@@ -240,7 +241,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   // The 5000m anchor is marathon pace to 2% faster. The 1% band elsewhere is a placeholder.
   var BAND = 0.01;
   // Volume slide: the race the reps equal scales with total work, x = typical race distance * (reps / typical reps)^GAMMA, a gentler exponent below the typical count. All three limits are placeholders.
-  var RPE_REF = 8, RPE_K = 0.01, RPE_MIN = 6;   // pace used = pace x (1 + RPE_K x (RPE - RPE_REF)); placeholders
+  var RPE_REF = 8.5, RPE_K = 0.01, RPE_MIN = 6;   // pace used = pace x (1 + RPE_K x (RPE - RPE_REF)); placeholders
   var CONT_K = 0.01, CONT_BOOST = 0.025;   // continuous: pace used = pace x (1 + CONT_K x (RPE - 10)) x (1 - CONT_BOOST); placeholders
   var GAMMA_LO = 0.8, R_KNEE = 1.6, P_HI = 0.93, MAXWORK = 25, MINX = 0.4;   // below the typical rep count: exponent GAMMA_LO; up to R_KNEE times it: linear; beyond: steeper by (r / R_KNEE)^P_HI   // MAXWORK: total work in km; MINX: shortest equivalent race in km
   var REST_K = 0.38, REST_MIN = 15, REST_LIM = 2.5;   // rest effect: equivalent race x (standard rest / rest)^REST_K, ratio limited to 1/REST_LIM .. REST_LIM; all placeholders fitted to P's examples
@@ -289,9 +290,9 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (best) return best[1];
     return x < 1 ? Math.round(x * 100) * 10 + "m" : (Math.round(x * 10) / 10) + "k";
   }
-  // Warnings (placeholders): RPE below 7 or above 9, and rep counts below 0.6 or above 2 times the typical count for the rep length.
-  var WARN_RPE_LO = 7, WARN_RPE_HI = 9, WARN_R_LO = 0.6, WARN_R_HI = 2;
-  var LOW_MSG = "Too easy for a meaningful prediction. Try a harder effort or more reps next time.";
+  // Warnings (placeholders): RPE below 8.5 or above 9, and rep counts below 0.6 or above 2 times the typical count for the rep length.
+  var WARN_RPE_LO = 8.5, WARN_RPE_HI = 9, WARN_R_LO = 0.6, WARN_R_HI = 2;
+  var LOW_MSG = "Below RPE 8.5 this is not a hard workout, so the prediction is unreliable. For repeatable sessions at RPE 7 or below, use the Sub-Threshold Trend Tracker.";
   var HIGH_MSG = "Don't leave the race in training. The prediction is solid, but recovery may be excessive.";
   function typN(m) {
     if (m <= ANCH[0].m) return ANCH[0].n;
@@ -455,7 +456,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     $("res").innerHTML =
       "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + (aus ? " + 200m float" : "") + ", " + mmss(pRaw) + " /km" + (rpe !== RPE_REF ? ", counted as " + mmss(p) + " at RPE " + rpe : "") + "</small></div>" +
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
-      "<div><span>Session equals</span><b>" + xText(xEq) + "</b><small>pace, at RPE 8 effort, rest included</small></div>";
+      "<div><span>Session equals</span><b>" + xText(xEq) + "</b><small>pace, at RPE 8.5 effort, rest included</small></div>";
     var fl = [];
     if (capped) fl.push("This many reps would equal a race longer than the marathon. The tool caps it at marathon pace.");
     if (times.length > 1) {
