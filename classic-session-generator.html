@@ -181,6 +181,7 @@ tr.easy td:first-child { padding-left: 11px; }
     <ul>
       <li><b>Pace base.</b> The same model as the Race Prediction Calculator: Riegel (time × distance ratio ^ 1.06), a slow-down for results under 5km, and a marathon slow-down that depends on weekly distance. Paces are named for the race distance they match, such as 5k pace: the predicted race pace over that distance. M pace is marathon pace.</li>
       <li><b>Tempo.</b> 20 minutes runs at threshold, the predicted 16km pace. Longer tempos slow down by 4.9% × ln(minutes ÷ 20), never slower than marathon pace, up to 60 minutes. The scale is a fit to a Daniels-style table (+1.2% at 25 minutes, +5.3% at 60).</li>
+      <li><b>Rowland Tempo.</b> A progressive 3/3/3 tempo: blocks of 9 minutes, each 3 minutes at half marathon pace, 3 minutes at 10 mile pace and 3 minutes at 10k pace, with a 2 minute walk/jog break between blocks. Three blocks by default. The paces are this page's reading of "slightly slower than tempo, tempo, slightly quicker".</li>
       <li><b>Ladder.</b> The 5, 4, 3, 2 and 1 minute reps run at 10k, 5k, 3k, 2k and 1500m pace. The jog after each rep is half its length by default (150, 120, 90 and 60s), as in the Outside article on ladders; a fixed jog is an option. The article's ladder ends with repeats of 1 minute hard and 1 minute easy, which you can add. The article gives effort, not paces, so the paces are this page's own.</li>
       <li><b>Aussie quarters.</b> Always 8 reps: 400m at 4k pace, then 200m floated at M pace to 3% faster, repeated with no stop. That is 4.8km, 5km with an opening 200m float.</li>
       <li><b>Pre's 200s.</b> Alternating 200m fast and 200m float with no stop, as in the Outside article on Pre's 200s. Fast 200s run from mile pace to 2% slower, float 200s are 33⅓% slower than the fast ones: a controlled, steady pace, not a jog. Twelve pairs is 4.8km, about three miles.</li>
@@ -282,6 +283,9 @@ tr.easy td:first-child { padding-left: 11px; }
   // Workouts. Options: num (whole number if int), select, check.
   var WORKOUTS = [
     { key: "tempo", name: "Continuous tempo", opts: [{ id: "min", label: "Minutes", def: 20, min: 20, max: 60, int: true }] },
+    { key: "prog", name: "Rowland Tempo", opts: [
+      { id: "blocks", label: "Blocks of 9 min", def: 3, min: 2, max: 5, int: true },
+      { id: "brk", label: "Walk/jog break (s)", def: 120, min: 30, max: 300, int: true }] },
     { key: "ladder", name: "Ladder 5-4-3-2-1 min", opts: [
       { id: "order", type: "select", label: "Order", choices: [["down", "5-4-3-2-1"], ["up", "1-2-3-4-5"]] },
       { id: "jogmode", type: "select", label: "Jog between reps", choices: [["half", "Half the previous rep"], ["fixed", "Fixed time"]] },
@@ -435,6 +439,14 @@ tr.easy td:first-child { padding-left: 11px; }
       add("Hard at 4k pace", nA, { m: 400 }, ph, ph, "hard", true);
       add("Float at M pace", nA, { m: 200 }, mpFast, mpFl, "easy", true);
       notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ".");
+    } else if (w.key === "prog") {
+      var pSlow = raceP(HM), pTemp = raceP(10 * MILE), pFast = raceP(10);
+      struct = o.blocks + " × 9 min (3 min half marathon pace, 3 min 10 mile pace, 3 min 10k pace), " + o.brk + "s walk/jog between";
+      add("3 min at half marathon pace", o.blocks, { s: 180 }, pSlow, pSlow, "hard", true);
+      add("3 min at 10 mile pace", o.blocks, { s: 180 }, pTemp, pTemp, "hard", true);
+      add("3 min at 10k pace", o.blocks, { s: 180 }, pFast, pFast, "hard", true);
+      add("Walk/jog break", o.blocks - 1, { s: o.brk }, wcPace, wcPace, "easy", true);
+      notes.push("Run each 9 min block as 3 min half marathon pace, 3 min 10 mile pace, 3 min 10k pace, with no stop between the parts. The rows group the parts by pace. Tempo is read as 10 mile pace, slightly slower as half marathon pace and slightly quicker as 10k pace. The paces are this page\'s own reading of the session, not published figures.");
     } else if (w.key === "pre") {
       var pm1 = raceP(MILE), pm2 = pm1 * 1.02;   // fast 200s: mile pace to 2% slower
       struct = o.pairs + " pairs of 200m, fast then float, continuous";

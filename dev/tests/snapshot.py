@@ -156,6 +156,8 @@ def scenarios():
     out.append(('classic-session-generator','ladder half jog tail 3',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','ladder'),fill(pg,'opt_tail','3')]))
     out.append(('classic-session-generator','ladder up half jog',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','ladder'),fill(pg,'opt_order','up'),fill(pg,'opt_tail','2')]))
     out.append(('classic-session-generator','pre 20 pairs',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','pre'),fill(pg,'opt_pairs','20')]))
+    out.append(('classic-session-generator','prog tempo default',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'workout','prog')]))
+    out.append(('classic-session-generator','prog tempo 5 blocks bad break',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'workout','prog'),fill(pg,'opt_blocks','5'),fill(pg,'opt_brk','10')]))
     out.append(('classic-session-generator','pre bad pairs',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','pre'),fill(pg,'opt_pairs','2')]))
     out.append(('hard-workout-predictor','aussie 8 x 1:29',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'splits','1:29, 1:29, 1:28, 1:29, 1:30, 1:29, 1:30, 1:29'),fill(pg,'float','52, 51, 52, 52, 52, 51, 52, 52')]))
     out.append(('hard-workout-predictor','aussie avg jog floats',lambda pg:[fill(pg,'mode','aussie'),fill(pg,'splits','1:29'),fill(pg,'float','75')]))
