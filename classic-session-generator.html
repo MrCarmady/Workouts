@@ -441,12 +441,12 @@ tr.easy td:first-child { padding-left: 11px; }
       notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ".");
     } else if (w.key === "prog") {
       var pSlow = raceP(HM), pTemp = raceP(10 * MILE), pFast = raceP(10);
-      struct = o.blocks + " × 9 min (3 min half marathon pace, 3 min 10 mile pace, 3 min 10k pace), " + o.brk + "s walk/jog between";
+      struct = o.blocks + " × 9 min, " + o.brk + "s walk/jog between";
       add("3 min at half marathon pace", o.blocks, { s: 180 }, pSlow, pSlow, "hard", true);
       add("3 min at 10 mile pace", o.blocks, { s: 180 }, pTemp, pTemp, "hard", true);
       add("3 min at 10k pace", o.blocks, { s: 180 }, pFast, pFast, "hard", true);
       add("Walk/jog break", o.blocks - 1, { s: o.brk }, wcPace, wcPace, "easy", true);
-      notes.push("Run each 9 min block as 3 min half marathon pace, 3 min 10 mile pace, 3 min 10k pace, with no stop between the parts. The rows group the parts by pace. Tempo is read as 10 mile pace, slightly slower as half marathon pace and slightly quicker as 10k pace. The paces are this page\'s own reading of the session, not published figures.");
+      notes.push("Run the three parts in order within each block, with no stop between them. Tempo is read as 10 mile pace; the paces are this page\'s own reading, not published figures.");
     } else if (w.key === "pre") {
       var pm1 = raceP(MILE), pm2 = pm1 * 1.02;   // fast 200s: mile pace to 2% slower
       struct = o.pairs + " pairs of 200m, fast then float, continuous";
