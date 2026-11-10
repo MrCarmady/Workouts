@@ -81,7 +81,7 @@ Sub-threshold work is kept at or under 25% of running time. Walked recoveries ar
 | 10 min | 150-min race | 90 s |
 | 12 min | 180-min race | 120 s |
 
-These are the Copeland plan's values, restated in time (2026-10-14). "60-min race" means the pace of a race lasting 60 minutes, from the race model. The 60, 90 and 150 min anchors fit Copeland's printed 5k-vs-rep-pace table at seven 5k times (15:00 to 28:20) within 2 s/km, always slightly slower than the book. The earlier distance anchors (16, 21, 32 km) drifted with runner speed, so they were the wrong frame. The 120 min (8 min reps) and 180 min (12 min reps) anchors are my extension: the book's table has only 3, 6 and 10 min reps. Other rep lengths are interpolated between anchors, in anchor time and in recovery (rounded to 5 s). The interpolation and the ladder minimums are my choices, not the author's.
+These are the Copeland plan's values, restated in time (2026-10-14). "60-min race" means the pace of a race lasting 60 minutes, from the race model. The 60, 90 and 150 min anchors fit Copeland's printed 5k-vs-rep-pace table at seven 5k times (15:00 to 28:20) within 2 s/km, always slightly slower than the book. The earlier distance anchors (16, 21, 32 km) drifted with runner speed, so they did not fit. The 120 min (8 min reps) and 180 min (12 min reps) anchors are my extension: the book's table has only 3, 6 and 10 min reps. Other rep lengths are interpolated between anchors, in anchor time and in recovery (rounded to 5 s). The interpolation and the ladder minimums are my choices, not the author's.
 
 ### Load
 
@@ -92,7 +92,7 @@ These are the Copeland plan's values, restated in time (2026-10-14). "60-min rac
 
 ### Limits
 
-- Does not adapt to what you actually ran.
+- The page recalculates only from the inputs you enter.
 - Only the first week of the marathon add-on is a target.
 
 ### Cross-training (2026-10-22)

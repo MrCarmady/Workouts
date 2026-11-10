@@ -293,7 +293,7 @@ off(km) = 0                                              for km &lt;= 21.0975
 </tr>
 </tbody>
 </table>
-<p>The percentages and distance limits were checked against secondary sources quoting Daniels (see "Source check"), not against the book. Daniels gives 20% for marathon-paced work, and the page uses it. Where he gives a distance, the page's limit can differ (see the table below the check).</p>
+<p>The percentages and distance limits were checked against secondary sources quoting Daniels (see "Source check"), not against the book. Daniels gives 20% for marathon-paced work, and the page uses it. Where he gives a distance, the page's limit can differ (see the table in the Source check section).</p>
 <p><strong>Low-mileage floor:</strong> the weekly limit never drops below 2km of mile-paced work, 4km of 5km-paced work or 6km of slower work (<strong>author's judgement</strong>, set so that low-mileage runners still get a usable session).</p>
 <pre><code>weeklyMaxKm = max(weeklyKm * share, floorKm)      // floorKm: 2 (200m), 4 (300m), 6 (400m and longer)
 topReps     = min(floor(weeklyMaxKm / repDistance), floor(absolute limit / rep size), floor(25km / repDistance))
@@ -317,7 +317,7 @@ TSS       = round(warm-up and cool-down) + round(reps) + round(recoveries)
 <tr>
 <td>Warm-up and cool-down</td>
 <td>minutes entered (default 10 + 10)</td>
-<td>the pace entered, or by default 65% of 5km speed (<strong>author's rule</strong>). It is a cap rather than a target. For an 18:54 5k it is 5:49/km, about 60% of a max aerobic speed taken from a 7.5 min race, inside the 65% of MAS ceiling the author attributes to an earlier Copeland recommendation (not checked against the book). Earlier versions used 62.5%; the page shows the default as the placeholder. On a treadmill, enter the flat-equivalent pace</td>
+<td>the pace entered, or by default 65% of 5km speed (<strong>author's rule</strong>). The pace is an upper limit on speed, so running slower is fine. For an 18:54 5k it is 5:49/km, about 60% of a max aerobic speed taken from a 7.5 min race, inside the 65% of MAS ceiling the author attributes to an earlier Copeland recommendation (not checked against the book). Earlier versions used 62.5%; the page shows the default as the placeholder. On a treadmill, enter the flat-equivalent pace</td>
 </tr>
 <tr>
 <td>Reps</td>

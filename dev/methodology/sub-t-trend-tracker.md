@@ -7,8 +7,8 @@ Logs classic sub-threshold sessions and turns each into an implied threshold pac
 | Rep length to race-pace table (3 min race(14–16) … 20 min race(40–42.195)) | Same as the Sub-Threshold Session Generator, run backwards |
 | Race model (Riegel 1.06) with the short-race adjustment and the marathon slow-down at the 70-mile value (2.10 times the half marathon). Same as the Sub-Threshold Session Generator with its weekly distance left blank, so the table runs backwards consistently. Weekly distance is not an input | Author's judgement |
 | Threshold = race(16) | Author's definition |
-| Sessions ending above RPE 7 are excluded, with the reason shown in the table (changed 2026-11-04; before, the page only asked the user to log RPE 7 or lower and counted every session). RPE is logged for reference and does not change the result | Author's guardrail |
-| Excluded if peak HR (last minute or two of the last rep) is above 90% of max | Author's guardrail |
+| Sessions ending above RPE 7 are excluded, with the reason shown in the table (changed 2026-11-04; before, the page only asked the user to log RPE 7 or lower and counted every session). RPE is logged for reference and does not change the result | Author's limit |
+| Excluded if peak HR (last minute or two of the last rep) is above 90% of max | Author's limit |
 | Excluded if whole-session average HR (warm-up and cool-down included) is above 82% of max | Author said about 81–82%; 82 is my placeholder |
 | Implied threshold range: fast to slow end of the table for that rep length | Follows from the table |
 | Estimate = median of the last 6 counted sessions within the past 6 weeks (42 days). With fewer than 3 in that window it uses the last 6 counted sessions regardless of age and is marked stale | Window and minimum of 3 are my placeholders; 6 weeks is the author's (2–3 sessions a week expected) |

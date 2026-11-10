@@ -47,7 +47,7 @@ Lays out the 15-week Copeland marathon add-on ("My Marathon Build") from a race 
 ### Limits
 
 - Only the marathon add-on is built, not the base NSA weeks.
-- The page does not adapt to what you actually ran.
+- The page recalculates only from the inputs you enter.
 
 ---
 
@@ -68,7 +68,7 @@ Lays out the 18-week 2QA plan from a race result. Two quality sessions a week (Q
 
 ### Paces
 
-- Easy: 70% of 5km speed as written (his Table 2.3, a ceiling; checked in 11 rows, 15:20 to 30:00 5km), or the easy percentage (default 65, input 50 to 85) when the Easy pace basis is set to "My easy pace setting". A cap rather than a target.
+- Easy: 70% of 5km speed as written (his Table 2.3, a ceiling; checked in 11 rows, 15:20 to 30:00 5km), or the easy percentage (default 65, input 50 to 85) when the Easy pace basis is set to "My easy pace setting". The pace is an upper limit on speed, so running slower is fine.
 - Copeland add-on: the sub-threshold buffer (percent slower, default 0, up to 10) slows the 3 to 12 minute rep paces. The 5km reps and race paces are not changed.
 - Marathon: plain Riegel prediction (exponent 1.06), with no extra slowdown for weekly distance. The Race Prediction Calculator's marathon pace is slower.
 - Threshold: race(17).
@@ -89,7 +89,7 @@ The short-race slowdown is the one in the Race Prediction Calculator.
 
 ### Weekly distance
 
-Weekly total = peak weekly distance × the week's fraction of peak. Easy days share what remains after Q1 and Q2 equally. If the quality sessions alone exceed the total, the total is raised to match and the page says so. Week 18 has no fraction; it is listed by day, counting down to the race, and easy days there are by time.
+Weekly total = peak weekly distance × the week's fraction of peak. Easy days share what remains after Q1 and Q2 equally. If the quality sessions alone exceed the total, the total is raised to match and a note states this. Week 18 has no fraction; it is listed by day, counting down to the race, and easy days there are by time.
 
 ### Slower runners
 
@@ -108,7 +108,7 @@ Daniels: 5 to 6 min of threshold counts as 1 mile, 10 to 15 min as 2 miles, 16 t
 
 - Only the 2QA plan is built. 
 - Time-based easy runs are converted to distance at the easy cap, so the distance is the shortest likely.
-- The page does not adapt to what you actually ran.
+- The page recalculates only from the inputs you enter.
 
 ---
 
@@ -153,7 +153,7 @@ Lays out the 18-week Hansons Marathon Method Beginner (Table 4.3) or Advanced (T
 - Beginner marathon pace is the site's prediction at 55 miles a week (the plan peaks at 57); Advanced uses 70. The 55 is the author's choice for this page, not from the book.
 - Beginner weeks 1 to 5 are easy running only; speed and tempo start in week 6.
 - Easy and long runs are listed by distance, as the book gives them; the time follows from the easy cap.
-- The page does not adapt to what you actually ran.
+- The page recalculates only from the inputs you enter.
 
 ---
 
@@ -199,7 +199,7 @@ Lays out Pfitzinger's 18-week and 12-week "up to 55 miles per week" and "55 to 7
 
 ### Limits
 
-- The page does not adapt to what you actually ran.
+- The page recalculates only from the inputs you enter.
 
 
 ### Pfitzinger 85-mile plans

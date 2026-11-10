@@ -7,12 +7,12 @@ Takes one race result (distance and time), or two (added 2026-10-19), and predic
 | Item | Status |
 |---|---|
 | Riegel formula, exponent 1.06 | Published, widely used |
-| Slowing the 5km equivalent from a result shorter than 5km by 6.5 × ln(5 / km) s/km | My estimate. The coefficient was lowered from 10.6 to 8 because the 5km PB it was first set from is thought to be soft, then to 6.5 as a halfway point between 8 and what the Daniels-Gilbert (VDOT) equations imply, which is about 3 to 6 s/km depending on distance and fitness (see below) |
+| Slowing the 5km equivalent from a result shorter than 5km by 6.5 × ln(5 / km) s/km | My estimate. The coefficient was lowered from 10.6 to 8 because the 5km PB it was first set from is thought to be soft, then to 6.5 as a halfway point between 8 and what the Daniels-Gilbert (VDOT) equations imply, which is about 3 to 6 s/km depending on distance and fitness (see Step 2) |
 | No adjustment between 5km and the half marathon | Chosen here |
 | Marathon = 2.10 × half marathon at 70+ miles a week, 2.13 at 60, 2.17 at 50, 2.25 at 35 or less; 70 miles assumed when blank | 2.10 is the author's; the rest are placeholders. Not fitted to data |
 | Distances offered | Chosen here |
 
-The adjustments were set by judgement. The short-race one rests on a single runner's untrained mile, so it is weak evidence. Treat them as starting points.
+The adjustments were set by judgement. The short-race one rests on a single runner's untrained mile, so it is weak evidence.
 
 ## Step 1: Riegel base
 
@@ -66,7 +66,7 @@ Where the numbers come from:
 - 2.13, 2.17 and 2.25 keep the shape of the old table (+13, +17 and +25 min) converted to factors at a 100-minute half. They are placeholders, not fitted. The author's two low-mileage marathons (1:39 half, 4:05 marathon and 1:29 half, 3:31 marathon, both blow-ups, ratios 2.48 and 2.37) suggest the low end may be too optimistic, but weekly distance for those blocks is not known.
 - The old points came from the Vickers & Vertosick figures below and the 42cal article's reading of them. I could not read the model equations, so they are not used here. The slide between points is linear by choice.
 
-The closest published work is Vickers & Vertosick (2016, BMC Sports Science, Medicine and Rehabilitation, 2,303 recreational runners). There, Riegel with k = 1.07 predicted marathon times 10 minutes or more too fast for about half of runners, and models that add typical weekly mileage cut that to about 25%. Below 35 miles a week the adjustment stops at 2.25 and the page says so.
+The closest published work is Vickers & Vertosick (2016, BMC Sports Science, Medicine and Rehabilitation, 2,303 recreational runners). There, Riegel with k = 1.07 predicted marathon times 10 minutes or more too fast for about half of runners, and models that add typical weekly mileage cut that to about 25%. Below 35 miles a week the adjustment stops at 2.25 and a note states this.
 
 ## Step 4: prediction for a target distance `T`
 
@@ -110,7 +110,7 @@ An optional extra column shows another model's times beside ours, with the diffe
 - Hansons: cubic curves fitted to the equivalent-times chart in the Hansons supplement (natural log of time against the log of the 5km time). Maximum fit error 0.5 seconds. The book's table is not reproduced. Columns: mile, 5km, 10km, 10 miles, half marathon, marathon. Valid for a 5km equivalent of 13:30 to 45:00. At 18:30 it gives a 3:00:21 marathon, as the chart prints. One chart cell looks like a typo (25K at a 15:00 5km prints 1:23:18, about 1:23:28 expected); it is not used.
 - Pfitzinger: constant ratios to the 10km time (10 miles 1.6797, half 2.2373, marathon 4.7173), fitted to his table, valid for a 10km equivalent of 27:00 to 55:00.
 - Tinman: fitted to sample outputs of his calculator (six sheets, 5km 13:00, 15:00, 17:00, 19:00, 25:00, 29:00; four more on 2026-10-28 for 400m to 1000m), not his published formula. Every time is the 5km time multiplied by a fixed factor per distance, at all fitness levels tested. From 3000m up the factor is (distance / 5000) ^ 1.0579, with no marathon fade. For the mile and 1500m the factors are read from his table (0.29447 and 0.2723 of the 5km time). Reproduces his output sheets to within a second. The same factors are used to convert the input race, so a mile entered here gives a 5km about 0.17% faster than his own tool would. His tool's input conversion differs slightly at some distances (2400m by 1.26%); those distances are not in this calculator. Valid for a 5km equivalent of 13:00 to 29:00.
-- Same % of world record: your result as a percentage of the male world record pace at that distance, held constant at every other distance. Uses the table below. The marathon and half marathon records are not yet ratified (author's choice, 2026-10-16); revert the half to 57:20 (Kiplimo, Lisbon 2026) if the 56:51 is rejected. The 10 miles record is Haile Gebrselassie's 44:24 (the author chose the ratified time over a faster one by a sanctioned athlete). It is slow relative to the 10km and half records (a power-law curve between them would give 42:55), so percentages at 10 miles read a little high. Range: 40% to 100%.
+- Same % of world record: your result as a percentage of the male world record pace at that distance, held constant at every other distance. Uses the table below. The marathon record (1:59:30, Sawe, London 2026) was ratified in July 2026 and the half marathon record (56:51, Kejelcha, Buenos Aires, 23 Aug 2026) on 9 Nov 2026. The 10 miles record is Haile Gebrselassie's 44:24 (the author chose the ratified time over a faster one by a sanctioned athlete). It is slow relative to the 10km and half records (a power-law curve between them would give 42:55), so percentages at 10 miles read a little high. Range: 40% to 100%.
 - Where the other model has no column for the input distance, or the input is outside its range, the column shows a dash and a note says why. Nothing is extrapolated.
 
 ## % WR column
@@ -131,7 +131,7 @@ time(T) = sum(w_i * time_i(T))
 ```
 
 - A result at the target distance has d = 0 and takes all the weight, so each input reproduces itself. Two results at the same distance are rejected (they would only be averaged, which is slower than the better one and gives no way to prefer either).
-- The weighting form (inverse of the log distance ratio, power 1) is my choice, set at the author's request as a starting point. Power 2 is the obvious alternative and leans harder on the nearer result. Not fitted to data.
+- The weighting form (inverse of the log distance ratio, power 1) is my choice, set at the author's request as a starting point. Power 2 is the main alternative and weights the nearer result more heavily. Not fitted to data.
 - Idea behind it (author's): a result near the target distance is more informative than a far one, but a best-effort short result is a better measure of potential than a soft near one. The author's example: mile 5:23.4 (counted as a near-10/10 effort) and 10k 39:43 (strong negative split, run blind on over-optimistic watch data, so slower than potential). Blend: 3k 10:44, 5km 18:51, half 1:27:06 (22% mile / 78% 10k), against actual 3k 10:44 and 5km 18:52 (one data point each, and the 3k is one of the inputs to the model's earlier calibration, so this is not a validation).
 - The marathon in the blend is not exactly F times the blended half, because the weights differ at the two distances. Each result's own marathon is F times its own half.
 - Comparison column (Daniels, Hansons, Pfitzinger, Tinman, % of WR): each model predicts from each result separately and the same weights are applied. If a model cannot take either result's distance (for example Pfitzinger from a mile), the column shows that error.

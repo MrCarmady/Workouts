@@ -9,7 +9,7 @@ Training stress for non-running sessions, with the share that counts towards CTL
 | TSS = hours x IF^2 x 100 | Standard (Coggan), as used for running on the other pages |
 | Bike IF = average power / FTP | Standard |
 | Concept2 watts = 2.80 / (seconds per metre)^3 | Concept2's published pace-to-watts formula |
-| Rower threshold = 2k split + 15 s per 500m | Author's use of Paul's law (see below); a rule of thumb, not checked against data |
+| Rower threshold = 2k split + 15 s per 500m | Author's use of Paul's law (see the Rower section); a rule of thumb, not checked against data |
 | Heart-rate intensity from heart rate reserve | My formula, a placeholder, not validated |
 | Treadmill walking via the ACSM walking equation | Published equation; the TSS step is derived here |
 | 80% counts towards CTL, for every activity | Copeland's rough guide for the bike; a placeholder for the others |

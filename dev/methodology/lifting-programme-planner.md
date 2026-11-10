@@ -71,7 +71,7 @@ e1RM  = load / pct(n)
 
 ## Training max
 
-The training max is separate from the 1RM. It is a percentage of the 1RM (tested or estimated), and the programme percentages are applied to it. The author describes it as a guardrail on intensity and fatigue, mainly useful to advanced lifters, for whom 90% of their max is still heavy enough to give a good stimulus while working more sub-maximally than the standard programme. The default is 100%, which means the 1RM is used directly.
+The training max is separate from the 1RM. It is a percentage of the 1RM (tested or estimated), and the programme percentages are applied to it. The author describes it as a limit on intensity and fatigue, mainly useful to advanced lifters, for whom 90% of their max is still heavy enough to give a good stimulus while working more sub-maximally than the standard programme. The default is 100%, which means the 1RM is used directly.
 
 The author borrows the idea for estimates from higher-rep sets: an endurance background may make a high-rep set overstate the true 1RM, so the author uses 90% for deadlifts and 95% for weighted pull-ups to standardise the weights without testing low-rep sets to failure. These figures are the author's judgement. The page does not set them for you.
 

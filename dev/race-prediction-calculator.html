@@ -251,7 +251,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   // 3000m and up: (d / 5000) ^ 1.0579. Below that, factors read from his output table (400m, 800m, 1000m, 1500m and mile).
   var TIN_SHORT = { "400m": 0.056878, "800m": 0.13338, "1000m": 0.17358, "1500m": 0.2723, "Mile": 0.29447 };
   function tinF(T) { return TIN_SHORT[T.name] !== undefined ? TIN_SHORT[T.name] : Math.pow(T.km / 5, 1.0579); }
-  // Male world records in seconds (author-supplied mile; marathon 1:59:30 and half 56:51 not yet ratified as of 2026-10-16).
+  // Male world records in seconds (author-supplied mile; marathon 1:59:30 ratified July 2026, half 56:51 ratified 9 Nov 2026).
   // 10 miles: Haile Gebrselassie 44:24 (road, ratified; author's choice over a faster time by a sanctioned athlete).
   var WR = { "400m": 43.03, "800m": 100.91, "1000m": 131.83, "1500m": 206.00, "Mile": 222.66, "3km": 437.55, "5km": 755.36, "10km": 1571.00, "10 miles": 2664, "Half marathon": 3411, "Marathon": 7170 };
   function danielsT(v, km) { var lo = 60, hi = 40000; for (var i = 0; i < 80; i++) { var m = (lo + hi) / 2; if (vdot(m / 60, km * 1000) > v) lo = m; else hi = m; } return (lo + hi) / 2; }

@@ -31,7 +31,7 @@ They are the author's estimates, fitted to a few anchors: squat to failure (100 
 
 ## Weights in CTL and ATL
 
-Lifting counts in full for ATL. For CTL it counts at a weight you set, 0.75 by default, because a stronger squat transfers less to running fitness than running does. Because the weights differ, a steady lifter shows lower form than a runner with the same total load. That is intended.
+Lifting counts in full for ATL. For CTL it counts at a weight you set, 0.75 by default, because a stronger squat transfers less to running fitness than running does. Because the weights differ, a steady lifter shows lower form than a runner with the same total load, which is by design.
 
 Example: running 50 TSS a day plus lifting 30 TSS a day. With equal weights CTL and ATL are both 80. With a CTL weight of 0.75, CTL is about 72 and ATL 80, so form is about -8 and ATL:CTL about 1.10. At 0.5 form is about -15.
 

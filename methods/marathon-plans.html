@@ -148,7 +148,7 @@ a { color:var(--accent); }
 <h3>Limits</h3>
 <ul>
 <li>Only the marathon add-on is built, not the base NSA weeks.</li>
-<li>The page does not adapt to what you actually ran.</li>
+<li>The page recalculates only from the inputs you enter.</li>
 </ul>
 <hr />
 <h2>Daniels 2Q Plans (2QA to 2QD)</h2>
@@ -190,7 +190,7 @@ a { color:var(--accent); }
 </table>
 <h3>Paces</h3>
 <ul>
-<li>Easy: 70% of 5km speed as written (his Table 2.3, a ceiling; checked in 11 rows, 15:20 to 30:00 5km), or the easy percentage (default 65, input 50 to 85) when the Easy pace basis is set to "My easy pace setting". A cap rather than a target.</li>
+<li>Easy: 70% of 5km speed as written (his Table 2.3, a ceiling; checked in 11 rows, 15:20 to 30:00 5km), or the easy percentage (default 65, input 50 to 85) when the Easy pace basis is set to "My easy pace setting". The pace is an upper limit on speed, so running slower is fine.</li>
 <li>Copeland add-on: the sub-threshold buffer (percent slower, default 0, up to 10) slows the 3 to 12 minute rep paces. The 5km reps and race paces are not changed.</li>
 <li>Marathon: plain Riegel prediction (exponent 1.06), with no extra slowdown for weekly distance. The Race Prediction Calculator's marathon pace is slower.</li>
 <li>Threshold: race(17).</li>
@@ -209,7 +209,7 @@ a { color:var(--accent); }
 <li>The book's "miles for Q sessions" column is not used. Timed segments are converted to distance at your own easy pace, and the easy days share what is left of the week's total.</li>
 </ul>
 <h3>Weekly distance</h3>
-<p>Weekly total = peak weekly distance × the week's fraction of peak. Easy days share what remains after Q1 and Q2 equally. If the quality sessions alone exceed the total, the total is raised to match and the page says so. Week 18 has no fraction; it is listed by day, counting down to the race, and easy days there are by time.</p>
+<p>Weekly total = peak weekly distance × the week's fraction of peak. Easy days share what remains after Q1 and Q2 equally. If the quality sessions alone exceed the total, the total is raised to match and a note states this. Week 18 has no fraction; it is listed by day, counting down to the race, and easy days there are by time.</p>
 <h3>Slower runners</h3>
 <p>Daniels: 5 to 6 min of threshold counts as 1 mile, 10 to 15 min as 2 miles, 16 to 20 min as 3 miles. With the option on, a threshold segment of 1, 2 or 3 miles is cut to 6, 15 or 20 min if the runner's pace would take longer. Segments of other lengths, and the 800m reps in race week, are not changed. Shortened segments are starred.</p>
 <h3>Load</h3>
@@ -225,7 +225,7 @@ a { color:var(--accent); }
 <ul>
 <li>Only the 2QA plan is built. </li>
 <li>Time-based easy runs are converted to distance at the easy cap, so the distance is the shortest likely.</li>
-<li>The page does not adapt to what you actually ran.</li>
+<li>The page recalculates only from the inputs you enter.</li>
 </ul>
 <hr />
 <h2>Hansons Plans (Beginner and Advanced)</h2>
@@ -300,7 +300,7 @@ a { color:var(--accent); }
 <li>Beginner marathon pace is the site's prediction at 55 miles a week (the plan peaks at 57); Advanced uses 70. The 55 is the author's choice for this page, not from the book.</li>
 <li>Beginner weeks 1 to 5 are easy running only; speed and tempo start in week 6.</li>
 <li>Easy and long runs are listed by distance, as the book gives them; the time follows from the easy cap.</li>
-<li>The page does not adapt to what you actually ran.</li>
+<li>The page recalculates only from the inputs you enter.</li>
 </ul>
 <hr />
 <h2>Pfitzinger Marathon Plan</h2>
@@ -400,7 +400,7 @@ a { color:var(--accent); }
 </ul>
 <h3>Limits</h3>
 <ul>
-<li>The page does not adapt to what you actually ran.</li>
+<li>The page recalculates only from the inputs you enter.</li>
 </ul>
 <h3>Pfitzinger 85-mile plans</h3>
 <ul>

@@ -47,7 +47,7 @@ Optional. With a race date, the page plans the calendar as well as the load. Bla
 - Daily load for the ramp comes from CTL's own update rule: TSS = CTL(yesterday) + (CTL(today) - CTL(yesterday)) / k, with k = 1 - exp(-1/42). ATL is run on the same daily loads, so ATL at the plan start is real. After a ramp it sits above CTL, by about 5 points for every 1.0 CTL a week of ramp.
 - The plan's fit test then starts from the ramp's end CTL and ATL. The ramp's own form is not tested.
 - If the plan fits with no ramp, the current load is held until it starts, so ATL settles to CTL. A tired start ATL therefore recovers during the spare days.
-- If the plan does not fit even at the cap, the table says how many more weeks of ramp it needs (found by search, up to 52 weeks; "does not fit at this rate" beyond that).
+- If the plan does not fit even at the cap, the table lists how many more weeks of ramp it needs (found by search, up to 52 weeks; "does not fit at this rate" beyond that).
 - If there are fewer weeks than the plan has, the plan is joined part-way at the next week boundary, holding the current load until then. Spare days of fewer than a week are held. A race less than one plan-week away shows "Race is too soon".
 - Join percentage is not used when a race date is set (the input is disabled). A ramp makes the load-based skip unnecessary.
 - Columns change: Result moves next to the plan name; Plan starts and Ramp to CTL replace Joins week.

@@ -467,7 +467,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     var wuMin = Number(($("wu").value || "").trim().replace(",", ".")), cdMin = Number(($("cd").value || "").trim().replace(",", "."));
     if (($("wu").value || "").trim() === "" || ($("cd").value || "").trim() === "" || !isFinite(wuMin) || !isFinite(cdMin) || wuMin < 0 || cdMin < 0 || wuMin > 60 || cdMin > 60) return fail("Enter warm-up and cool-down as minutes from 0 to 60.");
     var inten = function (pace) { return thr / pace; };
-    var wcSug = p5 / 0.65;                                    // suggested warm-up and cool-down pace: 65% of 5km speed, a cap rather than a target
+    var wcSug = p5 / 0.65;                                    // suggested warm-up and cool-down pace: 65% of 5km speed, an upper limit on speed
     $("wcp").placeholder = mmss(wcSug);
     var wcPace = wcSug, wcTxt = ($("wcp").value || "").trim();
     if (wcTxt !== "") {

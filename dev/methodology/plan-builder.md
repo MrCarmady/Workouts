@@ -24,7 +24,7 @@ Builds a block of weeks from a race result, current weekly distance, run days an
 
 Same model as the Race Prediction Calculator, with marathon pace set by the weekly distance entered.
 
-- Easy: 65% of 5km speed by default, adjustable as a percentage (50 to 85), or your own pace, which takes priority. This is a cap rather than a target.
+- Easy: 65% of 5km speed by default, adjustable as a percentage (50 to 85), or your own pace, which takes priority. The pace is an upper limit on speed, so running slower is fine.
 - Sub-threshold buffer: race(21) pace is made slower by a percentage (default 0, up to 10). It is a personal margin, not from a source.
 - Sub-threshold: race(21), about 1.7% slower than threshold (the 16km pace).
 - Threshold: the predicted 16km pace.
@@ -54,7 +54,7 @@ The weekly limits and the shared budget are the author's: each km of a type uses
 
 ## Easy and long runs
 
-Each quality day includes the warm-up and cool-down, counted as easy. Together they last at least 20 minutes and grow up to 40 minutes, so the quality day takes about 80% of an easy day's time. The remaining distance goes to easy days and one long run, which counts 1.6 times an easy day. The long run stops at 35% of weekly distance or 150 minutes, whichever is lower, and the excess goes to the easy days. No easy run is longer than the long run. If the week cannot fit in the run days under those limits, the distance falls short of the target and the page says so. The page flags easy days under 20 minutes or over 2 hours.
+Each quality day includes the warm-up and cool-down, counted as easy. Together they last at least 20 minutes and grow up to 40 minutes, so the quality day takes about 80% of an easy day's time. The remaining distance goes to easy days and one long run, which counts 1.6 times an easy day. The long run stops at 35% of weekly distance or 150 minutes, whichever is lower, and the excess goes to the easy days. No easy run is longer than the long run. If the week cannot fit in the run days under those limits, the distance falls short of the target and a note states this. The page flags easy days under 20 minutes or over 2 hours.
 
 ## Load
 
@@ -83,9 +83,9 @@ V = min(V_target, max(V_tsb10, V_ramp_min))
 V = min(V, V_tsb20)
 ```
 
-So the -10 limit holds the ramp back, but not below 0.1. The -20 limit always wins. The weekly table says when a week was held back, when the lowest TSB is under -10, or when the ramp is under 0.1.
+So the -10 limit holds the ramp back, but not below 0.1. The -20 limit always wins. The weekly table marks a week that was held back, a week where the lowest TSB is under -10, and a week where the ramp is under 0.1.
 
-## Behaviour to know about
+## How the weekly solver behaves
 
 - Week 1 is the first step above the current load. The author accepts this: most users are runners who have just entered a race and want to push volume. A ramp of 1 from a steady state needs about 45 TSS more in the week, so week 1 shows the largest increase. In test runs this was +10% at 76 km a week, +19% at 40 km and +29% at 30 km.
 - A sustained ramp of 1 pushes the lowest TSB to about -10 within three or four weeks. The week after, the solver holds the load back, then lets it rise again, so some blocks show a step-back week followed by a rise. The author accepts this: the aim of tight TSB control is to avoid unplanned down weeks, so one after a -10 week is reasonable.
@@ -95,9 +95,9 @@ So the -10 limit holds the ramp back, but not below 0.1. The -20 limit always wi
 
 A taper of 7 or 14 days is optional. With 14 days, the penultimate week holds CTL (ramp 0) and the last week is the taper proper. With 7 days, only the last week is the taper. Race day replaces the long run.
 
-In the race week, race day is the Sunday. Any quality session in the 2 days before it (Friday, Saturday) is run as an easy run instead, so the last hard session leaves at least two easy days before the race. The change is a single constant in the page (author's choice of 2; 3 is a one-number change). The distance is then shared among the remaining easy days. Easy runs in race week are capped at 40 minutes the day before the race and 70 minutes on other days (author's choice). The distance above the caps is dropped, not moved to other days, so with 3 or 4 run days the week can end below the 50% floor; the note column says so. The 50 to 80% distance target is solved before the caps are applied, and TSS, CTL and race-day TSB use the capped week.
+In the race week, race day is the Sunday. Any quality session in the 2 days before it (Friday, Saturday) is run as an easy run instead, so the last hard session leaves at least two easy days before the race. The change is a single constant in the page (author's choice of 2; 3 is a one-number change). The distance is then shared among the remaining easy days. Easy runs in race week are capped at 40 minutes the day before the race and 70 minutes on other days (author's choice). The distance above the caps is dropped, not moved to other days, so with 3 or 4 run days the week can end below the 50% floor; the note column marks that week. The 50 to 80% distance target is solved before the caps are applied, and TSS, CTL and race-day TSB use the capped week.
 
-The race week is solved so TSB on the morning of race day (end of the day before) equals the target. The target defaults to +10 and is capped at +10, since more is overkill (author's view). The race week is kept between 50% and 80% of the peak week's distance (author's expectation: about 50 to 80% of normal; the exact bounds are my placeholders). If the 50% floor stops the target being reached, the table says so and shows the TSB reached.
+The race week is solved so TSB on the morning of race day (end of the day before) equals the target. The target defaults to +10 and is capped at +10, since more is overkill (author's view). The race week is kept between 50% and 80% of the peak week's distance (author's expectation: about 50 to 80% of normal; the exact bounds are my placeholders). If the 50% floor stops the target being reached, the table notes this and shows the TSB reached.
 
 The headline CTL is the peak, at the end of the last build week, not the lower value on race day. The peak is the fitness you take into the race; the CTL model's taper decay overstates how much of it is lost (author's view). Race-day CTL is shown beside it.
 
@@ -109,7 +109,7 @@ The page leads with time for each run and each week, with distance second. Easy 
 
 ## Limits
 
-- It does not adapt to what was actually run.
+- The page recalculates only from the inputs you enter.
 - TSB does not capture the structural load of big jumps in weekly km. This was left open on purpose.
 - Week layouts and the pace and distance placeholders are mine.
 - No injury, hills, heat or race calendar inputs.

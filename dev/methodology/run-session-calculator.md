@@ -112,7 +112,7 @@ All are further capped at 25km of total session distance. A single rep can still
 | 3 up to 12 minutes | 12% (**author's change**: Daniels' 10% is for T-pace, and most of these sessions are below T) |
 | 15 minutes and longer | 20% |
 
-The percentages and distance limits were checked against secondary sources quoting Daniels (see "Source check"), not against the book. Daniels gives 20% for marathon-paced work, and the page uses it. Where he gives a distance, the page's limit can differ (see the table below the check).
+The percentages and distance limits were checked against secondary sources quoting Daniels (see "Source check"), not against the book. Daniels gives 20% for marathon-paced work, and the page uses it. Where he gives a distance, the page's limit can differ (see the table in the Source check section).
 
 **Low-mileage floor:** the weekly limit never drops below 2km of mile-paced work, 4km of 5km-paced work or 6km of slower work (**author's judgement**, set so that low-mileage runners still get a usable session).
 
@@ -135,7 +135,7 @@ TSS       = round(warm-up and cool-down) + round(reps) + round(recoveries)
 
 | Part | Time | Pace |
 |---|---|---|
-| Warm-up and cool-down | minutes entered (default 10 + 10) | the pace entered, or by default 65% of 5km speed (**author's rule**). It is a cap rather than a target. For an 18:54 5k it is 5:49/km, about 60% of a max aerobic speed taken from a 7.5 min race, inside the 65% of MAS ceiling the author attributes to an earlier Copeland recommendation (not checked against the book). Earlier versions used 62.5%; the page shows the default as the placeholder. On a treadmill, enter the flat-equivalent pace |
+| Warm-up and cool-down | minutes entered (default 10 + 10) | the pace entered, or by default 65% of 5km speed (**author's rule**). The pace is an upper limit on speed, so running slower is fine. For an 18:54 5k it is 5:49/km, about 60% of a max aerobic speed taken from a 7.5 min race, inside the 65% of MAS ceiling the author attributes to an earlier Copeland recommendation (not checked against the book). Earlier versions used 62.5%; the page shows the default as the placeholder. On a treadmill, enter the flat-equivalent pace |
 | Reps | reps × rep time | middle of the rep pace range; the flat-equivalent pace on a treadmill |
 | Recoveries | (reps − 1) × recovery time | walking at 6km/h, which is 600s/km (**author's rule**) |
 
