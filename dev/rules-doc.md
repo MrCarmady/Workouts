@@ -286,3 +286,8 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Assumptions, none confirmed by P: H pace = I pace (box offers halfway T to I); every week uses one weekly distance (entered, or 45 or 65 miles); Phase I not built; Phase IV race and no-race branches chosen by a race option (default: race on the last Saturday); easy mileage added to race-week Tuesday sessions where the no-race version prints it; 4 to 6 x 1200 I read as 5 and 5 to 8 x 1K I as 6; no warm-up or cool-down around the race.
 - Davis encoding from the earlier TSS analysis (same weekly TSS: week 1 412, week 8 537, week 16 364 at 18:52). Warm-up and cool-down 5 km combined on most sessions (my reading of the PDF's 2 to 3 km each), walk/jog recoveries 550 s/km, progressions in equal thirds at 60, 75 and 90%: all my assumptions.
 - Tools list group renamed from "Marathon and plans" to "Plans".
+
+## Run Less, Run Faster comparison (P, 2026-11-12)
+- Added as a "Compare with" option on the Race Prediction Calculator. P found the book (Pierce, Murr, Moss; Table 2.1, race prediction table) in his Kindle library and sent screenshots of rows 16:00 to 27:30 for 5km; P said it keeps going and to add it if the ratios are constant.
+- Ratios to the 5km time: 10km 2.0922, half marathon 4.635, marathon 9.7311 (rows within 0.0005). Range limited to the rows seen. Reproduces the table within about 1 s at 16:00 (33:28.5 against 33:29, marathon 2:35:42).
+- Compared with our model (18:00 to 20:00 rows): book 10km +7 to 8 s, half +33 to 43 s, marathon +1:08 to +1:26 against our 70+ mile figure and about 10 minutes faster than our 35-mile figure.
