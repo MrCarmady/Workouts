@@ -279,3 +279,10 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 
 ## Page names (P, 2026-10-28)
 - Marathon Plans is now Marathon Plan Viewer; Marathon Plan Recommender is now Marathon Plan Finder. File names unchanged. Kept as two pages (P): Viewer = one plan in detail with its own settings; Finder = all 13 plans against CTL/ATL with the load chart and intensity mix. The Finder links the selected plan to the Viewer (#author.plan), the Viewer links to the Finder. Finder uses the Viewer's default plan settings.
+
+## Short-Distance Plan Viewer (P, 2026-11-12)
+- New page short-plans.html. Plans: Daniels 5K to 10K Table 11.1 (40 to 50 miles) and Table 11.2 (60 to 70 miles), Phases II to IV (18 weeks); Davis Full-Spectrum 10k (16 weeks). P asked for these three first; Pfitzinger (print book photos) and other plans to be added later.
+- Daniels tables transcribed by me from 10 Kindle screenshots P sent; the full transcription is in methodology/short-plans.md for P to check against the book. P: paces are the same as on the marathon page.
+- Assumptions, none confirmed by P: H pace = I pace (box offers halfway T to I); every week uses one weekly distance (entered, or 45 or 65 miles); Phase I not built; Phase IV race and no-race branches chosen by a race option (default: race on the last Saturday); easy mileage added to race-week Tuesday sessions where the no-race version prints it; 4 to 6 x 1200 I read as 5 and 5 to 8 x 1K I as 6; no warm-up or cool-down around the race.
+- Davis encoding from the earlier TSS analysis (same weekly TSS: week 1 412, week 8 537, week 16 364 at 18:52). Warm-up and cool-down 5 km combined on most sessions (my reading of the PDF's 2 to 3 km each), walk/jog recoveries 550 s/km, progressions in equal thirds at 60, 75 and 90%: all my assumptions.
+- Tools list group renamed from "Marathon and plans" to "Plans".
