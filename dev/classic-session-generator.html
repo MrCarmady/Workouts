@@ -436,7 +436,7 @@ tr.easy td:first-child { padding-left: 11px; }
       notes.push("Main set: " + distLabel(mainD) + " in about " + hmmss(mainT) + ".");
     } else if (w.key === "imp") {
       var pI = raceP(4);
-      struct = o.reps + " × (1 min + 1 min float), continuous";
+      struct = o.reps + " × (1 min fast + 1 min float), continuous";
       add("Fast at 4k pace", o.reps, { s: 60 }, pI, pI, "hard", true);
       add("Float at M pace", o.reps, { s: 60 }, mp, mp, "easy", true);
       var avgP = (o.reps * 120) / (o.reps * (60 / pI + 60 / mp)) ;
