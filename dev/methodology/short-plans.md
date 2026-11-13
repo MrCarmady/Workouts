@@ -26,7 +26,7 @@ Tables 11.1 and 11.2 of Daniels' Running Formula, from screenshots of the Kindle
 
 The paces are those of the Marathon Plan Viewer's Daniels plans: easy 74% of 5km speed as written (or your own easy-pace setting), M the Riegel marathon prediction, T = race(17), I = race(4), R = race(1.7). The slower-runner option caps T reps at 6, 15 and 20 minutes for 1, 2 and 3 miles, as on that page.
 
-H (hard) is not defined in the pages I have. The page uses I pace for H by default. The H pace box offers halfway between T and I instead. This is an assumption.
+H (hard) is effort-based. The author read the book's description as a pace for a 10 to 12 minute effort, meant for cases such as training at altitude; the screenshots do not define it and the book gives no pace formula. The page uses I pace for H, as the author decided on 2026-11-12. The H pace box offers halfway between T and I instead.
 
 ### Notation
 
