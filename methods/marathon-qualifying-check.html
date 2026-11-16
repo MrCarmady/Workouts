@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marathon Qualifying Check: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head > div:first-child { min-width:0; }
+.head { display:flex; flex-wrap:nowrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+.themes { display: inline-grid; place-items: center; flex: none; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); color: var(--muted); cursor: pointer; }
+.themes:hover { color: var(--fg); }
+.themes:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.themes svg { display: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.themes[data-mode="system"] .i-system, .themes[data-mode="light"] .i-light, .themes[data-mode="dark"] .i-dark { display: block; }
+.themes .i-system path { fill: currentColor; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../tools.html">All tools</a><a href="../marathon-qualifying-check.html">Open Marathon Qualifying Check</a></nav>
+    <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
+      <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
+      <svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </header>
+  <article class="doc">
+<h1>Marathon Qualifying Check: methodology</h1>
+<p>Added 2026-11-16. Takes one race result, predicts the marathon time with the Race Prediction Calculator's model, and compares it with the marathon qualifying standards for your category (men or women) and age on race day.</p>
+<h2>What is standard and what is a choice</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Marathon prediction (Riegel 1.06, short-race adjustment, marathon factor by weekly distance, 70 miles assumed when blank)</td>
+<td>Same as the Race Prediction Calculator; see its notes</td>
+</tr>
+<tr>
+<td>Verdict bands: predicted ÷ needed up to 0.97 "Probably", up to 1.06 "Maybe", above "Unlikely"</td>
+<td>My placeholders. Not fitted to data. Set so a 35:00 10km reads Probably for Boston, a 39:00 10km reads Maybe for London and New York, and a 50:00 10km reads Unlikely everywhere</td>
+</tr>
+<tr>
+<td>Boston margin of 5:17 subtracted from the standard</td>
+<td>Taken from a news headline (marathons.com, "Boston Marathon 2027 sets a 5:17 cut-off"); I did not open the article. The 2026 margin was 4:34 (two sources)</td>
+</tr>
+<tr>
+<td>Other races: needed = published standard</td>
+<td>No margin applied, because I do not have a sourced figure</td>
+</tr>
+</tbody>
+</table>
+<h2>Standards used</h2>
+<p>Men and women, by age band, for Boston, London Good for Age, Chicago, Berlin and Tokyo; New York for men only.</p>
+<ul>
+<li>Boston, Chicago, Berlin, Tokyo: two running-news summaries agreed on every value I used.</li>
+<li>London Good for Age: taken from the London Marathon page (2027 race, window 1 Oct 2025 to 30 Sep 2026). A second summary differed for women at 60 to 69 (it had 4:00 and 4:23); the official page values are used (4:23 and 4:53). UK residents only. Age is your age when you ran the time, not on race day; the page applies race-day age to every other race.</li>
+<li>New York men: two sources agree except at 50 to 54 (3:14 and 3:15); 3:14 is used.</li>
+<li>Left out: New York women (two sources give 3:25 and 3:13 at 18 to 34, 3:50 and 3:51 at 50 to 54 and more), Sydney (two sources give different tables, 2:53 and 2:45 at 18 to 34), the London Championship route, Chicago's High Performance Program (shown in a note only), and Tokyo's elite route.</li>
+<li>Berlin: the sources do not say which year the table belongs to.</li>
+</ul>
+<h2>What it does not do</h2>
+<ul>
+<li>Qualifying is not entry. Boston, London, Sydney and Tokyo allocate fastest-first; New York's non-NYRR route took about 10% of applicants in 2026 (22:52 under the standard, one source).</li>
+<li>Standards, windows and margins change every year. Check the race's own page.</li>
+<li>A first marathon is often slower than a prediction from a shorter race, and the predictions assume marathon-specific training.</li>
+<li>Courses must be certified; the page does not check that.</li>
+<li>Age is limited to 18 to 99; Chicago's 16 to 17 band is not reachable.</li>
+</ul>
+  </article>
+</main>
+<script>(function () {
+  var btn = document.getElementById("themebtn"), order = ["system", "light", "dark"], names = { system: "auto", light: "light", dark: "dark" };
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btn.setAttribute("data-mode", t);
+    btn.setAttribute("aria-label", "Theme: " + names[t] + ". Click to change.");
+    btn.title = "Theme: " + names[t];
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  if (order.indexOf(saved) < 0) saved = "system";
+  apply(saved);
+  btn.addEventListener("click", function () {
+    var t = order[(order.indexOf(btn.getAttribute("data-mode")) + 1) % order.length];
+    apply(t);
+    try { localStorage.setItem("theme-pref", t); } catch (e) {}
+  });
+})();</script>

@@ -340,3 +340,15 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - 2026-11-16: Start here links aligned. Question on top, links below in two fixed columns (15em, 17em), single links in column 2's width, left-aligned. Side by side only when the panel is 880 px or wider (container query). Two questions shortened to keep one line. Layout only; no tool logic changed.
 
 - 2026-11-16: Start here: arrows removed from the links, questions muted and smaller, row padding tightened, link columns 13em and 15em. Layout only.
+
+## Race Prediction Calculator: Other distance, Pfitzinger labels (P, 2026-11-16)
+
+- 2026-11-16: "Other…" added to both result dropdowns (number plus km or miles, 1.5km to 42.195km). A third optional box, "Another distance", adds a table row. Custom rows show "–" for % of world record; comparison models only have values at their own distances; "Same % of WR" needs a standard distance. A custom result is not written to the shared profile.
+- 2026-11-16: Pfitzinger option relabelled "Pfitzinger, Advanced Marathoning". The two Pfitzinger tables stay separate: they differ by about 0.6 to 0.8% from 10km to the half marathon, and only Advanced Marathoning has a marathon column.
+
+## Marathon Qualifying Check (P, 2026-11-16)
+
+- New page. Marathon time from the Race Prediction Calculator model (marathon entered as-is). Category men or women, age 18 to 99 on race day.
+- Verdict = predicted ÷ needed: ≤0.97 Probably, ≤1.06 Maybe, else Unlikely. Placeholders of mine, chosen to match Pavel's examples (35:00 10km probably, 39:00 maybe, 50:00 no).
+- Races: Boston (needed = standard − 5:17, 2027 margin from a headline only), London Good for Age (official page values; UK only), New York (men only), Chicago, Berlin, Tokyo. Left out: Sydney (sources conflict), New York women (sources conflict), elite and championship routes.
+- Standards change yearly; not verified against every race's own site (several pages were not reachable).

@@ -10,6 +10,7 @@ os.makedirs(OUT+'/methods',exist_ok=True)
 tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("run-session-calculator.html","run-session-generator.html","Sub-Threshold Session Generator","Rep pace, recovery, rep count and TSS from a race result and rep length.","run-session-calculator.md","run-session-generator","Sessions and blocks"),
  ("race-prediction-calculator.html","race-prediction-calculator.html","Race Prediction Calculator","Predicted times for 1500m to the marathon from one or two race results.","race-prediction-calculator.md","race-prediction-calculator","Race and pace"),
+ ("marathon-qualifying-check.html","marathon-qualifying-check.html","Marathon Qualifying Check","Predicted marathon time against Boston, London, New York, Chicago, Berlin and Tokyo standards.","marathon-qualifying-check.md","marathon-qualifying-check","Race and pace"),
  ("classic-session-generator.html","classic-session-generator.html","Classic Session Generator","Paces for tempo, ladders, Aussie quarters, Yasso 800s and more.","classic-session-generator.md","classic-session-generator","Sessions and blocks"),
  ("sub-t-trend-tracker.html","sub-t-trend-tracker.html","Sub-Threshold Trend Tracker","Log classic sub-threshold sessions and track implied threshold pace.","sub-t-trend-tracker.md","sub-t-trend-tracker","Sessions and blocks"),
 ("hard-workout-predictor.html","hard-workout-predictor.html","Hard Workout Predictor","Predict a race from a hard interval session, using rep length, rest and RPE.","hard-workout-predictor.md","hard-workout-predictor","Race and pace"),
@@ -63,7 +64,7 @@ TOGGLE=THEME.HTML
 FONTS='<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">'
 # index
 ORDER=['Race and pace','Sessions and blocks','Marathon plans','5K to 10K plans','Load','Cross-training','Lifting']
-TITLE_ORDER=['Race Prediction Calculator','Hard Workout Predictor','Parkrun Converter','Treadmill Flat Equivalent','Sub-Threshold Session Generator','Classic Session Generator','Sub-Threshold Trend Tracker','Plan Builder','Marathon Plan Finder','Marathon Plan Viewer','Copeland Base','Short-Distance Plan Finder','Short-Distance Plan Viewer','Run Load Planner','Run TSS Calculator','Run TSS Planner','Hybrid Load Planner','Cross-Training TSS','Bike Session Generator','Rowing Session Generator','1RM and Scheme Calculator','Lifting Programme Planner']
+TITLE_ORDER=['Race Prediction Calculator','Marathon Qualifying Check','Hard Workout Predictor','Parkrun Converter','Treadmill Flat Equivalent','Sub-Threshold Session Generator','Classic Session Generator','Sub-Threshold Trend Tracker','Plan Builder','Marathon Plan Finder','Marathon Plan Viewer','Copeland Base','Short-Distance Plan Finder','Short-Distance Plan Viewer','Run Load Planner','Run TSS Calculator','Run TSS Planner','Hybrid Load Planner','Cross-Training TSS','Bike Session Generator','Rowing Session Generator','1RM and Scheme Calculator','Lifting Programme Planner']
 assert sorted(TITLE_ORDER)==sorted(t[2] for t in tools),'TITLE_ORDER must list every tool once'
 cards={}
 for src,out,title,desc,md,slug,grp in sorted(tools,key=lambda t:(ORDER.index(t[6]),TITLE_ORDER.index(t[2]))):
@@ -84,6 +85,7 @@ groups=('    <nav class="jump" aria-label="Sections"><a href="#running">Running<
  +'    <h2 class="big" id="lifting">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3))
 START=[ # (question, [(tool file, tool title), ...]); titles must match the tools list
  ("What does my race or hard session predict?",[("race-prediction-calculator.html","Race Prediction Calculator"),("hard-workout-predictor.html","Hard Workout Predictor")]),
+ ("Can I qualify for a major marathon?",[("marathon-qualifying-check.html","Marathon Qualifying Check")]),
  ("I want a plan that fits my current fitness.",[("marathon-plan-recommender.html","Marathon Plan Finder"),("short-plan-finder.html","Short-Distance Plan Finder")]),
  ("I want to see a plan's paces and weekly load.",[("marathon-plans.html","Marathon Plan Viewer"),("short-plans.html","Short-Distance Plan Viewer")]),
  ("I need paces for a threshold or tempo session.",[("run-session-generator.html","Sub-Threshold Session Generator")]),

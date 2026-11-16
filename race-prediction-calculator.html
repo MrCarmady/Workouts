@@ -89,6 +89,15 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       <label>Time
         <input id="time" type="text" inputmode="numeric" autocomplete="off" value="20:00" placeholder="39:43 or 3943">
       </label>
+      <label id="olab" hidden>Other distance
+        <input id="odist" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="e.g. 15 or 8.5">
+      </label>
+      <label id="oulab" hidden>Unit
+        <select id="ounit">
+          <option value="km" selected>km</option>
+          <option value="mi">miles</option>
+        </select>
+      </label>
       <label>Weekly distance
         <input id="week" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="optional, e.g. 70">
       </label>
@@ -110,6 +119,15 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       <label>Time
         <input id="time2" type="text" inputmode="numeric" autocomplete="off" value="" placeholder="e.g. 5:23.4 or 39:43">
       </label>
+      <label id="olab2" hidden>Other distance
+        <input id="odist2" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="e.g. 15 or 8.5">
+      </label>
+      <label id="oulab2" hidden>Unit
+        <select id="ounit2">
+          <option value="km" selected>km</option>
+          <option value="mi">miles</option>
+        </select>
+      </label>
     </div>
     <p class="note" style="margin-top:10px">With two results, each makes its own prediction and the two are blended at every distance. The result nearer the target distance counts for more.</p>
   </section>
@@ -124,11 +142,26 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
           <option value="none" selected>None</option>
           <option value="daniels">Daniels (VDOT)</option>
           <option value="hansons">Hansons</option>
-          <option value="pfitz">Pfitzinger, 10km to marathon table</option>
+          <option value="pfitz">Pfitzinger, Advanced Marathoning</option>
           <option value="pfrr">Pfitzinger, Faster Road Racing</option>
           <option value="rlrf">Run Less, Run Faster</option>
           <option value="tinman">Tinman</option>
           <option value="wr">Same % of world record</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Another distance (optional)</h2>
+    <div class="fields">
+      <label>Distance
+        <input id="tdist" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="e.g. 15 or 8.5">
+      </label>
+      <label>Unit
+        <select id="tunit">
+          <option value="km" selected>km</option>
+          <option value="mi">miles</option>
         </select>
       </label>
     </div>
@@ -270,7 +303,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   function danielsT(v, km) { var lo = 60, hi = 40000; for (var i = 0; i < 80; i++) { var m = (lo + hi) / 2; if (vdot(m / 60, km * 1000) > v) lo = m; else hi = m; } return (lo + hi) / 2; }
   // Returns {name: seconds or null} for every distance, or an {err} when the input is outside the model's table.
   function compareTimes(model, D, t) {
-    var out = {}, i;
+    var out = {}, i, DISTS = OUTS;
     if (model === "daniels") { var v = vdot(t / 60, D.km * 1000); DISTS.forEach(function (T) { out[T.name] = T.o ? null : danielsT(v, T.km); }); return { t: out }; }
     if (model === "hansons") {
       var k = HKEY[D.name]; if (!k) return { err: "Hansons chart has no " + D.name + " column. Enter a mile, 5km, 10km, 10 miles, half marathon or marathon result." };
@@ -297,8 +330,9 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       return { t: out };
     }
     if (model === "wr") {
+      if (WR[D.name] === undefined) return { err: "No world record is held here for " + D.name + ". Enter a standard distance." };
       var pc = WR[D.name] / t; if (pc < 0.4 || pc > 1.0) return { err: "Outside 40% to 100% of the world record." };
-      DISTS.forEach(function (T) { out[T.name] = WR[T.name] / pc; });
+      DISTS.forEach(function (T) { out[T.name] = WR[T.name] === undefined ? null : WR[T.name] / pc; });
       return { t: out };
     }
     if (model === "tinman") {
@@ -308,32 +342,52 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     }
     return { t: null };
   }
-  var CMP_NAMES = { daniels: "Daniels (VDOT)", hansons: "Hansons", pfitz: "Pfitzinger, 10km to marathon", pfrr: "Pfitzinger, Faster Road Racing", rlrf: "Run Less, Run Faster", tinman: "Tinman", wr: "Same % of WR" };
+  var CMP_NAMES = { daniels: "Daniels (VDOT)", hansons: "Hansons", pfitz: "Pfitzinger, Advanced Marathoning", pfrr: "Pfitzinger, Faster Road Racing", rlrf: "Run Less, Run Faster", tinman: "Tinman", wr: "Same % of WR" };
   function dstr(d) { var s = Math.round(d), a = Math.abs(s); return (s < 0 ? "-" : "+") + (a >= 60 ? Math.floor(a / 60) + ":" + (a % 60 < 10 ? "0" : "") + a % 60 : a + "s"); }
 
+  var OUT_MIN = 1.5;   // custom distances: 1.5km up to the marathon, the range the model is set on (my choice)
+  var OUTS = DISTS;    // rows shown: the list above plus any custom distances, in distance order (set in update)
+  function kmLabel(km, unit) { return unit === "mi" ? Number((km / MILE).toFixed(2)) + " miles" : Number(km.toFixed(3)) + "km"; }
+  // Reads a custom distance from its two boxes. Returns {D} or {err}.
+  function readCustom(dId, uId, pre) {
+    var txt = ($(dId).value || "").trim().replace(",", ".");
+    var v = Number(txt);
+    if (txt === "" || !isFinite(v) || v <= 0) return { err: pre + "Enter the distance as a number, like 15 or 8.5." };
+    var unit = $(uId).value === "mi" ? "mi" : "km", km = unit === "mi" ? v * MILE : v;
+    if (km < OUT_MIN - 1e-9 || km > MAR + 1e-9) return { err: pre + "Distance must be from 1.5km (0.93 miles) up to the marathon (42.195km). The model is not set outside that range." };
+    return { D: { name: kmLabel(km, unit), km: km, custom: true } };
+  }
+  function syncOther() {
+    $("olab").hidden = $("oulab").hidden = $("dist").value !== "other";
+    $("olab2").hidden = $("oulab2").hidden = $("dist2").value !== "other";
+  }
   var VDOT_MIN = 15, VDOT_MAX = 85;   // plausible human range (my choice; world records are about 80-85)
 
 
   (function build() {
     var sel = $("dist");
     DISTS.forEach(function (d, i) { if (d.o) return; sel.insertAdjacentHTML("beforeend", '<option value="' + i + '"' + (d.name === "5km" ? " selected" : "") + ">" + d.name + "</option>"); });
+    sel.insertAdjacentHTML("beforeend", '<option value="other">Other\u2026</option>');
     var s2 = $("dist2");
     s2.insertAdjacentHTML("beforeend", '<option value="" selected>None</option>');
     DISTS.forEach(function (d, i) { if (d.o) return; s2.insertAdjacentHTML("beforeend", '<option value="' + i + '">' + d.name + "</option>"); });
+    s2.insertAdjacentHTML("beforeend", '<option value="other">Other\u2026</option>');
   })();
 
   // Shared race result for all pages on the same site (browser storage; does not sync between devices).
   function profGet() { try { return JSON.parse(localStorage.getItem("tt-profile") || "null") || {}; } catch (e) { return {}; } }
   function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
-  function save() { try { profSet("km", String(DISTS[parseInt($("dist").value, 10)].km)); profSet("time", $("time").value); profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {} try { localStorage.setItem("racepred", JSON.stringify({ dist: $("dist").value, time: $("time").value, cmp: $("cmp").value, dist2: $("dist2").value, time2: $("time2").value, v: 2 })); } catch (e) {} }
+  function save() { try { if ($("dist").value !== "other") { profSet("km", String(DISTS[parseInt($("dist").value, 10)].km)); profSet("time", $("time").value); } profSet("week", $("week").value); profSet("wunit", $("wunit").value); } catch (e) {} try { localStorage.setItem("racepred", JSON.stringify({ dist: $("dist").value, time: $("time").value, cmp: $("cmp").value, dist2: $("dist2").value, time2: $("time2").value, od: $("odist").value, ou: $("ounit").value, od2: $("odist2").value, ou2: $("ounit2").value, td: $("tdist").value, tu: $("tunit").value, v: 2 })); } catch (e) {} }
   function restore() {
     try {
       var o = JSON.parse(localStorage.getItem("racepred") || "null");
       if (!o) return;
       if (o.v !== 2) { o.dist = String(parseInt(o.dist, 10) + 3); if (o.dist2 !== "") o.dist2 = String(parseInt(o.dist2, 10) + 3); }   // rows added in front of the old list
-      if (DISTS[parseInt(o.dist, 10)] && !DISTS[parseInt(o.dist, 10)].o) $("dist").value = o.dist;
+      if (o.dist === "other" || (DISTS[parseInt(o.dist, 10)] && !DISTS[parseInt(o.dist, 10)].o)) $("dist").value = o.dist;
       if (typeof o.time === "string") $("time").value = o.time;
-      if (o.dist2 === "" || (DISTS[parseInt(o.dist2, 10)] && !DISTS[parseInt(o.dist2, 10)].o)) $("dist2").value = o.dist2;
+      if (o.dist2 === "" || o.dist2 === "other" || (DISTS[parseInt(o.dist2, 10)] && !DISTS[parseInt(o.dist2, 10)].o)) $("dist2").value = o.dist2;
+      [["odist", "od"], ["odist2", "od2"], ["tdist", "td"]].forEach(function (m) { if (typeof o[m[1]] === "string") $(m[0]).value = o[m[1]]; });
+      [["ounit", "ou"], ["ounit2", "ou2"], ["tunit", "tu"]].forEach(function (m) { if (o[m[1]] === "km" || o[m[1]] === "mi") $(m[0]).value = o[m[1]]; });
       if (typeof o.time2 === "string") $("time2").value = o.time2;
       if (["none", "daniels", "hansons", "pfitz", "pfrr", "rlrf", "tinman", "wr"].indexOf(o.cmp) >= 0) $("cmp").value = o.cmp;
     } catch (e) {}
@@ -354,7 +408,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     var riegel5 = t * Math.pow(5 / D.km, K) / 5;      // s/km at 5km, Riegel only
     var p5 = riegel5 + adj(D.km);                         // 5km equivalent after the short-race slowing
     offM = marathonOff(riegel5, weekKm);
-    return DISTS.map(function (T) { return ((p5 - adj(T.km)) * Math.pow(T.km / 5, K - 1) + off(T.km) - off(D.km)) * T.km; });
+    return OUTS.map(function (T) { return ((p5 - adj(T.km)) * Math.pow(T.km / 5, K - 1) + off(T.km) - off(D.km)) * T.km; });
   }
   // Weights on the results at target distance km: 1 / |ln(km / result km)|. A result at the target distance takes all the weight (shared if both are).
   function blendWeights(km, Ds) {
@@ -367,15 +421,25 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
 
   function update() {
     $("err").hidden = true;
-    var di = parseInt($("dist").value, 10), D = DISTS[di], t = parseTime($("time").value);
+    syncOther();
+    var D, D2 = null, Dt = null, t2 = null;
+    if ($("dist").value === "other") { var c1 = readCustom("odist", "ounit", ""); if (c1.err) return fail(c1.err); D = c1.D; }
+    else D = DISTS[parseInt($("dist").value, 10)];
+    var t = parseTime($("time").value);
     var e1 = checkResult(D, t, ""); if (e1) return fail(e1);
-    var d2i = $("dist2").value === "" ? -1 : parseInt($("dist2").value, 10), D2 = d2i >= 0 ? DISTS[d2i] : null, t2 = null;
+    if ($("dist2").value === "other") { var c2 = readCustom("odist2", "ounit2", "Second result: "); if (c2.err) return fail(c2.err); D2 = c2.D; }
+    else if ($("dist2").value !== "") D2 = DISTS[parseInt($("dist2").value, 10)];
+    if (($("tdist").value || "").trim() !== "") { var c3 = readCustom("tdist", "tunit", "Another distance: "); if (c3.err) return fail(c3.err); Dt = c3.D; }
+    var extra = [];
+    [D, D2, Dt].forEach(function (d) { if (d && d.custom && !DISTS.some(function (s) { return Math.abs(s.km - d.km) < 1e-6; }) && !extra.some(function (s) { return Math.abs(s.km - d.km) < 1e-6; })) extra.push(d); });
+    OUTS = DISTS.concat(extra).sort(function (a, b) { return a.km - b.km; });
+    var same = function (a, b) { return Math.abs(a.km - b.km) < 1e-6; };
     if (D2) {
       t2 = parseTime($("time2").value);
       if (($("time2").value || "").trim() === "") return fail("Second result: enter a time, or set the distance to None.");
       var e2 = checkResult(D2, t2, "Second result: "); if (e2) return fail(e2);
     }
-    if (D2 && d2i === di) return fail("Second result: pick a different distance, or enter only the better result. Two results at the same distance would just be averaged.");
+    if (D2 && same(D, D2)) return fail("Second result: pick a different distance, or enter only the better result. Two results at the same distance would just be averaged.");
     var two = !!D2, Ds = two ? [D, D2] : [D], ts = two ? [t, t2] : [t];
     var wkTxt = ($("week").value || "").trim(), weekKm = null;
     if (wkTxt !== "") {
@@ -385,26 +449,26 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       if (weekKm < 30 || weekKm > 300) return fail("Weekly distance should be between 30km (19 miles) and 300km (186 miles). Check the number and unit.");
     }
     var preds = Ds.map(function (d, k) { return predictFrom(d, ts[k], weekKm); });
-    var W = DISTS.map(function (T) { return blendWeights(T.km, Ds); });
-    var pred = DISTS.map(function (T, i) { return preds.reduce(function (a, p, k) { return a + W[i][k] * p[i]; }, 0); });
+    var W = OUTS.map(function (T) { return blendWeights(T.km, Ds); });
+    var pred = OUTS.map(function (T, i) { return preds.reduce(function (a, p, k) { return a + W[i][k] * p[i]; }, 0); });
     var html = "", cm = $("cmp").value, cnote = "", crs = Ds.map(function (d, k) { return compareTimes(cm, d, ts[k]); });
     var hasC = cm !== "none", cerr = null;
     crs.forEach(function (c, k) { if (c.err && !cerr) cerr = (two ? "Result " + (k + 1) + ": " : "") + c.err; });
     var cmpT = null;
-    if (hasC && !cerr) cmpT = DISTS.map(function (T, i) {
+    if (hasC && !cerr) cmpT = OUTS.map(function (T, i) {
       var vals = crs.map(function (c) { return c.t ? c.t[T.name] : null; });
       if (vals.some(function (v) { return v == null; })) return null;
       return vals.reduce(function (a, v, k) { return a + W[i][k] * v; }, 0);
     });
     $("thead").innerHTML = "<th>Distance</th><th>Time</th><th>/km</th><th>/mile</th><th>% WR</th>" + (hasC ? "<th>" + CMP_NAMES[cm] + "</th>" : "");
     if (hasC && cerr) cnote = CMP_NAMES[cm] + ": " + cerr;
-    DISTS.forEach(function (T, i) {
+    OUTS.forEach(function (T, i) {
       var tt = pred[i], p = tt / T.km;
-      var is1 = i === di, is2 = two && i === d2i, lab = "";
+      var is1 = same(T, D), is2 = two && same(T, D2), lab = "";
       if (is1 || is2) lab = !two ? "Your result" : is1 && is2 ? "Results 1 and 2" : is1 ? "Result 1" : "Result 2";
       var wtxt = two ? "<small class='wt'>" + W[i].map(function (x) { return Math.round(x * 100); }).join(" / ") + "</small>" : "";
       html += "<tr" + (lab ? " class='input'" : "") + "><td class='dist'>" + T.name + (lab ? "<small>" + lab + "</small>" : "") + "</td>" +
-        "<td class='time'>" + hmmss(tt) + wtxt + "</td><td>" + mmss(p) + "</td><td>" + mmss(p * MILE) + "</td><td>" + (Math.round(WR[T.name] / tt * 1000) / 10).toFixed(1) + "%</td>" +
+        "<td class='time'>" + hmmss(tt) + wtxt + "</td><td>" + mmss(p) + "</td><td>" + mmss(p * MILE) + "</td><td>" + (WR[T.name] === undefined ? "\u2013" : (Math.round(WR[T.name] / tt * 1000) / 10).toFixed(1) + "%") + "</td>" +
         (hasC ? "<td>" + (cmpT && cmpT[i] != null ? hmmss(cmpT[i]) + " <small>" + dstr(cmpT[i] - tt) + "</small>" : "–") + "</td>" : "") + "</tr>";
     });
     $("rows").innerHTML = html;
@@ -440,7 +504,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     if (typeof pr.week === "string") $("week").value = pr.week;
     if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit;
   })();
-  ["dist", "time", "dist2", "time2", "week", "wunit", "cmp"].forEach(function (id) {
+  ["dist", "time", "dist2", "time2", "week", "wunit", "cmp", "odist", "ounit", "odist2", "ounit2", "tdist", "tunit"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });

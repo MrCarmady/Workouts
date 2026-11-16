@@ -43,6 +43,12 @@ def scenarios():
     out.append(('race-prediction-calculator','blend same distance rejected',two('3','18:52','3','19:10')))
     out.append(('race-prediction-calculator','blend second time blank',two('3','18:52','4','')))
     out.append(('race-prediction-calculator','blend second time bad',two('3','18:52','4','3:00')))
+    out.append(('race-prediction-calculator','other 8.5km 31:00',lambda pg:[fill(pg,'dist','other'),fill(pg,'odist','8.5'),fill(pg,'time','31:00')]))
+    out.append(('race-prediction-calculator','other 5 miles 32:00 + another 15km',lambda pg:[fill(pg,'dist','other'),fill(pg,'odist','5'),pg.select_option('#ounit','mi'),fill(pg,'time','32:00'),fill(pg,'tdist','15')]))
+    out.append(('race-prediction-calculator','other 50km rejected',lambda pg:[fill(pg,'dist','other'),fill(pg,'odist','50'),fill(pg,'time','3:00:00')]))
+    out.append(('race-prediction-calculator','other second result 15km + 5k',lambda pg:[fill(pg,'dist','3'),fill(pg,'time','18:52'),fill(pg,'dist2','other'),fill(pg,'odist2','15'),fill(pg,'time2','58:00')]))
+    for nm,d,t,sx,ag in [('35:00 10k man 32','4','35:00','M','32'),('39:00 10k man 32','4','39:00','M','32'),('50:00 10k man 32','4','50:00','M','32'),('40:00 10k woman 50','4','40:00','W','50'),('marathon 2:55 man 32','7','2:55:00','M','32'),('age 12 rejected','4','35:00','M','12')]:
+        out.append(('marathon-qualifying-check',nm,lambda pg,d=d,t=t,sx=sx,ag=ag:[pg.select_option('#dist',d),fill(pg,'time',t),pg.select_option('#sex',sx),fill(pg,'age',ag)]))
     out.append(('treadmill-acsm-widget','running default',lambda pg:None))
     out.append(('treadmill-acsm-widget','walking 3 mph 12% 30 min thr 4:01',lambda pg:[pg.select_option('#mode','walk'),pg.select_option('#unit','mph'),fill(pg,'speed','3'),fill(pg,'grade','12'),fill(pg,'cal','0'),fill(pg,'dur','30'),fill(pg,'thr','4:01')]))
     out.append(('treadmill-acsm-widget','walking 7 kmh warns',lambda pg:[pg.select_option('#mode','walk'),fill(pg,'speed','7'),fill(pg,'grade','10'),fill(pg,'cal','0'),fill(pg,'dur','45'),fill(pg,'thr','4:01')]))
