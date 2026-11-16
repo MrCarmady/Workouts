@@ -353,3 +353,4 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Races: Boston (needed = standard − 5:17, 2027 margin from a headline only), London Good for Age (official page values; UK only), New York (women from the NYRR website table, men from news summaries), Chicago, Berlin, Tokyo. Left out: Sydney (sources conflict), elite and championship routes.
 - Standards change yearly; not verified against every race's own site (several pages were not reachable).
 - 2026-11-16: NYC women added from the NYRR table Pavel supplied. Tools list text shortened to "marathon majors".
+- 2026-11-16: NYC men 50 to 54 confirmed as 3:14 on the NYRR site by Pavel.
