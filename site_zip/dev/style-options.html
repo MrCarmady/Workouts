@@ -1,0 +1,91 @@
+<title>Calculator Style Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600&family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: four self-contained specimens of the same calculator excerpt, each with its own fonts and colours. */
+:root { --bg: #eceff1; --fg: #12181d; --muted: #56636d; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0f1418; --fg: #e9eef2; --muted: #98a6b2; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #0f1418; --fg: #e9eef2; --muted: #98a6b2; color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 20px; }
+.wrap > h1 { font-size: 1.3rem; margin: 0; }
+.wrap > p { margin: 0; color: var(--muted); max-width: 60ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 20px; }
+.spec { border-radius: 8px; padding: 20px; min-width: 0; display: grid; gap: 14px; align-content: start; background: var(--s-bg); color: var(--s-fg); font-family: var(--s-body); border: 1px solid var(--s-line); }
+.tag { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--s-muted); }
+.spec h2 { font-family: var(--s-head); font-size: var(--s-hsize); font-weight: var(--s-hweight); text-transform: var(--s-htrans); letter-spacing: var(--s-hls); margin: 0; line-height: 1.05; }
+.spec .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.spec .f { display: grid; gap: 3px; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--s-muted); }
+.spec .v { background: var(--s-input); border: 1px solid var(--s-line); border-radius: var(--s-r); padding: 8px 10px; font-size: 1rem; color: var(--s-fg); text-transform: none; letter-spacing: 0; font-family: var(--s-num); }
+.spec .tw { overflow-x: auto; border: 1px solid var(--s-line); border-radius: var(--s-r); background: var(--s-card); }
+.spec table { border-collapse: collapse; width: 100%; min-width: 380px; font-family: var(--s-num); font-variant-numeric: tabular-nums; font-size: .92rem; }
+.spec th { text-align: left; padding: 8px 12px; font-family: var(--s-body); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--s-muted); background: var(--s-head-bg); }
+.spec td { padding: 8px 12px; border-top: 1px solid var(--s-line); white-space: nowrap; }
+.spec td.r { font-family: var(--s-head); font-weight: var(--s-hweight); font-size: 1.05rem; }
+.spec td.p { color: var(--s-accent); font-weight: 600; }
+
+.a { --s-bg: #ffffff; --s-card: #ffffff; --s-input: #f4f4f3; --s-head-bg: #f0f0ee; --s-fg: #17181a; --s-muted: #6a6d72; --s-line: #deded9; --s-accent: #c8372d; --s-r: 2px;
+     --s-head: "Archivo Narrow", "Arial Narrow", sans-serif; --s-body: "Archivo", system-ui, sans-serif; --s-num: "Archivo", system-ui, sans-serif; --s-hsize: 2rem; --s-hweight: 700; --s-htrans: uppercase; --s-hls: .03em; }
+.b { --s-bg: #fafaf8; --s-card: #ffffff; --s-input: #ffffff; --s-head-bg: #f0f0ec; --s-fg: #101010; --s-muted: #62625e; --s-line: #d9d9d3; --s-accent: #0f766e; --s-r: 0;
+     --s-head: "IBM Plex Mono", ui-monospace, monospace; --s-body: "IBM Plex Sans", system-ui, sans-serif; --s-num: "IBM Plex Mono", ui-monospace, monospace; --s-hsize: 1.5rem; --s-hweight: 600; --s-htrans: none; --s-hls: -.01em; }
+.c { --s-bg: #15171b; --s-card: #1b1e23; --s-input: #101216; --s-head-bg: #20242a; --s-fg: #eceae4; --s-muted: #9a9ca2; --s-line: #2c3037; --s-accent: #f5a524; --s-r: 3px;
+     --s-head: "Chakra Petch", system-ui, sans-serif; --s-body: "Barlow", system-ui, sans-serif; --s-num: "Chakra Petch", system-ui, sans-serif; --s-hsize: 1.7rem; --s-hweight: 600; --s-htrans: uppercase; --s-hls: .02em; }
+.d { --s-bg: #edf1ec; --s-card: #f9fbf8; --s-input: #ffffff; --s-head-bg: #e1e8e0; --s-fg: #1b2420; --s-muted: #5c6b63; --s-line: #cbd5cb; --s-accent: #2d6a4f; --s-r: 6px;
+     --s-head: "DM Serif Display", Georgia, serif; --s-body: "DM Sans", system-ui, sans-serif; --s-num: "DM Sans", system-ui, sans-serif; --s-hsize: 2rem; --s-hweight: 400; --s-htrans: none; --s-hls: 0; }
+</style>
+
+<main class="wrap">
+  <h1>Style options for the calculators</h1>
+  <p>The same excerpt of the running calculator in four looks. Each shows the heading, two inputs and part of the session table, using a 20:00 5 km example.</p>
+  <div class="grid">
+
+    <section class="spec a">
+      <div class="tag">A · Track red · Archivo Narrow + Archivo</div>
+      <h2>Run Session Calculator</h2>
+      <div class="fields"><div class="f">Distance<div class="v">5 km</div></div><div class="f">Time<div class="v">20:00</div></div></div>
+      <div class="tw"><table><thead><tr><th>Rep</th><th>Pace /km</th><th>Per rep</th><th>Recovery</th></tr></thead><tbody>
+        <tr><td class="r">200 m</td><td class="p">3:38–3:50</td><td>44–46 s</td><td>90 s</td></tr>
+        <tr><td class="r">400 m</td><td class="p">4:07–4:10</td><td>99–100 s</td><td>45 s</td></tr>
+        <tr><td class="r">6 min</td><td class="p">4:21–4:22</td><td>1.38–1.38 km</td><td>60 s</td></tr>
+        <tr><td class="r">12 min</td><td class="p">4:27–4:30</td><td>2.67–2.70 km</td><td>120 s</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="spec b">
+      <div class="tag">B · Lab sheet · IBM Plex Mono + Plex Sans</div>
+      <h2>Run Session Calculator</h2>
+      <div class="fields"><div class="f">Distance<div class="v">5 km</div></div><div class="f">Time<div class="v">20:00</div></div></div>
+      <div class="tw"><table><thead><tr><th>Rep</th><th>Pace /km</th><th>Per rep</th><th>Recovery</th></tr></thead><tbody>
+        <tr><td class="r">200 m</td><td class="p">3:38–3:50</td><td>44–46 s</td><td>90 s</td></tr>
+        <tr><td class="r">400 m</td><td class="p">4:07–4:10</td><td>99–100 s</td><td>45 s</td></tr>
+        <tr><td class="r">6 min</td><td class="p">4:21–4:22</td><td>1.38–1.38 km</td><td>60 s</td></tr>
+        <tr><td class="r">12 min</td><td class="p">4:27–4:30</td><td>2.67–2.70 km</td><td>120 s</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="spec c">
+      <div class="tag">C · Stopwatch · Chakra Petch + Barlow</div>
+      <h2>Run Session Calculator</h2>
+      <div class="fields"><div class="f">Distance<div class="v">5 km</div></div><div class="f">Time<div class="v">20:00</div></div></div>
+      <div class="tw"><table><thead><tr><th>Rep</th><th>Pace /km</th><th>Per rep</th><th>Recovery</th></tr></thead><tbody>
+        <tr><td class="r">200 m</td><td class="p">3:38–3:50</td><td>44–46 s</td><td>90 s</td></tr>
+        <tr><td class="r">400 m</td><td class="p">4:07–4:10</td><td>99–100 s</td><td>45 s</td></tr>
+        <tr><td class="r">6 min</td><td class="p">4:21–4:22</td><td>1.38–1.38 km</td><td>60 s</td></tr>
+        <tr><td class="r">12 min</td><td class="p">4:27–4:30</td><td>2.67–2.70 km</td><td>120 s</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="spec d">
+      <div class="tag">D · Sage · DM Serif Display + DM Sans</div>
+      <h2>Run Session Calculator</h2>
+      <div class="fields"><div class="f">Distance<div class="v">5 km</div></div><div class="f">Time<div class="v">20:00</div></div></div>
+      <div class="tw"><table><thead><tr><th>Rep</th><th>Pace /km</th><th>Per rep</th><th>Recovery</th></tr></thead><tbody>
+        <tr><td class="r">200 m</td><td class="p">3:38–3:50</td><td>44–46 s</td><td>90 s</td></tr>
+        <tr><td class="r">400 m</td><td class="p">4:07–4:10</td><td>99–100 s</td><td>45 s</td></tr>
+        <tr><td class="r">6 min</td><td class="p">4:21–4:22</td><td>1.38–1.38 km</td><td>60 s</td></tr>
+        <tr><td class="r">12 min</td><td class="p">4:27–4:30</td><td>2.67–2.70 km</td><td>120 s</td></tr>
+      </tbody></table></div>
+    </section>
+
+  </div>
+</main>

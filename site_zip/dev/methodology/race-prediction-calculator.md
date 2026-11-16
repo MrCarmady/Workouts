@@ -1,0 +1,153 @@
+# Race Prediction Calculator: methodology
+
+Takes one race result (distance and time), or two (added 2026-10-19), and predicts times, paces per km and paces per mile for 400m, 800m, 1000m (added 2026-10-26, output only), 1500m, mile, 3km, 5km, 10km, 10 miles, half marathon and marathon.
+
+## What is standard and what is a choice
+
+| Item | Status |
+|---|---|
+| Riegel formula, exponent 1.06 | Published, widely used |
+| Slowing the 5km equivalent from a result shorter than 5km by 6.5 × ln(5 / km) s/km | My estimate. The coefficient was lowered from 10.6 to 8 because the 5km PB it was first set from is thought to be soft, then to 6.5 as a halfway point between 8 and what the Daniels-Gilbert (VDOT) equations imply, which is about 3 to 6 s/km depending on distance and fitness (see Step 2) |
+| No adjustment between 5km and the half marathon | Chosen here |
+| Marathon = 2.10 × half marathon at 70+ miles a week, 2.13 at 60, 2.17 at 50, 2.25 at 35 or less; 70 miles assumed when blank | 2.10 is the author's; the rest are placeholders. Not fitted to data |
+| Distances offered | Chosen here |
+
+The adjustments were set by judgement. The short-race one rests on a single runner's untrained mile, so it is weak evidence.
+
+## Step 1: Riegel base
+
+For a result of time `t` over `D` km, the Riegel pace at 5km is:
+
+```
+riegel5 = t * (5 / D) ^ 1.06 / 5       (s/km)
+```
+
+## Step 2: short-race adjustment
+
+Riegel from a short race is optimistic about the 5km, so the 5km equivalent is slowed:
+
+```
+adj(km) = 6.5 * ln(5 / km)   for km < 5      adj(km) = 0   otherwise
+(1500m: 7.8s/km, mile: 7.4, 3km: 3.3)
+p5 = riegel5 + adj(D)
+
+Where 6.5 comes from: plain Riegel gives a 5km that is too fast from a mile or 3km, so the 5km equivalent is slowed. For a runner with a VDOT of about 55, the Daniels-Gilbert equations imply a coefficient of about 6 from a mile or 1500m, 5 from 2km and 3 from 3km (about 5 to 6 at 800m and 1000m, and falling at 4km and with lower fitness). The earlier value of 8 was slower than VDOT at every distance. The author asked for a value halfway between 8 and VDOT, and 6.5 sits within about 1 s/km of that halfway point at 1500m to 3km. For an 18:54 5km runner entering a mile of 5:23.4, the predicted 5km is now 18:32 (VDOT 18:29, previously 18:41). From a 3k of 10:44.80 it is 18:45 (VDOT 18:35, previously 18:49). A single logarithmic coefficient cannot follow VDOT's curve at all distances.
+```
+
+## Step 3: beyond the half marathon
+
+Paces beyond the half marathon get an extra slowing that is 0 at the half marathon (21.0975km) and rises linearly to `offM` s/km at the marathon (42.195km):
+
+```
+off(km) = 0                                                for km <= 21.0975
+off(km) = offM * (min(km, 42.195) - 21.0975) / 21.0975     otherwise
+```
+
+`offM` is set from the weekly distance. With the field blank, 70 miles a week is assumed.
+
+The marathon is set to `F` times the half marathon, where `F` is a straight line through these points (weekly distance in miles). Changed 2026-10-15 from "twice the half marathon plus 7 to 25 minutes" to a percentage, so the adjustment scales with the runner.
+
+| Weekly distance | F |
+|---|---|
+| 70 or more | 2.10 |
+| 60 | 2.13 |
+| 50 | 2.17 |
+| 35 or less | 2.25 |
+
+```
+H0 = half marathon time and M0 = marathon time from Riegel with no offset, both from the input race
+offM = max(0, (F * H0 - M0) / 42.195)     (s/km)
+```
+
+Riegel with exponent 1.06 already puts the marathon at 2.085 times the half marathon. The mileage term adds only the remainder up to `F`. It is never negative, so a runner whose Riegel result is already above `F` keeps it.
+
+Where the numbers come from:
+- 2.10 at 70 miles or more is the author's figure (a 1:40 half converts to 3:30 on 70-mile weeks). One cross-check, not a fit: Kejelcha's half of 56:51 and marathon of 1:59:41 (as given by the author, not verified by me) is a ratio of 2.105, so there is no separate band above 70 miles. Elites at 130+ miles a week have about the same ratio. The old 80+ band (twice the half plus 7 min, ratio about 2.07 for a 1:40 half) would have been too fast for him.
+- 2.13, 2.17 and 2.25 keep the shape of the old table (+13, +17 and +25 min) converted to factors at a 100-minute half. They are placeholders, not fitted. The author's two low-mileage marathons (1:39 half, 4:05 marathon and 1:29 half, 3:31 marathon, both blow-ups, ratios 2.48 and 2.37) suggest the low end may be too optimistic, but weekly distance for those blocks is not known.
+- The old points came from the Vickers & Vertosick figures below and the 42cal article's reading of them. I could not read the model equations, so they are not used here. The slide between points is linear by choice.
+
+The closest published work is Vickers & Vertosick (2016, BMC Sports Science, Medicine and Rehabilitation, 2,303 recreational runners). There, Riegel with k = 1.07 predicted marathon times 10 minutes or more too fast for about half of runners, and models that add typical weekly mileage cut that to about 25%. Below 35 miles a week the adjustment stops at 2.25 and a note states this.
+
+## Step 4: prediction for a target distance `T`
+
+```
+pace(T) = (p5 - adj(T)) * (T / 5) ^ 0.06 + off(T) - off(D)       (s/km)
+time(T) = pace(T) * T
+```
+
+- `(T/5)^0.06` is the pace form of Riegel: exponent 1.06 on time becomes 0.06 on pace.
+- `adj(T)` is subtracted for short targets, so the same adjustment works in both directions. A 5km runner's 1500m is predicted 7.8s/km faster (before the distance scaling) than plain Riegel would give.
+- `- off(D)` removes the long-distance slowing already in the input when the input is a marathon.
+- The input race always reproduces its own time exactly.
+
+## Worked example: 20:00 5km
+
+- `riegel5` = 240s/km, `adj` = 0, so `p5` = 240.
+- Half marathon: 240 × (21.0975 / 5) ^ 0.06 = 262s/km, which is 4:22/km and 1:32:00.
+- Marathon: 240 × (42.195 / 5) ^ 0.06 + 5 = 278s/km, which is 4:38/km and 3:15:20.
+- 1500m: (240 − 7.8) × (1.5 / 5) ^ 0.06 = 216.0s/km, which is a time of 5:24.
+
+## Plausibility check
+
+The page rejects a result whose Daniels–Gilbert VDOT (of the raw race result) is below 15 or above 85. The bounds are my choice: the best performances on record are around 80 to 85. This catches a distance and time that don't belong together, such as a 3km time entered against 5km.
+
+## Input limits
+
+The page shows an error when the time can't be read, when the VDOT check above fails, or when the time over the chosen distance gives a pace outside 2:00 to 12:00 per km. These are sanity limits I chose.
+
+## Limits
+
+- Riegel and these adjustments are rules of thumb for a trained runner with a comparable preparation for each distance. They do not account for course, weather, pacing or distance-specific training.
+- Predictions are most reliable close to the input distance, and least reliable at the extremes (for example 1500m from a marathon time).
+- The 5km to half marathon relationship is most reliable for intermediate runners on moderate mileage. It may be less reliable for beginners and for runners on low mileage. This is the author's judgement, not tested here. Vickers & Vertosick (2016) found Riegel reasonable up to the half marathon in a mostly recreational sample (median 30 miles a week), but the main text does not report that by runner type.
+- The marathon adjustment is small and is a guess. Long runs, fuelling and heat dominate real marathon outcomes.
+
+## Compare with
+
+An optional extra column shows another model's times beside ours, with the difference (their time minus ours). One comparison at a time (Daniels, Hansons, Pfitzinger from either table, Run Less, Run Faster or Tinman). The choice is stored with the page's other values.
+
+- Daniels (VDOT): the Daniels-Gilbert equations, solved for the same VDOT at each distance. All eight distances. Spot-checked by the author against the printed Daniels table; a few seconds' difference remains and the model was left unchanged.
+- Hansons: cubic curves fitted to the equivalent-times chart in the Hansons supplement (natural log of time against the log of the 5km time). Maximum fit error 0.5 seconds. The book's table is not reproduced. Columns: mile, 5km, 10km, 10 miles, half marathon, marathon. Valid for a 5km equivalent of 13:30 to 45:00. At 18:30 it gives a 3:00:21 marathon, as the chart prints. One chart cell looks like a typo (25K at a 15:00 5km prints 1:23:18, about 1:23:28 expected); it is not used.
+- Pfitzinger, Faster Road Racing (added 2026-11-15; Appendix B, p. 249, from a photograph the author supplied): constant ratios to the 5km time (10km 2.08, 10 miles 3.4736, half marathon 4.6176), averaged over all 28 rows (5km 14:00 to 30:00); every row is within 0.6 s of these. The table also lists 8K (1.6494) and 15K (3.1928), which this page has no rows for, and has no marathon column. Valid for a 5km equivalent of 14:00 to 30:00. The two Pfitzinger tables are kept as separate options because they are different books; they differ by about 0.6 to 0.8% in the 10km to half marathon range (for an 18:40 5km: 23 s at 10 miles, 40 s at the half marathon). Only Advanced Marathoning has a marathon column.
+- Pfitzinger, Advanced Marathoning (the 10km to marathon table; dropdown label changed 2026-11-16): constant ratios to the 10km time (10 miles 1.6797, half 2.2373, marathon 4.7173), fitted to his table, valid for a 10km equivalent of 27:00 to 55:00.
+- Run Less, Run Faster (Pierce, Murr and Moss), Table 2.1: constant ratios to the 5km time (10km 2.0922, half marathon 4.635, marathon 9.7311), averaged over the rows 16:00 to 27:30 that the author supplied as screenshots; every row is within 0.0005 of these ratios. Columns: 5km, 10km, half marathon, marathon. Valid for a 5km equivalent of 16:00 to 27:30, the rows I have; the book's table continues past that. The table says its times assume proper training for each distance.
+- Tinman: fitted to sample outputs of his calculator (six sheets, 5km 13:00, 15:00, 17:00, 19:00, 25:00, 29:00; four more on 2026-10-28 for 400m to 1000m), not his published formula. Every time is the 5km time multiplied by a fixed factor per distance, at all fitness levels tested. From 3000m up the factor is (distance / 5000) ^ 1.0579, with no marathon fade. For the mile and 1500m the factors are read from his table (0.29447 and 0.2723 of the 5km time). Reproduces his output sheets to within a second. The same factors are used to convert the input race, so a mile entered here gives a 5km about 0.17% faster than his own tool would. His tool's input conversion differs slightly at some distances (2400m by 1.26%); those distances are not in this calculator. Valid for a 5km equivalent of 13:00 to 29:00.
+- Same % of world record: your result as a percentage of the male world record pace at that distance, held constant at every other distance. Uses the table below. The marathon record (1:59:30, Sawe, London 2026) was ratified in July 2026 and the half marathon record (56:51, Kejelcha, Buenos Aires, 23 Aug 2026) on 9 Nov 2026. The 10 miles record is Haile Gebrselassie's 44:24 (the author chose the ratified time over a faster one by a sanctioned athlete). It is slow relative to the 10km and half records (a power-law curve between them would give 42:55), so percentages at 10 miles read a little high. Range: 40% to 100%.
+- Where the other model has no column for the input distance, or the input is outside its range, the column shows a dash and a note says why. Nothing is extrapolated.
+
+## % WR column
+
+Every row also shows the predicted time as a percentage of the male world record at that distance (record time divided by predicted time). Records used (seconds): 1500m 3:26.00, mile 3:42.66 (author-supplied, 2026), 3km 7:17.55, 5km 12:35.36, 10km 26:11.00, 10 miles 44:24 (Gebrselassie), half marathon 56:51 (Kejelcha, Buenos Aires 2026, awaiting ratification), marathon 1:59:30 (Sawe, London 2026, author-supplied and not checked against World Athletics). Records other than the mile, half and marathon are from my own knowledge, cross-checked against one web page (Marathon Handbook, which was partly out of date). Women's and masters' records are planned later.
+
+## Shared race result
+
+This page shares its race distance and time with the Sub-Threshold Session Generator, the Race Prediction Calculator, the Run TSS Calculator and the Run TSS Planner. The values are kept in the browser's local storage under one key. The last page you edited sets the value for the others. It applies only on the hosted site, where the pages share an origin, and only in the same browser on the same device. It does not sync between devices. If a stored distance is missing from a page's list (the 10 miles and marathon options exist only on the predictor), that page keeps its own distance.
+
+## Two results (2026-10-19)
+
+An optional second result (any distance). Each result makes its own full prediction (steps 1 to 4, including its own marathon offset). At each target distance `T` the predictions are averaged:
+
+```
+d_i = |ln(T / D_i)|        w_i = (1 / d_i) / sum(1 / d_j)
+time(T) = sum(w_i * time_i(T))
+```
+
+- A result at the target distance has d = 0 and takes all the weight, so each input reproduces itself. Two results at the same distance are rejected (they would only be averaged, which is slower than the better one and gives no way to prefer either).
+- The weighting form (inverse of the log distance ratio, power 1) is my choice, set at the author's request as a starting point. Power 2 is the main alternative and weights the nearer result more heavily. Not fitted to data.
+- Idea behind it (author's): a result near the target distance is more informative than a far one, but a best-effort short result is a better measure of potential than a soft near one. The author's example: mile 5:23.4 (counted as a near-10/10 effort) and 10k 39:43 (strong negative split, run blind on over-optimistic watch data, so slower than potential). Blend: 3k 10:44, 5km 18:51, half 1:27:06 (22% mile / 78% 10k), against actual 3k 10:44 and 5km 18:52 (one data point each, and the 3k is one of the inputs to the model's earlier calibration, so this is not a validation).
+- The marathon in the blend is not exactly F times the blended half, because the weights differ at the two distances. Each result's own marathon is F times its own half.
+- Comparison column (Daniels, Hansons, Pfitzinger, Tinman, % of WR): each model predicts from each result separately and the same weights are applied. If a model cannot take either result's distance (for example Pfitzinger from a mile), the column shows that error.
+- Weekly distance is shared by both results. Other pages (Plan Builder and so on) still use result 1 only.
+
+## 400m, 800m and 1000m rows (2026-10-26)
+
+Output-only rows, not offered as inputs. They use the same Riegel formula and short-race adjustment (`adj` is 16.4 s/km at 400m, 11.9 at 800m, 10.5 at 1000m). The 6.5 coefficient was set from 1500m to 3km; the VDOT comparison in step 2 suggests about 5 to 6 at 800m and 1000m, and nothing was checked at 400m. Treat these rows as rough. Example: mile 5:23.4 gives 400m 1:11, 800m 2:31, 1000m 3:12 (not checked against a real result).
+
+Comparison models give "–" on these rows except Tinman: Daniels-Gilbert VDOT is not meant for races this short, and the Hansons and Pfitzinger tables have no such columns. Tinman has them (2026-10-28, from four sample sheets supplied by the author, 5km 15:00, 17:00, 19:00 and 23:00): the factors on the 5km time are 0.056878 (400m), 0.13338 (800m) and 0.17358 (1000m), constant across all four sheets to five digits. The same sheets give 0.2723 (1500m) and 0.29447 (mile), as before. The % WR column works. Records used (men, outdoor, from Track & Field News, fetched 2026-10-26): 400m 43.03 (van Niekerk, 2016), 800m 1:40.91 (Rudisha, 2012), 1000m 2:11.83 (Wanyonyi, Monaco, 10 Jul 2026).
+
+Saved page state now carries a version flag; state saved before this change has its distance indexes shifted by 3.
+
+
+## Other distance (added 2026-11-16)
+
+Both result boxes have an "Other" option. Enter a number and a unit (km or miles). Range 1.5km to 42.195km, the span the model is set on; outside it an error is shown. A third optional box, "Another distance", adds a row to the table without changing the prediction. Custom rows show no % of world record (no record is held at that distance). Daniels, Hansons, Run Less, Tinman and Pfitzinger comparisons only have values at their own distances, so those cells read "–"; Same % of WR needs the entered distance to be a standard one. A custom result is not written to the shared profile (it keeps standard distances only).

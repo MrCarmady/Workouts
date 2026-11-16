@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}.sitenav{font-size:.85rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:0}.sitenav a{color:var(--accent);text-decoration:none}.sitenav a:hover{text-decoration:underline}</style>
+<title>1RM and Scheme Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+/* Layout: inputs and e1RM result side by side, scheme table full width below. Track-red accent on white. */
+:root {
+  --bg: #f2f2f1;
+  --surface: #ffffff;
+  --surface-2: #f0f0ee;
+  --fg: #17181a;
+  --muted: #6a6d72;
+  --line: #deded9;
+  --accent: #c8372d;
+  --accent-fg: #ffffff;
+  --accent-soft: #f6dcd9;
+  --warn: #a35a00;
+  --font-display: "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+    --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416; --surface: #1c1c1f; --surface-2: #25252a; --fg: #ececea; --muted: #9a9ca2;
+  --line: #34343a; --accent: #ef6a5e; --accent-fg: #1a0b09; --accent-soft: #3a1f1c; --warn: #f0a35a; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 40px; display: grid; gap: 20px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 2rem; letter-spacing: .02em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 12px; color: var(--muted); }
+.head > div:first-child { min-width: 0; }
+.head { display: flex; flex-wrap: nowrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.themes { display: inline-grid; place-items: center; flex: none; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); color: var(--muted); cursor: pointer; }
+.themes:hover { color: var(--fg); }
+.themes:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.themes svg { display: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.themes[data-mode="system"] .i-system, .themes[data-mode="light"] .i-light, .themes[data-mode="dark"] .i-dark { display: block; }
+.themes .i-system path { fill: currentColor; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 62ch; }
+.top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 720px) { .top { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 18px; min-width: 0; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.fields .full { grid-column: 1 / -1; }
+label { display: grid; gap: 4px; align-content: start; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+input, select { box-sizing: border-box; height: 2.75rem; font: inherit; font-size: 1.05rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 9px 10px; width: 100%; min-width: 0; font-variant-numeric: tabular-nums; }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+input[type="range"] { height: auto; padding: 0; accent-color: var(--accent); }
+.hint { font-size: .78rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); }
+.result { display: grid; gap: 14px; align-content: start; }
+.big { font-family: var(--font-display); font-weight: 700; font-size: 4rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.big small { font-size: 1.4rem; font-weight: 600; color: var(--muted); margin-left: 4px; }
+.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+.kv div { background: var(--surface-2); border-radius: 2px; padding: 8px 10px; }
+.kv b { display: block; font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kv span { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.note { font-size: .85rem; color: var(--muted); margin: 0; }
+.warn { color: var(--warn); font-size: .88rem; margin: 0; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 420px; font-variant-numeric: tabular-nums; }
+.wrap > * { min-width: 0; }
+th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-family: var(--font-display); font-size: .85rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); }
+tr:last-child td { border-bottom: 0; }
+td.scheme { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+td.kg { font-weight: 600; color: var(--accent); }
+.tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 14px; }
+[hidden] { display: none !important; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; }
+.seg button { font: inherit; font-size: .95rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 10px 8px; border: 0; background: var(--bg); color: var(--muted); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.method { font-size: .88rem; color: var(--muted); display: grid; gap: 6px; }
+.method p { margin: 0; }
+@media (max-width: 560px) { table { min-width: 0; } th, td { padding: 9px 8px; white-space: normal; } th { letter-spacing: .03em; font-size: .72rem; vertical-align: bottom; } }
+</style>
+
+<main class="wrap">
+  <p class="sitenav"><a href="tools.html">&larr; All tools</a></p>
+  <header class="head">
+    <div>    <h1>1RM and Scheme Calculator</h1>
+    <p class="sub" id="modesub">Enter one set. Get an estimated 1RM and the weights for common set and rep schemes.</p>
+  </div>
+    <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
+      <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
+      <svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </header>
+
+  <section class="top">
+    <div class="panel">
+      <h2 id="panelh">Your set</h2>
+      <div class="fields">
+        <div class="full seg" role="group" aria-label="What to enter">
+          <button type="button" id="modeset" aria-pressed="true">One set</button>
+          <button type="button" id="modeses" aria-pressed="false">Whole session</button>
+        </div>
+        <label class="full">Lift
+          <select id="lift">
+            <option value="bench">Bench press</option>
+            <option value="squat">Squat</option>
+            <option value="deadlift">Deadlift</option>
+            <option value="ohp">Overhead press</option>
+            <option value="row">Barbell row</option>
+            <option value="pullup">Pull-up (weighted)</option>
+            <option value="dip">Dip (weighted)</option>
+            <option value="incdb">Incline dumbbell bench</option>
+            <option value="bss">Bulgarian split squat</option>
+          </select>
+        </label>
+        <label>Bodyweight (kg)
+          <input id="bw" type="number" inputmode="decimal" min="30" max="250" step="0.1" value="76">
+        </label>
+        <label><span id="wlabel">Weight lifted (kg)</span>
+          <input id="w" type="number" inputmode="decimal" min="0" max="500" step="0.5" value="60">
+        </label>
+        <label><span id="replabel">Reps completed</span>
+          <input id="reps" type="number" inputmode="numeric" min="1" max="30" step="1" value="5">
+        </label>
+        <label>Reps in reserve <span id="rirsuffix"></span>
+          <input id="rir" type="number" inputmode="decimal" min="0" max="5" step="0.5" value="0">
+        </label>
+        <label id="setswrap" hidden>Sets done
+          <input id="sets" type="number" inputmode="numeric" min="1" max="10" step="1" value="1">
+        </label>
+        <label id="sesrestwrap" hidden>Rest between sets
+          <select id="sesrest">
+            <option value="1.25">1 min</option>
+            <option value="1.1">2 min</option>
+            <option value="1" selected>3 min or more</option>
+          </select>
+        </label>
+      </div>
+      <p class="note" id="inputnote" style="margin-top:12px">Values shown are an example.</p>
+    </div>
+
+    <div class="panel result" aria-live="polite">
+      <h2>Estimated 1RM</h2>
+      <div class="big"><span id="e1">-</span><small>kg</small></div>
+      <div class="kv">
+        <div><b id="range">-</b><span>Brzycki to Epley</span></div>
+        <div><b id="ratio">-</b><span id="ratiolabel">× bodyweight</span></div>
+      </div>
+      <p class="warn" id="warn" hidden></p>
+      <p class="note" id="sesnote" hidden></p>
+      <p class="note" id="bwnote" hidden></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Weights by scheme</h2>
+    <div class="tools">
+      <label>Last-set effort
+        <select id="rirtarget">
+          <option value="0">0–1 RIR (near failure)</option>
+          <option value="1" selected>1–2 RIR</option>
+          <option value="2">2–3 RIR</option>
+        </select>
+      </label>
+      <label>Round to
+        <select id="step">
+          <option value="1">1 kg</option>
+          <option value="2">2 kg</option>
+          <option value="2.5" selected>2.5 kg</option>
+          <option value="5">5 kg</option>
+        </select>
+      </label>
+      <label>Rest between sets
+        <select id="rest">
+          <option value="auto" selected>By rep range</option>
+          <option value="1.25">1 min</option>
+          <option value="1.1">2 min</option>
+          <option value="1">3 min</option>
+        </select>
+      </label>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Scheme</th><th>% of 1RM</th><th id="kghead">Weight (kg)</th><th>Set 1 RIR</th><th>Rest</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Single-set rep maxes</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Reps to failure</th><th>% of 1RM</th><th id="kghead2">Weight (kg)</th></tr></thead>
+        <tbody id="rms"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Warm-up</h2>
+    <div class="tools">
+      <label>Top set
+        <select id="wutop">
+          <option value="1">1RM</option>
+          <option value="3" selected>3RM</option>
+          <option value="5">5RM</option>
+          <option value="8">8RM</option>
+          <option value="c">My own weight</option>
+        </select>
+      </label>
+      <label id="wucwrap" hidden><span id="wuclabel">Top set weight (kg)</span>
+        <input id="wuc" type="number" inputmode="decimal" min="0" max="1000" step="0.5" value="">
+      </label>
+      <label id="wudlwrap" hidden>Starting weight (kg)
+        <input id="wudl" type="number" inputmode="decimal" min="0" max="150" step="2.5" value="50">
+      </label>
+      <label id="wubarwrap">Bar weight (kg)
+        <input id="wubar" type="number" inputmode="decimal" min="0" max="50" step="0.5" value="20">
+      </label>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Set</th><th>% of top set</th><th id="kghead3">Weight (kg)</th><th>Reps</th></tr></thead>
+        <tbody id="wurows"></tbody>
+      </table>
+    </div>
+    <p class="note" id="wunote" style="margin-top:12px"></p>
+  </section>
+
+  <section class="method">
+    <h2>How this is calculated</h2>
+    <p>The 1RM uses the average of the Brzycki and Epley formulas, applied to reps completed plus reps left in tank. Brzycki: weight × 36 / (37 − reps). Epley: weight × (1 + reps / 30), set to exactly 1 for a single and blended in by 2 reps. Both get less reliable above about 10 reps.</p>
+    <p>Weights come from a fatigue model. The last set is set to your chosen RIR, and each earlier set costs a fixed number of reps of capacity at 3 min rest (0.75 for sets of 3, 1 for sets of 5–6, 1.2 for 8, 1.35–1.6 for 10–12). Shorter rest scales that loss: 1.25× at 1 min, 1.1× at 2 min. "By rep range" assumes 3 min for sets of 3–5, 2 min for 6–8 and 1 min for 10–12. Set 1's fresh capacity is converted back to % of 1RM with the same two formulas.</p>
+    <p>Entering a session works backwards from the same model. The reps lost over the earlier sets (fatigue per set × rest multiplier × (sets − 1)) are added to reps and reps in reserve to give the reps the first set could have reached, and the 1RM comes from that. For sets of other lengths the fatigue per set is read in a straight line between the scheme values (a choice made here). A session gives a less certain 1RM than a fresh single set, so the page shows how it moves if the loss per set is 25% lower or higher. Sets must all use the same weight and reps.</p>
+    <p>Warm-up: the top set is the weight for the chosen rep max (from the 1RM above) or one you enter. Sets are 10 reps with the bar (or bodyweight; for the deadlift a starting weight of 50 kg by default, since the bar alone is too light, set to whatever bumper plates you load), then 50% × 5, 70% × 3 and 85% × 2 of the top set, rounded to your step. For dumbbell lifts the first set is instead 50% of the top set for 10 reps, then 70% × 3 and 85% × 2 (no near-empty set; split squat keeps bodyweight). A set that rounds to the same weight as the one before it, or to the top set, is dropped. For weighted pull-ups and dips the percentages apply to total load (bodyweight plus added weight), the first set is 5 bodyweight reps, and a step that falls at or below bodyweight is dropped, so a light top set gets only one bodyweight set before it. For dumbbell and split-squat lifts they apply per hand. This ladder is a common convention, not from research, and the reps and percentages are not adjustable.</p>
+    <p>Calibrate the fatigue and rest values against your own logs. Squat, deadlift and Bulgarian split squat use 1.15× the fatigue.</p>
+  </section>
+  <p class="sitenav"><a href="methods/lift-scheme-calculator.html">How it works &rarr;</a></p>
+</main>
+
+<script>
+(function () {
+  var LIFTS = {
+    bench: { bw: false, lower: false }, squat: { bw: false, lower: true }, deadlift: { bw: false, lower: true },
+    ohp: { bw: false, lower: false }, row: { bw: false, lower: false },
+    pullup: { bw: true, lower: false }, dip: { bw: true, lower: false },
+    incdb: { bw: false, lower: false, hand: true }, bss: { bw: false, lower: true, hand: true }
+  };
+  // sets, reps, fatigue (reps of capacity lost per set at 3 min rest)
+  // Example sets (weight or added weight, reps) so each lift opens with a realistic starting point.
+  var EXAMPLES = {
+    bench: [60, 5], squat: [80, 5], deadlift: [100, 5], ohp: [40, 5], row: [60, 8], pullup: [10, 5], dip: [15, 6], incdb: [24, 8], bss: [20, 8]
+  };
+  var touched = false, mode = "set";
+  function setMode(m) {
+    mode = m;
+    $("modeset").setAttribute("aria-pressed", m === "set" ? "true" : "false");
+    $("modeses").setAttribute("aria-pressed", m === "ses" ? "true" : "false");
+    if (m === "ses" && (num("sets") || 1) < 2) $("sets").value = 3;
+    $("setswrap").hidden = m !== "ses";
+    $("panelh").textContent = m === "ses" ? "Your session" : "Your set";
+    $("replabel").textContent = m === "ses" ? "Reps per set" : "Reps completed";
+    $("modesub").textContent = m === "ses" ? "Enter a session of identical sets (same weight and reps). Get an estimated 1RM, then weights for common set and rep schemes." : "Enter one set. Get an estimated 1RM and the weights for common set and rep schemes.";
+    $("inputnote").textContent = m === "ses"
+      ? "All sets must use the same weight and reps. Reps in reserve is for the last set. Values shown are an example."
+      : "Values shown are an example.";
+  }
+  function loadExample() {
+    var e = EXAMPLES[$("lift").value];
+    if (!e) return;
+    $("w").value = e[0]; $("reps").value = e[1]; $("rir").value = 0;
+  }
+  var SCHEMES = [
+    [3, 3, 0.75], [5, 3, 0.75], [3, 5, 1], [5, 5, 1],
+    [3, 6, 1], [4, 6, 1], [3, 8, 1.2], [2, 10, 1.35],
+    [3, 10, 1.6], [3, 12, 1.6]
+  ];
+  var RMS = [1, 3, 5, 8, 10, 12];
+  // Reps of capacity lost per set at 3 min rest, for a session entered as sets x reps. Read from the scheme values above,
+  // joined in a straight line (my choice): 3 -> 0.75, 5 and 6 -> 1.0, 8 -> 1.2, 10 -> 1.5, 12 -> 1.6.
+  var FPTS = [[3, 0.75], [5, 1], [6, 1], [8, 1.2], [10, 1.5], [12, 1.6]];
+  function baseFatigue(r) {
+    if (r <= FPTS[0][0]) return FPTS[0][1];
+    for (var i = 1; i < FPTS.length; i++) if (r <= FPTS[i][0]) return FPTS[i - 1][1] + (r - FPTS[i - 1][0]) / (FPTS[i][0] - FPTS[i - 1][0]) * (FPTS[i][1] - FPTS[i - 1][1]);
+    return FPTS[FPTS.length - 1][1];
+  }
+
+  function brz(n) { return (37 - n) / 36; }
+  function epl(n) {                                       // raw Epley gives 0.968 at 1 rep, so a true single is pinned to 1 and blended into the formula by 2 reps
+    var raw = function (m) { return 1 / (1 + m / 30); };
+    if (n <= 1) return 1;
+    if (n < 2) return 1 + (raw(2) - 1) * (n - 1);
+    return raw(n);
+  }
+  function pct(n) { return (brz(n) + epl(n)) / 2; }
+
+  var $ = function (id) { return document.getElementById(id); };
+  function num(id) { var v = parseFloat($(id).value); return isNaN(v) ? null : v; }
+  function fmt(x, d) { return (Math.round(x * Math.pow(10, d)) / Math.pow(10, d)).toString(); }
+  function snap(x, step) { return Math.round(x / step) * step; }
+  function fmtKg(x) { return fmt(x, 2); }
+  function warmup(cfg, key, e1, bw, step) {
+    var wk = $("wutop").value, note = "", rows = "";
+    $("wucwrap").hidden = wk !== "c";
+    var isDL = key === "deadlift";
+    $("wubarwrap").hidden = !!(cfg.bw || cfg.hand || isDL);
+    $("wudlwrap").hidden = !isDL;
+    $("wuclabel").textContent = cfg.bw ? "Top set added weight (kg)" : (cfg.hand ? "Top set weight per hand (kg)" : "Top set weight (kg)");
+    $("kghead3").textContent = cfg.bw ? "Added weight (kg)" : (cfg.hand ? "Weight per hand (kg)" : "Weight (kg)");
+    var top;
+    if (wk === "c") {
+      top = num("wuc");
+      if (top === null || top < 0 || top > 1000) { $("wunote").textContent = "Enter the weight of your top set."; return; }
+    } else {
+      top = e1 * pct(parseInt(wk, 10)); if (cfg.bw) top -= bw;
+    }
+    top = snap(top, step);
+    var bar = num("wubar"); if (bar === null || bar < 0 || bar > 50) bar = 20;
+    if (isDL) { bar = num("wudl"); if (bar === null || bar < 0 || bar > 150) bar = 50; }
+    var show = function (w) { return cfg.bw ? (w <= 0 ? "BW" : "+" + fmtKg(w)) : fmtKg(w); };
+    var first, firstW = 0, firstReps = 10, firstTxt = null;
+    if (cfg.bw) { first = "Bodyweight"; firstReps = 5; }
+    else if (cfg.hand && key === "bss") { first = "Bodyweight, per leg"; firstTxt = "BW"; firstReps = 8; }
+    else if (cfg.hand) { first = "Set 1"; firstW = snap(top * 0.5, step); }   // dumbbell lifts: 50% x 10 first, no near-zero set (P, 2026-10-29)
+    else { first = isDL ? "Light pull" : "Bar"; firstW = bar; }
+    if (top <= firstW) {
+      $("wunote").textContent = cfg.bw ? "The top set is bodyweight or assisted, so there is no added-weight ladder. A few easier reps are enough." : (isDL ? "The top set is at or below the starting weight, so no ladder is needed." : "The top set is at or below the bar, so no ladder is needed.");
+      return;
+    }
+    var list = [[first, firstTxt !== null ? firstTxt : show(firstW), firstReps, firstW > 0 ? Math.round(firstW / top * 100) + "%" : "-"]], prev = firstW, dropped = false;
+    (cfg.hand && key !== "bss" ? [[0.7, 3], [0.85, 2]] : [[0.5, 5], [0.7, 3], [0.85, 2]]).forEach(function (st) {
+      var w = cfg.bw ? snap((bw + top) * st[0], step) - bw : snap(top * st[0], step);
+      if (w <= prev || w >= top) { dropped = true; return; }
+      list.push(["Set " + (list.length + 1), show(w), st[1], Math.round(st[0] * 100) + "%"]); prev = w;
+    });
+    list.forEach(function (r) {
+      rows += "<tr><td class='scheme'>" + r[0] + "</td><td>" + r[3] + "</td><td class='kg'>" + r[1] + "</td><td>" + r[2] + "</td></tr>";
+    });
+    rows += "<tr><td class='scheme'>Top set</td><td>100%</td><td class='kg'>" + show(top) + "</td><td>" + (wk === "c" ? "your reps" : wk) + "</td></tr>";
+    $("wurows").innerHTML = rows;
+    note = "A common convention, not from research. Rest 5 minutes or more before a rep-max set." + (dropped ? " Some steps were dropped because they round to the same weight as the set before." : "");
+    $("wunote").textContent = note;
+  }
+
+  function save() {
+    try {
+      localStorage.setItem("lsc", JSON.stringify({ lift: $("lift").value, bw: $("bw").value, step: $("step").value, bar: $("wubar").value, dl: $("wudl").value }));
+    } catch (e) {}
+  }
+  function restore() {
+    try {
+      var s = JSON.parse(localStorage.getItem("lsc") || "null");
+      if (s) { if (LIFTS[s.lift]) $("lift").value = s.lift; if (s.bw) $("bw").value = s.bw; if (s.bar) $("wubar").value = s.bar; if (s.dl) $("wudl").value = s.dl; if (s.step && $("step").querySelector('option[value="' + s.step + '"]')) $("step").value = s.step; }
+    } catch (e) {}
+  }
+
+  function showWeight(load, cfg, bw, step) {
+    // load = total kg. For bodyweight lifts show the added weight.
+    if (!cfg.bw) return fmtKg(snap(load, step));
+    var added = snap(load - bw, step);
+    if (added < 0) return "−" + fmtKg(-added) + " assist";
+    if (added === 0) return "BW";
+    return "+" + fmtKg(added);
+  }
+  function showRange(lo, hi, cfg, bw, step) {
+    var a = showWeight(lo, cfg, bw, step), b = showWeight(hi, cfg, bw, step);
+    return a === b ? a : a + " to " + b;
+  }
+
+  function update() {
+    var key = $("lift").value, cfg = LIFTS[key];
+    $("wurows").innerHTML = ""; $("wunote").textContent = "";
+    var bw = num("bw"), w = num("w"), reps = num("reps"), rir = num("rir") || 0, sets = mode === "ses" ? Math.round(num("sets") || 1) : 1;
+    $("sesrestwrap").hidden = mode !== "ses";
+    
+    $("sesnote").hidden = true;
+    var step = parseFloat($("step").value);
+    var restSel = $("rest").value;
+    $("wlabel").textContent = cfg.bw ? "Added weight (kg)" : (cfg.hand ? "Weight per hand (kg)" : "Weight lifted (kg)");
+    $("kghead").textContent = cfg.bw ? "Added weight (kg)" : (cfg.hand ? "Weight per hand (kg)" : "Weight (kg)");
+    $("kghead2").textContent = cfg.bw ? "Added weight (kg)" : (cfg.hand ? "Weight per hand (kg)" : "Weight (kg)");
+    $("ratiolabel").textContent = cfg.bw ? "× bodyweight (total load)" : (cfg.hand ? "× bodyweight (per hand)" : "× bodyweight");
+    $("bwnote").hidden = !(cfg.bw || cfg.hand);
+    if (cfg.bw) $("bwnote").textContent = "Total load = bodyweight + added weight. Table weights show added weight only.";
+    if (cfg.hand) $("bwnote").textContent = "Weights are for one dumbbell, not the pair.";
+
+    var rangeMsg = (bw && (bw < 30 || bw > 250)) ? "Bodyweight should be between 30 and 250 kg." : (w !== null && w > 1000) ? "Weight should be 1000 kg or less." : (reps && reps > 30) ? "Reps should be 30 or fewer." : (rir < 0 || rir > 10) ? "Reps in reserve should be 0 to 10." : null;
+    var ok = !rangeMsg && bw && bw > 0 && w !== null && w >= 0 && reps && reps >= 1 && sets >= 1 && sets <= 10;
+    var load = ok ? (cfg.bw ? bw + w : w) : null;
+    var warn = $("warn");
+    warn.hidden = true;
+    if (!ok || load <= 0) {
+      ["e1", "range", "ratio"].forEach(function (i) { $(i).textContent = "-"; });
+      $("rows").innerHTML = ""; $("rms").innerHTML = "";
+      warn.hidden = false; warn.textContent = rangeMsg || "Enter bodyweight, weight and reps to see results.";
+      return;
+    }
+    var lowerM = cfg.lower ? 1.15 : 1;
+    var fS = sets > 1 ? baseFatigue(reps) * parseFloat($("sesrest").value) * lowerM : 0;
+    var lost = fS * (sets - 1);                            // reps of capacity lost before the last set (model estimate)
+    var n = reps + rir + lost;                             // reps the first set could have reached
+    if (n >= 36) { warn.hidden = false; warn.textContent = "Rep count is too high for these formulas. Use a set of 12 or fewer."; return; }
+    var e1 = load / pct(n);
+    var a = load / brz(n), b = load / epl(n);
+    $("e1").textContent = fmt(e1, 1);
+    var lo = fmt(Math.min(a, b), 1), hi = fmt(Math.max(a, b), 1);
+    $("range").textContent = lo === hi ? lo : lo + "–" + hi;
+    $("ratio").textContent = fmt(e1 / bw, 2) + "×";
+    if (sets > 1) {
+      var nLo = reps + rir + lost * 0.75, nHi = reps + rir + lost * 1.25;
+      var eLo = load / pct(nLo), eHi = load / pct(nHi);
+      $("sesnote").hidden = false;
+      var rp = function (t) { return t === "1" ? " rep" : " reps"; };
+      $("sesnote").textContent = "Model estimate: each set costs about " + fmt(fS, 2) + rp(fmt(fS, 2)) + " on the next, so by your last set you had lost about " + fmt(lost, 1) + rp(fmt(lost, 1)) + ". Fresh, you could have done about " + fmt(n, 1) + " reps to failure. If the real loss is 25% lower or higher, the 1RM is " + fmt(eLo, 1) + " to " + fmt(eHi, 1) + " kg.";
+    }
+    if (n > 10) { warn.hidden = false; warn.textContent = "Above about 10 reps the estimate gets less reliable. A heavier set of 3–6 reps gives a better 1RM."; }
+
+    var rirLow = parseFloat($("rirtarget").value);
+    var lowerMult = cfg.lower ? 1.15 : 1;
+    var html = "";
+    SCHEMES.forEach(function (s) {
+      var sets = s[0], r = s[1];
+      var scale = restSel === "auto" ? (r <= 5 ? 1 : (r <= 8 ? 1.1 : 1.25)) : parseFloat(restSel);
+      var restTxt = scale === 1 ? "3 min" : (scale === 1.1 ? "2 min" : "1 min");
+      var f = s[2] * scale * lowerMult, extra = f * (sets - 1);
+      var capLo = r + rirLow + extra, capHi = r + rirLow + 1 + extra; // fresh capacity at each end
+      var pHi = pct(capLo), pLo = pct(capHi);                          // fewer reps in reserve = heavier
+      var wLo = e1 * pLo, wHi = e1 * pHi;
+      var r1 = Math.round(rirLow + extra), r2 = Math.round(rirLow + 1 + extra);
+      html += "<tr><td class='scheme'>" + sets + "×" + r + "</td><td>" +
+        Math.round(pLo * 100) + "–" + Math.round(pHi * 100) + "%</td><td class='kg'>" +
+        showRange(wLo, wHi, cfg, bw, step) + "</td><td>" + (r1 === r2 ? r1 : r1 + "–" + r2) + "</td><td>" + restTxt + "</td></tr>";
+    });
+    $("rows").innerHTML = html;
+
+    var h2 = "";
+    RMS.forEach(function (k) {
+      var p = pct(k);
+      h2 += "<tr><td class='scheme'>" + k + "RM</td><td>" + Math.round(p * 100) + "%</td><td class='kg'>" +
+        showWeight(e1 * p, cfg, bw, step) + "</td></tr>";
+    });
+    $("rms").innerHTML = h2;
+    warmup(cfg, key, e1, bw, step);
+  }
+
+  restore();
+  loadExample();
+  $("modeset").addEventListener("click", function () { setMode("set"); update(); });
+  $("modeses").addEventListener("click", function () { setMode("ses"); update(); });
+  ["w", "reps", "rir", "sets"].forEach(function (id) {
+    $(id).addEventListener("input", function () { touched = true; });
+  });
+  $("lift").addEventListener("change", function () { if (!touched) { loadExample(); update(); } });
+  ["lift", "bw", "w", "reps", "rir", "sets", "sesrest", "rirtarget", "step", "rest", "wutop", "wuc", "wubar", "wudl"].forEach(function (id) {
+    $(id).addEventListener("input", function () { save(); update(); });
+    $(id).addEventListener("change", function () { save(); update(); });
+  });
+  update();
+})();
+
+  (function () {
+  var btn = document.getElementById("themebtn"), order = ["system", "light", "dark"], names = { system: "auto", light: "light", dark: "dark" };
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btn.setAttribute("data-mode", t);
+    btn.setAttribute("aria-label", "Theme: " + names[t] + ". Click to change.");
+    btn.title = "Theme: " + names[t];
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  if (order.indexOf(saved) < 0) saved = "system";
+  apply(saved);
+  btn.addEventListener("click", function () {
+    var t = order[(order.indexOf(btn.getAttribute("data-mode")) + 1) % order.length];
+    apply(t);
+    try { localStorage.setItem("theme-pref", t); } catch (e) {}
+  });
+})();
+</script>

@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marathon Plan Viewer: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head > div:first-child { min-width:0; }
+.head { display:flex; flex-wrap:nowrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+.themes { display: inline-grid; place-items: center; flex: none; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); color: var(--muted); cursor: pointer; }
+.themes:hover { color: var(--fg); }
+.themes:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.themes svg { display: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.themes[data-mode="system"] .i-system, .themes[data-mode="light"] .i-light, .themes[data-mode="dark"] .i-dark { display: block; }
+.themes .i-system path { fill: currentColor; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../tools.html">All tools</a><a href="../marathon-plans.html">Open Marathon Plan Viewer</a></nav>
+    <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
+      <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
+      <svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </header>
+  <article class="doc">
+<h1>Marathon Plan Viewer: methodology</h1>
+<p>One page, four authors. Choose the author, then the plan. The race, time, units and starting CTL are shared. Load (TSS, CTL, ATL, ramp) is calculated the same way for all authors; each section below covers what is specific to that author.</p>
+<p>The marathon itself is scored with the same formula at the plan's marathon pace (about 255 to 265 TSS for an 18:45 5km). It is added to the final week's TSS, time and distance. CTL, ATL and ramp for that week are for the morning of the race, so form on race morning is visible; the page notes what CTL and ATL would be after the marathon.</p>
+<hr />
+<h2>Copeland Marathon Plan</h2>
+<p>In the weekly table, sub-threshold sessions are named by rep length in minutes (for example 3 x 12 min), matching the pace cards; the rep distance in metres is kept in the day detail.</p>
+<p>Lays out the 15-week Copeland marathon add-on ("My Marathon Build") from a race result, with paces, recoveries and load. The weekly layout was transcribed from the book's table.</p>
+<h3>Plan</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Weekly sessions, weeks 1 to 15</td>
+<td>As printed in the book</td>
+</tr>
+<tr>
+<td>Week 14 Thursday</td>
+<td>Printed as a different session; read as 8 x 1000m, as confirmed by the author</td>
+</tr>
+<tr>
+<td>Week 14 Tuesday</td>
+<td>3 x 27.5 min progressive at 92%, 93% and 100% of marathon speed, as given</td>
+</tr>
+<tr>
+<td>Distance-based easy runs ("8 km E")</td>
+<td>Converted to time at the easy pace</td>
+</tr>
+</tbody>
+</table>
+<h3>Paces</h3>
+<table>
+<thead>
+<tr>
+<th>Rep</th>
+<th>Time</th>
+<th>Pace</th>
+<th>Recovery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1000m</td>
+<td>3 min</td>
+<td>60-min race</td>
+<td>60 s</td>
+</tr>
+<tr>
+<td>1600m</td>
+<td>6 min</td>
+<td>90-min race</td>
+<td>75 s</td>
+</tr>
+<tr>
+<td>2000m</td>
+<td>8 min</td>
+<td>120-min race</td>
+<td>90 s</td>
+</tr>
+<tr>
+<td>3000m</td>
+<td>10 min</td>
+<td>150-min race</td>
+<td>90 s</td>
+</tr>
+<tr>
+<td>3200m</td>
+<td>12 min</td>
+<td>180-min race</td>
+<td>120 s</td>
+</tr>
+<tr>
+<td>5000m</td>
+<td>15 to 18 min (default 16.5)</td>
+<td>marathon pace, 1.5% faster</td>
+<td>180 s</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Rep pace is the pace of a race lasting that many minutes (see Copeland Base for the fit to the book's table; the 120 and 180 min anchors are my extension). Reps are set by time at current fitness, with the book's rep counts. The 2000m pace is slightly slower than half marathon pace, by the author's choice.</li>
+<li>Marathon pace: the Race Prediction Calculator's marathon, assuming 70 miles a week.</li>
+<li>Easy and long runs: an Easy pace basis switch (added 2026-10-29, default as written) picks the pace. As written: 74% of 5km speed (the middle of the range the author quoted for an 18:52 5km, 4:52 to 5:22 per km; one point, Daniels' table not seen), a cap. "My easy pace setting": the easy percentage (50 to 85, default 65) is used instead.</li>
+<li>Warm-up and cooldown: 10 min each at the easy pace. 5km and 10km races use a 20 min warm-up (easy, 2 x 2 min at half marathon pace, 4 strides of 17 s at mile pace).</li>
+</ul>
+<h3>Load</h3>
+<ul>
+<li>Recoveries are walked at 6 km/h (100 m per minute). They count for time, TSS and distance.</li>
+<li>TSS per segment = hours x (threshold pace / pace)^2 x 100, threshold = race(16).</li>
+<li>Races are scored at race pace. The marathon on the last Sunday is scored at marathon pace and its time, distance and TSS are included in week 15's totals.</li>
+<li>CTL has a 42-day and ATL a 7-day time constant. Starting CTL is entered, or estimated as week 1's TSS divided by 7. The plan has no ramp-in, so the estimate is high; enter your own CTL to see the real ramp and form.</li>
+</ul>
+<h3>Limits</h3>
+<ul>
+<li>Only the marathon add-on is built, not the base NSA weeks.</li>
+<li>The page recalculates only from the inputs you enter.</li>
+</ul>
+<hr />
+<h2>Daniels 2Q Plans (2QA to 2QD)</h2>
+<p>Lays out the 18-week 2QA plan from a race result. Two quality sessions a week (Q1, Q2), the rest easy. The week-by-week sessions and fractions of peak are as given by the author, not checked against the book.</p>
+<h3>Plan</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Session contents and fraction of peak for weeks 1 to 17, and the day-by-day race week</td>
+<td>As given by the author</td>
+</tr>
+<tr>
+<td>Long runs count as quality sessions and are run at easy pace</td>
+<td>Author's rule</td>
+</tr>
+<tr>
+<td>Numbers before E, M and T are miles</td>
+<td>Daniels' notation</td>
+</tr>
+<tr>
+<td>I and R reps are timed; distance follows from pace</td>
+<td>Daniels' notation</td>
+</tr>
+<tr>
+<td>Jogs and easy segments count towards distance; standing rests do not</td>
+<td>My choice</td>
+</tr>
+<tr>
+<td>Run days 5 to 7, so 3 to 5 easy days</td>
+<td>Author's rule</td>
+</tr>
+</tbody>
+</table>
+<h3>Paces</h3>
+<ul>
+<li>Easy: 70% of 5km speed as written (his Table 2.3, a ceiling; checked in 11 rows, 15:20 to 30:00 5km), or the easy percentage (default 65, input 50 to 85) when the Easy pace basis is set to "My easy pace setting". The pace is an upper limit on speed, so running slower is fine.</li>
+<li>Copeland add-on: the sub-threshold buffer (percent slower, default 0, up to 10) slows the 3 to 12 minute rep paces. The 5km reps and race paces are not changed.</li>
+<li>Marathon: plain Riegel prediction (exponent 1.06), with no extra slowdown for weekly distance. The Race Prediction Calculator's marathon pace is slower.</li>
+<li>Threshold: race(17).</li>
+<li>Intervals: race(4).</li>
+<li>Repetition: race(1.7).</li>
+</ul>
+<p>The short-race slowdown is the one in the Race Prediction Calculator.</p>
+<h3>Plans B and C</h3>
+<ul>
+<li>2QA is the up-to-40-miles table, 2QB the 41 to 55 miles table, 2QC the 56 to 70 miles table and 2QD the 71 to 85 miles table. You enter your own peak distance for all three, so the label only picks the sessions.</li>
+<li>Weeks 18 to 2 until the race are transcribed from the book's tables as given by the author; race week is by day, as for 2QA. 2QD is the 71 to 85 miles table. The 86 to 100 table is not built.</li>
+<li>New shorthand: "lesser 17 mi/120 min E" is a steady run of the shorter of the two at the easy pace; reps of 1 km I, 400m R and 200m R are run at I and R pace, with jogs by time or by distance (400m, 200m) at the easy pace.</li>
+<li>2QC week 8 Q1 gives two options (2E+2T+60 min E+2T+2E or 60 min E+8M+1E); the first is built.</li>
+<li>2QD weeks 14 and 8 give two options for one session (week 14 Q2: 8E+8x(1 km I) or 8E+5x(1 mile I w/ 4 min jog); week 8 Q1: 1E+3T+10E+3T+1E or 4E+13M+1E); the first is built. Steady runs given as a distance (for example 20 miles) are run at that distance at your easy pace.</li>
+<li>2QB week 11 Q1 (10E+2x(2T)+2E) adds to 16 miles against 15 printed; built as written.</li>
+<li>The book's "miles for Q sessions" column is not used. Timed segments are converted to distance at your own easy pace, and the easy days share what is left of the week's total.</li>
+</ul>
+<h3>Weekly distance</h3>
+<p>Weekly total = peak weekly distance × the week's fraction of peak. Easy days share what remains after Q1 and Q2 equally. If the quality sessions alone exceed the total, the total is raised to match and a note states this. Week 18 has no fraction; it is listed by day, counting down to the race, and easy days there are by time.</p>
+<h3>Slower runners</h3>
+<p>Daniels: 5 to 6 min of threshold counts as 1 mile, 10 to 15 min as 2 miles, 16 to 20 min as 3 miles. With the option on, a threshold segment of 1, 2 or 3 miles is cut to 6, 15 or 20 min if the runner's pace would take longer. Segments of other lengths, and the 800m reps in race week, are not changed. Shortened segments are starred.</p>
+<h3>Load</h3>
+<ul>
+<li>TSS per segment = hours × (threshold pace ÷ pace)² × 100, the same as the Run TSS Calculator. Threshold is race(16). Standing rests score 0. Jogs between reps count at easy pace.</li>
+<li>CTL uses a 42-day and ATL a 7-day time constant. Ramp is the change in CTL over the week.</li>
+<li>Q2 is on Wednesday, Q1 on Sunday, easy days fill the other run days, and rest days come first in the week. This is my placeholder; the order affects ATL slightly.</li>
+<li>Steady runs given as a range use the midpoint for TSS.</li>
+<li>Starting CTL is entered, or estimated as week 1's TSS divided by 7.</li>
+<li>Week 18 covers the seven days before the race. The marathon is scored and added to the week's TSS, time and distance; CTL and ATL stay at race morning.</li>
+</ul>
+<h3>Limits</h3>
+<ul>
+<li>Only the 2QA plan is built. </li>
+<li>Time-based easy runs are converted to distance at the easy cap, so the distance is the shortest likely.</li>
+<li>The page recalculates only from the inputs you enter.</li>
+</ul>
+<hr />
+<h2>Hansons Plans (Beginner and Advanced)</h2>
+<p>Lays out the 18-week Hansons Marathon Method Beginner (Table 4.3) or Advanced (Table 4.4) program from a race result. Distances and weekly totals are the book's, not scaled to your own mileage. The session list was transcribed from the book's table.</p>
+<h3>Plan</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daily sessions and weekly totals, weeks 1 to 18</td>
+<td>As printed in the book</td>
+</tr>
+<tr>
+<td>Weekly totals include a 1.5-mile warm-up and cooldown on speed, strength and tempo days</td>
+<td>As stated in the book</td>
+</tr>
+<tr>
+<td>Tuesdays are speed work in weeks 2 to 10 and strength work in weeks 11 to 17</td>
+<td>As given by the author</td>
+</tr>
+<tr>
+<td>Thursday tempo runs are at marathon pace</td>
+<td>Hansons' rule, confirmed by the author</td>
+</tr>
+<tr>
+<td>Strength is 10 s per mile faster than marathon pace</td>
+<td>Hansons' rule, confirmed by the author</td>
+</tr>
+<tr>
+<td>Speed reps run at 5km pace</td>
+<td>Author's reading of the book's pace chart; the book's rep paces vary by about 2 s per 400m depending on rep length, which the page ignores</td>
+</tr>
+<tr>
+<td>Easy running follows Table 3.5 (Training Paces, audiobook supplement p. 33), looked up by the predicted marathon time</td>
+<td>Book's table; the author's rule is that the plan is modelled as written, so the load assumes the printed paces and the easy percentage does not apply</td>
+</tr>
+<tr>
+<td>Easy Aerobic A on easy days, warm-ups, cooldowns and rep recoveries; Easy Aerobic B on Saturdays; the Moderate Aerobic/Long Run column on long runs</td>
+<td>Saturday is the book's (Table 3.1: "the faster end of your easy pace range"). The supplement says warm-ups and recovery jogs are easy running; matching the other days and the long run to columns is my reading, because the supplement does not say which column goes with which day</td>
+</tr>
+<tr>
+<td>The Recovery column is not used</td>
+<td>Table 3.1 says Monday and Friday should be "treated carefully and sensibly" but gives no pace; the page does not slow them</td>
+</tr>
+</tbody>
+</table>
+<h3>Paces</h3>
+<ul>
+<li>Marathon pace: the Race Prediction Calculator's marathon, assuming 70 miles a week (2.10 × half marathon). There is no goal-time input: every session is set from current fitness, so tempo and strength cannot come out faster than speed work. The book quotes 3:00:21 for an 18:30 5km; the page gives 2:58:43 for the same result (3:00:12 before the marathon factor change of 2026-10-15, which makes faster halves faster).</li>
+<li>Tempo: marathon pace. Strength: marathon pace minus 10 s per mile. Speed: race(5).</li>
+<li>Easy, long runs and recoveries: Table 3.5 of the book, rows keyed by goal marathon time. The page uses the predicted marathon time as the goal, interpolates linearly between rows, and uses the nearest row outside 2:10 to 5:00. At a 3:00 goal the table gives Recovery 8:57, Easy A 8:23, Easy B 7:48 and Moderate/Long 7:29 against marathon pace 6:52 (72%, 77% and 81% of 5km speed for A, B and Long; Recovery 67%). The book fixes marathon pace at 88% of its 5km-speed column in every row.</li>
+<li>With the Easy pace basis set to "My easy pace setting" (added 2026-10-29), Easy A and Easy B (and so warm-ups, cooldowns and recoveries) both run at the easy percentage of 5km speed instead of the table; long runs move by the same number of seconds per mile as Easy B (the table's nearest pace, so they stay as far from easy as the book has them; author's call 2026-10-29); tempo, strength and speed are unchanged. When Easy A and B are the same pace the Paces panel shows one "Easy (A and B)" tile.</li>
+<li>A Letsrun quote (unverified) gives the book's rule as easy runs 1 to 2 minutes per mile slower than goal marathon pace (p. 45 of the 2012 edition); at 2:55 the table's Easy B to Recovery columns (7:36 to 8:43) fit that. The audiobook supplement has no pace rule beyond Table 3.5, Table 3.1's notes and the two example runners in Table 4.1 (easy 9:00 and 7:30 per mile).</li>
+<li>The easy percentage input has no effect on Hansons. Slower real running than the table lowers the real load below the page's figure.</li>
+</ul>
+<h3>Load</h3>
+<ul>
+<li>TSS per segment = hours × (threshold pace ÷ pace)² × 100, with threshold as race(16), as in the Run TSS Calculator.</li>
+<li>CTL has a 42-day and ATL a 7-day time constant. Ramp is the change in CTL over the week.</li>
+<li>Daily sessions are as in the book, Monday to Sunday, so day order is not assumed.</li>
+<li>Starting CTL is entered, or estimated as week 1's TSS divided by 7. Because week 1 is only 26 miles, the estimate is low and the first weeks show large ramps.</li>
+<li>The marathon on the last Sunday is scored at marathon pace and added to week 18's TSS.</li>
+</ul>
+<h3>Limits</h3>
+<ul>
+<li>Beginner: weekly totals include a 1-mile warm-up and cooldown (the book's note for that table); the detail then sums to within about a mile of the printed totals. Advanced: 1.5 miles, which is the figure that matches the Advanced totals.</li>
+<li>Beginner marathon pace is the site's prediction at 55 miles a week (the plan peaks at 57); Advanced uses 70. The 55 is the author's choice for this page, not from the book.</li>
+<li>Beginner weeks 1 to 5 are easy running only; speed and tempo start in week 6.</li>
+<li>Easy and long runs are listed by distance, as the book gives them; the time follows from the easy cap.</li>
+<li>The page recalculates only from the inputs you enter.</li>
+</ul>
+<hr />
+<h2>Pfitzinger Marathon Plan</h2>
+<p>Lays out Pfitzinger's 18-week and 12-week "up to 55 miles per week" and "55 to 70 miles per week" marathon plans (18/55, 12/55, 18/70, 12/70) and the "70 to 85 miles per week" plans (18/85, 12/85) from a race result, with paces and load. Sessions were transcribed from the book's tables. The higher-mileage plans are not built.</p>
+<h3>Plan</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daily sessions and distances, both plans</td>
+<td>As printed in the book; not scaled</td>
+</tr>
+<tr>
+<td>Weekly totals</td>
+<td>Checked against the book's printed totals; every week of every plan matches except 12/70 week 7</td>
+</tr>
+<tr>
+<td>12/70 week 7</td>
+<td>The days sum to 62 miles; the book prints 59. The days are used, as agreed with the author</td>
+</tr>
+<tr>
+<td>Tune-up races</td>
+<td>The book gives a range of total miles; the page uses the middle</td>
+</tr>
+<tr>
+<td>Recovery block</td>
+<td>Optional, five weeks, from the book's recovery tables: 15 to 41 miles for the 70 plans, 13 to 35 miles for the 55 plans</td>
+</tr>
+</tbody>
+</table>
+<h3>Paces</h3>
+<table>
+<thead>
+<tr>
+<th>Session</th>
+<th>Pace</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recovery</td>
+<td>60% of 5km speed</td>
+<td>Author's choice</td>
+</tr>
+<tr>
+<td>General aerobic, warm-up, cooldown</td>
+<td>70% of 5km speed</td>
+<td>Author's choice</td>
+</tr>
+<tr>
+<td>With the Easy pace basis set to "My easy pace setting" (added 2026-10-29)</td>
+<td>General aerobic and the warm-ups, cooldowns and jogs that use it run at the easy percentage; recovery is 60% or the setting if lower</td>
+<td>Author's choice</td>
+</tr>
+<tr>
+<td>Medium-long and long runs</td>
+<td>85% of marathon-pace speed (input, 80 to 90%)</td>
+<td>Book's 80 to 90% range, author's reading; applied to medium-long runs as well</td>
+</tr>
+<tr>
+<td>LT</td>
+<td>race(21)</td>
+<td>Author's choice; the book gives 15K to half marathon pace</td>
+</tr>
+<tr>
+<td>5K reps</td>
+<td>race(5)</td>
+<td>Book; jogs of 70% of rep time at recovery pace (book says 50 to 90%)</td>
+</tr>
+<tr>
+<td>Marathon pace</td>
+<td>Race Prediction Calculator at the plan's weekly mileage: 70 for the 70 plans, 55 for the 55 plans (about 11 s per mile slower at 18:45)</td>
+<td>Extends the Hansons and Copeland approach; no goal-time input</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The distance not used by LT, marathon-pace or rep work is split evenly into warm-up and cooldown at general aerobic pace. Rep jogs count towards the day's distance.</li>
+<li>A tune-up race at the chosen distance (8, 10 or 15 km; week 2 capped at 10 km) is scored at race pace, with easy warm-up and cooldown making up the middle of the range.</li>
+<li>Strides and hill sprints are counted as easy running. At 18:45, 8 to 10 strides at mile pace would add roughly 3 to 4 TSS, and 6 hill sprints of 10 s about 1.</li>
+</ul>
+<h3>Display</h3>
+<ul>
+<li>The weekly table lists only key sessions (LT, marathon-pace runs, 5K reps, long runs, races) and any other single run over 1:45, shown with its time. Other runs appear in the week-by-week detail and in the totals.</li>
+</ul>
+<h3>Load</h3>
+<ul>
+<li>TSS per segment = hours x (threshold pace / pace)^2 x 100, threshold = race(16).</li>
+<li>CTL has a 42-day and ATL a 7-day time constant. Starting CTL is entered, or estimated as week 1's TSS divided by 7; the plans have no ramp-in, so the estimate is high.</li>
+<li>The marathon is scored at marathon pace and added to the race week's TSS. With the recovery block added it also feeds CTL and ATL, so that the recovery weeks start from the right load.</li>
+</ul>
+<h3>Limits</h3>
+<ul>
+<li>The page recalculates only from the inputs you enter.</li>
+</ul>
+<h3>Pfitzinger 85-mile plans</h3>
+<ul>
+<li>18/85 and 12/85 are transcribed from the book's tables as given by the author. Marathon pace is the site's prediction at 85 miles a week (the same as at 80 or more). Mondays are recovery runs, with doubles in several weeks; AM medium-long runs with a PM recovery run appear as one day.</li>
+<li>12/85 week 5 (7 to go, a recovery week): the days as printed add to 74 miles, the book prints 70. Built as printed.</li>
+<li>The recovery block for these plans is the book's 85-mile block (16, 31, 36, 42 and 50 miles).</li>
+</ul>
+<h2>Names and links (2026-10-28)</h2>
+<p>Called Marathon Plan Viewer since 2026-10-28 (file name unchanged); the page that checks which plans fit your CTL and ATL is the Marathon Plan Finder. Opening the Viewer with <code>#author.plan</code> (for example <code>#hansons.adv</code>, <code>#pfitzinger.18-70</code>) selects that author and plan.</p>
+  </article>
+</main>
+<script>(function () {
+  var btn = document.getElementById("themebtn"), order = ["system", "light", "dark"], names = { system: "auto", light: "light", dark: "dark" };
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btn.setAttribute("data-mode", t);
+    btn.setAttribute("aria-label", "Theme: " + names[t] + ". Click to change.");
+    btn.title = "Theme: " + names[t];
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  if (order.indexOf(saved) < 0) saved = "system";
+  apply(saved);
+  btn.addEventListener("click", function () {
+    var t = order[(order.indexOf(btn.getAttribute("data-mode")) + 1) % order.length];
+    apply(t);
+    try { localStorage.setItem("theme-pref", t); } catch (e) {}
+  });
+})();</script>

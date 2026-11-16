@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hard Workout Predictor: how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head > div:first-child { min-width:0; }
+.head { display:flex; flex-wrap:nowrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+.themes { display: inline-grid; place-items: center; flex: none; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); color: var(--muted); cursor: pointer; }
+.themes:hover { color: var(--fg); }
+.themes:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.themes svg { display: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.themes[data-mode="system"] .i-system, .themes[data-mode="light"] .i-light, .themes[data-mode="dark"] .i-dark { display: block; }
+.themes .i-system path { fill: currentColor; }
+
+.doc { background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:20px; }
+.doc h1 { font-size:1.6rem; margin-bottom:12px; }
+.doc h2 { margin:24px 0 8px; }
+.doc p, .doc li { max-width:78ch; }
+.doc table { border-collapse:collapse; display:block; overflow-x:auto; max-width:100%; font-variant-numeric:tabular-nums; margin:12px 0; }
+.doc th, .doc td { text-align:left; padding:7px 12px; border:1px solid var(--line); vertical-align:top; }
+.doc th { background:var(--surface-2); font-family:var(--font-display); letter-spacing:.05em; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.doc pre { background:var(--surface-2); padding:12px; overflow-x:auto; border-radius:2px; max-width:100%; }
+.doc code { font-size:.9em; background:var(--surface-2); padding:1px 4px; border-radius:2px; }
+.doc pre code { background:none; padding:0; }
+.crumbs { font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+@media (max-width:560px) { .doc { padding:14px; } }
+</style>
+<main class="wrap">
+  <header class="head">
+    <nav class="crumbs"><a href="../tools.html">All tools</a><a href="../hard-workout-predictor.html">Open Hard Workout Predictor</a></nav>
+    <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
+      <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
+      <svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </header>
+  <article class="doc">
+<h1>Hard Workout Predictor: methodology</h1>
+<p>Predicts a race from a hard interval session. It is a prototype. The anchors are the author's, from experience, not from a published source.</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400m, 60s rest: mile pace (8–10 reps)</td>
+<td>Author's anchor</td>
+</tr>
+<tr>
+<td>600m, 75s rest: 2k pace</td>
+<td>My midpoint between mile and 3k pace, to be confirmed</td>
+</tr>
+<tr>
+<td>800m, 90s rest: 3k pace</td>
+<td>Author's anchor</td>
+</tr>
+<tr>
+<td>1000m, 60s rest: 5k pace</td>
+<td>Author's anchor</td>
+</tr>
+<tr>
+<td>1200m, 90s rest: 5k pace</td>
+<td>My placeholder</td>
+</tr>
+<tr>
+<td>1600m, 2 min rest: 8k pace (4×1600m is a solid 8k predictor)</td>
+<td>Author's anchor</td>
+</tr>
+<tr>
+<td>2000m, 2 min rest: 8k pace</td>
+<td>Confirmed by the author: 3 × 2000m at RPE 8 is a light 10k session, so 8k is reasonable (6k would be extra cautious). Same volume as 4×1600m</td>
+</tr>
+<tr>
+<td>3000m, 3 min rest: 10k pace</td>
+<td>Author's anchor (3×3000m is closer to 10k than HM pace)</td>
+</tr>
+<tr>
+<td>5000m, 3 min rest: marathon pace to 2% faster</td>
+<td>Author's anchor</td>
+</tr>
+<tr>
+<td>Aussie quarters (400m hard, 200m float, continuous): always 8 reps. The whole session time, floats included, for 8 reps (4800m) is read as the 5k time; the real race is quicker, by up to 15 s. Range: that total to 15 s off it</td>
+<td>Author's rule of thumb (Pavel, 2026-10-15): 4800m in about the time of the 5k, and most people can go a bit quicker in the race. The 15 s is the author's. The rep count is fixed at 8 because it is a classic session (author's decision). The RPE adjustment (applied to the total) is mine. Not validated against real sessions</td>
+</tr>
+<tr>
+<td>Aussie float handling: floats count towards the total, so float times are required</td>
+<td>Author's decision. The tool warns if the floats were as fast as the hard 400s (inputs swapped) or more than 10% slower than marathon pace (a jog); the 10% is my placeholder. M pace is from the race model at 70 miles a week</td>
+</tr>
+<tr>
+<td>Typical rep counts: 400m 9 (author: 8–10), 600m 6, 800m 6, 1000m 5 (author, 2026-10-29: 5×1k is the classic 5k predictor; was 6), 1200m 4, 1600m 4, 2000m 3, 3000m 3, 5000m 5 (3×5km is too little volume for a marathon prediction); interpolated for other rep lengths</td>
+<td>400m and 1000m from the author; the rest are my placeholders</td>
+</tr>
+<tr>
+<td>Volume slide (changed 2026-10-29): the race the reps equal is the anchor race distance × g(r), where r is reps ÷ typical reps. Below the typical count g = r^0.8. From 1 to 1.6 times it, g = r (8×1k is about 8k). Beyond 1.6 times, g = r × (r ÷ 1.6)^0.93, so pace holds up less well with volume. Examples at standard rest: 5×400m ≈ 1.0k pace, 18×400m ≈ 4.0k, 2×2000m ≈ 5.8k, 10×1.2km ≈ 18.9k, 3×5km ≈ 28k, 12×1k ≈ 17.5k</td>
+<td>The 1.6 knee and the 0.93 are fitted to the author's 1k examples (5×1k = 5k, 8×1k about 8k, 12×1k at 60s = 17.5k). Earlier version: ^1.25 above the typical count, which read 12×1k as 12k</td>
+</tr>
+<tr>
+<td>Rest (added 2026-10-29): the anchors assume the standard rest. The equivalent race is multiplied by (standard rest ÷ rest)^0.38, with the ratio limited to between 0.4 and 2.5 and rest under 15s treated as 15s. Longer rest means an easier session, so the same pace reads as a shorter race. 12×1k at 90s = 15k against 17.5k at 60s; 6×1k at 90s ≈ 5.1k, about the same as 5×1k at 60s</td>
+<td>The author's judgement: extra rest roughly offsets an extra rep (6×1k at 90s ≈ 5×1k at 60s), and 12×1k is 17.5k at 60s and 15k at 90s. The 0.38 is fitted to the second pair and checks against the first. The standard rest is the anchor rest, interpolated by rep length; it does not itself grow with volume, since the volume slide carries that. Not validated against real sessions</td>
+</tr>
+<tr>
+<td>The equivalent race is shown as the largest common distance at or below the computed one, or the next one up if the computed one is within 5% of it: 400m, 600m, 800m, 1000m, 1200m, 1500m, mile, 2k, 3k, 4k, 5k, 8k, 10k, 12k, 15k, 10 mile, half marathon, 30k, 20 mile, marathon. The prediction itself uses the unrounded distance</td>
+<td>Author's preference for round, common distances, rounding down when in doubt; the list (real race distances; 8k kept because it is the 1600m anchor) and the 5% are mine</td>
+</tr>
+<tr>
+<td>Limits: total work up to 25km (refused above), an equivalent race under 400m (refused), and an equivalent race beyond the marathon (capped at marathon pace, with a note)</td>
+<td>My placeholders</td>
+</tr>
+<tr>
+<td>Anchors apply at RPE 8.5 and standard rest (changed 2026-11-04 from RPE 8, so that a hard workout is clearly separate from sub-threshold sessions at RPE 7 or below)</td>
+<td>Author's assumption. The anchor sessions were first recorded as RPE 8; moving the reference to 8.5 shifts predictions at a given RPE by about 0.5%</td>
+</tr>
+<tr>
+<td>Pace used = pace × (1 + 0.01 × (RPE − 8))</td>
+<td>My placeholder</td>
+</tr>
+<tr>
+<td>RPE accepted: 6 to 10 only (changed 2026-10-29); below 6 shows an error. Below 8.5 warns (changed 2026-11-04 from 7) that this is not a hard workout, so the prediction is unreliable, and points to the Sub-Threshold Trend Tracker; above 9 warns not to leave the race in training (recovery may be excessive). Reps below 0.6 or above 2 times the typical count for the rep length give the same two warnings (all four limits are placeholders, 2026-10-29). The Session equals box (what the reps and rest equal) does not depend on RPE; the first tile shows the RPE-adjusted pace</td>
+<td>The author's call: at low RPE the pace says almost nothing about race fitness (easy running is about 65% of 5k speed, so a 5% adjustment would be far too small), and the 1% per point was never fitted away from RPE 8. A proper RPE-to-race-pace model is open (the Sub-Threshold Trend Tracker uses RPE 7 or lower only as a gate, not as a conversion)</td>
+</tr>
+<tr>
+<td>Continuous mode: pace × (1 + 0.01 × (RPE − 10)) × (1 − 0.025), then the race model</td>
+<td>My placeholders. No source for the 2.5% race-day effect</td>
+</tr>
+<tr>
+<td>Band of 1% in pace around each anchor (5000m: marathon pace to 2% faster)</td>
+<td>My placeholder</td>
+</tr>
+<tr>
+<td>Pace for other rep lengths: linear interpolation between anchors by rep distance</td>
+<td>My choice</td>
+</tr>
+<tr>
+<td>Race model: Riegel 1.06, adjustment below 5km, marathon offset at 70 miles a week</td>
+<td>My estimates, not validated</td>
+</tr>
+</tbody>
+</table>
+<p>Continuous mode accepts 1.5 to 30km (a solo effort longer than that is not supported).</p>
+<p>The 2.5% race-day effect is a placeholder. It is the author's conservative pick from a recalled 2.3 to 4% range. Published evidence is mixed: one running study found about 4% over 3km, and some cycling studies found little or no effect. Cross-checks against the 3.25 to 3.75km solo pace and 4800m solo time rules of thumb imply roughly 2.7 to 4.4%.</p>
+<p>Not adjusted: heat, surface, wind, hills. The tool notes how much the equivalent race changed when rest differs from standard by more than 10%, warns when rest is under 20s or more than 2.5 times standard, when RPE is below 6 or above 9.5, and when the second half of the reps differs from the first by more than 2%.</p>
+<p>Check against posted cases: 6×800 averaging 2:38.5 gives a 5k of 17:22 (range 17:12–17:32); the poster ran 17:07. One case, not a calibration.</p>
+<p>Display (2026-10-30): the Session equals box shows the actual race distance (for example 6.9k) unless it is within 5% of a standard distance, when it shows that name. It used to round down to the next standard distance, so 6.9k read as 5k. The box includes the rest adjustment; RPE is not applied to it. The rest note compares the session with the same session at standard rest.</p>
+  </article>
+</main>
+<script>(function () {
+  var btn = document.getElementById("themebtn"), order = ["system", "light", "dark"], names = { system: "auto", light: "light", dark: "dark" };
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btn.setAttribute("data-mode", t);
+    btn.setAttribute("aria-label", "Theme: " + names[t] + ". Click to change.");
+    btn.title = "Theme: " + names[t];
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  if (order.indexOf(saved) < 0) saved = "system";
+  apply(saved);
+  btn.addEventListener("click", function () {
+    var t = order[(order.indexOf(btn.getAttribute("data-mode")) + 1) % order.length];
+    apply(t);
+    try { localStorage.setItem("theme-pref", t); } catch (e) {}
+  });
+})();</script>

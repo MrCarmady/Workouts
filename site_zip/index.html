@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Training Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
+<style>
+:root { --bg:#f2f2f1; --surface:#ffffff; --surface-2:#f0f0ee; --fg:#17181a; --muted:#6a6d72; --line:#deded9; --accent:#c8372d; --accent-soft:#f8e3e0;
+  --font-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif; --font-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#141416; --surface:#1c1c1f; --surface-2:#25252a; --fg:#ececea; --muted:#9a9ca2; --line:#34343a; --accent:#ef6a5e; --accent-soft:#3a1f1c; color-scheme:dark; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:15px; line-height:1.5; }
+.wrap { max-width:760px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; display:grid; gap:20px; }
+.wrap > * { min-width:0; }
+h1 { font-family:var(--font-display); font-weight:700; font-size:2rem; letter-spacing:.02em; text-transform:uppercase; margin:0; text-wrap:balance; }
+h2 { font-family:var(--font-display); font-weight:600; font-size:1.15rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+a { color:var(--accent); }
+.head > div:first-child { min-width:0; }
+.head { display:flex; flex-wrap:nowrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+.sub { color:var(--muted); margin:6px 0 0; max-width:62ch; }
+.themes { display: inline-grid; place-items: center; flex: none; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); color: var(--muted); cursor: pointer; }
+.themes:hover { color: var(--fg); }
+.themes:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.themes svg { display: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.themes[data-mode="system"] .i-system, .themes[data-mode="light"] .i-light, .themes[data-mode="dark"] .i-dark { display: block; }
+.themes .i-system path { fill: currentColor; }
+
+.cards { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+.card { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:14px 16px; }
+.card > div { min-width:0; flex:1 1 320px; }
+.card .name { font-family:var(--font-display); font-weight:600; font-size:1.25rem; text-decoration:none; }
+.card .name:hover { text-decoration:underline; }
+.card p { margin:2px 0 0; color:var(--muted); font-size:.92rem; }
+.card .meth { font-size:.85rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
+.start { list-style:none; margin:0; padding:0; display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:2px; }
+.start-wrap { container-type:inline-size; }
+.start li { display:block; padding:9px 16px 10px; }
+.start li > span:first-child { color:var(--muted); font-size:.92rem; }
+.start li + li { border-top:1px solid var(--line); }
+.start .links { display:grid; grid-template-columns:13em 15em; gap:2px 16px; margin-top:2px; }
+.start .links.one { grid-template-columns:15em; }
+@container (min-width:880px) { .start li { display:flex; align-items:baseline; justify-content:space-between; gap:16px; } .start .links { margin-top:0; } .start li > span:first-child { min-width:0; } }
+@media (max-width:560px) { .start .links, .start .links.one { grid-template-columns:auto; } }
+.start li a { font-weight:600; text-decoration:none; white-space:nowrap; }
+.start li a:hover { text-decoration:underline; }
+.all { font-weight:600; font-size:.95rem; }
+nav.jump { display:flex; flex-wrap:wrap; gap:8px 20px; font-family:var(--font-display); font-weight:600; letter-spacing:.04em; text-transform:uppercase; font-size:.9rem; }
+h2.big { color:var(--fg); font-size:1.5rem; margin:8px 0 0; padding-top:12px; border-top:2px solid var(--fg); }
+h3 { font-family:var(--font-display); font-weight:600; font-size:1.05rem; letter-spacing:.06em; text-transform:uppercase; margin:0 0 10px; color:var(--muted); }
+.note { color:var(--muted); font-size:.85rem; margin:0; }
+</style>
+<main class="wrap">
+  <header class="head">
+    <div>
+      <h1>Training Tools</h1>
+      <p class="sub">Calculators for running sessions, race predictions, training load and lifting. Pick what you want to do, or see every tool.</p>
+    </div>
+    <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
+      <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
+      <svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </header>
+    <section>
+      <h2>Start here</h2>
+      <div class="start-wrap"><ul class="start">
+        <li><span>What does my race or hard session predict?</span><span class="links"><a href="race-prediction-calculator.html">Race Prediction Calculator</a><a href="hard-workout-predictor.html">Hard Workout Predictor</a></span></li>
+        <li><span>Can I qualify for a major marathon?</span><span class="links one"><a href="marathon-qualifying-check.html">Marathon Qualifying Check</a></span></li>
+        <li><span>I want a plan that fits my current fitness.</span><span class="links"><a href="marathon-plan-recommender.html">Marathon Plan Finder</a><a href="short-plan-finder.html">Short-Distance Plan Finder</a></span></li>
+        <li><span>I want to see a plan&#x27;s paces and weekly load.</span><span class="links"><a href="marathon-plans.html">Marathon Plan Viewer</a><a href="short-plans.html">Short-Distance Plan Viewer</a></span></li>
+        <li><span>I need paces for a threshold or tempo session.</span><span class="links one"><a href="run-session-generator.html">Sub-Threshold Session Generator</a></span></li>
+        <li><span>How hard is my week? Is load climbing too fast?</span><span class="links"><a href="hybrid-load-planner.html">Hybrid Load Planner</a><a href="run-load-planner.html">Run Load Planner</a></span></li>
+        <li><span>I cross-trained on a bike, rower or treadmill. How much load is that?</span><span class="links one"><a href="cross-training-tss.html">Cross-Training TSS</a></span></li>
+        <li><span>I want working weights for a lifting scheme.</span><span class="links one"><a href="lift-scheme-calculator.html">1RM and Scheme Calculator</a></span></li>
+        <li><span>I want to build a training block from a race result.</span><span class="links one"><a href="plan-builder.html">Plan Builder</a></span></li>
+      </ul></div>
+    </section>
+  <p><a class="all" href="tools.html">See all tools &rarr;</a></p>
+  <p class="note">All figures are estimates for training. Check paces against heart rate or feel.</p>
+</main>
+<script>(function () {
+  var btn = document.getElementById("themebtn"), order = ["system", "light", "dark"], names = { system: "auto", light: "light", dark: "dark" };
+  function apply(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+    btn.setAttribute("data-mode", t);
+    btn.setAttribute("aria-label", "Theme: " + names[t] + ". Click to change.");
+    btn.title = "Theme: " + names[t];
+  }
+  var saved = "system";
+  try { saved = localStorage.getItem("theme-pref") || "system"; } catch (e) {}
+  if (order.indexOf(saved) < 0) saved = "system";
+  apply(saved);
+  btn.addEventListener("click", function () {
+    var t = order[(order.indexOf(btn.getAttribute("data-mode")) + 1) % order.length];
+    apply(t);
+    try { localStorage.setItem("theme-pref", t); } catch (e) {}
+  });
+})();</script>
