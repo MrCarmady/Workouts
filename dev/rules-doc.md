@@ -338,3 +338,5 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Start here cut from 12 rows to 8; rows can carry two links (race and hard-session predictors, the two Finders, the two Viewers, Hybrid and Run Load Planner). Plan Builder's row is last and the weakest; drop it if the list needs trimming.
 
 - 2026-11-16: Start here links aligned. Question on top, links below in two fixed columns (15em, 17em), single links in column 2's width, left-aligned. Side by side only when the panel is 880 px or wider (container query). Two questions shortened to keep one line. Layout only; no tool logic changed.
+
+- 2026-11-16: Start here: arrows removed from the links, questions muted and smaller, row padding tightened, link columns 13em and 15em. Layout only.

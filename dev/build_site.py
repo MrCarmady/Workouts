@@ -95,7 +95,7 @@ START=[ # (question, [(tool file, tool title), ...]); titles must match the tool
 _titles={t[1]:t[2] for t in tools}
 for _q,_ls in START:
     for _f,_t in _ls: assert _titles.get(_f)==_t,(_f,_t)
-startsec='    <section>\n      <h2>Start here</h2>\n      <div class="start-wrap"><ul class="start">\n'+'\n'.join(f'        <li><span>{html.escape(q)}</span><span class="links'+(' one' if len(ls)==1 else '')+'">'+''.join(f'<a href="{f}">{html.escape(t)} &rarr;</a>' for f,t in ls)+'</span></li>' for q,ls in START)+'\n      </ul></div>\n    </section>\n'
+startsec='    <section>\n      <h2>Start here</h2>\n      <div class="start-wrap"><ul class="start">\n'+'\n'.join(f'        <li><span>{html.escape(q)}</span><span class="links'+(' one' if len(ls)==1 else '')+'">'+''.join(f'<a href="{f}">{html.escape(t)}</a>' for f,t in ls)+'</span></li>' for q,ls in START)+'\n      </ul></div>\n    </section>\n'
 PAGECSS='''
 .cards { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
 .card { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:14px 16px; }
@@ -106,10 +106,11 @@ PAGECSS='''
 .card .meth { font-size:.85rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
 .start { list-style:none; margin:0; padding:0; display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:2px; }
 .start-wrap { container-type:inline-size; }
-.start li { display:block; padding:11px 16px; }
+.start li { display:block; padding:9px 16px 10px; }
+.start li > span:first-child { color:var(--muted); font-size:.92rem; }
 .start li + li { border-top:1px solid var(--line); }
-.start .links { display:grid; grid-template-columns:15em 17em; gap:2px 16px; margin-top:4px; }
-.start .links.one { grid-template-columns:17em; }
+.start .links { display:grid; grid-template-columns:13em 15em; gap:2px 16px; margin-top:2px; }
+.start .links.one { grid-template-columns:15em; }
 @container (min-width:880px) { .start li { display:flex; align-items:baseline; justify-content:space-between; gap:16px; } .start .links { margin-top:0; } .start li > span:first-child { min-width:0; } }
 @media (max-width:560px) { .start .links, .start .links.one { grid-template-columns:auto; } }
 .start li a { font-weight:600; text-decoration:none; white-space:nowrap; }
