@@ -34,11 +34,13 @@ a { color:var(--accent); }
 .card p { margin:2px 0 0; color:var(--muted); font-size:.92rem; }
 .card .meth { font-size:.85rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
 .start { list-style:none; margin:0; padding:0; display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:2px; }
-.start li { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; padding:11px 16px; }
+.start-wrap { container-type:inline-size; }
+.start li { display:block; padding:11px 16px; }
 .start li + li { border-top:1px solid var(--line); }
-.start li > span:first-child { flex:1 1 280px; min-width:0; }
-.start .links { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px 16px; }
-@media (max-width:600px) { .start .links { justify-content:flex-start; } }
+.start .links { display:grid; grid-template-columns:15em 17em; gap:2px 16px; margin-top:4px; }
+.start .links.one { grid-template-columns:17em; }
+@container (min-width:880px) { .start li { display:flex; align-items:baseline; justify-content:space-between; gap:16px; } .start .links { margin-top:0; } .start li > span:first-child { min-width:0; } }
+@media (max-width:560px) { .start .links, .start .links.one { grid-template-columns:auto; } }
 .start li a { font-weight:600; text-decoration:none; white-space:nowrap; }
 .start li a:hover { text-decoration:underline; }
 .all { font-weight:600; font-size:.95rem; }
@@ -61,16 +63,16 @@ h3 { font-family:var(--font-display); font-weight:600; font-size:1.05rem; letter
   </header>
     <section>
       <h2>Start here</h2>
-      <ul class="start">
-        <li><span>I ran a race or a hard session. What does it predict?</span><span class="links"><a href="race-prediction-calculator.html">Race Prediction Calculator &rarr;</a><a href="hard-workout-predictor.html">Hard Workout Predictor &rarr;</a></span></li>
+      <div class="start-wrap"><ul class="start">
+        <li><span>What does my race or hard session predict?</span><span class="links"><a href="race-prediction-calculator.html">Race Prediction Calculator &rarr;</a><a href="hard-workout-predictor.html">Hard Workout Predictor &rarr;</a></span></li>
         <li><span>I want a plan that fits my current fitness.</span><span class="links"><a href="marathon-plan-recommender.html">Marathon Plan Finder &rarr;</a><a href="short-plan-finder.html">Short-Distance Plan Finder &rarr;</a></span></li>
         <li><span>I want to see a plan&#x27;s paces and weekly load.</span><span class="links"><a href="marathon-plans.html">Marathon Plan Viewer &rarr;</a><a href="short-plans.html">Short-Distance Plan Viewer &rarr;</a></span></li>
-        <li><span>I need paces for a threshold or tempo session.</span><span class="links"><a href="run-session-generator.html">Sub-Threshold Session Generator &rarr;</a></span></li>
-        <li><span>How hard is my week in total? Is my load climbing too fast?</span><span class="links"><a href="hybrid-load-planner.html">Hybrid Load Planner &rarr;</a><a href="run-load-planner.html">Run Load Planner &rarr;</a></span></li>
-        <li><span>I cross-trained on a bike, rower or treadmill. How much load is that?</span><span class="links"><a href="cross-training-tss.html">Cross-Training TSS &rarr;</a></span></li>
-        <li><span>I want working weights for a lifting scheme.</span><span class="links"><a href="lift-scheme-calculator.html">1RM and Scheme Calculator &rarr;</a></span></li>
-        <li><span>I want to build a training block from a race result.</span><span class="links"><a href="plan-builder.html">Plan Builder &rarr;</a></span></li>
-      </ul>
+        <li><span>I need paces for a threshold or tempo session.</span><span class="links one"><a href="run-session-generator.html">Sub-Threshold Session Generator &rarr;</a></span></li>
+        <li><span>How hard is my week? Is load climbing too fast?</span><span class="links"><a href="hybrid-load-planner.html">Hybrid Load Planner &rarr;</a><a href="run-load-planner.html">Run Load Planner &rarr;</a></span></li>
+        <li><span>I cross-trained on a bike, rower or treadmill. How much load is that?</span><span class="links one"><a href="cross-training-tss.html">Cross-Training TSS &rarr;</a></span></li>
+        <li><span>I want working weights for a lifting scheme.</span><span class="links one"><a href="lift-scheme-calculator.html">1RM and Scheme Calculator &rarr;</a></span></li>
+        <li><span>I want to build a training block from a race result.</span><span class="links one"><a href="plan-builder.html">Plan Builder &rarr;</a></span></li>
+      </ul></div>
     </section>
   <p><a class="all" href="tools.html">See all tools &rarr;</a></p>
   <p class="note">All figures are estimates for training. Check paces against heart rate or feel.</p>

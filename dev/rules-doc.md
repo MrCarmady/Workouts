@@ -332,3 +332,9 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Test stops at race morning. Daniels and Davis builders now carry the race day (raceIdx); Pfitzinger's race week is cut after Friday and its post-race week is dropped. Race-date maths uses the days actually in the plan (nd), not 7 x weeks - 1.
 - Intensity mix is by pace, not label: Easy under 80% of 5k speed, Steady 80 to 89.5, Threshold 89.5 to 98, 5k pace and faster 98+. Upper two cutoffs are the Marathon Plan Finder's; the 80% cutoff is mine (not confirmed). Walks are not counted (no pace). Pfitzinger endurance runs (about 76%) land in Easy.
 - Bug fixed in Short-Distance Plan Viewer: race-morning CTL and ATL for Daniels and Davis were taken after the race day (counted as zero TSS), lowering ATL about 13% and CTL about 2%. Now taken before the race day; "after the race" worked from that. Pfitzinger was already right. Link with a plan id (short-plans.html#pf2) now selects that plan.
+
+## Index regrouping and Start here (P, 2026-11-16)
+- Groups now: Running (Race and pace; Sessions and blocks; Marathon plans; 5K to 10K plans), Load (now includes Cross-Training TSS), Cross-training (Bike and Rowing session generators), Lifting. Plan Builder moved to Sessions and blocks. Finder is listed before Viewer. Order is set by TITLE_ORDER in build_site.py, which must list every tool once (build asserts it).
+- Start here cut from 12 rows to 8; rows can carry two links (race and hard-session predictors, the two Finders, the two Viewers, Hybrid and Run Load Planner). Plan Builder's row is last and the weakest; drop it if the list needs trimming.
+
+- 2026-11-16: Start here links aligned. Question on top, links below in two fixed columns (15em, 17em), single links in column 2's width, left-aligned. Side by side only when the panel is 880 px or wider (container query). Two questions shortened to keep one line. Layout only; no tool logic changed.

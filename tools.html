@@ -34,11 +34,13 @@ a { color:var(--accent); }
 .card p { margin:2px 0 0; color:var(--muted); font-size:.92rem; }
 .card .meth { font-size:.85rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
 .start { list-style:none; margin:0; padding:0; display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:2px; }
-.start li { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; padding:11px 16px; }
+.start-wrap { container-type:inline-size; }
+.start li { display:block; padding:11px 16px; }
 .start li + li { border-top:1px solid var(--line); }
-.start li > span:first-child { flex:1 1 280px; min-width:0; }
-.start .links { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px 16px; }
-@media (max-width:600px) { .start .links { justify-content:flex-start; } }
+.start .links { display:grid; grid-template-columns:15em 17em; gap:2px 16px; margin-top:4px; }
+.start .links.one { grid-template-columns:17em; }
+@container (min-width:880px) { .start li { display:flex; align-items:baseline; justify-content:space-between; gap:16px; } .start .links { margin-top:0; } .start li > span:first-child { min-width:0; } }
+@media (max-width:560px) { .start .links, .start .links.one { grid-template-columns:auto; } }
 .start li a { font-weight:600; text-decoration:none; white-space:nowrap; }
 .start li a:hover { text-decoration:underline; }
 .all { font-weight:600; font-size:.95rem; }

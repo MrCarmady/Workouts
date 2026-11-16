@@ -83,11 +83,11 @@ groups=('    <nav class="jump" aria-label="Sections"><a href="#running">Running<
  +'    <h2 class="big" id="crosstraining">Cross-training</h2>\n'+_sec('Bike and rowing sessions',cards['Cross-training'],3)
  +'    <h2 class="big" id="lifting">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3))
 START=[ # (question, [(tool file, tool title), ...]); titles must match the tools list
- ("I ran a race or a hard session. What does it predict?",[("race-prediction-calculator.html","Race Prediction Calculator"),("hard-workout-predictor.html","Hard Workout Predictor")]),
+ ("What does my race or hard session predict?",[("race-prediction-calculator.html","Race Prediction Calculator"),("hard-workout-predictor.html","Hard Workout Predictor")]),
  ("I want a plan that fits my current fitness.",[("marathon-plan-recommender.html","Marathon Plan Finder"),("short-plan-finder.html","Short-Distance Plan Finder")]),
  ("I want to see a plan's paces and weekly load.",[("marathon-plans.html","Marathon Plan Viewer"),("short-plans.html","Short-Distance Plan Viewer")]),
  ("I need paces for a threshold or tempo session.",[("run-session-generator.html","Sub-Threshold Session Generator")]),
- ("How hard is my week in total? Is my load climbing too fast?",[("hybrid-load-planner.html","Hybrid Load Planner"),("run-load-planner.html","Run Load Planner")]),
+ ("How hard is my week? Is load climbing too fast?",[("hybrid-load-planner.html","Hybrid Load Planner"),("run-load-planner.html","Run Load Planner")]),
  ("I cross-trained on a bike, rower or treadmill. How much load is that?",[("cross-training-tss.html","Cross-Training TSS")]),
  ("I want working weights for a lifting scheme.",[("lift-scheme-calculator.html","1RM and Scheme Calculator")]),
  ("I want to build a training block from a race result.",[("plan-builder.html","Plan Builder")]),
@@ -95,7 +95,7 @@ START=[ # (question, [(tool file, tool title), ...]); titles must match the tool
 _titles={t[1]:t[2] for t in tools}
 for _q,_ls in START:
     for _f,_t in _ls: assert _titles.get(_f)==_t,(_f,_t)
-startsec='    <section>\n      <h2>Start here</h2>\n      <ul class="start">\n'+'\n'.join(f'        <li><span>{html.escape(q)}</span><span class="links">'+''.join(f'<a href="{f}">{html.escape(t)} &rarr;</a>' for f,t in ls)+'</span></li>' for q,ls in START)+'\n      </ul>\n    </section>\n'
+startsec='    <section>\n      <h2>Start here</h2>\n      <div class="start-wrap"><ul class="start">\n'+'\n'.join(f'        <li><span>{html.escape(q)}</span><span class="links'+(' one' if len(ls)==1 else '')+'">'+''.join(f'<a href="{f}">{html.escape(t)} &rarr;</a>' for f,t in ls)+'</span></li>' for q,ls in START)+'\n      </ul></div>\n    </section>\n'
 PAGECSS='''
 .cards { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
 .card { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:14px 16px; }
@@ -105,11 +105,13 @@ PAGECSS='''
 .card p { margin:2px 0 0; color:var(--muted); font-size:.92rem; }
 .card .meth { font-size:.85rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
 .start { list-style:none; margin:0; padding:0; display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:2px; }
-.start li { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; padding:11px 16px; }
+.start-wrap { container-type:inline-size; }
+.start li { display:block; padding:11px 16px; }
 .start li + li { border-top:1px solid var(--line); }
-.start li > span:first-child { flex:1 1 280px; min-width:0; }
-.start .links { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px 16px; }
-@media (max-width:600px) { .start .links { justify-content:flex-start; } }
+.start .links { display:grid; grid-template-columns:15em 17em; gap:2px 16px; margin-top:4px; }
+.start .links.one { grid-template-columns:17em; }
+@container (min-width:880px) { .start li { display:flex; align-items:baseline; justify-content:space-between; gap:16px; } .start .links { margin-top:0; } .start li > span:first-child { min-width:0; } }
+@media (max-width:560px) { .start .links, .start .links.one { grid-template-columns:auto; } }
 .start li a { font-weight:600; text-decoration:none; white-space:nowrap; }
 .start li a:hover { text-decoration:underline; }
 .all { font-weight:600; font-size:.95rem; }
