@@ -8,26 +8,26 @@ HERE=os.path.dirname(os.path.abspath(__file__)); SRC=HERE
 OUT=os.environ.get('SITE_OUT') or (os.path.dirname(HERE) if os.path.basename(HERE)=='dev' else os.path.join(HERE,'site'))
 os.makedirs(OUT+'/methods',exist_ok=True)
 tools=[ # (src file, out file, title, desc, method md, method slug, group)
- ("run-session-calculator.html","run-session-generator.html","Sub-Threshold Session Generator","Rep pace, recovery, rep count and TSS from a race result and rep length.","run-session-calculator.md","run-session-generator","Sessions"),
+ ("run-session-calculator.html","run-session-generator.html","Sub-Threshold Session Generator","Rep pace, recovery, rep count and TSS from a race result and rep length.","run-session-calculator.md","run-session-generator","Sessions and blocks"),
  ("race-prediction-calculator.html","race-prediction-calculator.html","Race Prediction Calculator","Predicted times for 1500m to the marathon from one or two race results.","race-prediction-calculator.md","race-prediction-calculator","Race and pace"),
- ("classic-session-generator.html","classic-session-generator.html","Classic Session Generator","Paces for tempo, ladders, Aussie quarters, Yasso 800s and more.","classic-session-generator.md","classic-session-generator","Sessions"),
- ("sub-t-trend-tracker.html","sub-t-trend-tracker.html","Sub-Threshold Trend Tracker","Log classic sub-threshold sessions and track implied threshold pace.","sub-t-trend-tracker.md","sub-t-trend-tracker","Sessions"),
+ ("classic-session-generator.html","classic-session-generator.html","Classic Session Generator","Paces for tempo, ladders, Aussie quarters, Yasso 800s and more.","classic-session-generator.md","classic-session-generator","Sessions and blocks"),
+ ("sub-t-trend-tracker.html","sub-t-trend-tracker.html","Sub-Threshold Trend Tracker","Log classic sub-threshold sessions and track implied threshold pace.","sub-t-trend-tracker.md","sub-t-trend-tracker","Sessions and blocks"),
 ("hard-workout-predictor.html","hard-workout-predictor.html","Hard Workout Predictor","Predict a race from a hard interval session, using rep length, rest and RPE.","hard-workout-predictor.md","hard-workout-predictor","Race and pace"),
 ("parkrun-converter.html","parkrun-converter.html","Parkrun Converter","Convert a parkrun time to another course, using course difficulty scores.","parkrun-converter.md","parkrun-converter","Race and pace"),
-("plan-builder.html","plan-builder.html","Plan Builder","Weekly distance, quality and easy running for a block, from a race result.","plan-builder.md","plan-builder","Plans"),
+("plan-builder.html","plan-builder.html","Plan Builder","Weekly distance, quality and easy running for a block, from a race result.","plan-builder.md","plan-builder","Sessions and blocks"),
  ("run-load-planner.html","run-load-planner.html","Run Load Planner","CTL, ATL and TSB from a planned week, or the TSS needed for a target.","run-load-planner.md","run-load-planner","Load"),
  ("run-tss-calculator.html","run-tss-calculator.html","Run TSS Calculator","Training stress score for a run, from your threshold pace and what you ran.","run-tss-calculator.md","run-tss-calculator","Load"),
  ("run-tss-planner.html","run-tss-planner.html","Run TSS Planner","The workout pace that hits a target TSS.","run-tss-planner.md","run-tss-planner","Load"),
  ("bike-session-generator.html","bike-session-generator.html","Bike Session Generator","Sweet spot, threshold, VO2max and over-under sessions in watts from your FTP.","bike-session-generator.md","bike-session-generator","Cross-training"),
  ("rowing-session-generator.html","rowing-session-generator.html","Rowing Session Generator","Steady state, threshold, 5k-pace and pyramid erg sessions from your 2k time.","rowing-session-generator.md","rowing-session-generator","Cross-training"),
- ("cross-training-tss.html","cross-training-tss.html","Cross-Training TSS","TSS for bike, rower, treadmill walking and other cross-training.","cross-training-tss.md","cross-training-tss","Cross-training"),
+ ("cross-training-tss.html","cross-training-tss.html","Cross-Training TSS","TSS for bike, rower, treadmill walking and other cross-training.","cross-training-tss.md","cross-training-tss","Load"),
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace, and optional TSS, for a running or walking treadmill setting.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","1RM and Scheme Calculator","1RM estimate, working weights and a warm-up ladder from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
- ("marathon-plans.html","marathon-plans.html","Marathon Plan Viewer","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Plans"),
- ("short-plans.html","short-plans.html","Short-Distance Plan Viewer","Daniels, Davis and Pfitzinger 5K to 10K plans with paces and load.","short-plans.md","short-plans","Plans"),
- ("short-plan-finder.html","short-plan-finder.html","Short-Distance Plan Finder","Which 5K to 10K plans fit your CTL and ATL, on form and ATL to CTL ratio.","short-plan-finder.md","short-plan-finder","Plans"),
- ("copeland-base.html","copeland-base.html","Copeland Base","A ramp from your CTL to week 1 of the Copeland marathon plan.","copeland-base.md","copeland-base","Plans"),
- ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Finder","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Plans"),
+ ("marathon-plans.html","marathon-plans.html","Marathon Plan Viewer","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Marathon plans"),
+ ("short-plans.html","short-plans.html","Short-Distance Plan Viewer","Daniels, Davis and Pfitzinger 5K to 10K plans with paces and load.","short-plans.md","short-plans","5K to 10K plans"),
+ ("short-plan-finder.html","short-plan-finder.html","Short-Distance Plan Finder","Which 5K to 10K plans fit your CTL and ATL, on form and ATL to CTL ratio.","short-plan-finder.md","short-plan-finder","5K to 10K plans"),
+ ("copeland-base.html","copeland-base.html","Copeland Base","A ramp from your CTL to week 1 of the Copeland marathon plan.","copeland-base.md","copeland-base","Marathon plans"),
+ ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Finder","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Marathon plans"),
  ("hybrid-load-planner.html","hybrid-load-planner.html","Hybrid Load Planner","CTL, ATL and TSB from a week of runs and lifts.","hybrid-load-planner.md","hybrid-load-planner","Load"),
  ("lifting-programme-planner.html","lifting-programme-planner.html","Lifting Programme Planner","Tactical Barbell, GZCLP, 5/3/1, nSuns and other lifting plans.","lifting-programme-planner.md","lifting-programme-planner","Lifting"),
 ]
@@ -62,9 +62,11 @@ THEME_JS='<script>'+THEME.JS+'</script>'
 TOGGLE=THEME.HTML
 FONTS='<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">'
 # index
-ORDER=['Race and pace','Sessions','Plans','Cross-training','Load','Lifting']
+ORDER=['Race and pace','Sessions and blocks','Marathon plans','5K to 10K plans','Load','Cross-training','Lifting']
+TITLE_ORDER=['Race Prediction Calculator','Hard Workout Predictor','Parkrun Converter','Treadmill Flat Equivalent','Sub-Threshold Session Generator','Classic Session Generator','Sub-Threshold Trend Tracker','Plan Builder','Marathon Plan Finder','Marathon Plan Viewer','Copeland Base','Short-Distance Plan Finder','Short-Distance Plan Viewer','Run Load Planner','Run TSS Calculator','Run TSS Planner','Hybrid Load Planner','Cross-Training TSS','Bike Session Generator','Rowing Session Generator','1RM and Scheme Calculator','Lifting Programme Planner']
+assert sorted(TITLE_ORDER)==sorted(t[2] for t in tools),'TITLE_ORDER must list every tool once'
 cards={}
-for src,out,title,desc,md,slug,grp in sorted(tools,key=lambda t:(ORDER.index(t[6]),tools.index(t))):
+for src,out,title,desc,md,slug,grp in sorted(tools,key=lambda t:(ORDER.index(t[6]),TITLE_ORDER.index(t[2]))):
     cards.setdefault(grp,[]).append(f'''      <li class="card"><div><a class="name" href="{out}">{html.escape(title)}</a><p>{html.escape(desc)}</p></div><a class="meth" href="methods/{slug}.html">How it works</a></li>''')
 def _sec(g,v,lvl):
     return f'''    <section>
@@ -75,28 +77,25 @@ def _sec(g,v,lvl):
     </section>
 '''
 RUNNING=['Planning and load','Sessions','Race and pace']
-groups=('    <nav class="jump" aria-label="Sections"><a href="#running">Running</a><a href="#crosstraining">Cross-training</a><a href="#load">Load</a><a href="#lifting">Lifting</a></nav>\n'
- +'    <h2 class="big" id="running">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in ['Race and pace','Sessions','Plans'])
- +'    <h2 class="big" id="crosstraining">Cross-training</h2>\n'+_sec('Bike and other cross-training',cards['Cross-training'],3)
+groups=('    <nav class="jump" aria-label="Sections"><a href="#running">Running</a><a href="#load">Load</a><a href="#crosstraining">Cross-training</a><a href="#lifting">Lifting</a></nav>\n'
+ +'    <h2 class="big" id="running">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in ['Race and pace','Sessions and blocks','Marathon plans','5K to 10K plans'])
  +'    <h2 class="big" id="load">Load</h2>\n'+_sec('Training load and TSS',cards['Load'],3)
+ +'    <h2 class="big" id="crosstraining">Cross-training</h2>\n'+_sec('Bike and rowing sessions',cards['Cross-training'],3)
  +'    <h2 class="big" id="lifting">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3))
-START=[ # (question, tool file, tool title); titles must match the tools list
- ("I ran a race. What does it mean for other distances?","race-prediction-calculator.html","Race Prediction Calculator"),
- ("I ran a hard interval session. What race time does it predict?","hard-workout-predictor.html","Hard Workout Predictor"),
- ("I want a marathon plan that fits my current fitness.","marathon-plan-recommender.html","Marathon Plan Finder"),
- ("I want to see a marathon plan's paces and weekly load.","marathon-plans.html","Marathon Plan Viewer"),
- ("I want a 5K to 10K plan that fits my current fitness.","short-plan-finder.html","Short-Distance Plan Finder"),
- ("I want to see a 5K or 10K plan's paces and weekly load.","short-plans.html","Short-Distance Plan Viewer"),
- ("I run and lift. How hard is my week in total?","hybrid-load-planner.html","Hybrid Load Planner"),
- ("I need paces for a threshold or tempo session.","run-session-generator.html","Sub-Threshold Session Generator"),
- ("Is my load climbing too fast? What do back-to-back hard days do?","run-load-planner.html","Run Load Planner"),
- ("I want to build a training block from a race result.","plan-builder.html","Plan Builder"),
- ("I cross-trained on a bike, rower or treadmill. How much load is that?","cross-training-tss.html","Cross-Training TSS"),
- ("I want working weights for a lifting scheme.","lift-scheme-calculator.html","1RM and Scheme Calculator"),
+START=[ # (question, [(tool file, tool title), ...]); titles must match the tools list
+ ("I ran a race or a hard session. What does it predict?",[("race-prediction-calculator.html","Race Prediction Calculator"),("hard-workout-predictor.html","Hard Workout Predictor")]),
+ ("I want a plan that fits my current fitness.",[("marathon-plan-recommender.html","Marathon Plan Finder"),("short-plan-finder.html","Short-Distance Plan Finder")]),
+ ("I want to see a plan's paces and weekly load.",[("marathon-plans.html","Marathon Plan Viewer"),("short-plans.html","Short-Distance Plan Viewer")]),
+ ("I need paces for a threshold or tempo session.",[("run-session-generator.html","Sub-Threshold Session Generator")]),
+ ("How hard is my week in total? Is my load climbing too fast?",[("hybrid-load-planner.html","Hybrid Load Planner"),("run-load-planner.html","Run Load Planner")]),
+ ("I cross-trained on a bike, rower or treadmill. How much load is that?",[("cross-training-tss.html","Cross-Training TSS")]),
+ ("I want working weights for a lifting scheme.",[("lift-scheme-calculator.html","1RM and Scheme Calculator")]),
+ ("I want to build a training block from a race result.",[("plan-builder.html","Plan Builder")]),
 ]
 _titles={t[1]:t[2] for t in tools}
-for _q,_f,_t in START: assert _titles.get(_f)==_t,(_f,_t)
-startsec='    <section>\n      <h2>Start here</h2>\n      <ul class="start">\n'+'\n'.join(f'        <li><span>{html.escape(q)}</span><a href="{f}">{html.escape(t)} &rarr;</a></li>' for q,f,t in START)+'\n      </ul>\n    </section>\n'
+for _q,_ls in START:
+    for _f,_t in _ls: assert _titles.get(_f)==_t,(_f,_t)
+startsec='    <section>\n      <h2>Start here</h2>\n      <ul class="start">\n'+'\n'.join(f'        <li><span>{html.escape(q)}</span><span class="links">'+''.join(f'<a href="{f}">{html.escape(t)} &rarr;</a>' for f,t in ls)+'</span></li>' for q,ls in START)+'\n      </ul>\n    </section>\n'
 PAGECSS='''
 .cards { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
 .card { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; background:var(--surface); border:1px solid var(--line); border-radius:2px; padding:14px 16px; }
@@ -108,7 +107,9 @@ PAGECSS='''
 .start { list-style:none; margin:0; padding:0; display:grid; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:2px; }
 .start li { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; padding:11px 16px; }
 .start li + li { border-top:1px solid var(--line); }
-.start li span { flex:1 1 280px; min-width:0; }
+.start li > span:first-child { flex:1 1 280px; min-width:0; }
+.start .links { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px 16px; }
+@media (max-width:600px) { .start .links { justify-content:flex-start; } }
 .start li a { font-weight:600; text-decoration:none; white-space:nowrap; }
 .start li a:hover { text-decoration:underline; }
 .all { font-weight:600; font-size:.95rem; }
