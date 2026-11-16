@@ -298,3 +298,28 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Session from a Reddit post P saw (I have not seen the post): 8 × (1 min fast at I / 1 min float at MP), continuous. P: float at exact MP; 8 reps as the default, adjustable down and up (2 to 20).
 - I = race(4), the same as Aussie quarters; MP = predicted marathon pace (weekly distance setting). The page shows the average pace over the repeats against threshold (3:59 against 4:03 at 18:52).
 - Comparison done in chat (18:52 5k, main set): 8 reps 27.6 TSS, 10 reps 34.6; Aussie quarters 33.9, Mona 34.1, Pre's 33.3, Rosario 4 reps 43.5. All average about threshold pace over a cycle (3:53 to 4:02); my earlier remark that the Reddit session is a different kind of session from Aussie quarters and Pre's was wrong (P corrected it).
+
+## Pfitzinger 8K-10K schedules in the Short-Distance Plan Viewer (P, 2026-11-15)
+- P sent print photos of Faster Road Racing pp. 196 to 199: 8K-10K Schedule 2 (45 to 57 miles) and Schedule 3 (60 to 76 miles). Both added as plans pf2 and pf3, 12 weeks plus the post-race recovery week (13 rows). Schedule 1 not provided, not built.
+- Transcribed by me; all 26 weeks add up to the printed weekly volume. Full transcription in methodology/short-plans.md for P to check against the book.
+- Paces follow the Marathon Plan Viewer's Pfitzinger plans (recovery 60%, general aerobic 70% of 5km speed, LT race(21)). My assumptions, none confirmed by P: endurance runs at general aerobic pace; 3K-5K pace race(4); 800 m to mile pace race(1.2); 8K-10K pace race(goal), goal box 8 or 10 km (default 10); 3K-5K jogs 70% of interval time; uphill VO2max reps scored as time at 3K-5K pace with a downhill jog as long as the rep; 4 min between sets of 200s is standing rest.
+- Printed miles on a quality day are the whole day: work and jogs scored, the rest easy at general aerobic pace. Strides and hill sprints not scored.
+- Race-morning CTL and ATL taken before the Saturday race, since Sunday's recovery run is in the same week row. Added a race-day index to the page's CTL loop for this; Daniels and Davis unchanged.
+
+## Pfitzinger paces from the book, and a calculator model (P, 2026-11-15)
+- P sent photos of two back-of-book charts of Faster Road Racing: Appendix B p. 249 (equivalent race times) and p. 251 (workout paces by 5K time). P: the first is for the Race Prediction Calculator, the second answers questions I had on the schedules.
+- Race Prediction Calculator: new compare option "Pfitzinger, Faster Road Racing": constant ratios to the 5K time (10K 2.08, 10 mile 3.4736, half 4.6176; 8K 1.6494 and 15K 3.1928 not shown, no rows for them). The old Pfitzinger option relabelled "10km to marathon table".
+- Short-Distance Plan Viewer: Pfitzinger plans now take LT, 3K-5K (VO2max), 200 m speed, 8K-10K race pace and endurance run pace from those tables, interpolated by 5K time (range 14:00 to 30:00), replacing my race(x) assumptions. Recovery and general aerobic stay as on the marathon page (the table has none).
+- Open: what "early" and "latter" long-run pace mean (not on the pages P sent; page 250 text not seen). Box offers early, latter, or the average (default). Mapping the table's long run to the schedules' endurance runs is my reading.
+- Bug found and fixed same day: my first Pfitzinger edit duplicated a block of code in short-plans.html (the Pfitzinger Notes list included Davis notes). Numbers were unaffected. Rebuilt from a clean copy.
+
+## Pfitzinger 8K-10K Schedule 1 and early/latter (P, 2026-11-15)
+- P sent Schedule 1 (30 to 42 miles, pp. 194 to 195). Added as plan pf1, same engine as pf2 and pf3. Each week's daily miles match the printed weekly totals (13 rows, 0 mismatches).
+- Early and latter long-run paces: P says they mean the first-half and second-half pace of a progressive long run. Default stays the average of the two (P's choice 3). The book text on p. 250 not seen.
+- Read from a skewed photo: race week Tuesday recovery 3 mi and Wednesday recovery 4 mi. Weekly total is the same either way.
+- The book's banner says 12-week and the p. 195 side tab says 11-week; the table itself has 11 weeks to goal, race week, then the post-race week.
+
+## Pfitzinger Tables 1.1 and 1.2 (P, 2026-11-15)
+- P sent p. 11 (Table 1.2, target heart rate intensities) and Table 1.1 (long run paces). Both in methodology/short-plans.md.
+- Table 1.1 answers the early/latter question: early is 33% and latter 20% slower than 10K race pace, for a long run that progresses from one to the other. Matches the p. 251 long-run columns within 0.5 s/km over all 28 rows, which also checks both transcriptions. Default stays the average (P's choice).
+- Table 1.2 not used by any page yet.

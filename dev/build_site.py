@@ -24,7 +24,7 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace, and optional TSS, for a running or walking treadmill setting.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","1RM and Scheme Calculator","1RM estimate, working weights and a warm-up ladder from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
  ("marathon-plans.html","marathon-plans.html","Marathon Plan Viewer","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Plans"),
- ("short-plans.html","short-plans.html","Short-Distance Plan Viewer","Daniels 5K to 10K plans and Davis's Full-Spectrum 10k plan with paces and load.","short-plans.md","short-plans","Plans"),
+ ("short-plans.html","short-plans.html","Short-Distance Plan Viewer","Daniels 5K to 10K plans, Davis's Full-Spectrum 10k plan and Pfitzinger's 8K-10K schedules with paces and load.","short-plans.md","short-plans","Plans"),
  ("copeland-base.html","copeland-base.html","Copeland Base","A ramp from your CTL to week 1 of the Copeland marathon plan.","copeland-base.md","copeland-base","Plans"),
  ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Finder","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Plans"),
  ("hybrid-load-planner.html","hybrid-load-planner.html","Hybrid Load Planner","CTL, ATL and TSB from a week of runs and lifts.","hybrid-load-planner.md","hybrid-load-planner","Load"),

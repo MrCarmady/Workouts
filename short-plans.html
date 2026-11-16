@@ -115,7 +115,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   <header class="head">
     <div>
       <h1>Short-Distance Plan Viewer</h1>
-      <p class="sub">Daniels 5K to 10K plans and Davis's Full-Spectrum 10k plan from a race result, with paces and load. For marathon plans, use the <a href="marathon-plans.html">Marathon Plan Viewer</a>.</p>
+      <p class="sub">Daniels 5K to 10K plans, Davis's Full-Spectrum 10k plan and Pfitzinger's 8K-10K schedules from a race result, with paces and load. For marathon plans, use the <a href="marathon-plans.html">Marathon Plan Viewer</a>.</p>
     </div>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
@@ -157,6 +157,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
       </label>
       <label id="f-goal">Goal race
         <select id="goal"><option value="5">5km</option><option value="10" selected>10km</option></select>
+      </label>
+      <label id="f-pgoal">Goal race
+        <select id="pgoal"><option value="8">8km</option><option value="10" selected>10km</option></select>
+      </label>
+      <label class="span2" id="f-epf">Endurance run pace
+        <select id="epf"><option value="mid" selected>Book's early and latter, averaged</option><option value="early">Early (slower)</option><option value="latter">Latter (faster)</option></select>
       </label>
       <label class="span2" id="f-rw">Races in Phase IV
         <select id="rw">
@@ -614,14 +620,160 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   return { build: build };
   })();
 
+  // ---------- Pfitzinger, 8K-10K schedules 1, 2 and 3 ----------
+  var PFITZ = (function () {
+  // Pfitzinger and Latter, Faster Road Racing, 8K-10K Schedules 1, 2 and 3 (pp. 194-199). Weeks are listed from 11 weeks to goal to race week, then the post-race recovery week; days run Monday to Sunday; miles as printed.
+  // Runs: G general aerobic, N endurance, R recovery [k, miles, extras]; LT [k, miles, minutes[], jog min]; RP and VO [k, miles, metres[], label]; UP [k, miles, reps, minutes]; SPD [k, miles, sets, reps]; RACE [k, miles, 0 tune-up 5K or 1 goal race]; RPM race-week Monday [k, miles].
+  var SCHED = {"pf1":{"name":"Schedule 1: 30 to 42 miles (48 to 67 km) per week","weeks":[["11",30,[[],[["G",6,"6 × 12 sec uphill, then 8 × 100 m strides"]],[["N",8,""]],[],[["LT",7,[8,8,8],3]],[],[["N",9,""]]]],["10",32,[[],[["SPD",6,2,4]],[["N",8,""]],[],[["LT",8,[10,10,8],3]],[],[["N",10,""]]]],["9",34,[[],[["G",7,"6 × 12 sec uphill, then 8 × 100 m strides"]],[["N",9,""]],[],[["UP",8,6,3]],[],[["N",10,""]]]],["8",30,[[],[["SPD",7,2,4]],[["G",7,""]],[],[["G",7,""]],[],[["G",9,""]]]],["7",37,[[],[["G",7,"6 × 12 sec uphill, then 8 × 100 m strides"]],[["N",9,""]],[],[["VO",8,[1000,1000,1000,1000,1000],"5 × 1,000 m"]],[["R",3,""]],[["N",10,""]]]],["6",39,[[],[["SPD",8,2,5]],[["N",9,""]],[],[["LT",8,[12,10,10],4]],[["R",3,""]],[["N",11,""]]]],["5",41,[[],[["G",8,"2 sets of 6 × 100 m strides, jog 3 min between sets"]],[["N",9,""]],[],[["RP",9,[1200,1200,1200,1200,1000,1000],"4 × 1,200 m, 2 × 1,000 m"]],[["R",4,""]],[["N",11,""]]]],["4",34,[[],[["G",7,"2 sets of 5 × 150 m strides, jog 250 m recovery and 4 min between sets"]],[["G",7,""]],[],[["R",3,""]],[["RACE",8,0]],[["N",9,""]]]],["3",42,[[],[["G",8,"8 × 100 m strides"]],[["N",9,""]],[],[["VO",9,[1000,1000,1000,800,800,800],"3 × 1,000 m, 3 × 800 m"]],[["R",5,""]],[["N",11,""]]]],["2",34,[[],[["G",7,"2 sets of 5 × 150 m strides, jog 250 m recovery and 4 min between sets"]],[["G",7,""]],[],[["R",3,""]],[["RACE",8,0]],[["N",9,""]]]],["1",30,[[],[["G",6,"8 × 100 m strides"]],[["R",4,""]],[["VO",8,[800,800,800,800,600,600],"4 × 800 m, 2 × 600 m"]],[],[["R",4,""]],[["G",8,""]]]],["Race week",31,[[["RPM",6]],[["R",3,""]],[["R",4,""]],[],[["R",3,"4 × 100 m strides"]],[["RACE",11,1]],[["R",4,""]]]],["Post-race recovery",32,[[],[["R",5,""]],[["R",5,""]],[["R",6,""]],[],[["G",7,"8 × 100 m strides"]],[["G",9,""]]]]]},"pf2":{"name":"Schedule 2: 45 to 57 miles (72 to 91 km) per week","weeks":[["11",45,[[],[["G",8,""]],[["LT",8,[10,8,8],3]],[["N",9,""]],[["R",3,""]],[["G",7,"6 × 12 sec uphill, then 8 × 100 m strides"]],[["N",10,""]]]],["10",47,[[],[["G",8,""]],[["LT",9,[12,10,8],4]],[["N",9,""]],[["R",3,""]],[["SPD",7,2,5]],[["N",11,""]]]],["9",49,[[],[["G",8,""]],[["UP",9,7,3]],[["N",9,""]],[["R",4,""]],[["G",8,"6 × 12 sec uphill, then 8 × 100 m strides"]],[["N",11,""]]]],["8",45,[[],[["G",7,""]],[["G",9,""]],[["SPD",8,2,5]],[["R",3,""]],[["G",8,""]],[["N",10,""]]]],["7",52,[[],[["G",9,""]],[["VO",9,[1000,1000,1000,1000,1000,1000],"6 × 1,000 m"]],[["N",10,""]],[["R",4,""]],[["G",8,"6 × 12 sec uphill, then 8 × 100 m strides"]],[["N",12,""]]]],["6",54,[[],[["G",9,""]],[["LT",10,[14,10,10],4]],[["N",10,""]],[["R",5,""]],[["SPD",8,3,4]],[["N",12,""]]]],["5",56,[[],[["G",9,""]],[["RP",10,[1600,1200,1000,1600,1200,1000],"2 sets of (1,600 m, 1,200 m, 1,000 m)"]],[["N",11,""]],[["R",5,""]],[["G",9,"2 sets of 6 × 100 m strides, jog 3 min between sets"]],[["N",12,""]]]],["4",47,[[],[["G",9,"2 sets of 5 × 150 m strides, jog 250 m recovery and 4 min between sets"]],[["G",8,""]],[["R",7,""]],[["R",4,""]],[["RACE",9,0]],[["N",10,""]]]],["3",57,[[],[["G",9,""]],[["VO",10,[1200,1200,1200,800,800,800],"3 × 1,200 m, 3 × 800 m"]],[["N",11,""]],[["R",5,""]],[["G",9,"2 sets of 6 × 100 m strides, jog 3 min between sets"]],[["N",13,""]]]],["2",47,[[],[["G",9,"2 sets of 5 × 150 m strides, jog 250 m recovery and 4 min between sets"]],[["G",8,""]],[["R",7,""]],[["R",4,""]],[["RACE",9,0]],[["N",10,""]]]],["1",40,[[],[["G",7,""]],[["R",5,""]],[["VO",9,[800,800,800,800,600,600,600],"4 × 800 m, 3 × 600 m"]],[["R",4,""]],[["G",6,"8 × 100 m strides"]],[["G",9,""]]]],["Race week",38,[[["RPM",7]],[["G",6,""]],[["R",5,""]],[],[["R",4,"4 × 100 m strides"]],[["RACE",11,1]],[["R",5,""]]]],["Post-race recovery",39,[[],[["R",5,""]],[["R",6,""]],[["R",6,""]],[["R",4,""]],[["G",8,"8 × 100 m strides"]],[["G",10,""]]]]]},"pf3":{"name":"Schedule 3: 60 to 76 miles (96 to 122 km) per week","weeks":[["11",60,[[],[["G",10,""]],[["LT",10,[10,10,8],3]],[["N",11,""]],[["R",7,""]],[["G",9,"6 × 12 sec uphill, then 8 × 100 m strides"]],[["N",13,""]]]],["10",63,[[],[["G",10,""]],[["LT",11,[12,10,10],4]],[["N",11,""]],[["R",6,""],["R",4,""]],[["SPD",8,3,4]],[["N",13,""]]]],["9",66,[[["R",4,""]],[["G",10,""]],[["UP",10,6,4]],[["N",11,""]],[["R",5,""],["R",4,""]],[["G",9,"6 × 12 sec uphill, then 8 × 100 m strides"]],[["N",13,""]]]],["8",60,[[["R",5,""]],[["G",9,""]],[["G",7,""]],[["N",10,""]],[["R",6,""],["R",4,""]],[["SPD",8,3,4]],[["N",11,""]]]],["7",69,[[["R",5,""]],[["G",10,""]],[["RP",11,[1600,1600,1200,1200,1000,1000,800],"2 × 1,600 m, 2 × 1,200 m, 2 × 1,000 m, 1 × 800 m"]],[["N",11,""]],[["R",5,""],["R",4,""]],[["G",10,"6 × 12 sec uphill, then 8 × 100 m strides"]],[["N",13,""]]]],["6",71,[[["R",6,""]],[["G",10,""]],[["LT",11,[14,12,10],4]],[["N",12,""]],[["R",6,""],["R",4,""]],[["SPD",8,3,5]],[["N",14,""]]]],["5",73,[[["R",7,""]],[["G",10,""]],[["RP",11,[1600,1200,1000,800,1600,1200,1000,800],"2 sets of (1,600 m, 1,200 m, 1,000 m, 800 m)"]],[["N",12,""]],[["R",5,""],["R",4,""]],[["G",10,"2 sets of 6 × 100 m strides, jog 3 min between sets"]],[["N",14,""]]]],["4",62,[[["R",5,""],["R",4,""]],[["G",11,"2 sets of 5 × 150 m strides, jog 250 m recovery and 4 min between sets"]],[["G",9,""]],[["G",7,""]],[["R",5,""]],[["RACE",10,0]],[["N",11,""]]]],["3",76,[[["R",7,""]],[["G",11,""]],[["VO",11,[1200,1200,800,1200,1200,800],"2 sets of (1,200 m, 1,200 m, 800 m)"]],[["N",12,""]],[["R",5,""],["R",4,""]],[["G",11,"2 sets of 6 × 100 m strides, jog 3 min between sets"]],[["N",15,""]]]],["2",62,[[["R",5,""],["R",4,""]],[["G",11,"2 sets of 5 × 150 m strides, jog 250 m recovery and 4 min between sets"]],[["G",9,""]],[["G",7,""]],[["R",5,""]],[["RACE",10,0]],[["N",11,""]]]],["1",52,[[["R",5,""]],[["G",8,""]],[["R",7,""]],[["VO",10,[800,800,800,800,600,600,600,600],"4 × 800 m, 4 × 600 m"]],[["R",4,""]],[["G",8,"8 × 100 m strides"]],[["G",10,""]]]],["Race week",43,[[["RPM",8]],[["G",7,""]],[["R",5,""]],[],[["R",4,"4 × 100 m strides"]],[["RACE",12,1]],[["R",7,""]]]],["Post-race recovery",45,[[],[["R",5,""]],[["R",6,""]],[["R",7,""]],[["G",7,""]],[["G",9,"8 × 100 m strides"]],[["G",11,""]]]]]}};
+  // Paces from the book's table (p. 251), by 5km time: [5km s, LT lo, LT hi (s/km), VO2max lo, hi (s per 400 m), speed 300 m lo, hi (s), speed 200 m lo, hi (s), long run early, latter (s/km)]. Rows are 30 s apart to 25:00, then 1 min.
+  var BOOK = [[840,174,180,65,67,44,47,29,31,232,210],[870,180,186,67,70,45,48,30,32,241,217],[900,187,193,69,72,47,50,31,33,249,225],[930,193,199,72,74,48,52,32,35,257,232],[960,199,205,74,77,50,54,33,36,266,240],[990,205,211,76,79,51,55,34,37,274,247],[1020,212,218,78,82,53,57,35,38,282,255],[1050,218,224,81,84,54,59,36,39,290,262],[1080,224,230,83,86,56,60,37,40,299,270],[1110,230,236,85,89,58,62,38,41,307,277],[1140,237,243,88,91,59,64,39,42,315,285],[1170,243,249,90,94,61,65,40,43,324,292],[1200,249,255,92,96,62,67,41,45,332,300],[1230,256,262,95,98,64,69,43,46,340,307],[1260,262,268,97,101,65,70,44,47,349,315],[1290,269,275,99,103,67,72,45,48,357,322],[1320,275,281,101,106,68,74,46,49,365,330],[1350,281,287,104,108,70,75,47,50,373,337],[1380,288,294,106,110,72,77,48,51,382,344],[1410,294,300,108,113,73,79,49,52,390,352],[1440,300,306,111,115,75,80,50,54,398,359],[1470,307,313,113,118,76,82,51,55,407,367],[1500,313,319,115,120,78,84,52,56,415,374],[1560,326,332,120,125,81,87,54,58,432,389],[1620,339,345,125,130,84,90,56,60,448,404],[1680,352,358,129,134,87,94,58,62,465,419],[1740,364,370,134,139,90,97,60,65,481,434],[1800,377,383,138,144,93,100,62,67,498,449]];
+  var R8 = 1.6494, R10 = 2.08;   // 8K and 10K times as multiples of the 5K time (Appendix B, p. 249; every row of the table is within 0.6 s)
+  function bookAt(t5, j) {
+    var i = 0; while (i < BOOK.length - 2 && t5 > BOOK[i + 1][0]) i++;
+    var a = BOOK[i], b = BOOK[i + 1], f = (t5 - a[0]) / (b[0] - a[0]);
+    return a[j] + f * (b[j] - a[j]);
+  }
+  var DAYS_P = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  function build(planId, c) {
+    var pz = pers(); if (pz.err) return { err: pz.err };
+    offM = 0;
+    var raceP = mkRaceP(c), goalKm = parseFloat($("pgoal").value) === 8 ? 8 : 10, THRk = raceP(16);   // s per km
+    var T5 = 5 * raceP(5);
+    if (T5 < BOOK[0][0] || T5 > BOOK[BOOK.length - 1][0]) return { err: "The book's pace table covers a 5km equivalent of 14:00 to 30:00. Your result is equivalent to " + mmss(T5) + "." };
+    var ltLo = bookAt(T5, 1), ltHi = bookAt(T5, 2), voLo = bookAt(T5, 3), voHi = bookAt(T5, 4), s2Lo = bookAt(T5, 7), s2Hi = bookAt(T5, 8), lrE = bookAt(T5, 9), lrL = bookAt(T5, 10);
+    var epf = $("epf").value, lr = epf === "early" ? lrE : epf === "latter" ? lrL : (lrE + lrL) / 2;
+    var gaF = pz.bk ? 0.70 : pz.e, rvF = pz.bk ? 0.60 : Math.min(0.60, pz.e);   // fractions of 5km speed, as on the Marathon Plan Viewer's Pfitzinger plans
+    var PC = { E: T5 / 5 / gaF, Rv: T5 / 5 / rvF, N: lr, LT: (ltLo + ltHi) / 2, V: (voLo + voHi) / 2 * 2.5, RP: goalKm === 8 ? T5 * R8 / 8 : T5 * R10 / 10, S: (s2Lo + s2Hi) / 2 * 5, T5: T5 / 5 };   // s per km
+    var PL = { E: "GA", Rv: "Rec", N: "Endur", LT: "LT", V: "3-5K", RP: "8-10K", S: "Speed", T5: "5K" };
+    function tss(sec, p) { return sec / 3600 * Math.pow(THRk / p, 2) * 100; }
+    function mk(lbl, pk0, d, t) {   // d in km or t in s, the other is null
+      var p = pk0 ? PC[pk0] : 0, dd0 = d, tt = t;
+      if (pk0) { if (d === null) dd0 = t / p; else tt = d * p; }
+      return { lbl: lbl, pk: pk0, d: dd0 || 0, t: tt || 0, s: pk0 ? tss(tt, p) : 0 };
+    }
+    function rest(lbl, t) { return { lbl: lbl, pk: "", d: 0, t: t, s: 0 }; }
+    function note(lbl) { return { lbl: lbl, pk: "", d: 0, t: 0, s: 0, note: true }; }
+    function mins(a) { return a.join(", "); }
+    function jogs(n, t, what) { return mk(n + " × " + (t / n / 60 < 1 ? Math.round(t / n) + " s" : Math.round(t / n / 6) / 10 + " min") + " " + what, "Rv", null, t); }
+    var warn = 0;
+    function fill(r, rows, miTotal) {   // pad the day to its printed miles with easy running
+      var used = 0; rows.forEach(function (x) { used += x.d; });
+      var rem = miTotal * MILE - used;
+      if (rem < -0.05) warn++;
+      if (rem > 0.005) rows.push(mk("Warm-up, cool-down and easy running", "E", rem, null));
+    }
+    function runOf(r) {   // -> { rows, sh }
+      var k = r[0], mi = r[1], rows = [], sh = "", w;
+      if (k === "G" || k === "N" || k === "R") {
+        rows.push(mk((k === "G" ? "General aerobic run" : k === "N" ? "Endurance run" : "Recovery run"), k === "R" ? "Rv" : k === "N" ? "N" : "E", mi * MILE, null));
+        if (r[2]) rows.push(note("Not scored: " + r[2]));
+        if (k === "N" && mi >= 11) sh = "endurance " + ds(mi) + " " + U;
+        return { rows: rows, sh: sh };
+      }
+      if (k === "LT") {
+        w = r[2].reduce(function (a, b) { return a + b; }, 0) * 60;
+        rows.push(mk("LT intervals " + mins(r[2]) + " min", "LT", null, w));
+        rows.push(jogs(r[2].length - 1, (r[2].length - 1) * r[3] * 60, "jog"));
+        fill(r, rows, mi);
+        return { rows: rows, sh: "LT " + r[2].join("+") + " min" };
+      }
+      if (k === "RP" || k === "VO") {
+        var pk0 = k === "RP" ? "RP" : "V", frac = k === "RP" ? 0.5 : 0.7, wt = 0, jt = 0;
+        r[2].forEach(function (m, j) { var tt = m / 1000 * PC[pk0]; wt += tt; if (j < r[2].length - 1) jt += tt * frac; });
+        rows.push(mk(r[3] + " at " + (k === "RP" ? "8K-10K" : "3K-5K") + " race pace", pk0, null, wt));
+        rows.push(mk("Jog recoveries, " + (k === "RP" ? "50" : "70") + "% of interval time", "Rv", null, jt));
+        fill(r, rows, mi);
+        return { rows: rows, sh: (k === "RP" ? "8-10K pace " : "3-5K pace ") + r[3] };
+      }
+      if (k === "UP") {
+        w = r[2] * r[3] * 60;
+        rows.push(mk(r[2] + " × " + r[3] + " min uphill at 3K-5K effort", "V", null, w));
+        rows.push(jogs(r[2] - 1, (r[2] - 1) * r[3] * 60, "downhill jog"));
+        fill(r, rows, mi);
+        return { rows: rows, sh: r[2] + " × " + r[3] + " min uphill" };
+      }
+      if (k === "SPD") {
+        var n = r[2] * r[3];
+        rows.push(mk(r[2] + " sets of " + r[3] + " × 200 m speed", "S", n * 0.2, null));
+        rows.push(mk("200 m jogs between reps", "Rv", r[2] * (r[3] - 1) * 0.2, null));
+        rows.push(rest("4 min rests between sets", (r[2] - 1) * 240));
+        fill(r, rows, mi);
+        return { rows: rows, sh: r[2] + " × " + r[3] + " × 200 m" };
+      }
+      if (k === "RPM") {
+        rows.push(mk("1,200 m at 8K-10K race pace", "RP", 1.2, null));
+        rows.push(note("Not scored: 4 × 100 m strides"));
+        fill(r, rows, mi);
+        return { rows: rows, sh: "1,200 m at race pace" };
+      }
+      if (k === "RACE") {
+        var km = r[2] ? goalKm : 5, pk1 = r[2] ? "RP" : "T5";
+        rows.push(mk((r[2] ? "Goal race " : "5K tune-up race ") + km + "km", pk1, km, null));
+        fill(r, rows, mi);
+        return { rows: rows, sh: r[2] ? "race " + km + "km" : "5K tune-up race", race: true };
+      }
+      throw new Error("bad run " + k);
+    }
+    var paces = [["Recovery", "Rv"], ["General aerobic", "E"], ["Endurance (long run)", "N"], ["Lactate threshold", "LT"], ["3K-5K (VO2max)", "V"], ["8K-10K race pace", "RP"], ["Speed, 200 m reps", "S"], ["5K race pace", "T5"]].map(function (x) { return [x[0], pk(PC[x[1]]), "/" + U]; });
+    var SC = SCHED[planId], weeks = [];
+    SC.weeks.forEach(function (wv, i) {
+      var d7 = [], sec = 0, mi = 0, detail = "", sess = [], rm = i === 11;
+      wv[2].forEach(function (runs, j) {
+        var nm = DAYS_P[j], ds7 = 0, dm = 0, dt = 0, rows = [];
+        if (!runs.length) { detail += thead(nm) + trow("Rest or cross-training", "", "", "", ""); d7.push(0); return; }
+        runs.forEach(function (r) {
+          var o = runOf(r);
+          o.rows.forEach(function (x) { rows.push(x); dm += x.d; dt += x.t; ds7 += x.s; });
+          if (o.sh) sess.push(nm + " " + o.sh);
+        });
+        detail += thead(nm);
+        rows.forEach(function (x) {
+          detail += rowHtml({ lbl: x.lbl, pt: x.pk ? PL[x.pk] + " " + pk(PC[x.pk]) : "", dlo: x.d / MILE, dhi: x.d / MILE, tlo: x.t, thi: x.t, slo: x.s, shi: x.s });
+        });
+        if (rows.length > 1) detail += ttot(ds(dm / MILE) + " " + U, tm(dt), Math.round(ds7));
+        mi += dm / MILE; sec += dt; d7.push(ds7);
+      });
+      var lab = i < 11 ? String(i + 1) + "<small>" + (11 - i) + " to go" + (wv[0] === "8" ? ", recovery" : "") + "</small>" : String(i + 1) + "<small>" + wv[0].toLowerCase() + "</small>";
+      var wk = {
+        lab: lab, opt: "Week " + (i + 1) + (i < 11 ? " (" + (11 - i) + " weeks to goal" + (wv[0] === "8" ? ", recovery" : "") + ")" : " (" + wv[0].toLowerCase() + ")"),
+        d7: d7, dist: ds(mi) + " " + U, sec: sec, sess: sess.length ? sess : ["Easy running only"], detail: detail,
+        dnote: "Week " + (i + 1) + ": the schedule states " + ds(wv[1]) + " " + U + "; the runs below add up to " + ds(mi) + " " + U + "."
+      };
+      if (rm) { wk.raceIdx = 5; wk.dnote += " The race counts in the week's TSS; CTL and ATL for race morning are taken before Saturday."; }
+      weeks.push(wk);
+    });
+    function rg(a, b) { return pk(a) + "-" + pk(b); }
+    return {
+      title: "12 weeks and a recovery week", paces: paces,
+      pnote: "From the book's table at a 5km equivalent of " + mmss(T5) + ": LT " + rg(ltLo, ltHi) + " /" + U + " (midpoint used), VO2max " + Math.round(voLo) + "-" + Math.round(voHi) + " s per 400 m, speed " + Math.round(s2Lo) + "-" + Math.round(s2Hi) + " s per 200 m, long run " + pk(lrE) + " early and " + pk(lrL) + " latter. 8K-10K race pace is from the book's 8K or 10K column. Recovery and general aerobic are " + (pz.bk ? "60% and 70% of 5km speed" : "from your easy-pace setting") + ", as on the Marathon Plan Viewer.", weeks: weeks,
+      wnote: "Weeks run Monday to Sunday. The race is on the Saturday of week 12, and Sunday's recovery run is in the same row, so race-morning CTL and ATL are taken before Saturday." + (warn ? " In " + warn + " session(s) the work is longer than the printed miles, so the warm-up and cool-down are set to zero." : ""),
+      notes: [
+        "<b>Plan.</b> Faster Road Racing, " + SC.name + ", as printed on pp. 196 to 199 of the print edition. Weeks are counted from 11 weeks to the goal race, then race week, then the post-race recovery week. Weekly volume is fixed by the book, so the weekly-distance box does not apply. The printed daily and weekly miles are used as they are (each week adds up to the printed total).",
+        "<b>Day miles.</b> The miles printed for a quality session or race are the whole day. The work and its jog recoveries are scored at the paces below, and the rest of the miles are warm-up and cool-down at general aerobic pace. Strides and hill sprints are listed and not scored, and their distance is part of the day's easy miles.",
+        "<b>Paces from the book.</b> The book's pace table (p. 251, by 5km time, interpolated between its rows) gives LT per mile and per km, VO2max per 400 m, speed per 300 m and 200 m, and early and latter long-run paces. Ranges are used at their midpoints. LT intervals run at the LT pace, the 3K-5K intervals at the VO2max pace, the 200 m speed reps at the 200 m column and the 8K-10K intervals and races at the 8K or 10K prediction from Appendix B (p. 249), with the goal box choosing between them. The 5K tune-up is scored at your 5km equivalent. The page's 5km equivalent comes from the race you enter, so it can differ from the book's own prediction for you.",
+        "<b>Endurance runs.</b> The schedules print endurance runs and the table lists a long run, so the table's long-run paces are used for them (my mapping). Early and latter are the book's Table 1.1 paces for a progressive long run: 33% and 20% slower than 10K race pace (the table's long-run columns match this). The box defaults to the average of the two. The Early and Latter options use one of the two paces.",
+        "<b>Recovery and general aerobic.</b> The table has no pace for them. They follow the Marathon Plan Viewer's Pfitzinger plans: recovery 60% and general aerobic 70% of 5km speed (the author's choices). Warm-ups, cool-downs and jogs use these paces too. With 'My easy pace setting', general aerobic is the easy percentage and recovery is 60% or that percentage if lower.",
+        "<b>Recoveries.</b> LT jogs use the printed minutes. Race-pace intervals take a jog of 50% of the interval time and the 3K-5K intervals 70%, the middle of the book's 50 to 90%. The jogs count towards distance and TSS. The 4 minutes between sets of 200s is standing rest and scores 0.",
+        "<b>Uphill reps.</b> The 3K-5K effort uphill repeats are scored as time at the VO2max pace, with a downhill jog as long as the repeat between them. That is my assumption; uphill pace itself is slower for the same effort.",
+        "<b>Races.</b> The two 5K tune-up races and the goal race are scored over 5km and the goal distance. The remaining miles of the printed day are warm-up and cool-down.",
+        "<b>Load.</b> " + LOADNOTE
+      ]
+    };
+  }
+  return { build: build };
+  })();
+
   // ---------- Engine ----------
   var KC = 1 - Math.exp(-1 / 42), KA = 1 - Math.exp(-1 / 7);
   var PLANS = [
     ["d1", "Daniels 5K to 10K, 40 to 50 miles (64 to 80 km), 18 weeks", DANIELS, ["f-week", "f-goal", "f-rw", "f-hm", "f-adjt"], "Daniels"],
     ["d2", "Daniels 5K to 10K, 60 to 70 miles (97 to 112 km), 18 weeks", DANIELS, ["f-week", "f-goal", "f-rw", "f-hm", "f-adjt"], "Daniels"],
-    ["davis", "Davis Full-Spectrum 10k, 16 weeks", DAVIS, [], "Davis"]
+    ["davis", "Davis Full-Spectrum 10k, 16 weeks", DAVIS, [], "Davis"],
+    ["pf1", "Pfitzinger 8K-10K Schedule 1, 30 to 42 miles (48 to 67 km), 12 weeks", PFITZ, ["f-pgoal", "f-epf"], "Pfitzinger"],
+    ["pf2", "Pfitzinger 8K-10K Schedule 2, 45 to 57 miles (72 to 91 km), 12 weeks", PFITZ, ["f-pgoal", "f-epf"], "Pfitzinger"],
+    ["pf3", "Pfitzinger 8K-10K Schedule 3, 60 to 76 miles (96 to 122 km), 12 weeks", PFITZ, ["f-pgoal", "f-epf"], "Pfitzinger"]
   ];
-  var ALLF = ["f-week", "f-goal", "f-rw", "f-hm", "f-adjt"];
+  var ALLF = ["f-week", "f-goal", "f-rw", "f-hm", "f-adjt", "f-pgoal", "f-epf"];
   var out = null;
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; $("detail").hidden = true; }
   function planOf(id) { for (var i = 0; i < PLANS.length; i++) if (PLANS[i][0] === id) return PLANS[i]; return PLANS[0]; }
@@ -655,7 +807,11 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     var weeks = r.weeks, c0 = ctlIn !== null ? ctlIn : weeks[0].d7.reduce(function (s, x) { return s + x; }, 0) / 7, c = c0, at = c0;
     weeks.forEach(function (w) {
       var c1 = c;
-      w.d7.forEach(function (x) { c += (x - c) * KC; at += (x - at) * KA; });
+      w.d7.forEach(function (x, j) {
+        if (w.raceIdx === j) w.rm = { ctl: c, atl: at };
+        c += (x - c) * KC; at += (x - at) * KA;
+        if (w.raceIdx === j) w.post = { ctl: c, atl: at, tss: x };
+      });
       w.tss = w.d7.reduce(function (s, x) { return s + x; }, 0); w.ctl = c; w.atl = at; w.ramp = c - c1;
       if (w.raceTss) { w.post = { ctl: c + (w.raceTss - c) * KC, atl: at + (w.raceTss - at) * KA, tss: w.raceTss }; w.tss += w.raceTss; }
     });
@@ -669,7 +825,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     $("wrows").innerHTML = h;
     var lw = null; for (var k = weeks.length - 1; k >= 0; k--) if (weeks[k].post) { lw = weeks[k]; break; }
     $("wnote").textContent = "Start CTL " + c0.toFixed(1) + (ctlIn !== null ? " (entered)" : " (estimated)") + ". CTL, ATL and ramp are at the end of each week. " + r.wnote
-      + (lw ? " Race morning: CTL " + lw.ctl.toFixed(1) + ", ATL " + lw.atl.toFixed(1) + ", TSB " + sgn(lw.ctl - lw.atl) + ". After the race: CTL " + lw.post.ctl.toFixed(1) + ", ATL " + lw.post.atl.toFixed(1) + "." : "");
+      + (lw ? " Race morning: CTL " + (lw.rm || lw).ctl.toFixed(1) + ", ATL " + (lw.rm || lw).atl.toFixed(1) + ", TSB " + sgn((lw.rm || lw).ctl - (lw.rm || lw).atl) + ". After the race: CTL " + lw.post.ctl.toFixed(1) + ", ATL " + lw.post.atl.toFixed(1) + "." : "");
     $("notes").innerHTML = r.notes.map(function (x) { return "<li>" + x + "</li>"; }).join("");
     $("mtitle").textContent = "Notes: " + a[4];
     var sel = $("wk"), cur = sel.value, o = "";
@@ -687,7 +843,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
 
   function save() {
     try { profSet("km", $("dist").value); profSet("time", $("time").value); profSet("wunit", $("wunit").value); profSet("ezp", $("ezp").value); profSet("emode", $("emode").value); } catch (e) {}
-    try { localStorage.setItem("sp", JSON.stringify({ p: $("plan").value, c: $("ctl").value, w: $("week").value, g: $("goal").value, r: $("rw").value, h: $("hm").value, j: $("adjt").checked })); } catch (e) {}
+    try { localStorage.setItem("sp", JSON.stringify({ p: $("plan").value, c: $("ctl").value, w: $("week").value, g: $("goal").value, pg: $("pgoal").value, pe: $("epf").value, r: $("rw").value, h: $("hm").value, j: $("adjt").checked })); } catch (e) {}
   }
   function restore() {
     try {
@@ -698,6 +854,8 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         if (typeof s.c === "string") $("ctl").value = s.c;
         if (typeof s.w === "string") $("week").value = s.w;
         if (s.g === "5" || s.g === "10") $("goal").value = s.g;
+        if (s.pg === "8" || s.pg === "10") $("pgoal").value = s.pg;
+        if (s.pe === "mid" || s.pe === "early" || s.pe === "latter") $("epf").value = s.pe;
         if (s.r === "last" || s.r === "none" || s.r === "all") $("rw").value = s.r;
         if (s.h === "I" || s.h === "mid") $("hm").value = s.h;
         if (typeof s.j === "boolean") $("adjt").checked = s.j;
@@ -722,7 +880,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
 
   restore();
-  ["dist", "time", "wunit", "plan", "ctl", "week", "goal", "rw", "hm", "adjt", "ezp", "emode"].forEach(function (id) {
+  ["dist", "time", "wunit", "plan", "ctl", "week", "goal", "pgoal", "epf", "rw", "hm", "adjt", "ezp", "emode"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });

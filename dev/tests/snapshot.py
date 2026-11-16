@@ -30,7 +30,7 @@ def scenarios():
     out.append(('run-session-calculator','3 min reps',lambda pg:[fill(pg,'dist','3'),fill(pg,'time','10:44.80'),fill(pg,'unit','min'),fill(pg,'rep','3')]))
     out.append(('plan-builder','block 4 days',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'week','60'),fill(pg,'wunit','mi'),fill(pg,'days','4'),fill(pg,'ctl','50'),fill(pg,'weeks','10')]))
     LASTWK="e=>{var s=document.querySelector('#wk');s.selectedIndex=s.options.length-1;s.dispatchEvent(new Event('change',{bubbles:true}))}"
-    for c,d,t in [('wr','5','18:45'),('wr','10','39:43'),('tinman','5','18:30'),('tinman','21.0975','1:27:08'),('tinman','5','12:00'),('daniels','5','18:30'),('hansons','5','18:30'),('pfitz','10','39:43'),('pfitz','5','18:30'),('hansons','3','10:44'),('pfitz','21.0975','1:20:00'),('rlrf','5','18:52'),('rlrf','21.0975','1:27:18'),('rlrf','5','15:00'),('rlrf','1','5:23')]:
+    for c,d,t in [('wr','5','18:45'),('wr','10','39:43'),('tinman','5','18:30'),('tinman','21.0975','1:27:08'),('tinman','5','12:00'),('daniels','5','18:30'),('hansons','5','18:30'),('pfitz','10','39:43'),('pfitz','5','18:30'),('hansons','3','10:44'),('pfitz','21.0975','1:20:00'),('rlrf','5','18:52'),('rlrf','21.0975','1:27:18'),('rlrf','5','15:00'),('rlrf','1','5:23'),('pfrr','5','18:52'),('pfrr','21.0975','1:27:18'),('pfrr','5','13:00'),('pfrr','3','10:44')]:
         out.append(('race-prediction-calculator','compare '+c+' '+d+' '+t,lambda pg,c=c,d=d,t=t:[fill(pg,'dist',d),fill(pg,'time',t),pg.select_option('#cmp',c)]))
     out.append(('race-prediction-calculator','compare tinman 5km 19:00 short rows',lambda pg:[fill(pg,'dist',KMIDX['5']),fill(pg,'time','19:00'),pg.select_option('#cmp','tinman')]))
     def two(d1,t1,d2,t2,**k):
@@ -246,6 +246,16 @@ def scenarios():
     out.append(('short-plans','davis week 9 sets',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'plan','davis'),fill(pg,'wk','9')]))
     out.append(('short-plans','davis week 16 race mi',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','39:10'),fill(pg,'plan','davis'),fill(pg,'wunit','mi'),fill(pg,'wk','16')]))
     out.append(('short-plans','davis ctl 50',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','19:30'),fill(pg,'plan','davis'),fill(pg,'ctl','50'),fill(pg,'wk','12')]))
+    out.append(('short-plans','pfitzinger 1 week 3 vo2max',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'plan','pf1'),fill(pg,'wk','3')]))
+    out.append(('short-plans','pfitzinger 1 week 9 uphill ctl 50',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'plan','pf1'),fill(pg,'ctl','50'),fill(pg,'wk','9')]))
+    out.append(('short-plans','pfitzinger 1 race week 10km goal',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'plan','pf1'),fill(pg,'wk','12')]))
+    out.append(('short-plans','pfitzinger 2 week 3 uphill',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'plan','pf2'),fill(pg,'wk','3')]))
+    out.append(('short-plans','pfitzinger 2 week 7 race pace sets',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'plan','pf2'),fill(pg,'wk','7')]))
+    out.append(('short-plans','pfitzinger 2 race week 8km goal',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'plan','pf2'),pg.select_option('#pgoal','8'),fill(pg,'wk','12')]))
+    out.append(('short-plans','pfitzinger 3 week 5 mi',lambda pg:[fill(pg,'dist','10'),fill(pg,'time','39:10'),fill(pg,'plan','pf3'),fill(pg,'wunit','mi'),fill(pg,'wk','7')]))
+    out.append(('short-plans','pfitzinger 3 week 4 tune-up ctl 70 easy setting',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'plan','pf3'),fill(pg,'ctl','70'),pg.select_option('#emode','mine'),fill(pg,'wk','8')]))
+    out.append(('short-plans','pfitzinger 2 week 6 latter long run',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'plan','pf2'),pg.select_option('#epf','latter'),fill(pg,'wk','6')]))
+    out.append(('short-plans','pfitzinger outside table',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','13:00'),fill(pg,'plan','pf2')]))
     out.append(('marathon-plans','pfitzinger my easy setting 65',lambda pg:[fill(pg,'author','pfitzinger'),fill(pg,'dist','5'),fill(pg,'time','18:52'),pg.select_option('#emode','mine')]))
     out.append(('marathon-plan-recommender','buffer box with Copeland selected',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','50'),pg.click('#rows tr[data-n="Copeland add-on"]')]))
     out.append(('marathon-plan-recommender','buffer box with Daniels selected',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'ctl','50'),pg.click('#rows tr[data-n="Daniels 2QA 40"]')]))
