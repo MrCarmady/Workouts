@@ -486,7 +486,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         var cap = pi === 2 && k >= 2 && isRace ? 90 : 120, longMi = Math.min(0.25 * peakMi, cap * 60 / P.E), fixed = 0, nE = 0;
         items.forEach(function (it) { if (it.ses) fixed += it.ses.d; else if (it.lng) fixed += longMi; else if (it.race) fixed += raceMi; else nE++; });
         var rem = peakMi - fixed; if (rem < 0) warns.push(wi + 1);
-        var per = nE ? Math.max(0, rem) / nE : 0, et = tssOf(per * P.E, P.E), d7 = [], sec = 0, mi = 0, detail = "", sess = [];
+        var per = nE ? Math.max(0, rem) / nE : 0, et = tssOf(per * P.E, P.E), d7 = [], sec = 0, mi = 0, detail = "", sess = [], raceIdx = -1;
         items.forEach(function (it, j) {
           var nm = DAYS_D[j], dtss, dmi, dsec;
           if (it.ses) {
@@ -508,6 +508,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
             detail += thead(nm + (it.st ? " (+ " + it.st + " strides)" : "")) + trow("Easy run", "E " + pm(P.E), ds(per) + " " + U, tm(dsec), Math.round(dtss));
           }
           mi += dmi; sec += dsec;
+          if (final && it.race) raceIdx = d7.length;
           d7.push(final && it.race ? 0 : dtss);
         });
         var wk = {
@@ -515,7 +516,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
           d7: d7, dist: ds(mi) + " " + U, sec: sec, sess: sess.length ? sess : ["Easy running only"], detail: detail,
           dnote: "Week " + (wi + 1) + ", " + ph[0] + " week " + (k + 1) + ": " + ds(mi) + " " + U + " in the week, of " + ds(peakMi) + " " + U + " set." + (isRace ? " Race week." : "")
         };
-        if (final) { wk.raceTss = raceS; wk.dnote += " The race counts in the week's TSS, but CTL and ATL are for the morning of the race."; }
+        if (final) { wk.raceTss = raceS; if (raceIdx >= 0) wk.raceIdx = raceIdx; wk.dnote += " The race counts in the week's TSS, but CTL and ATL are for the morning of the race."; }
         weeks.push(wk); wi++;
       });
     });
@@ -571,7 +572,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     var paces = [["Easy (60%)", 60], ["Moderate (75%)", 75], ["Strong (90%)", 90], ["Threshold (96.5%)", 96.5], ["10km (100%)", 100], ["5km (105%)", 105]].map(function (x) { return [x[0], pk(pace(x[1])), "/" + U]; });
     var weeks = [];
     PLAN.forEach(function (w, i) {
-      var d7 = [], sec = 0, km = 0, detail = "", sess = [], last = i === PLAN.length - 1, raceTss = 0;
+      var d7 = [], sec = 0, km = 0, detail = "", sess = [], last = i === PLAN.length - 1, raceTss = 0, raceIdx = -1;
       w.days.forEach(function (runs, j) {
         var nm = DAYS_W[j], ds7 = 0, dm = 0, dt = 0, rows = [], isRace = false;
         runs.forEach(function (r) {
@@ -593,7 +594,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         rows.forEach(function (x) { detail += rowHtml(x); });
         if (rows.length > 1) detail += ttot(dk(dm) + " " + U, tm(dt), Math.round(ds7));
         km += dm; sec += dt;
-        if (last && isRace) { raceTss += ds7; d7.push(0); } else d7.push(ds7);
+        if (last && isRace) { raceTss += ds7; raceIdx = j; d7.push(0); } else d7.push(ds7);
       });
       var vol = w.vol[0] === w.vol[1] ? dk(w.vol[0]) : dk(w.vol[0]) + "-" + dk(w.vol[1]);
       var wk = {
@@ -601,7 +602,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         sess: sess.length ? sess : ["Easy running only"], detail: detail,
         dnote: "Week " + (i + 1) + ": the schedule states " + vol + " " + U + "; the runs below add up to " + dk(km) + " " + U + " (ranges at their midpoint)."
       };
-      if (last) { wk.raceTss = raceTss; wk.dnote += " The 10km counts in the week's TSS, but CTL and ATL are for race morning."; }
+      if (last) { wk.raceTss = raceTss; if (raceIdx >= 0) wk.raceIdx = raceIdx; wk.dnote += " The 10km counts in the week's TSS, but CTL and ATL are for race morning."; }
       weeks.push(wk);
     });
     return {
@@ -766,12 +767,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   // ---------- Engine ----------
   var KC = 1 - Math.exp(-1 / 42), KA = 1 - Math.exp(-1 / 7);
   var PLANS = [
-    ["d1", "Daniels 5K to 10K, 40 to 50 miles (64 to 80 km), 18 weeks", DANIELS, ["f-week", "f-goal", "f-rw", "f-hm", "f-adjt"], "Daniels"],
-    ["d2", "Daniels 5K to 10K, 60 to 70 miles (97 to 112 km), 18 weeks", DANIELS, ["f-week", "f-goal", "f-rw", "f-hm", "f-adjt"], "Daniels"],
-    ["davis", "Davis Full-Spectrum 10k, 16 weeks", DAVIS, [], "Davis"],
-    ["pf1", "Pfitzinger 8K-10K Schedule 1, 30 to 42 miles (48 to 67 km), 12 weeks", PFITZ, ["f-pgoal", "f-epf"], "Pfitzinger"],
-    ["pf2", "Pfitzinger 8K-10K Schedule 2, 45 to 57 miles (72 to 91 km), 12 weeks", PFITZ, ["f-pgoal", "f-epf"], "Pfitzinger"],
-    ["pf3", "Pfitzinger 8K-10K Schedule 3, 60 to 76 miles (96 to 122 km), 12 weeks", PFITZ, ["f-pgoal", "f-epf"], "Pfitzinger"]
+    ["d1", "Daniels 5K-10K, 40-50 mi (64-80 km), 18 wk", DANIELS, ["f-week", "f-goal", "f-rw", "f-hm", "f-adjt"], "Daniels"],
+    ["d2", "Daniels 5K-10K, 60-70 mi (97-112 km), 18 wk", DANIELS, ["f-week", "f-goal", "f-rw", "f-hm", "f-adjt"], "Daniels"],
+    ["davis", "Davis Full-Spectrum 10k, 16 wk", DAVIS, [], "Davis"],
+    ["pf1", "Pfitzinger 8K-10K S1, 30-42 mi (48-67 km), 12 wk", PFITZ, ["f-pgoal", "f-epf"], "Pfitzinger"],
+    ["pf2", "Pfitzinger 8K-10K S2, 45-57 mi (72-91 km), 12 wk", PFITZ, ["f-pgoal", "f-epf"], "Pfitzinger"],
+    ["pf3", "Pfitzinger 8K-10K S3, 60-76 mi (96-122 km), 12 wk", PFITZ, ["f-pgoal", "f-epf"], "Pfitzinger"]
   ];
   var ALLF = ["f-week", "f-goal", "f-rw", "f-hm", "f-adjt", "f-pgoal", "f-epf"];
   var out = null;
@@ -813,7 +814,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
         if (w.raceIdx === j) w.post = { ctl: c, atl: at, tss: x };
       });
       w.tss = w.d7.reduce(function (s, x) { return s + x; }, 0); w.ctl = c; w.atl = at; w.ramp = c - c1;
-      if (w.raceTss) { w.post = { ctl: c + (w.raceTss - c) * KC, atl: at + (w.raceTss - at) * KA, tss: w.raceTss }; w.tss += w.raceTss; }
+      if (w.raceTss) { var b0 = w.rm || { ctl: c, atl: at }; w.post = { ctl: b0.ctl + (w.raceTss - b0.ctl) * KC, atl: b0.atl + (w.raceTss - b0.atl) * KA, tss: w.raceTss }; w.tss += w.raceTss; }
     });
     out = { weeks: weeks };
     $("wtitle").textContent = r.title;
@@ -880,6 +881,12 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
   })();
 
   restore();
+  (function () {
+    var hm = /^#([a-z0-9]+)$/.exec(location.hash || "");
+    if (!hm) return;
+    fillPlans();
+    if ($("plan").querySelector('option[value="' + hm[1] + '"]')) $("plan").value = hm[1];
+  })();
   ["dist", "time", "wunit", "plan", "ctl", "week", "goal", "pgoal", "epf", "rw", "hm", "adjt", "ezp", "emode"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
