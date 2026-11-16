@@ -745,7 +745,7 @@ tr.tot td { font-weight: 600; border-top: 2px solid var(--line); }
     function rg(a, b) { return pk(a) + "-" + pk(b); }
     return {
       title: "12 weeks and a recovery week", paces: paces,
-      pnote: "From the book's table at a 5km equivalent of " + mmss(T5) + ": LT " + rg(ltLo, ltHi) + " /" + U + " (midpoint used), VO2max " + Math.round(voLo) + "-" + Math.round(voHi) + " s per 400 m, speed " + Math.round(s2Lo) + "-" + Math.round(s2Hi) + " s per 200 m, long run " + pk(lrE) + " early and " + pk(lrL) + " latter. 8K-10K race pace is from the book's 8K or 10K column. Recovery and general aerobic are " + (pz.bk ? "60% and 70% of 5km speed" : "from your easy-pace setting") + ", as on the Marathon Plan Viewer.", weeks: weeks,
+      pnote: "From the book's table at a 5km equivalent of " + mmss(T5) + ". Ranges at their midpoints.", weeks: weeks,
       wnote: "Weeks run Monday to Sunday. The race is on the Saturday of week 12, and Sunday's recovery run is in the same row, so race-morning CTL and ATL are taken before Saturday." + (warn ? " In " + warn + " session(s) the work is longer than the printed miles, so the warm-up and cool-down are set to zero." : ""),
       notes: [
         "<b>Plan.</b> Faster Road Racing, " + SC.name + ", as printed on pp. 196 to 199 of the print edition. Weeks are counted from 11 weeks to the goal race, then race week, then the post-race recovery week. Weekly volume is fixed by the book, so the weekly-distance box does not apply. The printed daily and weekly miles are used as they are (each week adds up to the printed total).",
