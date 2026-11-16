@@ -147,7 +147,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   </section>
 
   <section class="panel">
-    <h2>Another distance (optional)</h2>
+    <h2>Show predicted time at (optional)</h2>
     <div class="fields">
       <label>Distance
         <input id="tdist" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="e.g. 15 or 8.5">
@@ -422,7 +422,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     var e1 = checkResult(D, t, ""); if (e1) return fail(e1);
     if ($("dist2").value === "other") { var c2 = readCustom("odist2", "ounit2", "Second result: "); if (c2.err) return fail(c2.err); D2 = c2.D; }
     else if ($("dist2").value !== "") D2 = DISTS[parseInt($("dist2").value, 10)];
-    if (($("tdist").value || "").trim() !== "") { var c3 = readCustom("tdist", "tunit", "Another distance: "); if (c3.err) return fail(c3.err); Dt = c3.D; }
+    if (($("tdist").value || "").trim() !== "") { var c3 = readCustom("tdist", "tunit", "Show predicted time at: "); if (c3.err) return fail(c3.err); Dt = c3.D; }
     var extra = [];
     [D, D2, Dt].forEach(function (d) { if (d && d.custom && !DISTS.some(function (s) { return Math.abs(s.km - d.km) < 1e-6; }) && !extra.some(function (s) { return Math.abs(s.km - d.km) < 1e-6; })) extra.push(d); });
     OUTS = DISTS.concat(extra).sort(function (a, b) { return a.km - b.km; });
