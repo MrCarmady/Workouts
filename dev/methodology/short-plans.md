@@ -1,4 +1,4 @@
-# Short-Distance Plan Viewer: methodology
+# Race Plan Viewer: methodology
 
 The page lays out five plans for 5km to 10km racing from a race result, with paces and load: Daniels' 5K to 10K plan for 40 to 50 miles a week, his plan for 60 to 70 miles a week, Davis's Full-Spectrum 10k schedule, and Pfitzinger's 8K-10K Schedules 1, 2 and 3 (30 to 42, 45 to 57 and 60 to 76 miles a week). The race, time, units and starting CTL are shared. Load (TSS, CTL, ATL, ramp) is calculated as on the Marathon Plan Viewer: TSS = hours x (threshold pace / pace)^2 x 100 with threshold as race(16), CTL with a 42-day and ATL with a 7-day time constant, and a blank starting CTL taken as week 1's TSS divided by 7.
 

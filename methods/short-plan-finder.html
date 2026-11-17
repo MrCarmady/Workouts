@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Short-Distance Plan Finder: how it works</title>
+<title>Race Plan Finder: how it works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">
 <style>
@@ -41,7 +41,7 @@ a { color:var(--accent); }
 </style>
 <main class="wrap">
   <header class="head">
-    <nav class="crumbs"><a href="../tools.html">All tools</a><a href="../short-plan-finder.html">Open Short-Distance Plan Finder</a></nav>
+    <nav class="crumbs"><a href="../tools.html">All tools</a><a href="../short-plan-finder.html">Open Race Plan Finder</a></nav>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
       <svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
@@ -49,8 +49,8 @@ a { color:var(--accent); }
     </button>
   </header>
   <article class="doc">
-<h1>Short-Distance Plan Finder: methodology</h1>
-<p>Tests the six 5K to 10K plans on Short-Distance Plan Viewer against your starting CTL and ATL, and says which fit. It does not rank plans by how good they are for you. It is the Marathon Plan Finder's page applied to the plans of the Short-Distance Plan Viewer, so the test, inputs, join rule, race-date ramp and CTL estimate work as described on that page. This page lists what differs.</p>
+<h1>Race Plan Finder: methodology</h1>
+<p>Tests the six 5K to 10K plans on Race Plan Viewer against your starting CTL and ATL, and says which fit. It does not rank plans by how good they are for you. It is the Marathon Plan Finder's page applied to the plans of the Race Plan Viewer, so the test, inputs, join rule, race-date ramp and CTL estimate work as described on that page. This page lists what differs.</p>
 <h3>Plans</h3>
 <table>
 <thead>
@@ -93,7 +93,7 @@ a { color:var(--accent); }
 </tr>
 </tbody>
 </table>
-<p>These are the Short-Distance Plan Viewer's defaults. Plan code is a copy of that page's; tests/check_plans_sync.py fails the build if they differ. Easy pace basis and the easy pace setting are inputs here, as on the Marathon Plan Finder.</p>
+<p>These are the Race Plan Viewer's defaults. Plan code is a copy of that page's; tests/check_plans_sync.py fails the build if they differ. Easy pace basis and the easy pace setting are inputs here, as on the Marathon Plan Finder.</p>
 <h3>Test</h3>
 <ul>
 <li>Each plan's daily TSS is run through CTL (42-day) and ATL (7-day) from your start values.</li>
@@ -139,7 +139,7 @@ a { color:var(--accent); }
 <li>Walked recoveries have no pace, so they are not counted. Davis's walk and walk/jog recoveries are therefore missing from its mix.</li>
 <li>Pfitzinger's endurance runs (about 76% of 5km speed) fall in Easy at the default settings.</li>
 </ul>
-<h3>Changes made to Short-Distance Plan Viewer for this page</h3>
+<h3>Changes made to Race Plan Viewer for this page</h3>
 <ul>
 <li>Daniels and Davis builders now mark the race day in the last week (<code>raceIdx</code>), as Pfitzinger's already did.</li>
 <li>Race morning CTL and ATL on the Viewer for Daniels and Davis are now taken before the race day. They were taken after it, with the race day counted as a zero-TSS day, which lowered race-morning ATL by about 13% and CTL by about 2%. "After the race" is now worked from the race-morning values.</li>

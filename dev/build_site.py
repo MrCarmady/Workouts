@@ -25,8 +25,8 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace, and optional TSS, for a running or walking treadmill setting.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","1RM and Scheme Calculator","1RM estimate, working weights and a warm-up ladder from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
  ("marathon-plans.html","marathon-plans.html","Marathon Plan Viewer","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Marathon plans"),
- ("short-plans.html","short-plans.html","Short-Distance Plan Viewer","Daniels, Davis and Pfitzinger plans, 5K to half marathon.","short-plans.md","short-plans","Short-distance plans"),
- ("short-plan-finder.html","short-plan-finder.html","Short-Distance Plan Finder","Which 5K to 10K plan fits your CTL and ATL.","short-plan-finder.md","short-plan-finder","Short-distance plans"),
+ ("short-plans.html","short-plans.html","Race Plan Viewer","Daniels, Davis and Pfitzinger plans, 5K to half marathon.","short-plans.md","short-plans","Other race plans"),
+ ("short-plan-finder.html","short-plan-finder.html","Race Plan Finder","Which 5K to 10K plan fits your CTL and ATL.","short-plan-finder.md","short-plan-finder","Other race plans"),
  ("copeland-base.html","copeland-base.html","Copeland Base","A ramp from your CTL to week 1 of the Copeland marathon plan.","copeland-base.md","copeland-base","Marathon plans"),
  ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Finder","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Marathon plans"),
  ("hybrid-load-planner.html","hybrid-load-planner.html","Hybrid Load Planner","CTL, ATL and TSB from a week of runs and lifts.","hybrid-load-planner.md","hybrid-load-planner","Load"),
@@ -63,8 +63,8 @@ THEME_JS='<script>'+THEME.JS+'</script>'
 TOGGLE=THEME.HTML
 FONTS='<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">'
 # index
-ORDER=['Race and pace','Sessions and blocks','Marathon plans','Short-distance plans','Load','Cross-training','Lifting']
-TITLE_ORDER=['Race Prediction Calculator','Marathon Qualifying Check','Hard Workout Predictor','Parkrun Converter','Treadmill Flat Equivalent','Sub-Threshold Session Generator','Classic Session Generator','Sub-Threshold Trend Tracker','Plan Builder','Marathon Plan Finder','Marathon Plan Viewer','Copeland Base','Short-Distance Plan Finder','Short-Distance Plan Viewer','Run Load Planner','Run TSS Calculator','Run TSS Planner','Hybrid Load Planner','Cross-Training TSS','Bike Session Generator','Rowing Session Generator','1RM and Scheme Calculator','Lifting Programme Planner']
+ORDER=['Race and pace','Sessions and blocks','Marathon plans','Other race plans','Load','Cross-training','Lifting']
+TITLE_ORDER=['Race Prediction Calculator','Marathon Qualifying Check','Hard Workout Predictor','Parkrun Converter','Treadmill Flat Equivalent','Sub-Threshold Session Generator','Classic Session Generator','Sub-Threshold Trend Tracker','Plan Builder','Marathon Plan Finder','Marathon Plan Viewer','Copeland Base','Race Plan Finder','Race Plan Viewer','Run Load Planner','Run TSS Calculator','Run TSS Planner','Hybrid Load Planner','Cross-Training TSS','Bike Session Generator','Rowing Session Generator','1RM and Scheme Calculator','Lifting Programme Planner']
 assert sorted(TITLE_ORDER)==sorted(t[2] for t in tools),'TITLE_ORDER must list every tool once'
 cards={}
 for src,out,title,desc,md,slug,grp in sorted(tools,key=lambda t:(ORDER.index(t[6]),TITLE_ORDER.index(t[2]))):
@@ -79,15 +79,15 @@ def _sec(g,v,lvl):
 '''
 RUNNING=['Planning and load','Sessions','Race and pace']
 groups=('    <nav class="jump" aria-label="Sections"><a href="#running">Running</a><a href="#load">Load</a><a href="#crosstraining">Cross-training</a><a href="#lifting">Lifting</a></nav>\n'
- +'    <h2 class="big" id="running">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in ['Race and pace','Sessions and blocks','Marathon plans','Short-distance plans'])
+ +'    <h2 class="big" id="running">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in ['Race and pace','Sessions and blocks','Marathon plans','Other race plans'])
  +'    <h2 class="big" id="load">Load</h2>\n'+_sec('Training load and TSS',cards['Load'],3)
  +'    <h2 class="big" id="crosstraining">Cross-training</h2>\n'+_sec('Bike and rowing sessions',cards['Cross-training'],3)
  +'    <h2 class="big" id="lifting">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3))
 START=[ # (question, [(tool file, tool title), ...]); titles must match the tools list
  ("What does my race or hard session predict?",[("race-prediction-calculator.html","Race Prediction Calculator"),("hard-workout-predictor.html","Hard Workout Predictor")]),
  ("Can I qualify for a major marathon?",[("marathon-qualifying-check.html","Marathon Qualifying Check")]),
- ("I want a plan that fits my current fitness.",[("marathon-plan-recommender.html","Marathon Plan Finder"),("short-plan-finder.html","Short-Distance Plan Finder")]),
- ("I want to see a plan's paces and weekly load.",[("marathon-plans.html","Marathon Plan Viewer"),("short-plans.html","Short-Distance Plan Viewer")]),
+ ("I want a plan that fits my current fitness.",[("marathon-plan-recommender.html","Marathon Plan Finder"),("short-plan-finder.html","Race Plan Finder")]),
+ ("I want to see a plan's paces and weekly load.",[("marathon-plans.html","Marathon Plan Viewer"),("short-plans.html","Race Plan Viewer")]),
  ("I need paces for a threshold or tempo session.",[("run-session-generator.html","Sub-Threshold Session Generator")]),
  ("How hard is my week? Is load climbing too fast?",[("hybrid-load-planner.html","Hybrid Load Planner"),("run-load-planner.html","Run Load Planner")]),
  ("I cross-trained on a bike, rower or treadmill. How much load is that?",[("cross-training-tss.html","Cross-Training TSS")]),
