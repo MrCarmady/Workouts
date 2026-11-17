@@ -452,16 +452,22 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     var W = OUTS.map(function (T) { return blendWeights(T.km, Ds); });
     var pred = OUTS.map(function (T, i) { return preds.reduce(function (a, p, k) { return a + W[i][k] * p[i]; }, 0); });
     var html = "", cm = $("cmp").value, cnote = "", crs = Ds.map(function (d, k) { return compareTimes(cm, d, ts[k]); });
-    var hasC = cm !== "none", cerr = null;
+    var hasC = cm !== "none", cerr = null, only = -1, cmpW = W, usedMsg = "";
     crs.forEach(function (c, k) { if (c.err && !cerr) cerr = (two ? "Result " + (k + 1) + ": " : "") + c.err; });
+    // Two results and the comparison table can use only one of them: use that one alone and say so.
+    if (hasC && two && crs[0].err !== crs[1].err && (!crs[0].err || !crs[1].err)) {
+      only = crs[0].err ? 1 : 0; var bad = 1 - only;
+      cerr = null; cmpW = W.map(function () { var w = [0, 0]; w[only] = 1; return w; });
+      usedMsg = "Result " + (bad + 1) + " (" + Ds[bad].name + ") is not used: " + crs[bad].err.replace(/ Enter a .*$/, "") + " This column uses Result " + (only + 1) + " only.";
+    }
     var cmpT = null;
     if (hasC && !cerr) cmpT = OUTS.map(function (T, i) {
       var vals = crs.map(function (c) { return c.t ? c.t[T.name] : null; });
-      if (vals.some(function (v) { return v == null; })) return null;
-      return vals.reduce(function (a, v, k) { return a + W[i][k] * v; }, 0);
+      if (vals.some(function (v, k) { return v == null && cmpW[i][k] > 0; })) return null;
+      return vals.reduce(function (a, v, k) { return a + (cmpW[i][k] > 0 ? cmpW[i][k] * v : 0); }, 0);
     });
     $("thead").innerHTML = "<th>Distance</th><th>Time</th><th>/km</th><th>/mile</th><th>% WR</th>" + (hasC ? "<th>" + CMP_NAMES[cm] + "</th>" : "");
-    if (hasC && cerr) cnote = CMP_NAMES[cm] + ": " + cerr;
+    if (hasC && cerr) cnote = CMP_NAMES[cm] + ": " + cerr.replace(/ Enter a .*$/, "") + (two ? "" : (crs[0].err.match(/ Enter a .*$/) || [""])[0]);
     OUTS.forEach(function (T, i) {
       var tt = pred[i], p = tt / T.km;
       var is1 = same(T, D), is2 = two && same(T, D2), lab = "";
@@ -478,7 +484,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       var x = marathonFactor(weekKm);
       wn.textContent = (two ? "Each result's marathon is " : "Marathon is set to ") + (Math.round(x * 1000) / 1000) + " times " + (two ? "its own " : "the ") + "half marathon, for " + (Math.round(weekKm * 10) / 10) + "km a week." + (weekKm / MILE < 35 ? " Below 35 miles a week the adjustment stops at 2.25 times the half marathon; a marathon build on less is not covered." : "");
     }
-    if (hasC && !cerr) { var cn = { daniels: "Daniels: VDOT equations, all distances.", hansons: "Hansons: fitted to the book's chart; shown for mile, 5km, 10km, 10 miles, half marathon and marathon.", pfitz: "Pfitzinger: fitted to his table; shown for 10km, 10 miles, half marathon and marathon.", pfrr: "Pfitzinger, Faster Road Racing: Appendix B, constant ratios to the 5km time (10km 2.08, 10 miles 3.4736, half marathon 4.6176); shown for 5km, 10km, 10 miles and half marathon. The book's 8K and 15K columns are not shown here. It has no marathon column.", rlrf: "Run Less, Run Faster: Table 2.1, constant ratios to the 5km time (10km 2.0922, half 4.635, marathon 9.7311); shown for 5km, 10km, half marathon and marathon. Its times assume proper training for each distance.", tinman: "Tinman: fitted to sample outputs of his calculator, not his published formula. Same factor curve for input and output, all distances.", wr: "Same % of WR: your result as a percentage of the male world record pace, held constant across distances." }; cnote = cn[cm] + "" + (two ? " Blended from both results the same way as ours." : ""); }
+    if (hasC && !cerr) { var cn = { daniels: "Daniels: VDOT equations, all distances.", hansons: "Hansons: fitted to the book's chart; shown for mile, 5km, 10km, 10 miles, half marathon and marathon.", pfitz: "Pfitzinger, Advanced Marathoning: fitted to his table; shown for 10km, 10 miles, half marathon and marathon.", pfrr: "Pfitzinger, Faster Road Racing: Appendix B, constant ratios to the 5km time (10km 2.08, 10 miles 3.4736, half marathon 4.6176); shown for 5km, 10km, 10 miles and half marathon. The book's 8K and 15K columns are not shown here. It has no marathon column.", rlrf: "Run Less, Run Faster: Table 2.1, constant ratios to the 5km time (10km 2.0922, half 4.635, marathon 9.7311); shown for 5km, 10km, half marathon and marathon. Its times assume proper training for each distance.", tinman: "Tinman: fitted to sample outputs of his calculator, not his published formula. Same factor curve for input and output, all distances.", wr: "Same % of WR: your result as a percentage of the male world record pace, held constant across distances." }; cnote = cn[cm] + (only >= 0 ? " " + usedMsg : two ? " Blended from both results the same way as ours." : ""); }
     $("cmpnote").textContent = cnote;
     $("res").hidden = false;
   }

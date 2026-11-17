@@ -137,6 +137,7 @@ time(T) = sum(w_i * time_i(T))
 - Idea behind it (author's): a result near the target distance is more informative than a far one, but a best-effort short result is a better measure of potential than a soft near one. The author's example: mile 5:23.4 (counted as a near-10/10 effort) and 10k 39:43 (strong negative split, run blind on over-optimistic watch data, so slower than potential). Blend: 3k 10:44, 5km 18:51, half 1:27:06 (22% mile / 78% 10k), against actual 3k 10:44 and 5km 18:52 (one data point each, and the 3k is one of the inputs to the model's earlier calibration, so this is not a validation).
 - The marathon in the blend is not exactly F times the blended half, because the weights differ at the two distances. Each result's own marathon is F times its own half.
 - Comparison column (Daniels, Hansons, Pfitzinger, Tinman, % of WR): each model predicts from each result separately and the same weights are applied. If a model cannot take either result's distance (for example Pfitzinger from a mile), the column shows that error.
+- With two results, a comparison table that has no column for one of them (for example Pfitzinger, Advanced Marathoning has no 5km column) uses the other result alone, and the note under the table says which result was left out. If neither result is in the table, the column stays blank and the note says why.
 - Weekly distance is shared by both results. Other pages (Plan Builder and so on) still use result 1 only.
 
 ## 400m, 800m and 1000m rows (2026-10-26)
