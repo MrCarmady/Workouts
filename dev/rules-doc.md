@@ -354,3 +354,13 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Standards change yearly; not verified against every race's own site (several pages were not reachable).
 - 2026-11-16: NYC women added from the NYRR table Pavel supplied. Tools list text shortened to "marathon majors".
 - 2026-11-16: NYC men 50 to 54 confirmed as 3:14 on the NYRR site by Pavel.
+
+## Short-Distance Plan Viewer: Davis half-marathon logs (P, 2026-11-16)
+
+- Four plans added: Davis half marathon, athletes A (1:08:20, 12 wk), B (1:09:00, 20 wk), C (1:08:40, 8 wk), D (1:07:20, 11 wk). P attached the article and the four relative-paces log PDFs (the article has no calendars). Encoded as logged; the finder carries the plan code but does not list them.
+- Effort words (very easy, easy, moderate, strong) fitted by me to the logs' stated weekly km: 56, 72, 80, 90% of half-marathon speed. Total within about 2% of the stated total; single weeks up to about 15% off. My calibration, not the article's.
+- Cross-training shown, excluded from run load. Races at the predicted pace for the distance. Final half marathon in TSS, not in race-morning CTL and ATL.
+- Athlete B: percentages "of current HMP" scaled to eventual HMP in weeks 2 to 11 (x0.947 to x0.967, from the log's paired figures; only percentages of 88 and over). Week 19 total 192 km read as a typo for 129. Athlete C week 1: trail runs, listed km far lower than pace implies.
+- Rest between sets, where none given: 3 min jog assumed.
+- Plan dropdown labels are long (about 60 characters); check at phone width.
+- 2026-11-17: P expected one plan, not four, from the article and logs (my misreading). Added "Davis half marathon, reconciled from A to D, 12 wk": my synthesis, structure and volume shape from the four logs, sessions copied from them by slot, race week designed by me. Optional peak weekly distance scales the easy runs only. The four log plans stay as reference. Not tested on anyone.

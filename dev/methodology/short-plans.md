@@ -121,7 +121,47 @@ ST is strides, jg is jog. "(race week); (no race)" gives the two printed version
 The 16-week schedule from RunningWritings (percentage-based 10k training, metric PDF). Weeks run Monday to Sunday. Percentages are of 10km speed, so a higher percentage is faster.
 
 | Item | Status |
+|---|
+## Davis half-marathon logs (athletes A to D)
+
+Four training logs from the sub-70 half-marathon article on RunningWritings (relative-paces PDFs): A, 1:08:20 on 70 to 80 mi a week, 12 weeks; B, 1:09:00 on 80 to 90 mi, 20 weeks; C, 1:08:40 on 65 to 70 mi, 8 weeks; D, 1:07:20 on 60 to 70 mi, 11 weeks. They are what one athlete did, not prescribed schedules, so illness, travel and injury weeks are included as logged. Weeks run Monday to Sunday. Percentages are of half-marathon speed from race(HM). The article text carries no day-by-day calendars; these come from the attached log PDFs.
+
+| Item | Status |
+|---|
+## Davis half marathon, reconciled from A to D (my synthesis)
+
+Not a Davis plan. One 12-week schedule built from the four logs above. What the logs share is kept; each slot is filled with a session copied from one of them. Which log supplies which week is my choice. Untested on anyone, and the four athletes ran 1:07 to 1:09 on 60 to 80 mi a week.
+
+| Item | Status |
 |---|---|
+| Structure | Three quality days (Tuesday, Thursday, Saturday), easy running between. Common to all four logs. |
+| Volume shape | Each log's weekly km divided by its own base (mean of weeks 8 to 1 before the race, ill and injured weeks excluded). Median about 0.85 to 0.9 early, about 1.0 from week 5, lighter week every three to four weeks, little taper. Easy-run minutes use 0.8, 0.9, 0.95, 0.85, 1.0, 1.0, 1.02, 0.88, 1.02, 1.05, 1.0 of a base week. |
+| Tuesday | Short reps at 100 to 108%: 3 min, 2 min, 800 m, 500 m, 1 km; week 12 is 5 x 1.2 km at 102% |
+| Thursday | Half-marathon-pace reps, 1 to 3 km at 97 to 102% with floats at 85 to 90% |
+| Saturday | Long steady or progression run, 7 to 16 mi at 85 to 95%; half marathon in week 12 |
+| Race week | Tuesday and Thursday sharpening, Friday easy, race Saturday. My design; the logs differ. |
+| Weekly distance box | Blank gives the template. A value scales the easy runs only (5-minute steps) so the biggest week matches it, so the peak lands within a few km of the entry. |
+
+---
+---|
+| Sessions | Encoded as logged |
+| Effort words | Fitted by me to the logs' stated weekly km: very easy 56%, easy 72%, moderate 80%, strong 90%; easy-to-moderate 76%, moderate-to-strong 85%. The article's bands are very easy up to 55%, easy 60 to 70%, moderate 75 to 85%, strong 85 to 95%. Not a figure the article gives. |
+| Fit quality | Total distance within about 2% of the stated total over all 51 weeks. Single weeks differ by up to about 15%, and more in injury, illness and trail weeks. |
+| Runs by time | Distance from the pace above |
+| Warm-up and cool-down | As logged, at 72% |
+| Hill sprints, strides | Listed, not scored |
+| Cross-training | Shown, excluded from distance, time and TSS |
+| Races | At the pace your result predicts for the distance, not the athlete's time. The final half marathon counts in that week's TSS but not in race-morning CTL and ATL. |
+| Rests between sets, none given | 3 min jog assumed (athlete B, week 15) |
+| Progression runs | Equal thirds from 60% up to the stated end percentage |
+| Athlete B, current and eventual pace | Weeks 2 to 11 mix percentages of a lower current pace and of the eventual pace. Where only the current figure is given, it is scaled to eventual pace (x0.947 weeks 2 to 5, x0.952 week 6, x0.96 weeks 7 and 8, x0.967 weeks 9 to 11, from the log's paired figures); percentages of 88 and over only. |
+| Athlete B, week 19 total | The log prints 192 km / 80 mi; 80 mi is 129 km, so 192 is read as a typo. |
+| Athlete C, week 1 | Trail runs; 120 min of very easy running is listed as 18 km (about 6:40 per km), slower than the page's very easy pace. |
+
+The weekly table shows the computed distance against the stated one for every week.
+
+---
+---|
 | Sessions and distances | As printed, in kilometres |
 | Effort words | Read at the midpoints of the schedule's bands: very easy 50 to 55%, easy 55 to 65%, moderate 70 to 80%, strong 85 to 90% |
 | Easy runs | 60% unless the schedule gives another percentage; ranges use the midpoint, optional runs included |
