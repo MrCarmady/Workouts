@@ -25,8 +25,8 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("treadmill-acsm-widget.html","treadmill-flat-equivalent.html","Treadmill Flat Equivalent","Flat-ground pace, and optional TSS, for a running or walking treadmill setting.","treadmill-flat-equivalent.md","treadmill-flat-equivalent","Race and pace"),
  ("lift-scheme-calculator.html","lift-scheme-calculator.html","1RM and Scheme Calculator","1RM estimate, working weights and a warm-up ladder from one set.","lift-scheme-calculator.md","lift-scheme-calculator","Lifting"),
  ("marathon-plans.html","marathon-plans.html","Marathon Plan Viewer","Daniels, Hansons, Copeland and Pfitzinger plans with paces and load.","marathon-plans.md","marathon-plans","Marathon plans"),
- ("short-plans.html","short-plans.html","Short-Distance Plan Viewer","Daniels, Davis and Pfitzinger 5K to 10K plans, plus four Davis half-marathon logs, with paces and load.","short-plans.md","short-plans","5K to 10K plans"),
- ("short-plan-finder.html","short-plan-finder.html","Short-Distance Plan Finder","Which 5K to 10K plans fit your CTL and ATL, on form and ATL to CTL ratio.","short-plan-finder.md","short-plan-finder","5K to 10K plans"),
+ ("short-plans.html","short-plans.html","Short-Distance Plan Viewer","Daniels, Davis and Pfitzinger plans, 5K to half marathon.","short-plans.md","short-plans","Short-distance plans"),
+ ("short-plan-finder.html","short-plan-finder.html","Short-Distance Plan Finder","Which 5K to 10K plan fits your CTL and ATL.","short-plan-finder.md","short-plan-finder","Short-distance plans"),
  ("copeland-base.html","copeland-base.html","Copeland Base","A ramp from your CTL to week 1 of the Copeland marathon plan.","copeland-base.md","copeland-base","Marathon plans"),
  ("marathon-plan-recommender.html","marathon-plan-recommender.html","Marathon Plan Finder","Which marathon plans fit your CTL and ATL, on form and the ATL to CTL ratio.","marathon-plan-recommender.md","marathon-plan-recommender","Marathon plans"),
  ("hybrid-load-planner.html","hybrid-load-planner.html","Hybrid Load Planner","CTL, ATL and TSB from a week of runs and lifts.","hybrid-load-planner.md","hybrid-load-planner","Load"),
@@ -63,7 +63,7 @@ THEME_JS='<script>'+THEME.JS+'</script>'
 TOGGLE=THEME.HTML
 FONTS='<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">'
 # index
-ORDER=['Race and pace','Sessions and blocks','Marathon plans','5K to 10K plans','Load','Cross-training','Lifting']
+ORDER=['Race and pace','Sessions and blocks','Marathon plans','Short-distance plans','Load','Cross-training','Lifting']
 TITLE_ORDER=['Race Prediction Calculator','Marathon Qualifying Check','Hard Workout Predictor','Parkrun Converter','Treadmill Flat Equivalent','Sub-Threshold Session Generator','Classic Session Generator','Sub-Threshold Trend Tracker','Plan Builder','Marathon Plan Finder','Marathon Plan Viewer','Copeland Base','Short-Distance Plan Finder','Short-Distance Plan Viewer','Run Load Planner','Run TSS Calculator','Run TSS Planner','Hybrid Load Planner','Cross-Training TSS','Bike Session Generator','Rowing Session Generator','1RM and Scheme Calculator','Lifting Programme Planner']
 assert sorted(TITLE_ORDER)==sorted(t[2] for t in tools),'TITLE_ORDER must list every tool once'
 cards={}
@@ -79,7 +79,7 @@ def _sec(g,v,lvl):
 '''
 RUNNING=['Planning and load','Sessions','Race and pace']
 groups=('    <nav class="jump" aria-label="Sections"><a href="#running">Running</a><a href="#load">Load</a><a href="#crosstraining">Cross-training</a><a href="#lifting">Lifting</a></nav>\n'
- +'    <h2 class="big" id="running">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in ['Race and pace','Sessions and blocks','Marathon plans','5K to 10K plans'])
+ +'    <h2 class="big" id="running">Running</h2>\n'+''.join(_sec(g,cards[g],3) for g in ['Race and pace','Sessions and blocks','Marathon plans','Short-distance plans'])
  +'    <h2 class="big" id="load">Load</h2>\n'+_sec('Training load and TSS',cards['Load'],3)
  +'    <h2 class="big" id="crosstraining">Cross-training</h2>\n'+_sec('Bike and rowing sessions',cards['Cross-training'],3)
  +'    <h2 class="big" id="lifting">Lifting</h2>\n'+_sec('Programmes and weights',cards['Lifting'],3))
