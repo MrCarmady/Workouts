@@ -7,7 +7,7 @@ Added 2026-11-16. Takes one race result, predicts the marathon time with the Rac
 | Item | Status |
 |---|---|
 | Marathon prediction (Riegel 1.06, short-race adjustment, marathon factor by weekly distance, 70 miles assumed when blank) | Same as the Race Prediction Calculator; see its notes |
-| Verdict bands: predicted ÷ needed up to 0.97 "Probably", up to 1.06 "Maybe", above "Unlikely" | My placeholders. Not fitted to data. Set so a 35:00 10km reads Probably for Boston, a 39:00 10km reads Maybe for London and New York, and a 50:00 10km reads Unlikely everywhere |
+| Verdict bands: predicted ÷ needed up to 0.97 "Probably", up to 1.04 "Maybe", above "Unlikely" | My placeholders. Not fitted to data. Set so a 35:00 10km reads Probably for London and New York, and a 50:00 10km reads Unlikely everywhere. The upper cut-off was 1.06 until 2026-11-17, when P judged that a 19:45 5km at 70 mi a week and an 18:26 5km at 35 mi a week (both Chicago men 40 to 44) should read Unlikely. At 1.04 a 39:00 10km (ratio about 1.05) now reads Unlikely for London and New York, where it read Maybe at 1.06 |
 | Boston margin of 5:17 subtracted from the standard | Taken from a news headline (marathons.com, "Boston Marathon 2027 sets a 5:17 cut-off"); I did not open the article. The 2026 margin was 4:34 (two sources) |
 | Other races: needed = published standard | No margin applied, because I do not have a sourced figure |
 

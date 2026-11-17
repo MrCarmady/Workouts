@@ -349,7 +349,7 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 ## Marathon Qualifying Check (P, 2026-11-16)
 
 - New page. Marathon time from the Race Prediction Calculator model (marathon entered as-is). Category men or women, age 18 to 99 on race day.
-- Verdict = predicted ÷ needed: ≤0.97 Probably, ≤1.06 Maybe, else Unlikely. Placeholders of mine, chosen to match Pavel's examples (35:00 10km probably, 39:00 maybe, 50:00 no).
+- Verdict = predicted ÷ needed: ≤0.97 Probably, ≤1.04 Maybe (was 1.06 until 2026-11-17), else Unlikely. Placeholders of mine, chosen to match Pavel's examples (35:00 10km probably, 39:00 maybe, 50:00 no).
 - Races: Boston (needed = standard − 5:17, 2027 margin from a headline only), London Good for Age (official page values; UK only), New York (women from the NYRR website table, men from news summaries), Chicago, Berlin, Tokyo. Left out: Sydney (sources conflict), elite and championship routes.
 - Standards change yearly; not verified against every race's own site (several pages were not reachable).
 - 2026-11-16: NYC women added from the NYRR table Pavel supplied. Tools list text shortened to "marathon majors".

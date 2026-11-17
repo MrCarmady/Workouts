@@ -151,7 +151,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   <section class="method">
     <h2>How this works</h2>
     <p>Marathon time: from your result, using the same model as the Race Prediction Calculator (Riegel exponent 1.06, short-race adjustment, and a marathon slow-down set by weekly distance; 70 miles a week is assumed if the box is empty). If your result is a marathon, that time is used as entered.</p>
-    <p>Verdict: your marathon time divided by the time needed. Up to 0.97 is "Probably", up to 1.06 is "Maybe", above that "Unlikely". These cut-offs are my own placeholders, not from any race or study. A prediction from a shorter race assumes marathon-specific training; a first marathon is often slower than predicted.</p>
+    <p>Verdict: your marathon time divided by the time needed. Up to 0.97 is "Probably", up to 1.04 is "Maybe", above that "Unlikely". These cut-offs are my own placeholders, not from any race or study. A prediction from a shorter race assumes marathon-specific training; a first marathon is often slower than predicted.</p>
     <p>Needed: the published standard, except Boston, where entry is fastest-first and I subtract the most recent cut-off margin I found (5:17 for 2027, from a headline only; the 2026 margin was 4:34). Other races that fill fastest-first (London, Sydney) also have margins that I do not have, so a standard is not a guarantee of a place.</p>
     <p>Standards were read from running-news summaries, the London Marathon page and the NYRR women's table, not from every race's own site. They change each year. Check the race's page before relying on them. Left out: Sydney (two sources give different tables), elite and championship routes.</p>
   </section>
@@ -291,7 +291,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     offM = marathonOff(riegel5, weekKm);
     return ((p5 - adj(MAR)) * Math.pow(MAR / 5, K - 1) + off(MAR) - off(D.km)) * MAR;
   }
-  function band(r) { return r <= 0.97 ? ["Probably", "yes"] : r <= 1.06 ? ["Maybe", "maybe"] : ["Unlikely", "no"]; }
+  function band(r) { return r <= 0.97 ? ["Probably", "yes"] : r <= 1.04 ? ["Maybe", "maybe"] : ["Unlikely", "no"]; }
   function gap(s) { var a = Math.abs(Math.round(s)); return (s < 0 ? "-" : "+") + Math.floor(a / 60) + ":" + (a % 60 < 10 ? "0" : "") + a % 60; }
   function update() {
     $("olab").hidden = $("oulab").hidden = $("dist").value !== "other";
