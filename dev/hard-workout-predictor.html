@@ -143,6 +143,8 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
         </select>
       </label>
       <label class="span2"><span id="splitLab">Rep times or average, comma separated</span> <input id="splits" placeholder="3:38, 3:32, 3:33, 3:31, 3:34, 3:35"></label>
+      <label id="lbTemp">Temperature, °C (optional) <input id="temp" inputmode="decimal" autocomplete="off" placeholder="22"></label>
+      <label id="lbDew">Dew point, °C (optional) <input id="dew" inputmode="decimal" autocomplete="off" placeholder="16"></label>
       <label class="span2" id="lbFloat" hidden>Float 200m times or average (counted in the total) <input id="float" placeholder="52, 51, 52, 52, 52, 51, 52, 52"></label>
     </div>
     <p class="note" id="hint">Times as mm:ss or seconds. Several times set the rep count. One time is the average and uses Reps. Add /km to enter pace, e.g. 3:20/km.</p>
@@ -173,7 +175,8 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       <li><b>Range.</b> Each anchor has a 1% pace band (5000m: marathon pace to 2% faster).</li>
       <li><b>Rest.</b> The anchors assume the standard rest. Longer rest makes the session easier, so the reps equal a shorter race: the equivalent race is multiplied by (standard rest ÷ your rest)^0.38, limited to 2.5 times either way. 12×1k at 90s instead of 60s reads as about 15k instead of 17.5k.</li>
       <li><b>Check a session.</b> Enter your race and a session as written. The tool works out the pace you could hold for the whole session at a hard effort (RPE 8.5), using the same anchors, volume and rest rules as the predictions, and compares the printed pace with it. A pace more than 1.5% faster than that (RPE 10 on the 1% per point slope) is Too hard (the faster end of a range is used). A pace more than 2% slower is Comfortable: fine for a threshold or steady session, but not a hard one for you. In between is Hard but doable. It also shows the pace range that sits in the zone and the 5k the printed pace would need. Rep lengths under 400m (speed work) are not covered. The 1.5% and 2% limits are placeholders.</li>
-      <li><b>Not adjusted.</b> Heat, surface, wind and hills.</li>
+      <li><b>Heat.</b> Optional temperature and dew point (°C). Copeland's Table 2.2 gives a pace reduction by temperature (15-19: 1%, 20-24: 2%, 25-28: 4%) and by dew point (12-15: 1%, 15 and over: 2%, 18 and over: 4%). The larger applies, so a high dew point moves the temperature up a band, as the book's caveat says. A pace run in heat is counted as faster by that percentage (the book divides by 1 minus the percentage to get the pace to run in heat). In Check a session the printed pace is treated the same way, and the zone pace is for the same conditions. Above 28°C is outside the table.</li>
+      <li><b>Not adjusted.</b> Surface, wind and hills.</li>
       <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. The 5km to half marathon part is most reliable for intermediate runners on moderate mileage, and may be less reliable for beginners and low mileage.</li>
     </ul>
   </section>
@@ -315,6 +318,24 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (x.indexOf(":") >= 0) { var p = x.split(":"); if (p.length !== 2 || isNaN(p[0]) || isNaN(p[1])) return null; return Number(p[0]) * 60 + Number(p[1]); }
     var n = Number(x.replace(",", ".")); return isNaN(n) ? null : n;
   }
+  // Heat (Copeland, Table 2.2): pace reduction by temperature band (15-19: 1%, 20-24: 2%, 25-28: 4%) and by dew point (12-15: 1%, 15+: 2%, 18+: 4%).
+  // The larger of the two applies, so a high dew point moves the temperature up a band, as the book's caveat says. A pace run in heat is counted as faster by that percentage:
+  // the book divides a target pace by (1 - r) to get the pace to run in heat, so a hot pace times (1 - r) is the cool-weather equivalent. Above 28 C is outside the table.
+  var HF = 1, HEAT_PCT = 0, HEAT_MSG = "";
+  function heatCalc() {
+    var rt = $("temp").value.trim().replace(",", "."), rd = $("dew").value.trim().replace(",", ".");
+    var t = rt === "" ? null : Number(rt), d = rd === "" ? null : Number(rd);
+    if ((t !== null && !(t >= -30 && t <= 50)) || (d !== null && !(d >= -30 && d <= 35))) return "Enter the temperature and dew point in °C, for example 22 and 16.";
+    if (t !== null && d !== null && d > t + 0.5) return "The dew point cannot be higher than the temperature.";
+    var tp = t === null ? 0 : t >= 25 ? 4 : t >= 20 ? 2 : t >= 15 ? 1 : 0;
+    var dp = d === null ? 0 : d >= 18 ? 4 : d >= 15 ? 2 : d >= 12 ? 1 : 0;
+    HEAT_PCT = Math.max(tp, dp); HF = 1 - HEAT_PCT / 100;
+    if (t === null && d === null) HEAT_MSG = "Heat is not adjusted for unless you enter the temperature and dew point.";
+    else if (HEAT_PCT === 0) HEAT_MSG = "No heat adjustment at this temperature and dew point (Copeland, Table 2.2).";
+    else HEAT_MSG = "Heat: paces counted " + HEAT_PCT + "% faster (Copeland, Table 2.2)." + (t !== null && t > 28 ? " Above 28°C is outside the table, so the real cost is probably higher." : "") + (d === null ? " Temperature only: the dew point can raise this." : "");
+    return "";
+  }
+  function condFlags() { return [HEAT_MSG, "Surface, wind and hills are not adjusted for."]; }
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("res").innerHTML = ""; $("flags").textContent = ""; $("eq").innerHTML = ""; return false; }
 
   function parseClock(x) {
@@ -335,7 +356,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var v = parseClock(raw);
     if (v === null || v <= 0) return fail("Could not read the time. Use mm:ss or h:mm:ss, as one value.");
     var km = m / 1000, t = perKm ? v * km : v, pRaw = t / km;
-    var pe = pRaw * (1 + CONT_K * (rpe - 10)) * (1 - CONT_BOOST);
+    var pe = pRaw * HF * (1 + CONT_K * (rpe - 10)) * (1 - CONT_BOOST);
     var solve = function (target) {
       var lo = 120, hi = 700;
       if (race(lo, km) > target || race(hi, km) < target) return null;
@@ -354,7 +375,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (rpe < WARN_RPE_LO) fl.push(LOW_MSG);
     if (rpe > WARN_RPE_HI) fl.push(HIGH_MSG);
     if (D / km > 3 || D / km < 1 / 3) fl.push("Predicting a " + $("target").options[$("target").selectedIndex].text + " from a " + lab + " effort is a long extrapolation, so treat it with caution.");
-    fl.push("Heat, surface, wind and hills are not adjusted for.");
+    condFlags().forEach(function (x) { fl.push(x); });
     $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
     var rows = [["1500m", 1.5], ["Mile", 1.609344], ["3km", 3], ["5km", 5], ["10km", 10], ["Half marathon", HM], ["Marathon", MAR]];
     var h = "<thead><tr><th>Race</th><th class=\"num\">Predicted</th><th class=\"num\">Range</th></tr></thead><tbody>";
@@ -377,7 +398,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var X = 5 * vol(nReps / AUS_REPS), capped = X > MAR * 1.001;
     if (capped) X = MAR;
     if (X < MINX) return fail("This many reps equals a race shorter than 400m, outside what the tool supports.");
-    var T = nReps * (havg + favg) * (1 + RPE_K * (rpe - RPE_REF));
+    var T = nReps * (havg + favg) * HF * (1 + RPE_K * (rpe - RPE_REF));
     var shift = AUS_FAST * nReps / AUS_REPS;
     var solve5 = function (tt) {
       var pr = tt / (nReps * AUS_KM) * (AUS_REPS * AUS_KM / 5);   // seconds per km of the equivalent race: the session average pace, scaled so that 8 reps give a 5k in the session time
@@ -390,7 +411,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (pm === null || ps === null || pf === null) return fail("That pace is outside the range the model supports. Check the times.");
     var D = Number($("target").value), tFor = function (p5) { return race(p5, D) * D; };
     var tMid = tFor(pm), tLo = tFor(pf), tHi = tFor(ps);   // fast end first: T minus the race-day gain, then the session total
-    var mpc = race(pm, MAR), fpace = favg * 5, hpace = havg * 2.5;
+    var mpc = race(pm, MAR), fpace = favg * 5 * HF, hpace = havg * 2.5 * HF;
     $("res").innerHTML =
       "<div><span>Session total</span><b>" + hmmss(T) + "</b><small>" + nReps + " × (" + mmss(havg) + " + " + mmss(favg) + "), " + (nReps * AUS_KM).toFixed(1) + "km</small></div>" +
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
@@ -407,7 +428,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (rpe < WARN_RPE_LO) fl.push(LOW_MSG);
     if (rpe > WARN_RPE_HI) fl.push(HIGH_MSG);
     if (D / X > 3 || D / X < 1 / 3) fl.push("These reps equal about " + xText(X) + " pace. Predicting a " + $("target").options[$("target").selectedIndex].text + " from that is a long extrapolation, so treat it with caution.");
-    fl.push("Heat, surface, wind and hills are not adjusted for.");
+    condFlags().forEach(function (x) { fl.push(x); });
     $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
     var rows = [["1500m", 1.5], ["Mile", 1.609344], ["3km", 3], ["5km", 5], ["10km", 10], ["Half marathon", HM]];
     var h = "<thead><tr><th>Race</th><th class=\"num\">Predicted</th><th class=\"num\">Range</th></tr></thead><tbody>";
@@ -442,6 +463,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (!rv || rv <= 0) return fail("Enter the rep distance or time as a number.");
     var m = unit === "min" ? rv * 60 / pm * 1000 : unit === "km" ? rv * 1000 : rv;
     if (m < ANCH[0].m || m > ANCH[ANCH.length - 1].m) return fail("Rep length should be between 400m and 5000m" + (unit === "min" ? " (" + Math.round(m) + "m at that pace)" : "") + ". Shorter reps are speed work, which this check does not cover.");
+    var prRaw = pr; pr = [pr[0] * HF, pr[1] * HF];   // in heat the same printed pace is the cool-weather equivalent of a faster pace
     var rest = Number($("rest").value), n = parseInt($("reps").value, 10);
     if (isNaN(rest) || rest < 0 || rest > 900) return fail("Enter the rest in seconds, 0 to 900.");
     if (!(n >= 2 && n <= 50)) return fail("Enter 2 to 50 reps.");
@@ -449,12 +471,12 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (equivX(m, n, rest) < MINX) return fail("This many reps equals a race shorter than 400m, outside what the tool supports.");
     var pu = lerpA(p5u, m, "mid", n, rest), d = pr[0] / pu - 1;
     var verdict = d < CHK_HARD ? "Too hard" : d > CHK_EASY ? "Comfortable" : "Hard but doable";
-    var need = invert(pm, m, "mid", n, rest), needT = need === null ? null : race(need, 5) * 5;
-    var zf = pu * (1 + CHK_HARD), zs = pu * (1 + CHK_EASY), lab = (m >= 1000 ? +(m / 1000).toFixed(2) + "km" : Math.round(m) + "m");
+    var need = invert(pm * HF, m, "mid", n, rest), needT = need === null ? null : race(need, 5) * 5;
+    var zf = pu * (1 + CHK_HARD) / HF, zs = pu * (1 + CHK_EASY) / HF, lab = (m >= 1000 ? +(m / 1000).toFixed(2) + "km" : Math.round(m) + "m");
     $("resH").textContent = "Verdict";
     $("res").innerHTML =
-      "<div><span>Verdict</span><b class=\"" + (verdict === "Too hard" ? "pace" : "") + "\">" + verdict + "</b><small>" + n + " × " + lab + ", " + Math.round(rest) + "s rest, at " + (pr[0] === pr[1] ? mmss(pr[0]) : mmss(pr[0]) + "-" + mmss(pr[1])) + " /km</small></div>" +
-      "<div><span>Pace in the zone</span><b>" + mmss(zf) + "-" + mmss(zs) + "</b><small>/km for this session at your fitness</small></div>" +
+      "<div><span>Verdict</span><b class=\"" + (verdict === "Too hard" ? "pace" : "") + "\">" + verdict + "</b><small>" + n + " × " + lab + ", " + Math.round(rest) + "s rest, at " + (prRaw[0] === prRaw[1] ? mmss(prRaw[0]) : mmss(prRaw[0]) + "-" + mmss(prRaw[1])) + " /km</small></div>" +
+      "<div><span>Pace in the zone</span><b>" + mmss(zf) + "-" + mmss(zs) + "</b><small>/km for this session at your fitness" + (HF !== 1 ? ", in these conditions" : "") + "</small></div>" +
       "<div><span>This pace needs a 5k of</span><b>" + (needT === null ? "faster than supported" : hmmss(needT)) + "</b><small>against your " + hmmss(race(p5u, 5) * 5) + "</small></div>";
     var fl = [];
     if (verdict === "Too hard") fl.push("At this pace you would probably slow in the later reps or fail some. The faster end of the range is used for the verdict.");
@@ -465,7 +487,8 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var tn = typN(m), rr = n / tn, tl = Math.round(tn) + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m");
     if (rr > WARN_R_HI) fl.push("That is far more reps than the usual " + tl + ", so the zone pace above is slower than the printed pace suggests.");
     if (rest < 20) fl.push("Rest under 20s is close to continuous running, which this model is not built for.");
-    fl.push("The 1.5% and 2% limits are placeholders. Heat, surface, wind and hills are not adjusted for.");
+    fl.push("The 1.5% and 2% limits are placeholders.");
+    condFlags().forEach(function (x) { fl.push(x); });
     $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
   }
   function setMode() {
@@ -484,6 +507,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
 
   function update() {
     $("err").hidden = true;
+    var he = heatCalc(); if (he) return fail(he);
     if ($("mode").value === "check") return updateCheck();
     var aus = $("mode").value === "aussie";
     var unit = $("unit").value, rv = Number($("rep").value.replace(",", "."));
@@ -510,7 +534,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (xEq < MINX) return fail("This many reps equals the pace of a race shorter than 400m, outside what the tool supports.");
     // more volume than a marathon is read as marathon-pace fitness, not beyond it (the cap is applied inside equivX and lerpA)
     var avg = times.reduce(function (a, b) { return a + b; }, 0) / times.length;
-    var pRaw = avg / (m / 1000);
+    var pObs = avg / (m / 1000), pRaw = pObs * HF;
     var p = pRaw * (1 + RPE_K * (rpe - RPE_REF));
     var pm = invert(p, m, "mid", nReps, rest), pf = invert(p, m, "fast", nReps, rest), ps = invert(p, m, "slow", nReps, rest);
     if (pm === null || pf === null || ps === null) return fail("That pace is outside the range the anchors support for this rep length. Check the times and the distance.");
@@ -518,7 +542,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var tFor = function (p5) { return race(p5, D) * D; };
     var tMid = tFor(pm), tLo = tFor(ps), tHi = tFor(pf);   // slow end of the anchor => faster runner
     $("res").innerHTML =
-      "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + (aus ? " + 200m float" : "") + ", " + mmss(pRaw) + " /km" + (rpe !== RPE_REF ? ", counted as " + mmss(p) + " at RPE " + rpe : "") + "</small></div>" +
+      "<div><span>Average rep</span><b>" + mmss(avg) + "</b><small>" + nReps + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m") + (aus ? " + 200m float" : "") + ", " + mmss(pObs) + " /km" + (rpe !== RPE_REF || HF !== 1 ? ", counted as " + mmss(p) + (rpe !== RPE_REF ? " at RPE " + rpe : "") + (HF !== 1 ? " for heat" : "") : "") + "</small></div>" +
       "<div><span>Predicted " + $("target").options[$("target").selectedIndex].text + "</span><b class=\"pace\">" + hmmss(tMid) + "</b><small>" + hmmss(tLo) + "–" + hmmss(tHi) + "</small></div>" +
       "<div><span>Session equals</span><b>" + xText(xEq) + "</b><small>pace, at RPE 8.5 effort, rest included</small></div>";
     var fl = [];
@@ -539,7 +563,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (rpe < WARN_RPE_LO) fl.push(LOW_MSG);
     if (rpe > WARN_RPE_HI) fl.push(HIGH_MSG);
     if (D / xEq > 3 || D / xEq < 1 / 3) fl.push("These reps equal about " + xText(xEq) + " pace. Predicting a " + $("target").options[$("target").selectedIndex].text + " from that is a long extrapolation, so treat it with caution.");
-    fl.push("Heat, surface, wind and hills are not adjusted for.");
+    condFlags().forEach(function (x) { fl.push(x); });
     $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
     var rows = [["1500m", 1.5], ["Mile", 1.609344], ["3km", 3], ["5km", 5], ["10km", 10], ["Half marathon", HM]];
     var h = "<thead><tr><th>Race</th><th class=\"num\">Predicted</th><th class=\"num\">Range</th></tr></thead><tbody>";
@@ -556,7 +580,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   var HINT_CHK = "Enter your recent race and the session as written: reps, rep length (set the unit to min for timed reps), rest and pace per km, e.g. 5 reps, 4 min, 2 min rest, 4:00-4:05. The verdict compares the pace with what you could hold for the whole session at a hard effort.";
   var HINT_AUS = "Hard 400m times as mm:ss or seconds. Aussie quarters is always 8 reps: enter 8 times or one average. The float is the 200m between hard 400s, run without stopping. The floats count towards the session total.";
   $("mode").addEventListener("change", setMode);
-  ["mode", "reps", "rep", "unit", "rest", "rpe", "splits", "float", "target", "cdist", "ctime"].forEach(function (id) { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
+  ["mode", "reps", "rep", "unit", "rest", "rpe", "splits", "float", "target", "cdist", "ctime", "temp", "dew"].forEach(function (id) { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
   update();
 })();
 

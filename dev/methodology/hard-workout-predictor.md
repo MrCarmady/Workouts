@@ -50,3 +50,18 @@ Added after P asked for a tool to stop people taking on workouts that are too ha
 | Intent (VO2max, threshold) is not asked for | P's reasoning: whether the session can be completed does not depend on its purpose. Comfortable is the only verdict that depends on purpose, and its note says so |
 | Rep lengths under 400m are refused | The anchors start at 400m; 45-second reps at about 200m are speed work. Not covered |
 | Not validated against real sessions. Two reference cases (my calculation): a 24:00 5k runner at 5 × 4 min, 2 min rest, 4:00-4:05/km is Too hard (zone 4:38-4:47); an 18:52 runner is Comfortable at the same session (zone 3:38-3:45) | |
+
+## Heat (2026-11-18)
+
+P found Copeland's Table 2.2 (Adjusting Pace for Heat and Dew Point; Kindle screenshot) and asked to use it in place of "heat is not adjusted for".
+
+| Item | Status |
+|---|---|
+| Table 2.2: temperature 2-14°C: no change; 15-19°C with dew point 12-15°C: 1%; 20-24°C with dew point 15+: 2%; 25-28°C with dew point 18+: 4%. Caveat: if the dew point is higher than the temperature band, move up to the next adjustment; a dew point of 18°C or more is always 4% | Copeland, as shown on P's screenshot. I have not seen the surrounding text beyond the caveat and one worked example |
+| Optional temperature and dew point inputs (°C), all session types. The adjustment is the larger of the temperature band and the dew point band (my reading of the caveat). Dew point bands: 12-15 1%, 15-18 2%, 18+ 4% | My reading of the table. With temperature only, the temperature row is used; with dew point only, the dew point row |
+| Direction: a pace run in heat is counted as faster by the percentage (hot pace × (1 − r)), the inverse of the book's "divide the target pace by (1 − r)" | The book's worked example divides 3:25/km (205 s) by 0.99 for a 1% reduction. The table's examples (4:00 to 4:02, 4:05, 4:10) match multiplying by 1/(1 − r) to within a second |
+| In Check a session the printed pace is counted as faster by the same percentage, and the zone pace is divided back, so it is for the same conditions | Mine, same logic |
+| Above 28°C is outside the table: the adjustment stays at 4% with a note | Mine |
+| Dew point higher than the temperature is rejected | Mine (physically not possible) |
+| Dry heat (hot, low dew point) takes the temperature band's percentage, although the table pairs each band with a dew point | The table does not say; this may overstate the cost in dry heat |
+| Not validated against real sessions | |
