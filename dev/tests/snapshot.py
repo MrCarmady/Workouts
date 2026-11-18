@@ -17,6 +17,7 @@ def fill(pg,id,v):
     if pg.query_selector('#'+id):
         el=pg.query_selector('#'+id)
         try:
+            el.evaluate("e=>{for(let d=e.closest('details');d;d=d.parentElement&&d.parentElement.closest('details'))d.open=true}")
             if el.evaluate('e=>e.tagName')=='SELECT': el.select_option(v,timeout=500)
             else: el.fill(v,timeout=500)
         except Exception: pass
@@ -345,7 +346,7 @@ def run():
         sc=scenarios()+[('sub-t-trend-tracker','5 sessions',tracker),('sub-t-trend-tracker','5 sessions and 5k race',tracker_race),('sub-t-trend-tracker','race, no sessions',tracker_race_only),('sub-t-trend-tracker','bad race time',tracker_race_bad)]
         for page,name,fn in sc:
             ctx=b.new_context(viewport={'width':900,'height':900}); ctx.add_init_script(FREEZE_DATE); pg=ctx.new_page(); errs=[]; pg.on('pageerror',lambda e:errs.append(str(e)))
-            pg.goto('file://'+os.path.join(PAGES,page+'.html')); fn(pg); pg.wait_for_timeout(50)
+            pg.goto('file://'+os.path.join(PAGES,page+'.html')); pg.evaluate("document.querySelectorAll('details.more').forEach(d=>d.open=true)"); fn(pg); pg.wait_for_timeout(50)
             txt=main_text(pg)
             if page=='classic-session-generator' and pg.query_selector('#workout'):
                 pass
