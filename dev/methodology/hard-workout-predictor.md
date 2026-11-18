@@ -37,3 +37,16 @@ Not adjusted: heat, surface, wind, hills. The tool notes how much the equivalent
 Check against posted cases: 6×800 averaging 2:38.5 gives a 5k of 17:22 (range 17:12–17:32); the poster ran 17:07. One case, not a calibration.
 
 Display (2026-10-30): the Session equals box shows the actual race distance (for example 6.9k) unless it is within 5% of a standard distance, when it shows that name. It used to round down to the next standard distance, so 6.9k read as 5k. The box includes the rest adjustment; RPE is not applied to it. The rest note compares the session with the same session at standard rest.
+
+## Check a session (2026-11-18)
+
+Added after P asked for a tool to stop people taking on workouts that are too hard for them (Runna, YouTube and similar). It lives in the Hard Workout Predictor as a session type, because it uses the same engine.
+
+| Item | Status |
+|---|---|
+| Inputs: a recent race (1500m to marathon) and time; a session as written (reps, rep distance or time, rest, pace per km or a range) | P's design. Timed reps are converted to distance at the mid pace |
+| Hard-effort pace: the pace the same session would be run at, at RPE 8.5, for the runner's 5k fitness, from the same anchors, volume slide and rest rule | Same engine as the predictions, so the same placeholders |
+| Verdict: printed pace (the faster end of a range) against the hard-effort pace. More than 1.5% faster: Too hard (changed from 1% on 2026-11-18, after P found a 20:00 5k runner at 6 x 1k, 4:00/km, 60 s rest rated Too hard by 0.4 s of pace; 1.5% is RPE 10 on the 1% per point slope). Faster than 0.5% under the hard-effort pace adds a "near your limit" note. More than 2% slower: Comfortable. Otherwise Hard but doable | My placeholders. The 1.5% is 1.5 RPE points on the model's 1% per point slope (8.5 + 1.5 = 10); the 2% is wider because the slope is known to be too shallow at low RPE |
+| Intent (VO2max, threshold) is not asked for | P's reasoning: whether the session can be completed does not depend on its purpose. Comfortable is the only verdict that depends on purpose, and its note says so |
+| Rep lengths under 400m are refused | The anchors start at 400m; 45-second reps at about 200m are speed work. Not covered |
+| Not validated against real sessions. Two reference cases (my calculation): a 24:00 5k runner at 5 × 4 min, 2 min rest, 4:00-4:05/km is Too hard (zone 4:38-4:47); an 18:52 runner is Comfortable at the same session (zone 3:38-3:45) | |

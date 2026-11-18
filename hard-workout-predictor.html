@@ -112,7 +112,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   <header class="head">
     <div>
       <h1>Hard Workout Predictor</h1>
-      <p class="sub">Predict a race from a hard interval session, such as 6×1k, or from a continuous tempo or time trial.</p>
+      <p class="sub">Predict a race from a hard interval session or tempo. Or check whether a session is too hard for your fitness.</p>
     </div>
     <button type="button" class="themes" id="themebtn" data-mode="system" aria-label="Theme: auto. Click to change." title="Theme: auto">
       <svg class="i-system" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z"/></svg>
@@ -125,15 +125,19 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     <h2>Workout</h2>
     <div class="grid4">
       <label class="span2">Session type
-        <select id="mode"><option value="reps">Reps (2 or more)</option><option value="aussie">Aussie quarters (400m + 200m float)</option><option value="cont">Continuous</option></select>
+        <select id="mode"><option value="reps">Reps (2 or more)</option><option value="aussie">Aussie quarters (400m + 200m float)</option><option value="cont">Continuous</option><option value="check">Check a session (too hard for me?)</option></select>
       </label>
+      <label id="lbCd" hidden>Your race
+        <select id="cdist"><option value="1.5">1500m</option><option value="1.609344">Mile</option><option value="3">3km</option><option value="5" selected>5km</option><option value="10">10km</option><option value="21.0975">Half marathon</option><option value="42.195">Marathon</option></select>
+      </label>
+      <label id="lbCt" hidden>Your race time <input id="ctime" inputmode="numeric" autocomplete="off" placeholder="24:00"></label>
       <label id="lbReps">Reps <input id="reps" inputmode="numeric" value="6"></label>
       <label><span id="repLab">Rep distance</span>
-        <span class="combo"><input id="rep" inputmode="decimal" value="1000"><select id="unit"><option value="m">m</option><option value="km">km</option></select></span>
+        <span class="combo"><input id="rep" inputmode="decimal" value="1000"><select id="unit"><option value="m">m</option><option value="km">km</option><option value="min" hidden disabled>min</option></select></span>
       </label>
       <label id="lbRest">Rest between reps, s <input id="rest" inputmode="numeric" value="60"></label>
-      <label>RPE at the end (6–10) <input id="rpe" inputmode="decimal" value="8.5"></label>
-      <label>Predict
+      <label id="lbRpe">RPE at the end (6–10) <input id="rpe" inputmode="decimal" value="8.5"></label>
+      <label id="lbTarget">Predict
         <select id="target">
           <option value="1.5">1500m</option>
           <option value="1.609344">Mile</option>
@@ -152,7 +156,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
   </section>
 
   <section class="panel">
-    <h2>Prediction</h2>
+    <h2 id="resH">Prediction</h2>
     <div class="res" id="res"></div>
     <p class="note" id="flags"></p>
     <div class="tablewrap"><table id="eq"></table></div>
@@ -174,6 +178,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       <li><b>Continuous.</b> The pace is sped up by 1% for each RPE point below 10, then by a 2.5% race-day effect, and converted to a 5km pace with the race model.</li>
       <li><b>Range.</b> Each anchor has a 1% pace band (5000m: marathon pace to 2% faster).</li>
       <li><b>Rest.</b> The anchors assume the standard rest. Longer rest makes the session easier, so the reps equal a shorter race: the equivalent race is multiplied by (standard rest ÷ your rest)^0.38, limited to 2.5 times either way. 12×1k at 90s instead of 60s reads as about 15k instead of 17.5k.</li>
+      <li><b>Check a session.</b> Enter your race and a session as written. The tool works out the pace you could hold for the whole session at a hard effort (RPE 8.5), using the same anchors, volume and rest rules as the predictions, and compares the printed pace with it. A pace more than 1.5% faster than that (RPE 10 on the 1% per point slope) is Too hard (the faster end of a range is used). A pace more than 2% slower is Comfortable: fine for a threshold or steady session, but not a hard one for you. In between is Hard but doable. It also shows the pace range that sits in the zone and the 5k the printed pace would need. Rep lengths under 400m (speed work) are not covered. The 1.5% and 2% limits are placeholders.</li>
       <li><b>Not adjusted.</b> Heat, surface, wind and hills.</li>
       <li><b>Race model.</b> Riegel 1.06, with a short-distance adjustment below 5km and a marathon offset that assumes 70 miles a week. The 5km to half marathon part is most reliable for intermediate runners on moderate mileage, and may be less reliable for beginners and low mileage.</li>
     </ul>
@@ -416,18 +421,77 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     rows.forEach(function (r) { var f = function (p5) { return race(p5, r[1]) * r[1]; }; h += "<tr><td>" + r[0] + "</td><td class=\"num pace\">" + hmmss(f(pm)) + "</td><td class=\"num\">" + hmmss(f(pf)) + "–" + hmmss(f(ps)) + "</td></tr>"; });
     $("eq").innerHTML = h + "</tbody>";
   }
+
+  // Check a session: is the prescribed pace too hard, about right, or comfortable for a given race fitness?
+  // The pace the session would be run at for a hard effort (RPE 8.5) comes from the same anchors, volume and rest rules as the predictor.
+  // Verdict compares the prescribed pace (the faster end of a range) with that pace. Both limits are placeholders.
+  var CHK_HARD = -0.015, CHK_EASY = 0.02, CHK_EDGE = -0.005;   // more than 1.5% faster than the hard-effort pace (RPE 10 on the 1% per point slope): too hard; more than 2% slower: comfortable; faster than 0.5% under it: near the limit
+  function paceRange(raw) {
+    raw = raw.trim().replace(/\/km\s*$/i, "");
+    if (!raw) return null;
+    var q = raw.split(/\s*[-\u2013]\s*/);
+    if (q.length > 2) return false;
+    var v = q.map(parseOne);
+    if (v.some(function (x) { return x === null || x < 120 || x > 700; })) return false;
+    if (v.length === 1) v.push(v[0]);
+    return v[0] <= v[1] ? v : [v[1], v[0]];
+  }
+  function updateCheck() {
+    var T = parseTime($("ctime").value), pr = paceRange($("splits").value);
+    $("flags").textContent = ""; $("eq").innerHTML = "";
+    if (!$("ctime").value.trim() || pr === null) { $("res").innerHTML = ""; return; }
+    if (T === null) return fail("Enter your race time as mm:ss or h:mm:ss.");
+    if (pr === false) return fail("Enter the session pace per km as mm:ss, or a range such as 4:00-4:05. Paces from 2:00 to 11:40 per km are accepted.");
+    var D = Number($("cdist").value), lo = 120, hi = 700;
+    if (race(lo, D) * D > T || race(hi, D) * D < T) return fail("That race time is outside the range the model supports. Check the time and the distance.");
+    for (var i = 0; i < 50; i++) { var mid = (lo + hi) / 2; if (race(mid, D) * D < T) lo = mid; else hi = mid; }
+    var p5u = (lo + hi) / 2, pm = (pr[0] + pr[1]) / 2, unit = $("unit").value, rv = Number($("rep").value.replace(",", "."));
+    if (!rv || rv <= 0) return fail("Enter the rep distance or time as a number.");
+    var m = unit === "min" ? rv * 60 / pm * 1000 : unit === "km" ? rv * 1000 : rv;
+    if (m < ANCH[0].m || m > ANCH[ANCH.length - 1].m) return fail("Rep length should be between 400m and 5000m" + (unit === "min" ? " (" + Math.round(m) + "m at that pace)" : "") + ". Shorter reps are speed work, which this check does not cover.");
+    var rest = Number($("rest").value), n = parseInt($("reps").value, 10);
+    if (isNaN(rest) || rest < 0 || rest > 900) return fail("Enter the rest in seconds, 0 to 900.");
+    if (!(n >= 2 && n <= 50)) return fail("Enter 2 to 50 reps.");
+    if (n * m / 1000 > MAXWORK) return fail("Total work is " + (n * m / 1000).toFixed(1) + "km. The tool supports up to " + MAXWORK + "km of work in a session.");
+    if (equivX(m, n, rest) < MINX) return fail("This many reps equals a race shorter than 400m, outside what the tool supports.");
+    var pu = lerpA(p5u, m, "mid", n, rest), d = pr[0] / pu - 1;
+    var verdict = d < CHK_HARD ? "Too hard" : d > CHK_EASY ? "Comfortable" : "Hard but doable";
+    var need = invert(pm, m, "mid", n, rest), needT = need === null ? null : race(need, 5) * 5;
+    var zf = pu * (1 + CHK_HARD), zs = pu * (1 + CHK_EASY), lab = (m >= 1000 ? +(m / 1000).toFixed(2) + "km" : Math.round(m) + "m");
+    $("resH").textContent = "Verdict";
+    $("res").innerHTML =
+      "<div><span>Verdict</span><b class=\"" + (verdict === "Too hard" ? "pace" : "") + "\">" + verdict + "</b><small>" + n + " × " + lab + ", " + Math.round(rest) + "s rest, at " + (pr[0] === pr[1] ? mmss(pr[0]) : mmss(pr[0]) + "-" + mmss(pr[1])) + " /km</small></div>" +
+      "<div><span>Pace in the zone</span><b>" + mmss(zf) + "-" + mmss(zs) + "</b><small>/km for this session at your fitness</small></div>" +
+      "<div><span>This pace needs a 5k of</span><b>" + (needT === null ? "faster than supported" : hmmss(needT)) + "</b><small>against your " + hmmss(race(p5u, 5) * 5) + "</small></div>";
+    var fl = [];
+    if (verdict === "Too hard") fl.push("At this pace you would probably slow in the later reps or fail some. The faster end of the range is used for the verdict.");
+    else if (verdict === "Comfortable") fl.push("Slower than your hard-effort pace for this session. That suits a threshold or steady session, but it is not a hard session for you.");
+    else if (d < CHK_EDGE) fl.push("Near your limit: this needs a near-maximal effort on every rep, with no room to fade.");
+    else fl.push("Close to a hard effort for you across the whole session.");
+    if (pr[0] !== pr[1] && pr[1] / pu - 1 > CHK_EASY && verdict !== "Comfortable") fl.push("The slow end of the range alone would be comfortable.");
+    var tn = typN(m), rr = n / tn, tl = Math.round(tn) + " × " + (m >= 1000 ? m / 1000 + "km" : m + "m");
+    if (rr > WARN_R_HI) fl.push("That is far more reps than the usual " + tl + ", so the zone pace above is slower than the printed pace suggests.");
+    if (rest < 20) fl.push("Rest under 20s is close to continuous running, which this model is not built for.");
+    fl.push("The 1.5% and 2% limits are placeholders. Heat, surface, wind and hills are not adjusted for.");
+    $("flags").innerHTML = fl.map(function (x) { return "<span class=\"flag\">" + x + "</span>"; }).join("<br>");
+  }
   function setMode() {
-    var md = $("mode").value, c = md === "cont", a = md === "aussie";
-    $("lbReps").hidden = c || a; $("lbRest").hidden = c || a; $("anchSec").hidden = c || a; $("lbFloat").hidden = !a;
+    var md = $("mode").value, c = md === "cont", a = md === "aussie", k = md === "check";
+    $("lbReps").hidden = c || a; $("lbRest").hidden = c || a; $("anchSec").hidden = c || a || k; $("lbFloat").hidden = !a;
+    $("lbCd").hidden = !k; $("lbCt").hidden = !k; $("lbRpe").hidden = k; $("lbTarget").hidden = k;
+    var mo = $("unit").querySelector("option[value=min]"); mo.hidden = !k; mo.disabled = !k;
+    if (!k && $("unit").value === "min") $("unit").value = "m";
+    $("resH").textContent = k ? "Verdict" : "Prediction";
     $("rep").closest("label").hidden = a;
-    $("repLab").textContent = c ? "Distance" : "Rep distance";
-    $("splitLab").textContent = c ? "Time" : a ? "Hard 400m times or average, comma separated" : "Rep times or average, comma separated";
-    $("splits").placeholder = c ? "20:00" : a ? "1:29, 1:29, 1:28, 1:29, 1:30, 1:29, 1:30, 1:29" : "3:38, 3:32, 3:33, 3:31, 3:34, 3:35";
-    $("hint").textContent = c ? "Time as mm:ss or h:mm:ss. Add /km to enter pace, e.g. 4:00/km." : a ? HINT_AUS : HINT_REPS;
+    $("repLab").textContent = c ? "Distance" : k ? "Rep distance or time" : "Rep distance";
+    $("splitLab").textContent = k ? "Session pace per km, or a range" : c ? "Time" : a ? "Hard 400m times or average, comma separated" : "Rep times or average, comma separated";
+    $("splits").placeholder = k ? "4:00-4:05" : c ? "20:00" : a ? "1:29, 1:29, 1:28, 1:29, 1:30, 1:29, 1:30, 1:29" : "3:38, 3:32, 3:33, 3:31, 3:34, 3:35";
+    $("hint").textContent = k ? HINT_CHK : c ? "Time as mm:ss or h:mm:ss. Add /km to enter pace, e.g. 4:00/km." : a ? HINT_AUS : HINT_REPS;
   }
 
   function update() {
     $("err").hidden = true;
+    if ($("mode").value === "check") return updateCheck();
     var aus = $("mode").value === "aussie";
     var unit = $("unit").value, rv = Number($("rep").value.replace(",", "."));
     if (!aus && (!rv || rv <= 0)) return fail("Enter the rep distance as a number.");
@@ -496,9 +560,10 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     $("anch").innerHTML = h + "</tbody>";
   }
   var HINT_REPS = $("hint").textContent;
+  var HINT_CHK = "Enter your recent race and the session as written: reps, rep length (set the unit to min for timed reps), rest and pace per km, e.g. 5 reps, 4 min, 2 min rest, 4:00-4:05. The verdict compares the pace with what you could hold for the whole session at a hard effort.";
   var HINT_AUS = "Hard 400m times as mm:ss or seconds. Aussie quarters is always 8 reps: enter 8 times or one average. The float is the 200m between hard 400s, run without stopping. The floats count towards the session total.";
   $("mode").addEventListener("change", setMode);
-  ["mode", "reps", "rep", "unit", "rest", "rpe", "splits", "float", "target"].forEach(function (id) { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
+  ["mode", "reps", "rep", "unit", "rest", "rpe", "splits", "float", "target", "cdist", "ctime"].forEach(function (id) { $(id).addEventListener("input", update); $(id).addEventListener("change", update); });
   update();
 })();
 
