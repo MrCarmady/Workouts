@@ -137,9 +137,11 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       <label>RPE at the end (1–10) <input id="rpe" inputmode="decimal" value="6"></label>
       <label>Peak HR, % of max (optional) <input id="hr" inputmode="decimal" placeholder="88"></label>
       <label>Session avg HR, % of max (optional) <input id="hra" inputmode="decimal" placeholder="80"></label>
+      <label>Temperature, °C (optional) <input id="temp" inputmode="decimal" placeholder="22"></label>
+      <label>Dew point, °C (optional) <input id="dew" inputmode="decimal" placeholder="16"></label>
       <div class="row"><button class="btn" id="add" type="button">Add</button></div>
     </div>
-    <p class="note">Log sessions that ended at RPE 7 or lower. Sessions above RPE 7 are excluded: for one hard workout use the Hard Workout Predictor. HR is optional. Sessions are excluded if peak HR (last 1–2 minutes of the last rep) is above 90% of max, or average HR (warm-up and cool-down included) is above 82%.</p>
+    <p class="note">Log sessions that ended at RPE 7 or lower. Sessions above RPE 7 are excluded: for one hard workout use the Hard Workout Predictor. HR is optional. Temperature and dew point are optional: a pace run in heat is counted as faster by Copeland's Table 2.2 percentage before the threshold is worked out. Sessions are excluded if peak HR (last 1–2 minutes of the last rep) is above 90% of max, or average HR (warm-up and cool-down included) is above 82%.</p>
     <p class="warn" id="err" hidden></p>
   </section>
 
@@ -191,7 +193,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       <li><b>Which tool.</b> This is for repeatable sub-threshold sessions at RPE 7 or below, the kind you can run several times a week. It gives a fitness floor, not a race prediction, and ignores rep count and rest. For one hard workout at RPE 8.5 or above, use the Hard Workout Predictor. The two are expected to give different numbers for the same pace.</li>
       <li><b>Estimate.</b> The median of the last 6 counted sessions within the past 6 weeks. With fewer than 3 in that window, it uses the last 6 counted sessions and is marked stale.</li>
       <li><b>Confidence.</b> Counted sessions in the last 6 weeks. Fewer than 3: stale. 3–5: low. 6–9: moderate. 10 or more: good.</li>
-      <li><b>Trend.</b> Straight-line fit to the counted sessions in the last 12 weeks, shown from 4 sessions spanning 14 days. Pace noise, heat, hills and fatigue are not corrected for.</li>
+      <li><b>Trend.</b> Straight-line fit to the counted sessions in the last 12 weeks, shown from 4 sessions spanning 14 days. Pace noise, hills and fatigue are not corrected for. Heat is corrected only when a temperature or dew point is logged.</li>
       <li><b>Race results.</b> The race time is run through the race model to a 5km pace (for races under 5km the same slowing as the Session Generator's input is applied). Threshold is the pace for a 16km race at that 5km pace. The comparison uses the sessions logged in the 6 weeks up to the race date, and shows the race time those sessions predicted. A negative gap means the race was faster than the sessions suggested.</li>
     </ul>
   </section>
@@ -249,6 +251,14 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     sec = Math.round(sec);
     var h = Math.floor(sec / 3600), r = sec - h * 3600;
     return h > 0 ? h + ":" + (Math.floor(r / 60) < 10 ? "0" : "") + mmss(r) : mmss(r);
+  }
+  // Heat (Copeland, Table 2.2): pace reduction in percent by temperature (15-19C 1, 20-24C 2, 25-28C 4) and by dew point (12-15C 1, 15-18C 2, 18C and over 4).
+  // The larger of the two applies, so a high dew point moves the temperature up a band, as the book's caveat says. Either value may be null. Above 28C is outside the table (stays 4).
+  // A pace run in heat times (1 - pct / 100) is the cool-weather equivalent; the book divides a target pace by (1 - pct / 100) to get the pace to run in heat.
+  function heatPct(t, d) {
+    var tp = t === null || t === undefined ? 0 : t >= 25 ? 4 : t >= 20 ? 2 : t >= 15 ? 1 : 0;
+    var dp = d === null || d === undefined ? 0 : d >= 18 ? 4 : d >= 15 ? 2 : d >= 12 ? 1 : 0;
+    return Math.max(tp, dp);
   }
   // Daniels-Gilbert VDOT for a race of `min` minutes over `m` metres.
   function vdot(min, m) {
@@ -351,9 +361,15 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     if (!(rpe >= 1 && rpe <= 10)) return err("Enter the end RPE, 1 to 10.");
     if (hr !== null && !(hr >= 50 && hr <= 110)) return err("Enter peak HR as a % of max, like 88, or leave it blank.");
     if (ha !== null && !(ha >= 50 && ha <= 100)) return err("Enter session average HR as a % of max, like 80, or leave it blank.");
-    var imp = implied(p, t, null);
+    var tTxt = $("temp").value.trim().replace(",", "."), dTxt = $("dew").value.trim().replace(",", ".");
+    var tempC = tTxt === "" ? null : Number(tTxt), dewC = dTxt === "" ? null : Number(dTxt);
+    if ((tempC !== null && !(tempC >= -30 && tempC <= 50)) || (dewC !== null && !(dewC >= -30 && dewC <= 35))) return err("Enter the temperature and dew point in °C, like 22 and 16, or leave them blank.");
+    if (tempC !== null && dewC !== null && dewC > tempC + 0.5) return err("The dew point cannot be higher than the temperature.");
+    var heat = heatPct(tempC, dewC), pc = p * (1 - heat / 100);   // Copeland Table 2.2: a pace run in heat counts as faster; rep time (distance reps) uses the same
+    if (unit !== "min") t = t * (1 - heat / 100);
+    var imp = implied(pc, t, null);
     if (!imp) return err("That rep length and pace fall outside the supported range. Check the entries.");
-    S.push({ id: Date.now() + Math.random(), date: $("date").value || today(), reps: reps, rpe: rpe, t: t, lbl: unit === "min" ? "" : rv.replace(",", ".") + unit, p: p, hr: hr, ha: ha === undefined ? null : ha, thr: imp.thr, lo: imp.thrFast, hi: imp.thrSlow, p5: imp.p5 });
+    S.push({ id: Date.now() + Math.random(), date: $("date").value || today(), reps: reps, rpe: rpe, t: t, lbl: unit === "min" ? "" : rv.replace(",", ".") + unit, p: p, heat: heat, hr: hr, ha: ha === undefined ? null : ha, thr: imp.thr, lo: imp.thrFast, hi: imp.thrSlow, p5: imp.p5 });
     save(); render();
   }
 
@@ -432,7 +448,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
     var h = "<thead><tr><th>Date</th><th>Session</th><th class=\"num\">Avg pace</th><th class=\"num\">RPE</th><th class=\"num hr\">Peak HR</th><th class=\"num\">Threshold</th><th></th></tr></thead><tbody>";
     S.slice().reverse().forEach(function (s) {
       var ok = valid(s);
-      h += "<tr class=\"" + (ok ? (age(s) > TREND_DAYS ? "old" : "") : "out") + "\"><td>" + fmtDate(s.date) + "</td><td>" + repText(s) + (ok ? "" : "<br><span class=\"flag\">Excluded: " + why(s) + "</span>") + "</td><td class=\"num\">" + mmss(s.p) + "</td><td class=\"num\">" + (s.rpe == null ? "–" : s.rpe) + "</td><td class=\"num hr\">" + (s.hr === null ? "–" : s.hr + "%") + "</td><td class=\"num pace\">" + mmss(s.thr) + "</td><td><button class=\"xbtn\" data-id=\"" + s.id + "\" aria-label=\"Delete session\">✕</button></td></tr>";
+      h += "<tr class=\"" + (ok ? (age(s) > TREND_DAYS ? "old" : "") : "out") + "\"><td>" + fmtDate(s.date) + "</td><td>" + repText(s) + (ok ? "" : "<br><span class=\"flag\">Excluded: " + why(s) + "</span>") + "</td><td class=\"num\">" + mmss(s.p) + (s.heat ? "<br><span class=\"flag\">heat " + s.heat + "%</span>" : "") + "</td><td class=\"num\">" + (s.rpe == null ? "–" : s.rpe) + "</td><td class=\"num hr\">" + (s.hr === null ? "–" : s.hr + "%") + "</td><td class=\"num pace\">" + mmss(s.thr) + "</td><td><button class=\"xbtn\" data-id=\"" + s.id + "\" aria-label=\"Delete session\">✕</button></td></tr>";
     });
     $("tbl").innerHTML = S.length ? h + "</tbody>" : "<tbody><tr><td>No sessions logged.</td></tr></tbody>";
     $("json").value = dump();

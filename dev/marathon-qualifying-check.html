@@ -203,6 +203,14 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     var h = Math.floor(sec / 3600), r = sec - h * 3600;
     return h > 0 ? h + ":" + (Math.floor(r / 60) < 10 ? "0" : "") + mmss(r) : mmss(r);
   }
+  // Heat (Copeland, Table 2.2): pace reduction in percent by temperature (15-19C 1, 20-24C 2, 25-28C 4) and by dew point (12-15C 1, 15-18C 2, 18C and over 4).
+  // The larger of the two applies, so a high dew point moves the temperature up a band, as the book's caveat says. Either value may be null. Above 28C is outside the table (stays 4).
+  // A pace run in heat times (1 - pct / 100) is the cool-weather equivalent; the book divides a target pace by (1 - pct / 100) to get the pace to run in heat.
+  function heatPct(t, d) {
+    var tp = t === null || t === undefined ? 0 : t >= 25 ? 4 : t >= 20 ? 2 : t >= 15 ? 1 : 0;
+    var dp = d === null || d === undefined ? 0 : d >= 18 ? 4 : d >= 15 ? 2 : d >= 12 ? 1 : 0;
+    return Math.max(tp, dp);
+  }
   // Daniels-Gilbert VDOT for a race of `min` minutes over `m` metres.
   function vdot(min, m) {
     var v = m / min;

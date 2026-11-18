@@ -442,6 +442,8 @@ belt pace  = flat pace  * (1 + 4.5 * G)
 <p>This page shares its race distance and time with the Sub-Threshold Session Generator, the Race Prediction Calculator, the Run TSS Calculator and the Run TSS Planner. The values are kept in the browser's local storage under one key. The last page you edited sets the value for the others. It applies only on the hosted site, where the pages share an origin, and only in the same browser on the same device. It does not sync between devices. If a stored distance is missing from a page's list (the 10 miles and marathon options exist only on the predictor), that page keeps its own distance.</p>
 <h2>Hand-off to the Run Load Planner</h2>
 <p>On the hosted site, the session load has an "Add to Run Load Planner" link. It opens the planner with the session's TSS and a short label in the address (<code>run-load-planner.html?tss=65&amp;name=5x 6 min</code>). Nothing is stored. The link is hidden in the standalone artifact, where the planner page is not next to it.</p>
+<h2>Heat (2026-11-18)</h2>
+<p>Optional temperature and dew point (°C) in the Rep length panel. Uses Copeland's Table 2.2 through the shared <code>heatPct</code> function (same rule as the Hard Workout Predictor: the larger of the temperature band and the dew point band; 1, 2 or 4%). The paces and rep times shown are the cool-weather values divided by (1 − percentage), the book's rule for the pace to run in heat. TSS, recoveries and rep counts do not change, because the effort is the same. Above 28°C is outside the table (stays at 4%, flagged). Dew point above temperature is rejected. Not validated; added at P's request after he pointed out that Copeland's heat table is meant for sub-threshold work.</p>
   </article>
 </main>
 <script>(function () {

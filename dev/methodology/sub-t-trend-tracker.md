@@ -27,3 +27,7 @@ Not corrected for: heat, hills, wind, fatigue, pacing errors. Data is stored in 
 | Races are stored with the sessions (key `stt`, field `races`) and included in the backup text. "Clear all sessions" does not delete races | My choice |
 
 The race is assumed to be an all-out effort in normal conditions. Heat, hills, wind and tactics are not corrected for.
+
+## Heat (2026-11-18)
+
+Optional temperature and dew point (°C) per session. A pace run in heat is counted as faster by Copeland's Table 2.2 percentage (hot pace × (1 − percentage)) before the implied threshold is worked out; for distance reps the rep time is scaled the same way. The pace shown in the table is the pace actually run, with the percentage beneath it. Sessions logged without conditions are not adjusted. The rule is the shared `heatPct` function: the larger of the temperature band and the dew point band (1, 2 or 4%); above 28°C stays at 4%; dew point above temperature is rejected. Example: 4 × 10 min at 3:55 gives a threshold of 3:47 in cool weather and 3:38 at 27°C with a 19°C dew point. Not validated.

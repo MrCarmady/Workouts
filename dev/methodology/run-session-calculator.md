@@ -215,3 +215,7 @@ This page shares its race distance and time with the Sub-Threshold Session Gener
 ## Hand-off to the Run Load Planner
 
 On the hosted site, the session load has an "Add to Run Load Planner" link. It opens the planner with the session's TSS and a short label in the address (`run-load-planner.html?tss=65&name=5x 6 min`). Nothing is stored. The link is hidden in the standalone artifact, where the planner page is not next to it.
+
+## Heat (2026-11-18)
+
+Optional temperature and dew point (°C) in the Rep length panel. Uses Copeland's Table 2.2 through the shared `heatPct` function (same rule as the Hard Workout Predictor: the larger of the temperature band and the dew point band; 1, 2 or 4%). The paces and rep times shown are the cool-weather values divided by (1 − percentage), the book's rule for the pace to run in heat. TSS, recoveries and rep counts do not change, because the effort is the same. Above 28°C is outside the table (stays at 4%, flagged). Dew point above temperature is rejected. Not validated; added at P's request after he pointed out that Copeland's heat table is meant for sub-threshold work.

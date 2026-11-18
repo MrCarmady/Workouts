@@ -2,7 +2,7 @@
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
 const src = fs.readFileSync(path.join(__dirname, "..", "shared", "core.js"), "utf8");
 const ctx = {}; vm.createContext(ctx);
-vm.runInContext(src + "\nthis.api = { K, HM, MAR, MILE, adj, off, marathonFactor, marathonOff, parseTime, mmss, hmmss, vdot, setOff: function (v) { offM = v; } };", ctx);
+vm.runInContext(src + "\nthis.api = { K, HM, MAR, MILE, adj, off, marathonFactor, marathonOff, parseTime, mmss, hmmss, vdot, heatPct, setOff: function (v) { offM = v; } };", ctx);
 const a = ctx.api; let n = 0;
 function t(name, fn) { fn(); n++; }
 const near = (x, y, e, m) => assert.ok(Math.abs(x - y) <= e, (m || "") + " got " + x + " expected " + y);
@@ -19,6 +19,13 @@ t("parseTime: strict forms (2026-10-19)", () => {
   ["59:99", "1:75", "0:90", "12:60", "1:60:00", "1:00:75", "0x10", "1e2", "1e2:30", "Infinity", "+5:00", "5:+30", "18:.5", "18.5:30", "18:5", "18:054", "18 : 54", "18:54.", "1854.5", "9999999", "1_000", "٣", "NaN"].forEach(x => assert.strictEqual(a.parseTime(x), null, x));
   assert.strictEqual(a.parseTime(" 18:54 "), 1134); assert.strictEqual(a.parseTime("18:54.5"), 1134.5); assert.strictEqual(a.parseTime("1.5"), 90);
   assert.strictEqual(a.parseTime("0:59"), 59); assert.strictEqual(a.parseTime("120:00"), 7200); assert.strictEqual(a.parseTime("1:59:59"), 7199);
+});
+t("heatPct: Copeland Table 2.2, larger of the temperature and dew point bands", () => {
+  const h = a.heatPct;
+  assert.strictEqual(h(10, 8), 0); assert.strictEqual(h(14.9, 11.9), 0); assert.strictEqual(h(15, 12), 1); assert.strictEqual(h(19, 14), 1);
+  assert.strictEqual(h(20, 15), 2); assert.strictEqual(h(24, 14), 2); assert.strictEqual(h(25, 18), 4); assert.strictEqual(h(28, 18), 4);
+  assert.strictEqual(h(17, 16), 2, "caveat: dew point higher than the band moves up"); assert.strictEqual(h(17, 18), 4, "dew point 18 or more is always 4");
+  assert.strictEqual(h(31, null), 4); assert.strictEqual(h(null, null), 0); assert.strictEqual(h(null, 13), 1); assert.strictEqual(h(undefined, 16), 2);
 });
 t("mmss and hmmss", () => {
   assert.strictEqual(a.mmss(65), "1:05"); assert.strictEqual(a.mmss(59.6), "1:00"); assert.strictEqual(a.mmss(1134), "18:54");

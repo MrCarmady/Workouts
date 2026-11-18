@@ -27,6 +27,9 @@ def scenarios():
     for page in ['race-prediction-calculator','plan-builder','run-session-calculator','classic-session-generator']:
         for r in RACES: out.append((page,'race '+'|'.join(r),lambda pg,r=r,page=page:[fill(pg,'dist',KMIDX[r[0]] if page=='race-prediction-calculator' else r[0]),fill(pg,'time',r[1]),fill(pg,'week',r[2]),fill(pg,'wunit',r[3])]))
     out.append(('run-session-calculator','10 min reps',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'unit','min'),fill(pg,'rep','10')]))
+    out.append(('run-session-calculator','heat 10 min reps 27C dew 19',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'unit','min'),fill(pg,'rep','10'),fill(pg,'temp','27'),fill(pg,'dew','19')]))
+    out.append(('run-session-calculator','heat 1000m reps 17C dew 16',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'unit','m'),fill(pg,'rep','1000'),fill(pg,'temp','17'),fill(pg,'dew','16')]))
+    out.append(('run-session-calculator','heat dew above temp error',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'unit','min'),fill(pg,'rep','10'),fill(pg,'temp','5'),fill(pg,'dew','9')]))
     out.append(('run-session-calculator','1000m reps',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'unit','m'),fill(pg,'rep','1000')]))
     out.append(('run-session-calculator','3 min reps',lambda pg:[fill(pg,'dist','3'),fill(pg,'time','10:44.80'),fill(pg,'unit','min'),fill(pg,'rep','3')]))
     out.append(('plan-builder','block 4 days',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:54'),fill(pg,'week','60'),fill(pg,'wunit','mi'),fill(pg,'days','4'),fill(pg,'ctl','50'),fill(pg,'weeks','10')]))

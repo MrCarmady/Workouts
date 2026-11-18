@@ -144,6 +144,15 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
           </select>
         </label>
       </div>
+      <div class="fields" style="margin-top:14px; align-items:end">
+        <label>Temperature, °C (optional)
+          <input id="temp" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="22">
+        </label>
+        <label>Dew point, °C (optional)
+          <input id="dew" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="16">
+        </label>
+      </div>
+      <p class="note" style="margin-top:12px">Temperature and dew point are optional. Paces and rep times slow by Copeland's heat table (Table 2.2). TSS does not change, since the effort is the same.</p>
       <p class="note" style="margin-top:12px" id="repnote">Minutes can be decimal (2.5) or mm:ss (2:30).</p>
     </div>
   </section>
@@ -255,6 +264,14 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     var h = Math.floor(sec / 3600), r = sec - h * 3600;
     return h > 0 ? h + ":" + (Math.floor(r / 60) < 10 ? "0" : "") + mmss(r) : mmss(r);
   }
+  // Heat (Copeland, Table 2.2): pace reduction in percent by temperature (15-19C 1, 20-24C 2, 25-28C 4) and by dew point (12-15C 1, 15-18C 2, 18C and over 4).
+  // The larger of the two applies, so a high dew point moves the temperature up a band, as the book's caveat says. Either value may be null. Above 28C is outside the table (stays 4).
+  // A pace run in heat times (1 - pct / 100) is the cool-weather equivalent; the book divides a target pace by (1 - pct / 100) to get the pace to run in heat.
+  function heatPct(t, d) {
+    var tp = t === null || t === undefined ? 0 : t >= 25 ? 4 : t >= 20 ? 2 : t >= 15 ? 1 : 0;
+    var dp = d === null || d === undefined ? 0 : d >= 18 ? 4 : d >= 15 ? 2 : d >= 12 ? 1 : 0;
+    return Math.max(tp, dp);
+  }
   // Daniels-Gilbert VDOT for a race of `min` minutes over `m` metres.
   function vdot(min, m) {
     var v = m / min;
@@ -356,6 +373,11 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     var unit = $("unit").value;
     $("repnote").textContent = unit === "min" ? "Minutes can be decimal (2.5) or mm:ss (2:30)." : (tread ? "Treat the distance as flat-equivalent. The belt distance is shown with the result." : "");
     $("err").hidden = true;
+    var tTxt = ($("temp").value || "").trim().replace(",", "."), dTxt = ($("dew").value || "").trim().replace(",", ".");
+    var tempC = tTxt === "" ? null : Number(tTxt), dewC = dTxt === "" ? null : Number(dTxt);
+    if ((tempC !== null && !(tempC >= -30 && tempC <= 50)) || (dewC !== null && !(dewC >= -30 && dewC <= 35))) return fail("Enter the temperature and dew point in °C, for example 22 and 16, or leave them blank.");
+    if (tempC !== null && dewC !== null && dewC > tempC + 0.5) return fail("The dew point cannot be higher than the temperature.");
+    var heat = heatPct(tempC, dewC), HF = 1 - heat / 100;   // Copeland Table 2.2: the pace to run in heat is the cool-weather pace divided by HF
     if (t === null || t <= 0) return fail("Enter a race time like 18:54, 1854 or 1:32:10.");
     var vd = vdot(t / 60, D * 1000);
     if (vd < VDOT_MIN || vd > VDOT_MAX) return fail("That result equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of " + VDOT_MIN + " to " + VDOT_MAX + ". Check the distance and time.");
@@ -412,9 +434,9 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
     }
 
     var fast = lerp(A, tRep, pf), slow = lerp(A, tRep, ps);
-    var bf = fast * f, bs = slow * f;
+    var bf = fast * f / HF, bs = slow * f / HF;
     $("o-pace").textContent = rangeText(mmss(bf), mmss(bs));
-    $("o-pace-s").textContent = tread ? "belt pace" : "";
+    $("o-pace-s").textContent = [tread ? "belt pace" : "", heat ? "in heat, " + heat + "% slower than cool weather" + (tempC !== null && tempC > 28 ? " (above the table)" : "") : ""].filter(Boolean).join(", ");
     $("o-speed").textContent = rangeText((Math.round(kmh(bs) * 10) / 10).toFixed(1), (Math.round(kmh(bf) * 10) / 10).toFixed(1));
     if (dKm === null) {
       $("o-len-l").textContent = "Distance";
@@ -423,7 +445,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
       $("o-len-s").textContent = tread && G > 0 ? "flat equivalent ca. " + distText(tRep / ((fast + slow) / 2), step) : "";
     } else {
       $("o-len-l").textContent = "Rep time";
-      $("o-len").textContent = durRange(fast * dKm, slow * dKm);
+      $("o-len").textContent = durRange(fast * dKm / HF, slow * dKm / HF);
       $("o-len-s").textContent = tread && G > 0 ? "belt ca. " + distText(dKm / f, dKm < 1 ? 0.01 : 0.1) : "";
     }
     // Recovery and reps
@@ -505,7 +527,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); ou
 
   restore();
   (function () { var pr = profGet(); if (pr.km && $("dist").querySelector('option[value="' + pr.km + '"]')) $("dist").value = pr.km; if (pr.time) $("time").value = pr.time; if (typeof pr.week === "string") $("week").value = pr.week; if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit; })();
-  ["dist", "time", "surface", "incline", "rep", "unit", "week", "wunit", "reps", "wu", "cd", "wcp"].forEach(function (id) {
+  ["dist", "time", "surface", "incline", "rep", "unit", "week", "wunit", "reps", "wu", "cd", "wcp", "temp", "dew"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });
