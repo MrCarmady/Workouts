@@ -135,7 +135,7 @@ details summary { cursor: pointer; font-size: .85rem; font-weight: 600; letter-s
       <label>Dew point, °C (optional) <input id="dew" inputmode="decimal" placeholder="16"></label>
       <div class="row"><button class="btn" id="add" type="button">Add</button></div>
     </div>
-    <p class="note">Log sessions that ended at RPE 7 or lower. Sessions above RPE 7 are excluded: for one hard workout use the Hard Workout Predictor. HR is optional. Temperature and dew point are optional: a pace run in heat is counted as faster by Copeland's Table 2.2 percentage before the threshold is worked out. Sessions are excluded if peak HR (last 1–2 minutes of the last rep) is above 90% of max, or average HR (warm-up and cool-down included) is above 82%.</p>
+    <p class="note">Log sessions that ended at RPE 7 or lower. For one hard workout, use the Hard Workout Predictor. Excluded if peak HR (last 1–2 minutes) is above 90% of max or average HR is above 82%. HR, temperature and dew point are optional; hot paces count as faster (Copeland's heat table).</p>
     <p class="warn" id="err" hidden></p>
   </section>
 
