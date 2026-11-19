@@ -176,6 +176,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       </table>
     </div>
     <p class="note" id="weeknote" style="margin-top:12px"></p>
+    <p class="note" id="rngnote" style="margin-top:6px">Range: the slower end adds 0.4% plus 1.5% for each unit of ln(distance ÷ your nearest result); the faster end is half that. The further a row is from a result you entered, the wider the range. 400m uses the 800m range with the 800m ÷ 400m ratio between 2.14 and 2.34. These widths are my placeholders, not fitted to data.</p>
     <p class="note" id="cmpnote" style="margin-top:6px"></p>
   </section>
 
@@ -353,6 +354,8 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   var CMP_NAMES = { daniels: "Daniels (VDOT)", hansons: "Hansons", pfitz: "Pfitzinger, Advanced Marathoning", pfrr: "Pfitzinger, Faster Road Racing", rlrf: "Run Less, Run Faster", tinman: "Tinman", wr: "Same % of WR" };
   function dstr(d) { var s = Math.round(d), a = Math.abs(s); return (s < 0 ? "-" : "+") + (a >= 60 ? Math.floor(a / 60) + ":" + (a % 60 < 10 ? "0" : "") + a % 60 : a + "s"); }
 
+  // Range: slower end = prediction x (1 + RNG_BASE + RNG_SLOPE x d), d = ln(target / nearest result distance); faster end uses RNG_FAST of that width. My placeholders, not fitted to data.
+  var RNG_BASE = 0.004, RNG_SLOPE = 0.015, RNG_FAST = 0.5, R400_LO = 2.14, R400_HI = 2.34;
   var R400 = 2.25;   // 800m time / 400m time, set by the author (the model's own slope gave 2.14, Tinman's table 2.34)
   var OUT_MIN = 1.5;   // custom distances: 1.5km up to the marathon, the range the model is set on (my choice)
   var OUTS = DISTS;    // rows shown: the list above plus any custom distances, in distance order (set in update)
@@ -463,6 +466,9 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     var i4 = -1, i8 = -1;
     OUTS.forEach(function (T, i) { if (T.name === "400m") i4 = i; else if (T.name === "800m") i8 = i; });
     if (i4 >= 0 && i8 >= 0) { pred[i4] = pred[i8] / R400; W[i4] = W[i8]; }   // 400m is the 800m time / 2.25
+    var lo = [], hi = [];
+    OUTS.forEach(function (T, i) { var d = Math.min.apply(null, Ds.map(function (x) { return Math.abs(Math.log(T.km / x.km)); })), wd = RNG_BASE + RNG_SLOPE * d; lo[i] = pred[i] * (1 - wd * RNG_FAST); hi[i] = pred[i] * (1 + wd); });
+    if (i4 >= 0 && i8 >= 0) { lo[i4] = lo[i8] / R400_HI; hi[i4] = hi[i8] / R400_LO; }   // 400m carries the ratio's own uncertainty
     var html = "", cm = $("cmp").value, cnote = "", crs = Ds.map(function (d, k) { return compareTimes(cm, d, ts[k]); });
     var hasC = cm !== "none", cerr = null, only = -1, cmpW = W, usedMsg = "";
     crs.forEach(function (c, k) { if (c.err && !cerr) cerr = (two ? "Result " + (k + 1) + ": " : "") + c.err; });
@@ -478,7 +484,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       if (vals.some(function (v, k) { return v == null && cmpW[i][k] > 0; })) return null;
       return vals.reduce(function (a, v, k) { return a + (cmpW[i][k] > 0 ? cmpW[i][k] * v : 0); }, 0);
     });
-    $("thead").innerHTML = "<th>Distance</th><th>Time</th><th>/km</th><th>/mile</th><th>% WR</th>" + (hasC ? "<th>" + CMP_NAMES[cm] + "</th>" : "");
+    $("thead").innerHTML = "<th>Distance</th><th>Time</th><th>/km</th><th>/mile</th><th>% WR</th><th>Range</th>" + (hasC ? "<th>" + CMP_NAMES[cm] + "</th>" : "");
     if (hasC && cerr) cnote = CMP_NAMES[cm] + ": " + cerr.replace(/ Enter a .*$/, "") + (two ? "" : (crs[0].err.match(/ Enter a .*$/) || [""])[0]);
     OUTS.forEach(function (T, i) {
       var tt = pred[i], p = tt / T.km;
@@ -486,7 +492,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
       if (is1 || is2) lab = !two ? "Your result" : is1 && is2 ? "Results 1 and 2" : is1 ? "Result 1" : "Result 2";
       var wtxt = two ? "<small class='wt'>" + W[i].map(function (x) { return Math.round(x * 100); }).join(" / ") + "</small>" : "";
       html += "<tr" + (lab ? " class='input'" : "") + "><td class='dist'>" + T.name + (lab ? "<small>" + lab + "</small>" : "") + "</td>" +
-        "<td class='time'>" + hmmss(tt) + wtxt + "</td><td>" + mmss(p) + "</td><td>" + mmss(p * MILE) + "</td><td>" + (WR[T.name] === undefined ? "\u2013" : (Math.round(WR[T.name] / tt * 1000) / 10).toFixed(1) + "%") + "</td>" +
+        "<td class='time'>" + hmmss(tt) + wtxt + "</td><td>" + mmss(p) + "</td><td>" + mmss(p * MILE) + "</td><td>" + (WR[T.name] === undefined ? "\u2013" : (Math.round(WR[T.name] / tt * 1000) / 10).toFixed(1) + "%") + "</td><td>" + hmmss(lo[i]) + "\u2013" + hmmss(hi[i]) + "</td>" +
         (hasC ? "<td>" + (cmpT && cmpT[i] != null ? hmmss(cmpT[i]) + " <small>" + dstr(cmpT[i] - tt) + "</small>" : "–") + "</td>" : "") + "</tr>";
     });
     $("rows").innerHTML = html;

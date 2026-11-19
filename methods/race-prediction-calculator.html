@@ -201,6 +201,14 @@ time(T) = sum(w_i * time_i(T))
 <p>Saved page state now carries a version flag; state saved before this change has its distance indexes shifted by 3.</p>
 <h2>Other distance (added 2026-11-16)</h2>
 <p>Both result boxes have an "Other" option. Enter a number and a unit (km or miles). Range 1.5km to 42.195km, the span the model is set on; outside it an error is shown. A third optional box, "Show predicted time at", adds a row to the table without changing the prediction. Custom rows show no % of world record (no record is held at that distance). Daniels, Hansons, Run Less, Tinman and Pfitzinger comparisons only have values at their own distances, so those cells read "–"; Same % of WR needs the entered distance to be a standard one. A custom result is not written to the shared profile (it keeps standard distances only).</p>
+<h2>Range column (2026-11-19)</h2>
+<p>Every row shows a range beside the prediction, because a prediction far from the result you entered is less certain than one near it (P's point: a 1500m time says more about an 800m than a half marathon time does, though the model gives both the same 800m).</p>
+<pre><code>d = min over results of |ln(target km / result km)|
+slower end = prediction x (1 + 0.004 + 0.015 x d)
+faster end = prediction x (1 - 0.5 x (0.004 + 0.015 x d))
+400m: faster = 800m faster end / 2.34, slower = 800m slower end / 2.14
+</code></pre>
+<p>The faster end is half the slower width because a prediction extrapolated from a different distance is more likely too fast than too slow (endurance runners often lack speed, and the reverse for short-distance runners). The 0.4% base, 1.5% slope and the half-width rule are my placeholders, not fitted to data, and set to look sensible for P's own results. They do not cover course, weather or pacing. Example (mile 5:23.4 and 10km 39:43, 55 miles a week): 5km 18:43 to 19:08 around 18:51; marathon 3:04:25 to 3:11:35 around 3:06:48. 800m from a 4:40 1500m is 2:20 to 2:23; from a 1:19:59 half marathon 2:17 to 2:28 (both centre on 2:21).</p>
   </article>
 </main>
 <script>(function () {
