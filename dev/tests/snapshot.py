@@ -12,7 +12,7 @@ for _f in glob.glob(os.path.join(PAGES_SRC,'*.html')):
 KMIDX={'3':'2','5':'3','10':'4','21.0975':'6'}
 RACES=[('5','18:54','70','mi'),('3','10:44.80','45','mi'),('10','39:10','','mi'),('21.0975','1:25:00','100','km')]
 def fill(pg,id,v):
-    # Race Prediction Calculator: three output-only rows (400m, 800m, 1000m) sit in front of the list, so old list positions move up by 3.
+    # Race Prediction Calculator: three rows (400m, 800m, 1000m) sit in front of the list, so old list positions move up by 3.
     if 'race-prediction-calculator' in pg.url and id in ('dist','dist2') and v.isdigit(): v=str(int(v)+3)
     if pg.query_selector('#'+id):
         el=pg.query_selector('#'+id)
@@ -41,6 +41,11 @@ def scenarios():
     def two(d1,t1,d2,t2,**k):
         return lambda pg:[fill(pg,'dist',d1),fill(pg,'time',t1),fill(pg,'dist2',d2),fill(pg,'time2',t2),fill(pg,'week',k.get('week','70')),fill(pg,'wunit','mi'),pg.select_option('#cmp',k.get('cmp','none'))]
     out.append(('race-prediction-calculator','blend mile 5:23.4 + 10k 39:43',two('1','5:23.4','4','39:43')))
+    out.append(('race-prediction-calculator','input 800m 2:00',lambda pg:[pg.select_option('#dist','1'),fill(pg,'time','2:00')]))
+    out.append(('race-prediction-calculator','input 1000m 2:50 tinman',lambda pg:[pg.select_option('#dist','2'),fill(pg,'time','2:50'),pg.select_option('#cmp','tinman')]))
+    out.append(('race-prediction-calculator','input 800m 2:00 pfitz error',lambda pg:[pg.select_option('#dist','1'),fill(pg,'time','2:00'),pg.select_option('#cmp','pfitz')]))
+    out.append(('race-prediction-calculator','5k 16:00 400m row',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','16:00')]))
+    out.append(('race-prediction-calculator','blend 800m + 5k 400m row',lambda pg:[pg.select_option('#dist','1'),fill(pg,'time','2:00'),fill(pg,'dist2','5'),fill(pg,'time2','16:00')]))
     out.append(('race-prediction-calculator','blend 3k 10:44.8 + 10k 39:43 daniels',two('2','10:44.8','4','39:43',cmp='daniels')))
     out.append(('race-prediction-calculator','blend mile + 10k wr',two('1','5:23.4','4','39:43',cmp='wr')))
     out.append(('race-prediction-calculator','blend mile + 10k pfitz error',two('1','5:23.4','4','39:43',cmp='pfitz')))

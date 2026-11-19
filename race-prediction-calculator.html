@@ -184,7 +184,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     <p>Base: Riegel's formula (time × distance ratio ^ 1.06), plus two adjustments:</p>
     <p>Short races: a result under 5km is slowed by 6.5s/km × ln(5 ÷ km) to get a 5km equivalent (about 7s/km for the mile). Predictions for short distances are sped up by the same amount.</p>
     <p>Marathon: paces beyond the half marathon are slowed. The marathon is 2.10 times the half marathon at 70 miles (113km) a week or more, 2.13 at 60, 2.17 at 50, and 2.25 at 35 miles (56km) or less. Values between are in a straight line. Blank weekly distance means 70 miles.</p>
-    <p>400m, 800m and 1000m rows use the same formula, extended past the range it was set on (1500m to 3km). They are rough, are not offered as inputs, and have no comparison-model values.</p>
+    <p>800m and 1000m use the same formula, extended past the range it was set on (1500m to 3km), and can be entered as results. 400m is the 800m time ÷ 2.25 and cannot be entered. All three are rough. Only Tinman, and % of WR, have values for them.</p>
     <p>The 5km to half marathon relationship is most reliable for intermediate runners on moderate mileage. It may be less reliable for beginners and low mileage.</p>
     <p>Two results: each result makes its own full prediction. At each target distance the two predictions are averaged with weights 1 ÷ d, where d = |ln(target ÷ result distance)|. A result at the target distance gets all of the weight. The two results must be at different distances. The small figures under each time are the weights in percent, result 1 / result 2. The comparison column is blended the same way, from each result separately. The 1 ÷ d weighting is my choice, not fitted to data.</p>
     <p>Results with a Daniels–Gilbert VDOT outside 15 to 85 are rejected as implausible.</p>
@@ -260,11 +260,11 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     return vo2 / pct;
   }
   /*@@CORE-END@@*/
-  // o: true marks output-only rows (not offered as inputs, no comparison-model values).
+  // o: true marks the output-only row (400m: not offered as an input). The 800m and 1000m rows are inputs and outputs.
   var DISTS = [
     { name: "400m", km: 0.4, o: true },
-    { name: "800m", km: 0.8, o: true },
-    { name: "1000m", km: 1, o: true },
+    { name: "800m", km: 0.8 },
+    { name: "1000m", km: 1 },
     { name: "1500m", km: 1.5 },
     { name: "Mile", km: MILE },
     { name: "3km", km: 3 },
@@ -312,7 +312,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   // Returns {name: seconds or null} for every distance, or an {err} when the input is outside the model's table.
   function compareTimes(model, D, t) {
     var out = {}, i, DISTS = OUTS;
-    if (model === "daniels") { var v = vdot(t / 60, D.km * 1000); DISTS.forEach(function (T) { out[T.name] = T.o ? null : danielsT(v, T.km); }); return { t: out }; }
+    if (model === "daniels") { var v = vdot(t / 60, D.km * 1000); DISTS.forEach(function (T) { out[T.name] = T.km < 1.5 ? null : danielsT(v, T.km); }); return { t: out }; }
     if (model === "hansons") {
       var k = HKEY[D.name]; if (!k) return { err: "Hansons chart has no " + D.name + " column. Enter a mile, 5km, 10km, 10 miles, half marathon or marathon result." };
       var t5 = hansTo5(k, t); if (t5 === null) return { err: "Outside the Hansons chart (5km equivalent 13:30 to 45:00)." };
@@ -353,6 +353,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   var CMP_NAMES = { daniels: "Daniels (VDOT)", hansons: "Hansons", pfitz: "Pfitzinger, Advanced Marathoning", pfrr: "Pfitzinger, Faster Road Racing", rlrf: "Run Less, Run Faster", tinman: "Tinman", wr: "Same % of WR" };
   function dstr(d) { var s = Math.round(d), a = Math.abs(s); return (s < 0 ? "-" : "+") + (a >= 60 ? Math.floor(a / 60) + ":" + (a % 60 < 10 ? "0" : "") + a % 60 : a + "s"); }
 
+  var R400 = 2.25;   // 800m time / 400m time, set by the author (the model's own slope gave 2.14, Tinman's table 2.34)
   var OUT_MIN = 1.5;   // custom distances: 1.5km up to the marathon, the range the model is set on (my choice)
   var OUTS = DISTS;    // rows shown: the list above plus any custom distances, in distance order (set in update)
   function kmLabel(km, unit) { return unit === "mi" ? Number((km / MILE).toFixed(2)) + " miles" : Number(km.toFixed(3)) + "km"; }
@@ -459,6 +460,9 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     var preds = Ds.map(function (d, k) { return predictFrom(d, ts[k], weekKm); });
     var W = OUTS.map(function (T) { return blendWeights(T.km, Ds); });
     var pred = OUTS.map(function (T, i) { return preds.reduce(function (a, p, k) { return a + W[i][k] * p[i]; }, 0); });
+    var i4 = -1, i8 = -1;
+    OUTS.forEach(function (T, i) { if (T.name === "400m") i4 = i; else if (T.name === "800m") i8 = i; });
+    if (i4 >= 0 && i8 >= 0) { pred[i4] = pred[i8] / R400; W[i4] = W[i8]; }   // 400m is the 800m time / 2.25
     var html = "", cm = $("cmp").value, cnote = "", crs = Ds.map(function (d, k) { return compareTimes(cm, d, ts[k]); });
     var hasC = cm !== "none", cerr = null, only = -1, cmpW = W, usedMsg = "";
     crs.forEach(function (c, k) { if (c.err && !cerr) cerr = (two ? "Result " + (k + 1) + ": " : "") + c.err; });
