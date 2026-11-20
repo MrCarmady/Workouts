@@ -147,7 +147,7 @@ tr.easy td:first-child { padding-left: 11px; }
     <ul>
       <li><b>The draw.</b> A coin flip picks the family, Classic or Sub-Threshold. Then every session in that family that fits the time has the same chance, and one version of it is picked at random. There is no filter for recent training, hard days or weekly TSS.</li>
       <li><b>Classic sessions.</b> Tempo, Rowland Tempo, ladder, Aussie quarters, 1 min I / 1 min MP, Pre's 200s, Mona fartlek, Yasso 800s, Rosario 800s, 1km repeats, mile repeats, 30/30 and the marathon-pace long run. Structure, paces and notes are the Classic Session Generator's, with its default options and a range of rep counts.</li>
-      <li><b>Sub-Threshold sessions.</b> Reps of 3, 6, 8, 10, 12, 15 or 20 minutes. Paces, recoveries and rep ranges are the Sub-Threshold Session Generator's. In a short slot the rep count can drop to half the usual low end.</li>
+      <li><b>Sub-Threshold sessions.</b> Reps of 200, 300 or 400m, or 3, 6, 8, 10, 12, 15 or 20 minutes. Paces, recoveries and rep ranges are the Sub-Threshold Session Generator's. The three short distances run faster than sub-threshold, and are named by their distance. In a short slot the rep count can drop to half the usual low end.</li>
       <li><b>Fitting the time.</b> The whole session, warm-up and cool-down included, must run between 70% and 100% of the time you pick. Warm-up and cool-down are 10 + 10 minutes for 60 and 90 minutes, 8 + 8 for 45 and 5 + 5 for 30 (my choice). The marathon-pace long run has none.</li>
       <li><b>Pace base.</b> The same model as the Race Prediction Calculator. Marathon pace assumes 70 miles a week.</li>
       <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Warm-up, cool-down and jogs run at 65% of 5km speed; sub-threshold recoveries are walked at 10:00/km.</li>
@@ -229,6 +229,7 @@ tr.easy td:first-child { padding-left: 11px; }
   var VDOT_MIN = 15, VDOT_MAX = 85;
   var TEMPO_SLOW = 0.049;   // as in the Classic Session Generator
   var FIT_LOW = 0.7;        // a session must fill at least this share of the time available
+  var FILL = 0.9;           // within a session type, only versions this close to its longest fitting version are drawn
 
   function pn(km) { return Math.abs(km - MILE) < 0.01 ? "mile pace" : km < 2 ? Math.round(km * 1000) + "m pace" : km + "k pace"; }
   function rangeText(a, b) { return a === b ? a : a + "–" + b; }
@@ -270,7 +271,7 @@ tr.easy td:first-child { padding-left: 11px; }
     { kind: "c", km: 15, basis: ["m", 1.03, 1.06], w: null, pct: 20, absMin: 120, rec: 0 },
     { kind: "c", km: 20, basis: ["m", 1.03, 1.06], w: null, pct: 20, absMin: 120, rec: 0 }
   ];
-  var SUBT_REPS = [3, 6, 8, 10, 12, 15, 20];   // minutes
+  var SUBT = [{ m: 200 }, { m: 300 }, { m: 400 }, { min: 3 }, { min: 6 }, { min: 8 }, { min: 10 }, { min: 12 }, { min: 15 }, { min: 20 }];   // rep length: metres or minutes
 
   // Everything derived from the 5k time, for the two generators' pace rules.
   function context(t5) {
@@ -442,9 +443,16 @@ tr.easy td:first-child { padding-left: 11px; }
   }
 
   // Sub-Threshold session of n reps of repMin minutes, following the Sub-Threshold Session Generator's rules (no weekly distance, flat road, no heat).
-  function subInfo(repMin, c) {
-    var A = c.A, AW = c.AW, tRep = repMin * 60;
+  function subInfo(spec, c) {
+    var A = c.A, AW = c.AW, tRep, dKm = null;
     var pf = function (a) { return a.fast; }, ps = function (a) { return a.slow; };
+    if (spec.min) tRep = spec.min * 60;
+    else {                                              // distance rep: find t where t = distance x pace(t), as the Sub-Threshold Session Generator does
+      dKm = spec.m / 1000;
+      var midAt = function (x) { return (lerp(A, x, pf) + lerp(A, x, ps)) / 2; }, lo = 1, hi = 20000;
+      for (var i = 0; i < 60; i++) { var mid = (lo + hi) / 2; if (mid / dKm - midAt(mid) > 0) hi = mid; else lo = mid; }
+      tRep = (lo + hi) / 2;
+    }
     var fast = lerp(A, tRep, pf), slow = lerp(A, tRep, ps);
     var wl = lerp(AW, tRep, function (a) { return a.w[0]; }), wh = lerp(AW, tRep, function (a) { return a.w[1]; });
     var repKm = tRep / ((fast + slow) / 2);
@@ -454,10 +462,12 @@ tr.easy td:first-child { padding-left: 11px; }
     var capAbs = Math.max(1, pa.absKm ? Math.floor(pa.absKm / repKm + 0.05) : Math.floor(pa.absMin * 60 / tRep + 0.05));
     var rh = Math.max(1, Math.min(Math.round(wh * 60 / tRep), capReps, capAbs)), rl = Math.max(1, Math.min(Math.round(wl * 60 / tRep), rh));
     var rec = Math.round(lerp(AW, tRep, function (a) { return a.rec; }) / 5) * 5;
-    return { tRep: tRep, fast: fast, slow: slow, rl: rl, rh: rh, rec: rec, repKm: repKm };
+    return { tRep: tRep, fast: fast, slow: slow, rl: rl, rh: rh, rec: rec, repKm: repKm, dKm: dKm };
   }
-  function subT(repMin, n, wuMin, cdMin, c) {
-    var I = subInfo(repMin, c), S = Session(c, "Sub-threshold " + n + " × " + repMin + " min"), thr = c.thr;
+  function subT(spec, n, wuMin, cdMin, c) {
+    var I = subInfo(spec, c), thr = c.thr, lenTxt = spec.min ? spec.min + " min" : spec.m + "m";
+    var S = Session(c, (spec.min ? "Sub-threshold " : "") + n + " × " + lenTxt);
+    S.subt = true;
     var inten = function (pace) { return thr / pace; };
     S.warm(wuMin, cdMin);
     var recSec = n > 1 ? (n - 1) * I.rec : 0, mid = (I.fast + I.slow) / 2;
@@ -468,14 +478,20 @@ tr.easy td:first-child { padding-left: 11px; }
     S.T = (wuMin + cdMin) * 60 + n * I.tRep + recSec;
     S.Dm = (wuMin + cdMin) * 60 / c.wcPace * 1000 + n * I.repKm * 1000 + recSec / 600 * 1000;
     S.mainT = n * I.tRep + recSec; S.mainD = n * I.repKm * 1000 + recSec / 600 * 1000;
-    S.struct = n + " × " + repMin + " min, " + (n > 1 ? "ca. " + (I.rec >= 120 ? mmss(I.rec) : I.rec + "s") + " walk recovery" : "single rep");
-    S.rows.push('<tr class="hard"><td>Sub-threshold rep, ' + repMin + ' min</td><td>' + n + '</td><td>ca. ' + distText(I.repKm, I.tRep < 240 ? 0.05 : 0.1) + '</td><td>' + repMin + ' min</td><td class="pace">' + rangeText(mmss(I.fast), mmss(I.slow)) + "</td></tr>");
+    S.struct = n + " × " + lenTxt + ", " + (n > 1 ? "ca. " + (I.rec >= 120 ? mmss(I.rec) : I.rec + "s") + " walk recovery" : "single rep");
+    if (spec.min) S.rows.push('<tr class="hard"><td>Sub-threshold rep, ' + lenTxt + '</td><td>' + n + '</td><td>ca. ' + distText(I.repKm, I.tRep < 240 ? 0.05 : 0.1) + '</td><td>' + lenTxt + '</td><td class="pace">' + rangeText(mmss(I.fast), mmss(I.slow)) + "</td></tr>");
+    else S.rows.push('<tr class="hard"><td>Rep, ' + lenTxt + '</td><td>' + n + '</td><td>' + lenTxt + '</td><td>' + timeRange(I.fast * I.dKm, I.slow * I.dKm) + '</td><td class="pace">' + rangeText(mmss(I.fast), mmss(I.slow)) + "</td></tr>");
     if (n > 1) S.rows.push('<tr class="easy"><td>Recovery</td><td>' + (n - 1) + "</td><td>ca. " + distLabel(round10(I.rec / 600 * 1000)) + "</td><td>" + (I.rec >= 120 ? mmss(I.rec) : I.rec + "s") + '</td><td class="pace">walk</td></tr>');
-    S.notes.push("Paces and recovery are the Sub-Threshold Session Generator's for " + repMin + " minute reps. TSS: " + tssW + " warm-up and cool-down + " + tssE + " reps + " + tssR + " recoveries.");
+    S.notes.push("Paces and recovery are the Sub-Threshold Session Generator's for " + (spec.min ? spec.min + " minute" : spec.m + "m") + " reps. TSS: " + tssW + " warm-up and cool-down + " + tssE + " reps + " + tssR + " recoveries.");
     if (n < I.rl) S.notes.push("The usual range is " + rangeText(String(I.rl), String(I.rh)) + " reps. Fewer here to fit the time.");
     return S;
   }
 
+  // Keep the versions that fill the slot as far as this session type allows.
+  function fullest(ok) {
+    var top = Math.max.apply(null, ok.map(function (x) { return x.T; }));
+    return ok.filter(function (x) { return x.T >= top * FILL; }).map(function (x) { return x.f; });
+  }
   function warmFor(avail) { return avail >= 60 ? 10 : avail >= 45 ? 8 : 5; }
   function fits(T, avail) { return T <= avail * 60 + 0.5 && T >= avail * 60 * FIT_LOW; }
 
@@ -486,18 +502,18 @@ tr.easy td:first-child { padding-left: 11px; }
       var ok = [];
       w.cands.forEach(function (o) {
         var S = classic(w, o, wu, wu, c);
-        if (fits(S.T, avail)) ok.push(function () { return S; });
+        if (fits(S.T, avail)) ok.push({ T: S.T, f: function () { return S; } });
       });
-      if (ok.length) out.classic.push(ok);
+      if (ok.length) out.classic.push(fullest(ok));
     });
-    SUBT_REPS.forEach(function (m) {
+    SUBT.forEach(function (m) {
       var I = subInfo(m, c), ok = [];
       var lo = Math.max(1, Math.min(I.rh, Math.max(2, Math.ceil(I.rl / 2))));
       for (var n = lo; n <= I.rh; n++) {
         var T = 2 * wu * 60 + n * I.tRep + (n - 1) * I.rec;
-        if (fits(T, avail)) ok.push((function (n) { return function () { return subT(m, n, wu, wu, c); }; })(n));
+        if (fits(T, avail)) ok.push({ T: T, f: (function (n) { return function () { return subT(m, n, wu, wu, c); }; })(n) });
       }
-      if (ok.length) out.subt.push(ok);
+      if (ok.length) out.subt.push(fullest(ok));
     });
     return out;
   }
@@ -542,7 +558,7 @@ tr.easy td:first-child { padding-left: 11px; }
     $("o-vdot").textContent = S.vdot.toFixed(1);
     $("notes").innerHTML = S.notes.map(function (n) { return '<p class="note">' + n + "</p>"; }).join("");
     var ts = $("tosrc"); ts.hidden = !SITE;
-    var isSub = /^Sub-threshold/.test(S.name);
+    var isSub = !!S.subt;
     ts.innerHTML = SITE ? 'Change the options in the <a href="' + (isSub ? "run-session-generator.html" : "classic-session-generator.html") + '">' + (isSub ? "Sub-Threshold" : "Classic") + " Session Generator</a>." : "";
     $("resbox").hidden = false;
   }
@@ -575,7 +591,7 @@ tr.easy td:first-child { padding-left: 11px; }
   // Used by tests/check_lucky_sync.py to compare totals with the two source pages, using the 5k time in the box.
   window.__rsg = {
     classic: function (key, o, wu, cd) { var w = CLASSIC.filter(function (x) { return x.key === key; })[0], c = context(parseTime($("time").value)), S = classic(w, o, wu, cd, c); return { tss: Math.round(S.TSS), total: hmmss(S.T), dist: distLabel(S.Dm) }; },
-    subt: function (repMin, n, wu, cd) { var c = context(parseTime($("time").value)), S = subT(repMin, n, wu, cd, c), I = subInfo(repMin, c); return { tss: Math.round(S.TSS), total: hmmss(S.T), rl: I.rl, rh: I.rh }; }
+    subt: function (len, n, wu, cd, unit) { var spec = unit === "m" ? { m: len } : { min: len }, c = context(parseTime($("time").value)), S = subT(spec, n, wu, cd, c), I = subInfo(spec, c); return { tss: Math.round(S.TSS), total: hmmss(S.T), rl: I.rl, rh: I.rh }; }
   };
 
   restore();

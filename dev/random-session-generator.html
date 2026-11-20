@@ -222,6 +222,7 @@ tr.easy td:first-child { padding-left: 11px; }
   var VDOT_MIN = 15, VDOT_MAX = 85;
   var TEMPO_SLOW = 0.049;   // as in the Classic Session Generator
   var FIT_LOW = 0.7;        // a session must fill at least this share of the time available
+  var FILL = 0.9;           // within a session type, only versions this close to its longest fitting version are drawn
 
   function pn(km) { return Math.abs(km - MILE) < 0.01 ? "mile pace" : km < 2 ? Math.round(km * 1000) + "m pace" : km + "k pace"; }
   function rangeText(a, b) { return a === b ? a : a + "–" + b; }
@@ -479,6 +480,11 @@ tr.easy td:first-child { padding-left: 11px; }
     return S;
   }
 
+  // Keep the versions that fill the slot as far as this session type allows.
+  function fullest(ok) {
+    var top = Math.max.apply(null, ok.map(function (x) { return x.T; }));
+    return ok.filter(function (x) { return x.T >= top * FILL; }).map(function (x) { return x.f; });
+  }
   function warmFor(avail) { return avail >= 60 ? 10 : avail >= 45 ? 8 : 5; }
   function fits(T, avail) { return T <= avail * 60 + 0.5 && T >= avail * 60 * FIT_LOW; }
 
@@ -489,18 +495,18 @@ tr.easy td:first-child { padding-left: 11px; }
       var ok = [];
       w.cands.forEach(function (o) {
         var S = classic(w, o, wu, wu, c);
-        if (fits(S.T, avail)) ok.push(function () { return S; });
+        if (fits(S.T, avail)) ok.push({ T: S.T, f: function () { return S; } });
       });
-      if (ok.length) out.classic.push(ok);
+      if (ok.length) out.classic.push(fullest(ok));
     });
     SUBT.forEach(function (m) {
       var I = subInfo(m, c), ok = [];
       var lo = Math.max(1, Math.min(I.rh, Math.max(2, Math.ceil(I.rl / 2))));
       for (var n = lo; n <= I.rh; n++) {
         var T = 2 * wu * 60 + n * I.tRep + (n - 1) * I.rec;
-        if (fits(T, avail)) ok.push((function (n) { return function () { return subT(m, n, wu, wu, c); }; })(n));
+        if (fits(T, avail)) ok.push({ T: T, f: (function (n) { return function () { return subT(m, n, wu, wu, c); }; })(n) });
       }
-      if (ok.length) out.subt.push(ok);
+      if (ok.length) out.subt.push(fullest(ok));
     });
     return out;
   }

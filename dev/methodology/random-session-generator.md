@@ -28,6 +28,7 @@ Because the coin flip is first, Sub-Threshold sessions come up about half the ti
 
 - The full session, warm-up and cool-down included, must be at most the time available and at least 70% of it.
 - Warm-up and cool-down: 10 + 10 min for 60 and 90 minutes, 8 + 8 for 45, 5 + 5 for 30, at the Classic Session Generator's easy pace (65% of 5km speed). The marathon-pace long run has none.
+- Within a session type, only versions that fill the slot are drawn: those within 90% of the longest version that fits (added 2026-11-20, P: a 60 minute slot should give 9 or 10 × 3 min, not 6 × 3 min). A type with a fixed length, like the Mona fartlek, still appears if it fits at 70% or more.
 - If no session in the picked family fits, the other family is used. If none fits at all, the page says so.
 
 ## Known limits
