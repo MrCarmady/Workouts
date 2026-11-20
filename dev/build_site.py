@@ -12,6 +12,7 @@ tools=[ # (src file, out file, title, desc, method md, method slug, group)
  ("race-prediction-calculator.html","race-prediction-calculator.html","Race Prediction Calculator","Predicted times for 1500m to the marathon from one or two race results.","race-prediction-calculator.md","race-prediction-calculator","Race and pace"),
  ("marathon-qualifying-check.html","marathon-qualifying-check.html","Marathon Qualifying Check","Predicted marathon time against marathon majors qualifying standards.","marathon-qualifying-check.md","marathon-qualifying-check","Race and pace"),
  ("classic-session-generator.html","classic-session-generator.html","Classic Session Generator","Paces for tempo, ladders, Aussie quarters, Yasso 800s and more.","classic-session-generator.md","classic-session-generator","Sessions and blocks"),
+ ("random-session-generator.html","random-session-generator.html","Random Session Generator","A random session from the Classic and Sub-Threshold generators, fitted to your 5k time and the time you have.","random-session-generator.md","random-session-generator","Sessions and blocks"),
  ("sub-t-trend-tracker.html","sub-t-trend-tracker.html","Sub-Threshold Trend Tracker","Log classic sub-threshold sessions and track implied threshold pace.","sub-t-trend-tracker.md","sub-t-trend-tracker","Sessions and blocks"),
 ("hard-workout-predictor.html","hard-workout-predictor.html","Hard Workout Predictor","Predict a race from a hard session, or check one is not too hard for you.","hard-workout-predictor.md","hard-workout-predictor","Race and pace"),
 ("parkrun-converter.html","parkrun-converter.html","Parkrun Converter","Convert a parkrun time to another course, using course difficulty scores.","parkrun-converter.md","parkrun-converter","Race and pace"),
@@ -38,7 +39,7 @@ for src,out,title,desc,md,slug,grp in tools:
     assert s.lstrip().startswith('<title>'), src
     assert s.count('<main class="wrap">')==1, src
     s=s.replace('<main class="wrap">','<main class="wrap">\n  <p class="sitenav"><a href="tools.html">&larr; All tools</a></p>',1)
-    if src in ('run-session-calculator.html','classic-session-generator.html','cross-training-tss.html'):
+    if src in ('run-session-calculator.html','classic-session-generator.html','random-session-generator.html','cross-training-tss.html'):
         assert s.count('var SITE = false;')==1
         s=s.replace('var SITE = false;','var SITE = true; ')
     assert s.count('</main>')==1, src
@@ -64,7 +65,7 @@ TOGGLE=THEME.HTML
 FONTS='<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&display=swap">'
 # index
 ORDER=['Race and pace','Sessions and blocks','Marathon plans','Other race plans','Load','Cross-training','Lifting']
-TITLE_ORDER=['Race Prediction Calculator','Marathon Qualifying Check','Hard Workout Predictor','Parkrun Converter','Treadmill Flat Equivalent','Sub-Threshold Session Generator','Classic Session Generator','Sub-Threshold Trend Tracker','Plan Builder','Marathon Plan Finder','Marathon Plan Viewer','Copeland Base','Race Plan Finder','Race Plan Viewer','Run Load Planner','Run TSS Calculator','Run TSS Planner','Hybrid Load Planner','Cross-Training TSS','Bike Session Generator','Rowing Session Generator','1RM and Scheme Calculator','Lifting Programme Planner']
+TITLE_ORDER=['Race Prediction Calculator','Marathon Qualifying Check','Hard Workout Predictor','Parkrun Converter','Treadmill Flat Equivalent','Sub-Threshold Session Generator','Classic Session Generator','Random Session Generator','Sub-Threshold Trend Tracker','Plan Builder','Marathon Plan Finder','Marathon Plan Viewer','Copeland Base','Race Plan Finder','Race Plan Viewer','Run Load Planner','Run TSS Calculator','Run TSS Planner','Hybrid Load Planner','Cross-Training TSS','Bike Session Generator','Rowing Session Generator','1RM and Scheme Calculator','Lifting Programme Planner']
 assert sorted(TITLE_ORDER)==sorted(t[2] for t in tools),'TITLE_ORDER must list every tool once'
 cards={}
 for src,out,title,desc,md,slug,grp in sorted(tools,key=lambda t:(ORDER.index(t[6]),TITLE_ORDER.index(t[2]))):
@@ -89,6 +90,7 @@ START=[ # (question, [(tool file, tool title), ...]); titles must match the tool
  ("I want a plan that fits my current fitness.",[("marathon-plan-recommender.html","Marathon Plan Finder"),("short-plan-finder.html","Race Plan Finder")]),
  ("I want to see a plan's paces and weekly load.",[("marathon-plans.html","Marathon Plan Viewer"),("short-plans.html","Race Plan Viewer")]),
  ("I need paces for a threshold or tempo session.",[("run-session-generator.html","Sub-Threshold Session Generator")]),
+ ("I just want a session. Pick one for me.",[("random-session-generator.html","Random Session Generator")]),
  ("How hard is my week? Is load climbing too fast?",[("hybrid-load-planner.html","Hybrid Load Planner"),("run-load-planner.html","Run Load Planner")]),
  ("I cross-trained on a bike, rower or treadmill. How much load is that?",[("cross-training-tss.html","Cross-Training TSS")]),
  ("I want working weights for a lifting scheme.",[("lift-scheme-calculator.html","1RM and Scheme Calculator")]),

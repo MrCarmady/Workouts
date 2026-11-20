@@ -359,13 +359,26 @@ def tracker_race_bad(pg):
 # Pages that show "today" or the age of a session (the trend tracker, the Run Load Planner start day) would change the snapshot every day.
 # Freeze the page clock at 2026-10-19 12:00 local time so the baseline does not depend on the date it is run (added 2026-10-21).
 FREEZE_DATE="""(function(){var R=Date,f=new R(2026,9,19,12,0,0).getTime();function F(a,b,c,d,e,g,h){if(arguments.length===0)return new R(f);if(arguments.length===1)return new R(a);return new R(a,b,c,d||0,e||0,g||0,h||0);}F.prototype=R.prototype;F.now=function(){return f;};F.UTC=R.UTC;F.parse=R.parse;window.Date=F;})();"""
+# The Random Session Generator draws with Math.random; a seeded generator (mulberry32) makes the draws repeatable.
+SEED_RANDOM="(function(){var a=12345;Math.random=function(){a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};})();"
+def spins(n): return lambda pg:[pg.click('#spin') for _ in range(n)]
+def rsg_scenarios():
+    r=[]
+    for av in ['30','45','60','90']: r.append(('random-session-generator','5k 20:00 '+av+' min',lambda pg,av=av:[fill(pg,'time','20:00'),fill(pg,'avail',av)]))
+    r.append(('random-session-generator','5k 18:54 60 min, 5 spins',lambda pg:[fill(pg,'time','18:54'),fill(pg,'avail','60'),spins(5)(pg)]))
+    r.append(('random-session-generator','5k 24:30 45 min, 6 spins',lambda pg:[fill(pg,'time','24:30'),fill(pg,'avail','45'),spins(6)(pg)]))
+    r.append(('random-session-generator','5k 15:30 90 min, 4 spins',lambda pg:[fill(pg,'time','15:30'),fill(pg,'avail','90'),spins(4)(pg)]))
+    r.append(('random-session-generator','digits only 1854',lambda pg:[fill(pg,'time','1854')]))
+    r.append(('random-session-generator','bad time',lambda pg:[fill(pg,'time','18:75')]))
+    r.append(('random-session-generator','implausible time',lambda pg:[fill(pg,'time','5:00')]))
+    return r
 def run():
     res={}
     with sync_playwright() as p:
         b=p.chromium.launch()
-        sc=scenarios()+[('sub-t-trend-tracker','5 sessions',tracker),('sub-t-trend-tracker','5 sessions and 5k race',tracker_race),('sub-t-trend-tracker','race, no sessions',tracker_race_only),('sub-t-trend-tracker','bad race time',tracker_race_bad)]
+        sc=scenarios()+rsg_scenarios()+[('sub-t-trend-tracker','5 sessions',tracker),('sub-t-trend-tracker','5 sessions and 5k race',tracker_race),('sub-t-trend-tracker','race, no sessions',tracker_race_only),('sub-t-trend-tracker','bad race time',tracker_race_bad)]
         for page,name,fn in sc:
-            ctx=b.new_context(viewport={'width':900,'height':900}); ctx.add_init_script(FREEZE_DATE); pg=ctx.new_page(); errs=[]; pg.on('pageerror',lambda e:errs.append(str(e)))
+            ctx=b.new_context(viewport={'width':900,'height':900}); ctx.add_init_script(FREEZE_DATE); ctx.add_init_script(SEED_RANDOM) if page=='random-session-generator' else None; pg=ctx.new_page(); errs=[]; pg.on('pageerror',lambda e:errs.append(str(e)))
             pg.goto('file://'+os.path.join(PAGES,page+'.html')); pg.evaluate("document.querySelectorAll('details.more').forEach(d=>d.open=true)"); fn(pg); pg.wait_for_timeout(50)
             txt=main_text(pg)
             if page=='classic-session-generator' and pg.query_selector('#workout'):
