@@ -20,9 +20,9 @@ Picks one session at random from the Classic Session Generator and the Sub-Thres
 
 Classic types: continuous tempo (20 to 60 min in 5 min steps), Rowland Tempo (2 to 5 blocks), ladder (down or up), Aussie quarters (with or without the opening float), 1 min I / 1 min MP (6 to 16 reps), Pre's 200s (8 to 16 pairs), Mona fartlek, Yasso 800s (4 to 10), Rosario 800s (3 to 8), 1km repeats (4 to 8), mile repeats (3 to 6), 30/30 (12 to 24) and the marathon-pace long run (12 to 26km, half at marathon pace). Other options use the Classic Session Generator's defaults.
 
-Sub-Threshold types: reps of 3, 6, 8, 10, 12, 15 and 20 minutes. Rep count runs from half the usual low end (at least 2) up to the usual high end. Recoveries are the Sub-Threshold Session Generator's and are walked at 10:00/km for TSS.
+Sub-Threshold types: reps of 200, 300 and 400m (added 2026-11-20 at P's request; faster than sub-threshold, so the page names them by distance) and 3, 6, 8, 10, 12, 15 and 20 minutes. Distance reps are timed by the Sub-Threshold Session Generator's own method: the rep time at which time equals distance × pace. Rep count runs from half the usual low end (at least 2) up to the usual high end. Recoveries are the Sub-Threshold Session Generator's and are walked at 10:00/km for TSS.
 
-Because the coin flip is first, Sub-Threshold sessions come up about half the time even though they are seven of about twenty types. The page keeps the same draw when the inputs change, so the session refits instead of jumping.
+Because the coin flip is first, Sub-Threshold sessions come up about half the time even though they are ten of about twenty-three types. The page keeps the same draw when the inputs change, so the session refits instead of jumping.
 
 ## Fitting the time
 

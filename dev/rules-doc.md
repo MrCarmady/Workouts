@@ -380,3 +380,4 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - Pool: everything, no filter, no TSS cap. Shows the session with warm-up and cool-down and its TSS (P).
 - My choices, placeholders: coin flip between families, then equal chance per session type, then a random version; fit window 70% to 100% of the time; warm-up and cool-down 10 + 10 (60, 90 min), 8 + 8 (45), 5 + 5 (30); sub-T rep count may drop to half the usual low end in short slots; marathon pace from 70 miles a week.
 - `tests/check_lucky_sync.py` keeps its numbers equal to the two source generators.
+- 2026-11-20: 200m, 300m and 400m reps added to the pool (P: no harm). They come from the Sub-Threshold Session Generator's distance anchors, so they run faster than sub-threshold; the page names them by distance. Sub-T family is now 10 types.

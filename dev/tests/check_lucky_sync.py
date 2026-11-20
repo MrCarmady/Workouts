@@ -28,15 +28,15 @@ with sync_playwright() as p:
             want={'tss':int(pc.inner_text('#o-tss')),'total':pc.inner_text('#o-time'),'dist':pc.inner_text('#o-dist')}
             if got!=want: bad.append((t5,key,o,got,want))
         ps.select_option('#unit','min'); ps.fill('#wu','10'); ps.fill('#cd','10')
-        for m in [3,6,8,10,12,15,20]:
-            ps.fill('#rep',str(m)); ps.fill('#reps','')
+        for m,unit in [(200,'m'),(300,'m'),(400,'m'),(3,'min'),(6,'min'),(8,'min'),(10,'min'),(12,'min'),(15,'min'),(20,'min')]:
+            ps.select_option('#unit',unit); ps.fill('#rep',str(m)); ps.fill('#reps','')
             rng=ps.inner_text('#o-reps').replace('–','-')
             lo,hi=[int(x) for x in rng.split('-')] if '-' in rng else (int(rng.split()[0]),)*2
-            info=pr.evaluate('([m])=>window.__rsg.subt(m,1,10,10)',[m])
+            info=pr.evaluate('([m])=>window.__rsg.subt(m,1,10,10,u)',[m,unit]) if False else pr.evaluate('([m,u])=>window.__rsg.subt(m,1,10,10,u)',[m,unit])
             if (info['rl'],info['rh'])!=(lo,hi): bad.append((t5,'subT range',m,(info['rl'],info['rh']),(lo,hi)))
             for n in sorted({lo,hi,max(1,(lo+hi)//2)}):
                 ps.fill('#reps',str(n))
-                got=pr.evaluate('([m,n])=>window.__rsg.subt(m,n,10,10)',[m,n])
+                got=pr.evaluate('([m,n,u])=>window.__rsg.subt(m,n,10,10,u)',[m,n,unit])
                 want={'tss':int(ps.inner_text('#o-tss')),'total':ps.inner_text('#o-total')}
                 if (got['tss'],got['total'])!=(want['tss'],want['total']): bad.append((t5,'subT',m,n,got,want))
 if bad:
