@@ -179,7 +179,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     <p>Base: Riegel's formula (time × distance ratio ^ 1.06), plus two adjustments:</p>
     <p>Short races: a result under 5km is slowed by 6.5s/km × ln(5 ÷ km) to get a 5km equivalent (about 7s/km for the mile). Predictions for short distances are sped up by the same amount.</p>
     <p>Marathon: paces beyond the half marathon are slowed. The marathon is 2.10 times the half marathon at 70 miles (113km) a week or more, 2.13 at 60, 2.17 at 50, and 2.25 at 35 miles (56km) or less. Values between are in a straight line. Blank weekly distance means 70 miles.</p>
-    <p>800m and 1000m use the same formula, extended past the range it was set on (1500m to 3km), and can be entered as results. 400m is the 800m time ÷ 2.25 and cannot be entered. All three are rough. Only Tinman, and % of WR, have values for them.</p>
+    <p>800m and 1000m use the same formula, extended past the range it was set on (1500m to 3000m), and can be entered as results. 400m is the 800m time ÷ 2.25 and cannot be entered. All three are rough. Only Tinman, and % of WR, have values for them.</p>
     <p>The 5km to half marathon relationship is most reliable for intermediate runners on moderate mileage. It may be less reliable for beginners and low mileage.</p>
     <p>Two results: each result makes its own full prediction. At each target distance the two predictions are averaged with weights 1 ÷ d, where d = |ln(target ÷ result distance)|. A result at the target distance gets all of the weight. The two results must be at different distances. The small figures under each time are the weights in percent, result 1 / result 2. The comparison column is blended the same way, from each result separately. The 1 ÷ d weighting is my choice, not fitted to data.</p>
     <p>Results with a Daniels–Gilbert VDOT outside 15 to 85 are rejected as implausible.</p>
@@ -261,7 +261,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
     { name: "1000m", km: 1 },
     { name: "1500m", km: 1.5 },
     { name: "Mile", km: MILE },
-    { name: "3km", km: 3 },
+    { name: "3000m", km: 3 },
     { name: "5km", km: 5 },
     { name: "10km", km: 10 },
     { name: "10 miles", km: 16.09344 },
@@ -301,7 +301,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   function tinF(T) { return TIN_SHORT[T.name] !== undefined ? TIN_SHORT[T.name] : Math.pow(T.km / 5, 1.0579); }
   // Male world records in seconds (author-supplied mile; marathon 1:59:30 ratified July 2026, half 56:51 ratified 9 Nov 2026).
   // 10 miles: Haile Gebrselassie 44:24 (road, ratified; author's choice over a faster time by a sanctioned athlete).
-  var WR = { "400m": 43.03, "800m": 100.91, "1000m": 131.83, "1500m": 206.00, "Mile": 222.66, "3km": 437.55, "5km": 755.36, "10km": 1571.00, "10 miles": 2664, "Half marathon": 3411, "Marathon": 7170 };
+  var WR = { "400m": 43.03, "800m": 100.91, "1000m": 131.83, "1500m": 206.00, "Mile": 222.66, "3000m": 437.55, "5km": 755.36, "10km": 1571.00, "10 miles": 2664, "Half marathon": 3411, "Marathon": 7170 };
   function danielsT(v, km) { var lo = 60, hi = 40000; for (var i = 0; i < 80; i++) { var m = (lo + hi) / 2; if (vdot(m / 60, km * 1000) > v) lo = m; else hi = m; } return (lo + hi) / 2; }
   // Returns {name: seconds or null} for every distance, or an {err} when the input is outside the model's table.
   function compareTimes(model, D, t) {
@@ -352,7 +352,7 @@ tr.input td.dist small { display: block; font-family: var(--font-body); font-wei
   var R400 = 2.25;   // 800m time / 400m time, set by the author (the model's own slope gave 2.14, Tinman's table 2.34)
   var OUT_MIN = 1.5;   // custom distances: 1.5km up to the marathon, the range the model is set on (my choice)
   var OUTS = DISTS;    // rows shown: the list above plus any custom distances, in distance order (set in update)
-  function kmLabel(km, unit) { return unit === "mi" ? Number((km / MILE).toFixed(2)) + " miles" : Number(km.toFixed(3)) + "km"; }
+  function kmLabel(km, unit) { return unit === "mi" ? Number((km / MILE).toFixed(2)) + " miles" : km <= 3 + 1e-9 ? Math.round(km * 1000) + "m" : Number(km.toFixed(3)) + "km"; }
   // Reads a custom distance from its two boxes. Returns {D} or {err}.
   function readCustom(dId, uId, pre) {
     var txt = ($(dId).value || "").trim().replace(",", ".");
