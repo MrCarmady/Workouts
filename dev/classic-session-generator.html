@@ -326,7 +326,18 @@ tr.easy td:first-child { padding-left: 11px; }
   var optVals = {};
   function curWorkout() { var k = $("workout").value; return WORKOUTS.filter(function (w) { return w.key === k; })[0] || WORKOUTS[0]; }
   (function build() {
-    WORKOUTS.forEach(function (w) { $("workout").insertAdjacentHTML("beforeend", '<option value="' + w.key + '">' + w.name + "</option>"); });
+    var GROUPS = [
+      ["Tempo and threshold", ["tempo", "prog", "cruise", "dt", "mile"]],
+      ["Intervals", ["k1", "yasso", "rosario", "hrep"]],
+      ["Mixed pace and fartlek", ["ladder", "mona", "aussie", "imp", "pre", "thirty"]],
+      ["Speed (R)", ["r400", "rset"]],
+      ["Marathon pace", ["mpt", "mplr"]]
+    ];
+    GROUPS.forEach(function (g) {
+      var h = '<optgroup label="' + g[0] + '">';
+      g[1].forEach(function (k) { WORKOUTS.forEach(function (w) { if (w.key === k) h += '<option value="' + w.key + '">' + w.name + "</option>"; }); });
+      $("workout").insertAdjacentHTML("beforeend", h + "</optgroup>");
+    });
   })();
   function renderOpts() {
     var w = curWorkout(), box = $("opts"), html = "";
