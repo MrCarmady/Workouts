@@ -333,6 +333,7 @@ tr.easy td:first-child { padding-left: 11px; }
   }
 
   // Classic workouts, with the Classic Session Generator's defaults. cands = the option sets the draw can pick from.
+  var PRE_PCT = 7;
   function range(a, b, step, mk) { var r = []; for (var x = a; x <= b + 1e-9; x += step) r.push(mk(x)); return r; }
   // Daniels rep counts by weekly mileage band: 1 = up to 40 miles, 2 = 41 to 70 (also used when blank), 3 = over 70. My reading of the sizes in Tables 4.2 to 4.4.
   function bandOf(weekKm) { if (weekKm === null) return 2; var mi = weekKm / MILE; return mi <= 40 ? 1 : mi <= 70 ? 2 : 3; }
@@ -343,7 +344,11 @@ tr.easy td:first-child { padding-left: 11px; }
     { key: "ladder", name: "Ladder 5-4-3-2-1 min", cands: [{ order: "down", jogmode: "half", jog: 90, tail: 0 }, { order: "up", jogmode: "half", jog: 90, tail: 0 }] },
     { key: "aussie", name: "Aussie quarters", cands: [{ start: false }, { start: true }] },
     { key: "imp", name: "1 min I / 1 min MP", cands: range(6, 16, 2, function (r) { return { reps: r }; }) },
-    { key: "pre", name: "Pre's 200s", cands: range(8, 16, 2, function (p) { return { pairs: p }; }) },
+    // Pre's 200s is a hard session: with a weekly distance, work is capped at PRE_PCT of it (P, 2026-11-23: 8% too aggressive, 6 to 7%), never below 8 pairs.
+    { key: "pre", name: "Pre's 200s", cands: function (band, c) {
+        var maxPairs = c.weekKm === null ? 16 : Math.max(8, Math.floor(c.weekKm * PRE_PCT / 100 * 1000 / 400 + 1e-9));
+        return range(8, 16, 2, function (p) { return { pairs: p }; }).filter(function (o) { return o.pairs <= maxPairs; });
+      } },
     { key: "mona", name: "Mona fartlek", cands: [{}] },
     { key: "yasso", name: "Yasso 800s", cands: range(4, 10, 1, function (r) { return { reps: r }; }) },
     { key: "rosario", name: "Rosario 800s", cands: range(3, 8, 1, function (r) { return { reps: r }; }) },
@@ -579,7 +584,7 @@ tr.easy td:first-child { padding-left: 11px; }
     var wu = warmFor(avail), out = { classic: [], subt: [] }, band = bandOf(c.weekKm);
     CLASSIC.forEach(function (w) {
       var ok = [];
-      (typeof w.cands === "function" ? w.cands(band) : w.cands).forEach(function (o) {
+      (typeof w.cands === "function" ? w.cands(band, c) : w.cands).forEach(function (o) {
         var S = classic(w, o, wu, wu, c);
         if (fits(S.T, avail)) ok.push({ T: S.T, f: function () { return S; } });
       });
