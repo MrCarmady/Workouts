@@ -382,3 +382,4 @@ One page with an author selector (Copeland, Daniels, Hansons, Pfitzinger), then 
 - `tests/check_lucky_sync.py` keeps its numbers equal to the two source generators.
 - 2026-11-20: 200m, 300m and 400m reps added to the pool (P: no harm). They come from the Sub-Threshold Session Generator's distance anchors, so they run faster than sub-threshold; the page names them by distance. Sub-T family is now 10 types.
 - 2026-11-20: P: a 60 minute slot gave 6 × 3 min sub-T (43 min); sub-T exists to fit more quality volume, so it should give 10 × 3. Draw changed: within a session type, only versions within 90% of the longest fitting version are drawn (FILL = 0.9, placeholder). 60 min now gives 9 or 10 × 3 min.
+- 2026-11-23: tools-page description of the Random Session Generator cut to one line (P): "A random session for your 5k time and the time you have."
