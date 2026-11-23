@@ -47,6 +47,12 @@ In this document, race(x) is the predicted race pace over x km, from the Race Pr
 | 1km repeats | 1km at race(4.5) | Jog, 105s by default |
 | Mile repeats | 1 mile at race(10) | Jog, 135s by default |
 | 30/30 | 30s at race(3) | 30s jog |
+| Cruise intervals (T) | Reps at race(17), the T pace used for Daniels on the Marathon Plan Viewer, 2 to 10 reps of 3 to 20 min (P chose to add it, 2026-11-23, from Daniels' Running Formula Table 4.2, seen as screenshots) | Jog of 60 s for reps up to 8 min, 120 s up to 15 min, 180 s beyond (the table's 1, 2 and 3 min rests; the table says "rest", run here as a jog, my reading). TSS still uses the race(16) threshold |
+| Descending T | 20, 12 and 5 min at race(17) | Jogs of 3 and 2 min. Table 4.2 gives 16 to 20, 10 to 15 and 5 to 6 min; 20, 12 and 5 are my picks |
+| Timed hard reps (H) | 2 to 5 min reps at race(4) (H read as I pace, as on the Short-Distance Plan Viewer; the book describes H by effort, about a 10 to 12 min race) | Jog of the rep length minus 1 min, as in Table 4.3 (5 × 3 min with 2 min, 4 × 4 with 3, 3 × 5 with 4) |
+| R repeats, 400m | 400m at race(1.7), the R pace used on the Marathon Plan Viewer | 400m jog (Table 4.4) at the warm-up pace |
+| R sets, 200-200-400 | 200 R, 200 jog, 200 R, 400 jog, 400 R, 200 jog, repeated 2 to 6 times (Table 4.4); the last 200 jog is dropped | Jogs by distance at the warm-up pace |
+| MP with T surges | Table 4.1 session D, three versions, with T at race(17) and M at the predicted marathon pace | Easy running at both ends as printed, so no separate warm-up (E at the warm-up pace) |
 | Marathon-pace long run | Chosen distance at marathon pace (12km by default) | Easy running first (12km by default) |
 
 Race(1.5) is the shortest distance the pace model is fitted to. Nothing here goes faster than it.
@@ -78,3 +84,7 @@ The float pace is race(5) + 25s per 800m. The page shows how far that float is f
 
 ## Results table layout
 Columns: Part, Reps, Distance, Time, Pace /km. Every row fills both Distance and Time. The prescribed one is exact (distance reps: metres; timed reps and jogs: the time); the other is derived from the pace, with "ca." on a distance worked out from a time. Distance reps show a time range (e.g. 41–42s) because coaches give short reps as times. Jogs between reps use the same two columns, so figures line up with the rep above. The warm-up and cool-down row has no rep count. Labels do not repeat the length.
+
+## Daniels sessions (P, 2026-11-23)
+
+Six sessions added from Tables 4.1 to 4.4 of Daniels' Running Formula, which P photographed from his Kindle. I did not check them against the book beyond the screenshots. Daniels sizes each table by weekly mileage; the page leaves rep counts to the user (defaults: 4 × 10 min cruise, 5 × 3 min H, 8 × 400m R, 3 sets). The Random Session Generator picks rep counts by mileage band (my reading of the tables).

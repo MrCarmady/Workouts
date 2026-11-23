@@ -184,6 +184,7 @@ tr.easy td:first-child { padding-left: 11px; }
       <li><b>Yasso 800s.</b> 800m at 5k pace with a jog of the same time. The old rule (800m time in minutes:seconds = marathon time in hours:minutes) is shown for comparison only.</li>
       <li><b>Rosario 800s.</b> 800m at 5k pace with an 800m float at 5k pace plus 25s per 800m, which is about +31s/km.</li>
       <li><b>1km repeats, mile repeats, 30/30.</b> 1km at 4.5k pace, 1 mile at 10k pace, and 30s at 3k pace with a 30s jog.</li>
+      <li><b>Daniels sessions.</b> Cruise intervals (T reps with 1, 2 or 3 minute jogs by rep length), the 20-12-5 minute descending T session, timed hard reps (2 to 5 minutes at 4k pace, jog one minute shorter than the rep), R repeats (400m reps with a 400m jog, and the 200-200-400 set) and MP with T surges, all from Tables 4.1 to 4.4 of Daniels' Running Formula. T is the predicted 17km pace, H is 4k pace and R is the predicted 1.7km pace, as on the Marathon Plan Viewer. Daniels sizes each table by weekly mileage; this page leaves the rep counts to you.</li>
       <li><b>Marathon-pace long run.</b> Easy running first, then the chosen distance at marathon pace.</li>
       <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Warm-up, cool-down and jogs run at 65% of 5km speed unless you change the pace.</li>
       <li>This page does not apply weekly-volume limits. Check the numbers against heart rate or feel.</li>
@@ -307,6 +308,17 @@ tr.easy td:first-child { padding-left: 11px; }
       { id: "reps", label: "Reps", def: 4, min: 3, max: 6, int: true },
       { id: "rest", label: "Jog between (s)", def: 135, min: 60, max: 300, int: true }] },
     { key: "thirty", name: "30/30", opts: [{ id: "reps", label: "Reps", def: 16, min: 10, max: 24, int: true }] },
+    { key: "cruise", name: "Cruise intervals (T)", opts: [
+      { id: "len", label: "Rep length (min)", def: 10, min: 3, max: 20, int: true },
+      { id: "reps", label: "Reps", def: 4, min: 2, max: 10, int: true }] },
+    { key: "dt", name: "Descending T (20-12-5 min)", opts: [] },
+    { key: "hrep", name: "Timed hard reps (H)", opts: [
+      { id: "len", label: "Rep length (min)", def: 3, min: 2, max: 5, int: true },
+      { id: "reps", label: "Reps", def: 5, min: 3, max: 12, int: true }] },
+    { key: "r400", name: "R repeats, 400m", opts: [{ id: "reps", label: "Reps", def: 8, min: 4, max: 20, int: true }] },
+    { key: "rset", name: "R sets, 200-200-400", opts: [{ id: "sets", label: "Sets", def: 3, min: 2, max: 6, int: true }] },
+    { key: "mpt", name: "MP with T surges", nowu: true, opts: [
+      { id: "v", type: "select", label: "Version", choices: [["1", "30 M, 5 T, 30 M, 5 T, 5 M"], ["2", "5 T, 40 M, 5 T, 15 M, 5 T, 10 M"], ["3", "50 M, 5 T, 20 M, 5 T, 30 E"]] }] },
     { key: "mplr", name: "Marathon-pace long run", nowu: true, opts: [
       { id: "total", label: "Run distance (km)", def: 24, min: 12, max: 42 },
       { id: "mp", label: "At marathon pace (km)", def: 12, min: 4, max: 30 }] }
@@ -500,6 +512,52 @@ tr.easy td:first-child { padding-left: 11px; }
       struct = o.reps + " × (30s hard + 30s jog)";
       add("30s at 3k pace", o.reps, { s: 30 }, p3, p3, "hard", true);
       add("Jog", o.reps - 1, { s: 30 }, wcPace, wcPace, "easy", true);
+    } else if (w.key === "cruise") {
+      var pCr = raceP(17), crRest = o.len <= 8 ? 60 : o.len <= 15 ? 120 : 180;
+      struct = o.reps + " × " + o.len + " min at T pace, " + secLabel(crRest) + " jog between";
+      add("T pace", o.reps, { s: o.len * 60 }, pCr, pCr, "hard", true);
+      add("Jog", o.reps - 1, { s: crRest }, wcPace, wcPace, "easy", true);
+      notes.push("Daniels' cruise intervals (Table 4.2): 5 to 8 minute reps with 1 minute rests, 10 to 15 minute reps with 2 minutes, 16 to 20 with 3. The rest is run as a jog here (the table says \"rest\"). T pace is the predicted 17km pace, as on the Marathon Plan Viewer; the page's own threshold, used for the tempo and for TSS, is the 16km pace.");
+    } else if (w.key === "dt") {
+      var pDt = raceP(17);
+      struct = "20 min T, 3 min jog, 12 min T, 2 min jog, 5 min T";
+      add("20 min at T pace", 1, { s: 1200 }, pDt, pDt, "hard", true);
+      add("Jog", 1, { s: 180 }, wcPace, wcPace, "easy", true);
+      add("12 min at T pace", 1, { s: 720 }, pDt, pDt, "hard", true);
+      add("Jog", 1, { s: 120 }, wcPace, wcPace, "easy", true);
+      add("5 min at T pace", 1, { s: 300 }, pDt, pDt, "hard", true);
+      notes.push("From Daniels' Table 4.2: 16 to 20 min T, 3 min rest, 10 to 15 min T, 2 min rest, 5 to 6 min T. I picked 20, 12 and 5 minutes. The rests are run as jogs. T pace is the predicted 17km pace.");
+    } else if (w.key === "hrep") {
+      var pH = raceP(4), hJog = (o.len - 1) * 60;
+      struct = o.reps + " × " + o.len + " min at H pace, " + secLabel(hJog) + " jog between";
+      add("Hard at 4k pace", o.reps, { s: o.len * 60 }, pH, pH, "hard", true);
+      add("Jog", o.reps - 1, { s: hJog }, wcPace, wcPace, "easy", true);
+      notes.push("Daniels' timed hard (H) reps (Table 4.3), 2 to 5 minutes with a jog one minute shorter than the rep. H pace is read as I pace, the 4k pace, as on the Short-Distance Plan Viewer. Daniels describes H by effort, about a 10 to 12 minute race.");
+    } else if (w.key === "r400") {
+      var pR = raceP(1.7);
+      struct = o.reps + " × 400m at R pace, 400m jog between";
+      add("R pace", o.reps, { m: 400 }, pR, pR, "hard", true);
+      add("Jog 400m", o.reps - 1, { m: 400 }, wcPace, wcPace, "easy", true);
+      notes.push("Daniels' repetition (R) work (Table 4.4): the jog is the same distance as the rep. R pace is the predicted 1.7km pace, as on the Marathon Plan Viewer.");
+    } else if (w.key === "rset") {
+      var pRs = raceP(1.7);
+      struct = o.sets + " × (200 R, 200 jog, 200 R, 400 jog, 400 R, 200 jog)";
+      add("R, 200m", 2 * o.sets, { m: 200 }, pRs, pRs, "hard", true);
+      add("R, 400m", o.sets, { m: 400 }, pRs, pRs, "hard", true);
+      add("Jog 200m", 2 * o.sets - 1, { m: 200 }, wcPace, wcPace, "easy", true);
+      add("Jog 400m", o.sets, { m: 400 }, wcPace, wcPace, "easy", true);
+      notes.push("The set repeated in Daniels' Table 4.4 for 2 to 6 sets; the last 200m jog after the final 400m is left out (it becomes the cool-down). R pace is the predicted 1.7km pace.");
+    } else if (w.key === "mpt") {
+      var pTm = raceP(17), E = "E", M = "M", Tt = "T";
+      var MPT = { "1": [[E, 15], [M, 30], [Tt, 5], [M, 30], [Tt, 5], [M, 5], [E, 10]], "2": [[E, 15], [Tt, 5], [M, 40], [Tt, 5], [M, 15], [Tt, 5], [M, 10], [E, 10]], "3": [[E, 15], [M, 50], [Tt, 5], [M, 20], [Tt, 5], [E, 30]] };
+      var segs = MPT[o.v];
+      struct = segs.map(function (x) { return x[1] + " " + x[0]; }).join(", ");
+      segs.forEach(function (x) {
+        var p = x[0] === E ? wcPace : x[0] === M ? mp : pTm;
+        add(x[1] + " min " + (x[0] === E ? "easy" : x[0] === M ? "at marathon pace" : "at T pace"), 1, { s: x[1] * 60 }, p, p, x[0] === E ? "easy" : "hard", true);
+      });
+      mpNote = true;
+      notes.push("From Daniels' Table 4.1, training session D (marathon pace with threshold surges), total " + Math.round(T / 60) + " min. The structure has its own easy running at both ends, so there is no separate warm-up. T pace is the predicted 17km pace.");
     } else if (w.key === "mplr") {
       if (o.mp > o.total) return fail("The marathon-pace distance can't be longer than the run.");
       struct = distLabel(o.total * 1000 - o.mp * 1000) + " easy, then " + distLabel(o.mp * 1000) + " at marathon pace";

@@ -104,11 +104,21 @@ tr.easy td:first-child { padding-left: 11px; }
           <option value="45">45 min</option>
           <option value="60" selected>60 min</option>
           <option value="90">90 min</option>
+          <option value="120">120 min</option>
+        </select>
+      </label>
+      <label>Weekly distance (optional)
+        <input id="week" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="e.g. 70">
+      </label>
+      <label>Unit
+        <select id="wunit">
+          <option value="km" selected>km</option>
+          <option value="mi">miles</option>
         </select>
       </label>
     </div>
     <button type="button" class="spin" id="spin">Spin again</button>
-    <p class="note">Total time includes warm-up and cool-down. Changing the time or the 5k result keeps the same draw and refits it.</p>
+    <p class="note">Total time includes warm-up and cool-down. Weekly distance sets marathon pace, caps sub-threshold volume and picks Daniels rep counts; blank assumes 70 miles a week with no cap. Changing an input keeps the same draw and refits it.</p>
   </section>
 
   <p class="warn" id="err" hidden></p>
@@ -140,10 +150,11 @@ tr.easy td:first-child { padding-left: 11px; }
     <h2>How this is calculated</h2>
     <ul>
       <li><b>The draw.</b> A coin flip picks the family, Classic or Sub-Threshold. Then every session in that family that fits the time has the same chance, and one version of it is picked at random. There is no filter for recent training, hard days or weekly TSS.</li>
-      <li><b>Classic sessions.</b> Tempo, Rowland Tempo, ladder, Aussie quarters, 1 min I / 1 min MP, Pre's 200s, Mona fartlek, Yasso 800s, Rosario 800s, 1km repeats, mile repeats, 30/30 and the marathon-pace long run. Structure, paces and notes are the Classic Session Generator's, with its default options and a range of rep counts.</li>
+      <li><b>Classic sessions.</b> Tempo, Rowland Tempo, ladder, Aussie quarters, 1 min I / 1 min MP, Pre's 200s, Mona fartlek, Yasso 800s, Rosario 800s, 1km repeats, mile repeats, 30/30, the marathon-pace long run, and six from Daniels' Running Formula: cruise intervals, descending T (20-12-5), timed hard reps, R repeats, R sets and MP with T surges. Structure, paces and notes are the Classic Session Generator's, with its default options and a range of rep counts.</li>
       <li><b>Sub-Threshold sessions.</b> Reps of 200, 300 or 400m, or 3, 6, 8, 10, 12, 15 or 20 minutes. Paces, recoveries and rep ranges are the Sub-Threshold Session Generator's. The three short distances run faster than sub-threshold, and are named by their distance. In a short slot the rep count can drop to half the usual low end.</li>
-      <li><b>Fitting the time.</b> The whole session, warm-up and cool-down included, must run between 70% and 100% of the time you pick. Warm-up and cool-down are 10 + 10 minutes for 60 and 90 minutes, 8 + 8 for 45 and 5 + 5 for 30 (my choice). The marathon-pace long run has none.</li>
-      <li><b>Pace base.</b> The same model as the Race Prediction Calculator. Marathon pace assumes 70 miles a week.</li>
+      <li><b>Fitting the time.</b> The whole session, warm-up and cool-down included, must run between 70% and 100% of the time you pick. Warm-up and cool-down are 10 + 10 minutes for 60, 90 and 120 minutes, 8 + 8 for 45 and 5 + 5 for 30 (my choice). The marathon-pace long run and MP with T surges have none.</li>
+      <li><b>Weekly distance.</b> Optional. It sets marathon pace (blank assumes 70 miles a week), caps the total sub-threshold work at the Sub-Threshold Session Generator's share of weekly distance (12% for 3 to 12 minute reps, 20% for 15 and 20 minute reps, with a 6km floor), and picks the rep counts for the Daniels sessions: up to 40 miles, 41 to 70 (also used when blank) and over 70. The Classic sessions set by you in the Classic generator have no weekly limit, and the random tool applies none to them either.</li>
+      <li><b>Pace base.</b> The same model as the Race Prediction Calculator.</li>
       <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Warm-up, cool-down and jogs run at 65% of 5km speed; sub-threshold recoveries are walked at 10:00/km.</li>
     </ul>
   </section>
@@ -267,15 +278,15 @@ tr.easy td:first-child { padding-left: 11px; }
   var SUBT = [{ m: 200 }, { m: 300 }, { m: 400 }, { min: 3 }, { min: 6 }, { min: 8 }, { min: 10 }, { min: 12 }, { min: 15 }, { min: 20 }];   // rep length: metres or minutes
 
   // Everything derived from the 5k time, for the two generators' pace rules.
-  function context(t5) {
+  function context(t5, weekKm) {
     var riegel5 = t5 / 5, p5 = riegel5;
-    offM = marathonOff(riegel5, null);          // 70 miles a week
-    var c = { p5: p5 };
+    offM = marathonOff(riegel5, weekKm);        // blank weekly distance = 70 miles
+    var c = { p5: p5, weekKm: weekKm };
     c.raceC = function (km) { return (p5 - adj(km)) * Math.pow(km / 5, K - 1) + off(km) - off(5); };   // Classic: shorter races are quicker than Riegel
     c.raceS = function (km) { return p5 * Math.pow(km / 5, K - 1) + off(km) - off(5); };              // Sub-Threshold: plain Riegel
     c.thr = c.raceC(16);
     c.mp = c.raceC(MAR);
-    c.mpFl = p5 * Math.pow(MAR / 5, K - 1) + offM - off(5);
+    c.mpFl = p5 * Math.pow(MAR / 5, K - 1) + marathonOff(riegel5, null) - off(5);   // float pace ignores weekly distance, as in the Classic Session Generator
     c.mpFast = c.mpFl * 0.97;
     c.wcPace = p5 / 0.65;
     c.vdot = vdot(p5 * 5 / 60, 5000);
@@ -316,6 +327,9 @@ tr.easy td:first-child { padding-left: 11px; }
 
   // Classic workouts, with the Classic Session Generator's defaults. cands = the option sets the draw can pick from.
   function range(a, b, step, mk) { var r = []; for (var x = a; x <= b + 1e-9; x += step) r.push(mk(x)); return r; }
+  // Daniels rep counts by weekly mileage band: 1 = up to 40 miles, 2 = 41 to 70 (also used when blank), 3 = over 70. My reading of the sizes in Tables 4.2 to 4.4.
+  function bandOf(weekKm) { if (weekKm === null) return 2; var mi = weekKm / MILE; return mi <= 40 ? 1 : mi <= 70 ? 2 : 3; }
+  function byBand(b1, b2, b3) { return function (band) { return band === 1 ? b1 : band === 2 ? b2 : b3; }; }
   var CLASSIC = [
     { key: "tempo", name: "Continuous tempo", cands: range(20, 60, 5, function (m) { return { min: m }; }) },
     { key: "prog", name: "Rowland Tempo", cands: range(2, 5, 1, function (b) { return { blocks: b, brk: 120 }; }) },
@@ -329,9 +343,23 @@ tr.easy td:first-child { padding-left: 11px; }
     { key: "k1", name: "1km repeats", cands: range(4, 8, 1, function (r) { return { reps: r, rest: 105 }; }) },
     { key: "mile", name: "Mile repeats", cands: range(3, 6, 1, function (r) { return { reps: r, rest: 135 }; }) },
     { key: "thirty", name: "30/30", cands: range(12, 24, 2, function (r) { return { reps: r }; }) },
+    { key: "cruise", name: "Cruise intervals (T)", cands: byBand(
+      [{ len: 5, reps: 4 }, { len: 6, reps: 4 }],
+      [{ len: 5, reps: 6 }, { len: 6, reps: 6 }, { len: 10, reps: 3 }, { len: 12, reps: 3 }, { len: 15, reps: 3 }, { len: 16, reps: 2 }, { len: 20, reps: 2 }],
+      [{ len: 5, reps: 8 }, { len: 6, reps: 8 }, { len: 8, reps: 5 }, { len: 10, reps: 4 }, { len: 12, reps: 4 }, { len: 15, reps: 4 }]) },
+    { key: "dt", name: "Descending T (20-12-5 min)", cands: [{}] },
+    { key: "hrep", name: "Timed hard reps (H)", cands: byBand(
+      [{ len: 2, reps: 5 }, { len: 2, reps: 6 }, { len: 3, reps: 4 }, { len: 4, reps: 3 }],
+      [{ len: 3, reps: 5 }, { len: 3, reps: 6 }, { len: 4, reps: 5 }, { len: 5, reps: 3 }, { len: 5, reps: 4 }],
+      [{ len: 2, reps: 10 }, { len: 3, reps: 7 }, { len: 4, reps: 6 }, { len: 5, reps: 5 }]) },
+    { key: "r400", name: "R repeats, 400m", cands: byBand(
+      range(4, 6, 1, function (r) { return { reps: r }; }), [{ reps: 6 }, { reps: 8 }], range(8, 12, 2, function (r) { return { reps: r }; })) },
+    { key: "rset", name: "R sets, 200-200-400", cands: byBand([{ sets: 2 }, { sets: 3 }], [{ sets: 3 }, { sets: 4 }], [{ sets: 4 }, { sets: 5 }, { sets: 6 }]) },
+    { key: "mpt", name: "MP with T surges", nowu: true, cands: [{ v: "1" }, { v: "2" }, { v: "3" }] },
     { key: "mplr", name: "Marathon-pace long run", nowu: true, cands: range(12, 26, 2, function (t) { return { total: t, mp: t / 2 }; }) }
   ];
 
+  function mpTxt(c) { return "Predicted marathon pace: " + mmss(c.mp) + " per km" + (c.weekKm === null ? ", assuming 70 miles a week." : ", from your weekly distance."); }
   function classic(w, o, wuMin, cdMin, c) {
     var S = Session(c, w.name), raceP = c.raceC, thr = c.thr, mp = c.mp, wcPace = c.wcPace, p5 = c.p5, notes = S.notes, mpNote = false;
     var add = S.add;
@@ -426,11 +454,56 @@ tr.easy td:first-child { padding-left: 11px; }
       S.struct = o.reps + " × (30s hard + 30s jog)";
       add("30s at 3k pace", o.reps, { s: 30 }, p3, p3, "hard", true);
       add("Jog", o.reps - 1, { s: 30 }, wcPace, wcPace, "easy", true);
+    } else if (key === "cruise") {
+      var pCr = c.raceC(17), crRest = o.len <= 8 ? 60 : o.len <= 15 ? 120 : 180;
+      S.struct = o.reps + " × " + o.len + " min at T pace, " + secLabel(crRest) + " jog between";
+      add("T pace", o.reps, { s: o.len * 60 }, pCr, pCr, "hard", true);
+      add("Jog", o.reps - 1, { s: crRest }, wcPace, wcPace, "easy", true);
+      notes.push("Daniels' cruise intervals (Table 4.2): 5 to 8 minute reps with 1 minute rests, 10 to 15 minute reps with 2 minutes, 16 to 20 with 3. The rest is run as a jog here. T pace is the predicted 17km pace; TSS uses the 16km threshold.");
+    } else if (key === "dt") {
+      var pDt = c.raceC(17);
+      S.struct = "20 min T, 3 min jog, 12 min T, 2 min jog, 5 min T";
+      add("20 min at T pace", 1, { s: 1200 }, pDt, pDt, "hard", true);
+      add("Jog", 1, { s: 180 }, wcPace, wcPace, "easy", true);
+      add("12 min at T pace", 1, { s: 720 }, pDt, pDt, "hard", true);
+      add("Jog", 1, { s: 120 }, wcPace, wcPace, "easy", true);
+      add("5 min at T pace", 1, { s: 300 }, pDt, pDt, "hard", true);
+      notes.push("From Daniels' Table 4.2: 16 to 20 min T, 3 min rest, 10 to 15 min T, 2 min rest, 5 to 6 min T. I picked 20, 12 and 5 minutes. The rests are run as jogs. T pace is the predicted 17km pace.");
+    } else if (key === "hrep") {
+      var pH = c.raceC(4), hJog = (o.len - 1) * 60;
+      S.struct = o.reps + " × " + o.len + " min at H pace, " + secLabel(hJog) + " jog between";
+      add("Hard at 4k pace", o.reps, { s: o.len * 60 }, pH, pH, "hard", true);
+      add("Jog", o.reps - 1, { s: hJog }, wcPace, wcPace, "easy", true);
+      notes.push("Daniels' timed hard (H) reps (Table 4.3), 2 to 5 minutes with a jog one minute shorter than the rep. H pace is read as I pace, the 4k pace. Daniels describes H by effort, about a 10 to 12 minute race.");
+    } else if (key === "r400") {
+      var pR = c.raceC(1.7);
+      S.struct = o.reps + " × 400m at R pace, 400m jog between";
+      add("R pace", o.reps, { m: 400 }, pR, pR, "hard", true);
+      add("Jog 400m", o.reps - 1, { m: 400 }, wcPace, wcPace, "easy", true);
+      notes.push("Daniels' repetition (R) work (Table 4.4): the jog is the same distance as the rep. R pace is the predicted 1.7km pace.");
+    } else if (key === "rset") {
+      var pRs = c.raceC(1.7);
+      S.struct = o.sets + " × (200 R, 200 jog, 200 R, 400 jog, 400 R, 200 jog)";
+      add("R, 200m", 2 * o.sets, { m: 200 }, pRs, pRs, "hard", true);
+      add("R, 400m", o.sets, { m: 400 }, pRs, pRs, "hard", true);
+      add("Jog 200m", 2 * o.sets - 1, { m: 200 }, wcPace, wcPace, "easy", true);
+      add("Jog 400m", o.sets, { m: 400 }, wcPace, wcPace, "easy", true);
+      notes.push("The set repeated in Daniels' Table 4.4 for 2 to 6 sets; the last 200m jog after the final 400m is left out. R pace is the predicted 1.7km pace.");
+    } else if (key === "mpt") {
+      var pTm = c.raceC(17), E = "E", M = "M", Tt = "T";
+      var MPT = { "1": [[E, 15], [M, 30], [Tt, 5], [M, 30], [Tt, 5], [M, 5], [E, 10]], "2": [[E, 15], [Tt, 5], [M, 40], [Tt, 5], [M, 15], [Tt, 5], [M, 10], [E, 10]], "3": [[E, 15], [M, 50], [Tt, 5], [M, 20], [Tt, 5], [E, 30]] };
+      var segs = MPT[o.v];
+      S.struct = segs.map(function (x) { return x[1] + " " + x[0]; }).join(", ");
+      segs.forEach(function (x) {
+        var p = x[0] === E ? wcPace : x[0] === M ? mp : pTm;
+        add(x[1] + " min " + (x[0] === E ? "easy" : x[0] === M ? "at marathon pace" : "at T pace"), 1, { s: x[1] * 60 }, p, p, x[0] === E ? "easy" : "hard", true);
+      });
+      notes.push("From Daniels' Table 4.1, training session D (marathon pace with threshold surges), total " + Math.round(S.T / 60) + " min. The structure has its own easy running at both ends. T pace is the predicted 17km pace. " + mpTxt(c));
     } else if (key === "mplr") {
       S.struct = distLabel(o.total * 1000 - o.mp * 1000) + " easy, then " + distLabel(o.mp * 1000) + " at marathon pace";
       add("Easy", 1, { m: (o.total - o.mp) * 1000 }, wcPace, wcPace, "easy", true);
       add("Marathon pace", 1, { m: o.mp * 1000 }, mp, mp, "hard", true);
-      notes.push("Predicted marathon pace: " + mmss(mp) + " per km, assuming 70 miles a week.");
+      notes.push(mpTxt(c));
     }
     return S;
   }
@@ -454,8 +527,14 @@ tr.easy td:first-child { padding-left: 11px; }
     A.forEach(function (a) { if (a.t <= tRep + 0.5) pa = a; });
     var capAbs = Math.max(1, pa.absKm ? Math.floor(pa.absKm / repKm + 0.05) : Math.floor(pa.absMin * 60 / tRep + 0.05));
     var rh = Math.max(1, Math.min(Math.round(wh * 60 / tRep), capReps, capAbs)), rl = Math.max(1, Math.min(Math.round(wl * 60 / tRep), rh));
+    var rhBase = rh;           // the usual high end, before the weekly distance is applied
+    if (c.weekKm !== null) {   // Daniels maximum as a share of weekly distance, with a floor for low mileage
+      var tier = pa.pct, floorKm = tier <= 5 ? 2 : (tier <= 8 ? 4 : 6), maxKm = Math.max(c.weekKm * tier / 100, floorKm), cm = Math.floor(maxKm / repKm + 0.05);
+      rh = cm < 1 ? 1 : Math.min(cm, capReps, capAbs);
+      rl = Math.max(1, Math.min(Math.round(wl * 60 / tRep), rh));
+    }
     var rec = Math.round(lerp(AW, tRep, function (a) { return a.rec; }) / 5) * 5;
-    return { tRep: tRep, fast: fast, slow: slow, rl: rl, rh: rh, rec: rec, repKm: repKm, dKm: dKm };
+    return { tRep: tRep, fast: fast, slow: slow, rl: rl, rh: rh, rec: rec, repKm: repKm, dKm: dKm, rhBase: rhBase };
   }
   function subT(spec, n, wuMin, cdMin, c) {
     var I = subInfo(spec, c), thr = c.thr, lenTxt = spec.min ? spec.min + " min" : spec.m + "m";
@@ -490,10 +569,10 @@ tr.easy td:first-child { padding-left: 11px; }
 
   // Every session that fits, grouped by family and by session type.
   function variants(c, avail) {
-    var wu = warmFor(avail), out = { classic: [], subt: [] };
+    var wu = warmFor(avail), out = { classic: [], subt: [] }, band = bandOf(c.weekKm);
     CLASSIC.forEach(function (w) {
       var ok = [];
-      w.cands.forEach(function (o) {
+      (typeof w.cands === "function" ? w.cands(band) : w.cands).forEach(function (o) {
         var S = classic(w, o, wu, wu, c);
         if (fits(S.T, avail)) ok.push({ T: S.T, f: function () { return S; } });
       });
@@ -501,8 +580,9 @@ tr.easy td:first-child { padding-left: 11px; }
     });
     SUBT.forEach(function (m) {
       var I = subInfo(m, c), ok = [];
-      var lo = Math.max(1, Math.min(I.rh, Math.max(2, Math.ceil(I.rl / 2))));
-      for (var n = lo; n <= I.rh; n++) {
+      // Weekly distance can lower the top of the range but not raise it: the Sub-Threshold Session Generator's higher counts for big weeks are not drawn here.
+      var hi = Math.min(I.rh, I.rhBase), lo = Math.max(1, Math.min(hi, Math.max(2, Math.ceil(I.rl / 2))));
+      for (var n = lo; n <= hi; n++) {
         var T = 2 * wu * 60 + n * I.tRep + (n - 1) * I.rec;
         if (fits(T, avail)) ok.push({ T: T, f: (function (n) { return function () { return subT(m, n, wu, wu, c); }; })(n) });
       }
@@ -524,18 +604,27 @@ tr.easy td:first-child { padding-left: 11px; }
 
   var u = [Math.random(), Math.random(), Math.random()];
   function fail(msg) { $("err").hidden = false; $("err").textContent = msg; $("resbox").hidden = true; }
+  function weekKmNow() {   // null = blank; NaN = invalid
+    var txt = ($("week").value || "").trim();
+    if (txt === "") return null;
+    var wv = Number(txt.replace(",", "."));
+    if (!isFinite(wv) || wv <= 0) return NaN;
+    return $("wunit").value === "mi" ? wv * MILE : wv;
+  }
   function inputs() {
     var t = parseTime($("time").value);
     if (t === null || t <= 0) { fail("Enter a 5k time like 18:54 or 1854."); return null; }
     var vd = vdot(t / 60, 5000);
     if (vd < VDOT_MIN || vd > VDOT_MAX) { fail("That 5k equals a VDOT of " + vd.toFixed(1) + ", outside the plausible range of " + VDOT_MIN + " to " + VDOT_MAX + ". Check the time."); return null; }
-    return { t: t, avail: Number($("avail").value) };
+    var wk = weekKmNow();
+    if (wk !== null && !(wk >= 30 && wk <= 300)) { fail(isNaN(wk) ? "Enter weekly distance as a number, or leave it blank." : "Weekly distance should be between 30km (19 miles) and 300km (186 miles). Check the number and unit."); return null; }
+    return { t: t, avail: Number($("avail").value), wk: wk };
   }
 
   function update() {
     $("err").hidden = true;
     var inp = inputs(); if (!inp) return;
-    var c = context(inp.t), S = draw(c, inp.avail, u);
+    var c = context(inp.t, inp.wk), S = draw(c, inp.avail, u);
     if (!S) return fail("No session fits " + inp.avail + " minutes for this 5k time.");
     $("wname").textContent = S.name;
     $("struct").textContent = S.struct;
@@ -556,18 +645,25 @@ tr.easy td:first-child { padding-left: 11px; }
     $("resbox").hidden = false;
   }
 
-  function save() { try { localStorage.setItem("rsg", JSON.stringify({ t: $("time").value, a: $("avail").value })); } catch (e) {} }
+  function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
+  function save() {
+    try { localStorage.setItem("rsg", JSON.stringify({ t: $("time").value, a: $("avail").value })); } catch (e) {}
+    profSet("week", $("week").value); profSet("wunit", $("wunit").value);
+  }
   function restore() {
+    var had = false;
     try {
       var s = JSON.parse(localStorage.getItem("rsg") || "null");
       if (s) {
+        had = true;
         if (typeof s.t === "string" && s.t) $("time").value = s.t;
         if (s.a && $("avail").querySelector('option[value="' + s.a + '"]')) $("avail").value = s.a;
-        return;
       }
     } catch (e) {}
     var pr = profGet();
-    if (pr.km === "5" && pr.time) $("time").value = pr.time;
+    if (!had && pr.km === "5" && pr.time) $("time").value = pr.time;
+    if (typeof pr.week === "string") $("week").value = pr.week;
+    if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit;
   }
 
   // Phone keypads often have no colon. Digits only are read from the right: 3943 = 39:43, 12010 = 1:20:10, 415 = 4:15.
@@ -583,12 +679,12 @@ tr.easy td:first-child { padding-left: 11px; }
 
   // Used by tests/check_lucky_sync.py to compare totals with the two source pages, using the 5k time in the box.
   window.__rsg = {
-    classic: function (key, o, wu, cd) { var w = CLASSIC.filter(function (x) { return x.key === key; })[0], c = context(parseTime($("time").value)), S = classic(w, o, wu, cd, c); return { tss: Math.round(S.TSS), total: hmmss(S.T), dist: distLabel(S.Dm) }; },
-    subt: function (len, n, wu, cd, unit) { var spec = unit === "m" ? { m: len } : { min: len }, c = context(parseTime($("time").value)), S = subT(spec, n, wu, cd, c), I = subInfo(spec, c); return { tss: Math.round(S.TSS), total: hmmss(S.T), rl: I.rl, rh: I.rh }; }
+    classic: function (key, o, wu, cd) { var w = CLASSIC.filter(function (x) { return x.key === key; })[0], c = context(parseTime($("time").value), weekKmNow()), S = classic(w, o, wu, cd, c); return { tss: Math.round(S.TSS), total: hmmss(S.T), dist: distLabel(S.Dm) }; },
+    subt: function (len, n, wu, cd, unit) { var spec = unit === "m" ? { m: len } : { min: len }, c = context(parseTime($("time").value), weekKmNow()), S = subT(spec, n, wu, cd, c), I = subInfo(spec, c); return { tss: Math.round(S.TSS), total: hmmss(S.T), rl: I.rl, rh: I.rh }; }
   };
 
   restore();
-  ["time", "avail"].forEach(function (id) {
+  ["time", "avail", "week", "wunit"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });
