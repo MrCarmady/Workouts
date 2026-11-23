@@ -152,7 +152,7 @@ tr.easy td:first-child { padding-left: 11px; }
       <li><b>The draw.</b> A coin flip picks the family, Classic or Sub-Threshold. Then every session in that family that fits the time has the same chance, and one version of it is picked at random. There is no filter for recent training, hard days or weekly TSS.</li>
       <li><b>Classic sessions.</b> Tempo, Rowland Tempo, ladder, Aussie quarters, 1 min I / 1 min MP, Pre's 200s, Mona fartlek, Yasso 800s, Rosario 800s, 1km repeats, mile repeats, 30/30, the marathon-pace long run, and six from Daniels' Running Formula: cruise intervals, descending T (20-12-5), timed hard reps, R repeats, R sets and MP with T surges. Structure, paces and notes are the Classic Session Generator's, with its default options and a range of rep counts.</li>
       <li><b>Sub-Threshold sessions.</b> Reps of 200, 300 or 400m, or 3, 6, 8, 10, 12, 15 or 20 minutes. Paces, recoveries and rep ranges are the Sub-Threshold Session Generator's. The three short distances run faster than sub-threshold, and are named by their distance. In a short slot the rep count can drop to half the usual low end.</li>
-      <li><b>Fitting the time.</b> The whole session, warm-up and cool-down included, must run between 70% and 100% of the time you pick. Warm-up and cool-down are 10 + 10 minutes for 60, 90 and 120 minutes, 8 + 8 for 45 and 5 + 5 for 30 (my choice). The marathon-pace long run and MP with T surges have none.</li>
+      <li><b>Fitting the time.</b> The whole session, warm-up and cool-down included, must run between 70% and 100% of the time you pick. Warm-up and cool-down are 10 + 10 minutes for 60, 90 and 120 minutes, 8 + 8 for 45 and 5 + 5 for 30 (my choice) A session that would run under 70% of the time gets a longer warm-up and cool-down instead, up to 20 + 20 minutes, aiming for 90% of the slot.. The marathon-pace long run and MP with T surges have none.</li>
       <li><b>Weekly distance.</b> Optional. It sets marathon pace (blank assumes 70 miles a week), caps the total sub-threshold work at the Sub-Threshold Session Generator's share of weekly distance (12% for 3 to 12 minute reps, 20% for 15 and 20 minute reps, with a 6km floor), and picks the rep counts for the Daniels sessions: up to 40 miles, 41 to 70 (also used when blank) and over 70. The Classic sessions set by you in the Classic generator have no weekly limit, and the random tool applies none to them either.</li>
       <li><b>Pace base.</b> The same model as the Race Prediction Calculator.</li>
       <li><b>Session load.</b> TSS = hours × (threshold pace ÷ pace)² × 100. Warm-up, cool-down and jogs run at 65% of 5km speed; sub-threshold recoveries are walked at 10:00/km.</li>
@@ -571,6 +571,14 @@ tr.easy td:first-child { padding-left: 11px; }
   }
   function warmFor(avail) { return avail >= 60 ? 10 : avail >= 45 ? 8 : 5; }
   function fits(T, avail) { return T <= avail * 60 + 0.5 && T >= avail * 60 * FIT_LOW; }
+  // A session shorter than the fit window gets a longer warm-up and cool-down (each at most WU_MAX min) to reach FILL of the slot (P, 2026-11-23: short sessions are the intense ones, so a longer warm-up suits them). Returns the warm-up length in minutes, or null if it still cannot fit.
+  var WU_MAX = 20;
+  function wuFit(T, wu, avail) {
+    if (fits(T, avail)) return wu;
+    if (T >= avail * 60 * FIT_LOW) return null;
+    var main = T - 2 * wu * 60, w2 = Math.min(WU_MAX, Math.ceil((avail * 60 * FILL - main) / 120));
+    return w2 > wu && fits(main + 2 * w2 * 60, avail) ? w2 : null;
+  }
 
   // Every session that fits, grouped by family and by session type.
   function variants(c, avail) {
@@ -578,8 +586,10 @@ tr.easy td:first-child { padding-left: 11px; }
     CLASSIC.forEach(function (w) {
       var ok = [];
       (typeof w.cands === "function" ? w.cands(band, c) : w.cands).forEach(function (o) {
-        var S = classic(w, o, wu, wu, c);
-        if (fits(S.T, avail)) ok.push({ T: S.T, f: function () { return S; } });
+        var S = classic(w, o, wu, wu, c), w2 = w.nowu ? (fits(S.T, avail) ? wu : null) : wuFit(S.T, wu, avail);
+        if (w2 === null) return;
+        if (w2 !== wu) S = classic(w, o, w2, w2, c);
+        ok.push({ T: S.T, f: function () { return S; } });
       });
       if (ok.length) out.classic.push(fullest(ok));
     });
@@ -588,8 +598,10 @@ tr.easy td:first-child { padding-left: 11px; }
       // Weekly distance can lower the top of the range but not raise it: the Sub-Threshold Session Generator's higher counts for big weeks are not drawn here.
       var hi = Math.min(I.rh, I.rhBase), lo = Math.max(1, Math.min(hi, Math.max(2, Math.ceil(I.rl / 2))));
       for (var n = lo; n <= hi; n++) {
-        var T = 2 * wu * 60 + n * I.tRep + (n - 1) * I.rec;
-        if (fits(T, avail)) ok.push({ T: T, f: (function (n) { return function () { return subT(m, n, wu, wu, c); }; })(n) });
+        var T = 2 * wu * 60 + n * I.tRep + (n - 1) * I.rec, w2 = wuFit(T, wu, avail);
+        if (w2 === null) continue;
+        T += 2 * (w2 - wu) * 60;
+        ok.push({ T: T, f: (function (n, w2) { return function () { return subT(m, n, w2, w2, c); }; })(n, w2) });
       }
       if (ok.length) out.subt.push(fullest(ok));
     });
