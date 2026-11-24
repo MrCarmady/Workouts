@@ -41,3 +41,11 @@ Because the coin flip is first, Sub-Threshold sessions come up about half the ti
 - Short slots drop sessions that need more time (mile repeats and 1km repeats do not fit 30 minutes; a 10 × 3 min sub-T does not fit 45).
 - Without a weekly distance, the sub-threshold rep ranges use only the generator's absolute limits, not a share of weekly mileage. The Classic Session Generator applies no weekly-volume limits either.
 - A random pick can be a hard day after a hard day. Nothing here knows what you did yesterday.
+
+## Treadmill incline (P, 2026-11-23)
+
+Same optional incline box as the Classic Session Generator (belt pace, belt distance and belt speed; see its methodology). Does not change which session is drawn, its times or its TSS.
+
+## Units (P, 2026-11-24)
+
+Same as the Classic Session Generator: the unit box also sets pace, distance and belt speed display. Does not affect the draw.

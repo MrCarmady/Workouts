@@ -116,15 +116,19 @@ tr.easy td:first-child { padding-left: 11px; }
       <label>Weekly distance (optional)
         <input id="week" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="e.g. 70">
       </label>
-      <label>Unit
+      <label>Units
         <select id="wunit">
           <option value="km" selected>km</option>
           <option value="mi">miles</option>
         </select>
       </label>
+      <label>Treadmill incline, % (optional)
+          <input id="incline" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="e.g. 1">
+        </label>
     </div>
+    <p class="note" id="beltnote" hidden></p>
     <button type="button" class="spin" id="spin">Spin again</button>
-    <p class="note">Total time includes warm-up and cool-down. Weekly distance sets marathon pace, caps sub-threshold volume and picks Daniels rep counts; blank assumes 70 miles a week with no cap. Changing an input keeps the same draw and refits it.</p>
+    <p class="note">Units sets weekly distance, paces, distances over 1km and belt speed; track reps stay in metres. Total time includes warm-up and cool-down. Weekly distance sets marathon pace, caps sub-threshold volume and picks Daniels rep counts; blank assumes 70 miles a week with no cap. Changing an input keeps the same draw and refits it.</p>
   </section>
 
   <p class="warn" id="err" hidden></p>
@@ -135,7 +139,7 @@ tr.easy td:first-child { padding-left: 11px; }
       <p class="struct" id="struct"></p>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Part</th><th>Reps</th><th>Distance</th><th>Time</th><th>Pace /km</th></tr></thead>
+          <thead><tr><th>Part</th><th>Reps</th><th>Distance</th><th>Time</th><th class="pu" data-b="Pace">Pace /km</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
@@ -144,7 +148,7 @@ tr.easy td:first-child { padding-left: 11px; }
         <div><span>Total time</span><b id="o-time">-</b><small id="o-time-s"></small></div>
         <div><span>Total distance</span><b id="o-dist">-</b></div>
         <div><span>Main set</span><b id="o-main">-</b><small id="o-main-s"></small></div>
-        <div><span>Threshold pace /km</span><b id="o-thr">-</b></div>
+        <div><span class="pu" data-b="Threshold pace">Threshold pace /km</span><b id="o-thr">-</b></div>
         <div><span>VDOT (equivalent)</span><b id="o-vdot">-</b></div>
       </div>
       <div class="notes" id="notes"></div>
@@ -244,7 +248,12 @@ tr.easy td:first-child { padding-left: 11px; }
 
   function pn(km) { return Math.abs(km - MILE) < 0.01 ? "mile pace" : km < 2 ? Math.round(km * 1000) + "m pace" : km + "k pace"; }
   function rangeText(a, b) { return a === b ? a : a + "–" + b; }
-  function distLabel(m) { return m < 1000 ? Math.round(m) + "m" : (Math.round(m / 10) / 100).toString() + "km"; }
+  // Units (P, 2026-11-24): the unit box sets weekly distance and also paces, longer distances and belt speed. Distances under 1km stay in metres (track reps), exactly 1km stays 1km.
+  function uMi() { return $("wunit").value === "mi"; }
+  function paceU(sec) { return mmss(uMi() ? sec * MILE : sec); }                // pace from s per km, in the chosen unit
+  function pu() { return uMi() ? "/mi" : "/km"; }
+  function applyUnits() { Array.prototype.forEach.call(document.querySelectorAll(".pu"), function (e) { e.textContent = e.dataset.b + " " + pu(); }); }
+  function distLabel(m) { return m < 1000 || Math.abs(m - 1000) < 0.5 || !uMi() ? (m < 1000 ? Math.round(m) + "m" : (Math.round(m / 10) / 100).toString() + "km") : (Math.round(m / (MILE * 1000) * 100) / 100).toString() + "mi"; }
   function timeRange(a, b) {
     var ra = Math.round(a), rb = Math.round(b);
     if (rb < 60) return ra === rb ? ra + "s" : ra + "–" + rb + "s";
@@ -254,7 +263,7 @@ tr.easy td:first-child { padding-left: 11px; }
   function round10(x) { return Math.round(x / 10) * 10; }
   function distText(km, step) {
     var d = Math.round(km / step) * step;
-    return d < 1 ? Math.round(d * 1000) + "m" : parseFloat(d.toFixed(2)) + "km";
+    return d < 1 ? Math.round(d * 1000) + "m" : uMi() ? parseFloat((d / MILE).toFixed(2)) + "mi" : parseFloat(d.toFixed(2)) + "km";
   }
   function lerp(A, t, f) {   // as in the Sub-Threshold Session Generator
     if (t <= A[0].t) return f(A[0]);
@@ -321,13 +330,13 @@ tr.easy td:first-child { padding-left: 11px; }
       else { tMid = spec.s; dMid = spec.s / pm * 1000; len = "ca. " + distLabel(round10(dMid)); eq = secLabel(spec.s); }
       S.T += reps * tMid; S.Dm += reps * dMid; S.TSS += reps * tMid / 3600 * Math.pow(c.thr / pm, 2) * 100;
       if (main) { S.mainT += reps * tMid; S.mainD += reps * dMid; }
-      S.rows.push('<tr class="' + cls + '"><td>' + label + "</td><td>" + reps + "</td><td>" + len + "</td><td>" + eq + '</td><td class="pace">' + rangeText(mmss(pf), mmss(ps)) + "</td></tr>");
+      S.rows.push('<tr class="' + cls + '"><td>' + label + "</td><td>" + reps + "</td><td>" + len + "</td><td>" + eq + '</td><td class="pace">' + rangeText(paceU(pf), paceU(ps)) + "</td></tr>");
     };
     S.warm = function (wuMin, cdMin) {
       if (wuMin + cdMin <= 0) return;
       var wcT = (wuMin + cdMin) * 60;
       S.T += wcT; S.Dm += wcT / c.wcPace * 1000; S.TSS += wcT / 3600 * Math.pow(c.thr / c.wcPace, 2) * 100;
-      S.rows.push('<tr class="easy"><td>Warm-up and cool-down</td><td></td><td>ca. ' + distLabel(round10(wcT / c.wcPace * 1000)) + "</td><td>" + wuMin + " + " + cdMin + ' min</td><td class="pace">' + mmss(c.wcPace) + "</td></tr>");
+      S.rows.push('<tr class="easy"><td>Warm-up and cool-down</td><td></td><td>ca. ' + distLabel(round10(wcT / c.wcPace * 1000)) + "</td><td>" + wuMin + " + " + cdMin + ' min</td><td class="pace">' + paceU(c.wcPace) + "</td></tr>");
     };
     return S;
   }
@@ -371,7 +380,7 @@ tr.easy td:first-child { padding-left: 11px; }
     { key: "mplr", name: "Marathon-pace long run", nowu: true, cands: range(12, 26, 2, function (t) { return { total: t, mp: t / 2 }; }) }
   ];
 
-  function mpTxt(c) { return "Predicted marathon pace: " + mmss(c.mp) + " per km" + (c.weekKm === null ? ", assuming 70 miles a week." : ", from your weekly distance."); }
+  function mpTxt(c) { return "Predicted marathon pace: " + paceU(c.mp) + " per " + (uMi() ? "mile" : "km") + (c.weekKm === null ? ", assuming 70 miles a week." : ", from your weekly distance."); }
   function classic(w, o, wuMin, cdMin, c) {
     var S = Session(c, w.name), raceP = c.raceC, thr = c.thr, mp = c.mp, wcPace = c.wcPace, p5 = c.p5, notes = S.notes, mpNote = false;
     var add = S.add;
@@ -383,7 +392,7 @@ tr.easy td:first-child { padding-left: 11px; }
       S.struct = o.min + " min continuous" + (o.min > 20 ? ", slowed from threshold" : " at threshold");
       add("Tempo", 1, { s: o.min * 60 }, tp, tp, "hard", true);
       var slow = (tp / thr - 1) * 100;
-      notes.push(o.min === 20 ? "20 minutes runs at threshold, the predicted 16km pace." : "Pace is " + (Math.round(slow * 10) / 10) + "% slower than threshold (" + mmss(thr) + ") because the tempo is longer than 20 minutes" + (tp >= mp - 0.5 ? ", and is capped at marathon pace" : "") + ".");
+      notes.push(o.min === 20 ? "20 minutes runs at threshold, the predicted 16km pace." : "Pace is " + (Math.round(slow * 10) / 10) + "% slower than threshold (" + paceU(thr) + ") because the tempo is longer than 20 minutes" + (tp >= mp - 0.5 ? ", and is capped at marathon pace" : "") + ".");
     } else if (key === "ladder") {
       var rungs = [[300, 10], [240, 5], [180, 3], [120, 2], [60, 1.5]];
       if (o.order === "up") rungs.reverse();
@@ -414,7 +423,7 @@ tr.easy td:first-child { padding-left: 11px; }
       add("Fast at 4k pace", o.reps, { s: 60 }, pI, pI, "hard", true);
       add("Float at M pace", o.reps, { s: 60 }, mp, mp, "easy", true);
       var avgP = (o.reps * 120) / (o.reps * (60 / pI + 60 / mp));
-      notes.push("Average pace over the repeats is " + mmss(avgP) + "/km, against threshold at " + mmss(thr) + ".");
+      notes.push("Average pace over the repeats is " + paceU(avgP) + pu() + ", against threshold at " + paceU(thr) + ".");
     } else if (key === "prog") {
       var pSlow = raceP(HM), pTemp = raceP(10 * MILE), pFast = raceP(10);
       S.struct = o.blocks + " × 9 min, " + o.brk + "s walk/jog between";
@@ -451,7 +460,7 @@ tr.easy td:first-child { padding-left: 11px; }
       add("At 5k pace", o.reps, { m: 800 }, pr, pr, "hard", true);
       add("Float", o.reps, { m: 800 }, pf2, pf2, "easy", true);
       var dd = pf2 - mp;
-      notes.push("Float: " + mmss(pf2) + "/km, " + Math.round(Math.abs(dd)) + "s/km " + (dd >= 0 ? "slower" : "faster") + " than predicted marathon pace (" + mmss(mp) + ").");
+      notes.push("Float: " + paceU(pf2) + pu() + ", " + Math.round(Math.abs(dd) * (uMi() ? MILE : 1)) + "s" + pu() + " " + (dd >= 0 ? "slower" : "faster") + " than predicted marathon pace (" + paceU(mp) + ").");
     } else if (key === "k1") {
       S.struct = o.reps + " × 1km, " + o.rest + "s jog between";
       add("At 4.5k pace", o.reps, { m: 1000 }, raceP(4.5), raceP(4.5), "hard", true);
@@ -563,8 +572,8 @@ tr.easy td:first-child { padding-left: 11px; }
     S.Dm = (wuMin + cdMin) * 60 / c.wcPace * 1000 + n * I.repKm * 1000 + recSec / 600 * 1000;
     S.mainT = n * I.tRep + recSec; S.mainD = n * I.repKm * 1000 + recSec / 600 * 1000;
     S.struct = n + " × " + lenTxt + ", " + (n > 1 ? "ca. " + (I.rec >= 120 ? mmss(I.rec) : I.rec + "s") + " walk recovery" : "single rep");
-    if (spec.min) S.rows.push('<tr class="hard"><td>Sub-threshold rep, ' + lenTxt + '</td><td>' + n + '</td><td>ca. ' + distText(I.repKm, I.tRep < 240 ? 0.05 : 0.1) + '</td><td>' + lenTxt + '</td><td class="pace">' + rangeText(mmss(I.fast), mmss(I.slow)) + "</td></tr>");
-    else S.rows.push('<tr class="hard"><td>Rep, ' + lenTxt + '</td><td>' + n + '</td><td>' + lenTxt + '</td><td>' + timeRange(I.fast * I.dKm, I.slow * I.dKm) + '</td><td class="pace">' + rangeText(mmss(I.fast), mmss(I.slow)) + "</td></tr>");
+    if (spec.min) S.rows.push('<tr class="hard"><td>Sub-threshold rep, ' + lenTxt + '</td><td>' + n + '</td><td>ca. ' + distText(I.repKm, I.tRep < 240 ? 0.05 : 0.1) + '</td><td>' + lenTxt + '</td><td class="pace">' + rangeText(paceU(I.fast), paceU(I.slow)) + "</td></tr>");
+    else S.rows.push('<tr class="hard"><td>Rep, ' + lenTxt + '</td><td>' + n + '</td><td>' + lenTxt + '</td><td>' + timeRange(I.fast * I.dKm, I.slow * I.dKm) + '</td><td class="pace">' + rangeText(paceU(I.fast), paceU(I.slow)) + "</td></tr>");
     if (n > 1) S.rows.push('<tr class="easy"><td>Recovery</td><td>' + (n - 1) + "</td><td>ca. " + distLabel(round10(I.rec / 600 * 1000)) + "</td><td>" + (I.rec >= 120 ? mmss(I.rec) : I.rec + "s") + '</td><td class="pace">walk</td></tr>');
     S.notes.push("Paces and recovery are the Sub-Threshold Session Generator's for " + (spec.min ? spec.min + " minute" : spec.m + "m") + " reps. TSS: " + tssW + " warm-up and cool-down + " + tssE + " reps + " + tssR + " recoveries.");
     if (n < I.rl) S.notes.push("The usual range is " + rangeText(String(I.rl), String(I.rh)) + " reps. Fewer here to fit the time.");
@@ -647,6 +656,7 @@ tr.easy td:first-child { padding-left: 11px; }
 
   function update() {
     $("err").hidden = true;
+    applyUnits();
     var inp = inputs(); if (!inp) return;
     var c = context(inp.t, inp.wk), S = draw(c, inp.avail, u);
     if (!S) return fail("No session fits " + inp.avail + " minutes for this 5k time.");
@@ -660,19 +670,51 @@ tr.easy td:first-child { padding-left: 11px; }
     $("o-dist").textContent = distLabel(S.Dm);
     $("o-main").textContent = hmmss(S.mainT);
     $("o-main-s").textContent = distLabel(S.mainD);
-    $("o-thr").textContent = mmss(S.thr);
+    $("o-thr").textContent = paceU(S.thr);
     $("o-vdot").textContent = S.vdot.toFixed(1);
     $("notes").innerHTML = S.notes.map(function (n) { return '<p class="note">' + n + "</p>"; }).join("");
     var ts = $("tosrc"); ts.hidden = !SITE;
     var isSub = !!S.subt;
     ts.innerHTML = SITE ? 'Change the options in the <a href="' + (isSub ? "run-session-generator.html" : "classic-session-generator.html") + '">' + (isSub ? "Sub-Threshold" : "Classic") + " Session Generator</a>." : "";
+    beltCols();
     $("resbox").hidden = false;
   }
 
   function profSet(k, v) { try { var o = profGet(); o[k] = v; localStorage.setItem("tt-profile", JSON.stringify(o)); } catch (e) {} }
+  // Optional treadmill incline: the table shows what the treadmill shows. ACSM running equation, belt speed = flat speed / (1 + 4.5 x grade), so belt pace = flat pace x f and belt distance = flat distance / f. Time and TSS are unchanged. Cells without a pace or a plain distance (walks, text) are left as they are.
+  function beltCols() {
+    var hr = $("rows").parentNode.querySelector("thead tr"), ths = hr.querySelectorAll("th"), old = $("beltth");
+    if (old) old.parentNode.removeChild(old);
+    Array.prototype.forEach.call(hr.querySelectorAll("th"), function (t) { if (t.dataset.flat) { t.textContent = t.dataset.flat; delete t.dataset.flat; } });
+    var note = $("beltnote"), raw = ($("incline").value || "").trim().replace(",", "."), g = raw === "" ? 0 : Number(raw);
+    note.hidden = true;
+    if (raw === "" || g === 0) return;
+    if (!isFinite(g) || g < 0 || g > 15) { note.hidden = false; note.textContent = "Incline should be a number from 0 to 15 percent."; return; }
+    var f = 1 + 4.5 * g / 100;
+    Array.prototype.forEach.call(hr.querySelectorAll("th"), function (t) {
+      var x = t.textContent.trim();
+      if (x === "Distance") { t.dataset.flat = x; t.textContent = "Belt distance"; }
+      else if (/^Pace \/(km|mi)$/.test(x)) { t.dataset.flat = x; t.textContent = "Belt pace " + pu(); }
+    });
+    hr.insertAdjacentHTML("beforeend", '<th id="beltth">' + (uMi() ? "Belt mph" : "Belt km/h") + "</th>");
+    Array.prototype.forEach.call($("rows").querySelectorAll("tr"), function (tr) {
+      var tds = tr.querySelectorAll("td"), pc = tr.querySelector("td.pace"), dc = tds[2], txt = "\u2013";
+      var m = pc ? pc.textContent.match(/\d+:\d\d/g) : null;
+      if (m) {
+        var v = m.map(function (p) { var q = p.split(":"); return 3600 / (Number(q[0]) * 60 + Number(q[1])) / f; }).sort(function (a, b) { return a - b; }).map(function (x) { return x.toFixed(1); });
+        txt = v[0] === v[v.length - 1] ? v[0] : v[0] + "\u2013" + v[v.length - 1];
+        pc.textContent = pc.textContent.replace(/\d+:\d\d/g, function (p) { var q = p.split(":"); return mmss((Number(q[0]) * 60 + Number(q[1])) * f); });
+      }
+      var dm = dc ? dc.textContent.trim().match(/^(?:ca\. )?([\d.]+)(km|mi|m)$/) : null;
+      if (dm) dc.textContent = "ca. " + distLabel(round10(Number(dm[1]) * (dm[2] === "km" ? 1000 : dm[2] === "mi" ? MILE * 1000 : 1) / f));
+      tr.insertAdjacentHTML("beforeend", '<td class="pace">' + txt + "</td>");
+    });
+    note.hidden = false; note.textContent = "At " + g + "% incline the table shows treadmill figures: belt pace = flat pace \u00D7 " + f.toFixed(3) + ", belt distance = flat distance \u00F7 " + f.toFixed(3) + " (ACSM running equation). Time and TSS are the same as on the flat. Belt speed is in " + (uMi() ? "mph" : "km/h") + ". Rows without a pace show a dash.";
+  }
+
   function save() {
     try { localStorage.setItem("rsg", JSON.stringify({ t: $("time").value, a: $("avail").value })); } catch (e) {}
-    profSet("week", $("week").value); profSet("wunit", $("wunit").value);
+    profSet("week", $("week").value); profSet("wunit", $("wunit").value); profSet("incline", $("incline").value);
   }
   function restore() {
     var had = false;
@@ -688,6 +730,7 @@ tr.easy td:first-child { padding-left: 11px; }
     if (!had && pr.km === "5" && pr.time) $("time").value = pr.time;
     if (typeof pr.week === "string") $("week").value = pr.week;
     if (pr.wunit === "km" || pr.wunit === "mi") $("wunit").value = pr.wunit;
+    if (typeof pr.incline === "string") $("incline").value = pr.incline;
   }
 
   // Phone keypads often have no colon. Digits only are read from the right: 3943 = 39:43, 12010 = 1:20:10, 415 = 4:15.
@@ -708,7 +751,7 @@ tr.easy td:first-child { padding-left: 11px; }
   };
 
   restore();
-  ["time", "avail", "week", "wunit"].forEach(function (id) {
+  ["time", "avail", "week", "wunit", "incline"].forEach(function (id) {
     $(id).addEventListener("input", function () { save(); update(); });
     $(id).addEventListener("change", function () { save(); update(); });
   });
