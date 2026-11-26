@@ -173,6 +173,8 @@ def scenarios():
     out.append(('classic-session-generator','imp default 8',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'workout','imp')]))
     out.append(('classic-session-generator','imp 10 reps',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'workout','imp'),fill(pg,'opt_reps','10')]))
     out.append(('classic-session-generator','imp 4 reps weekly 40 mi',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'workout','imp'),fill(pg,'opt_reps','4'),fill(pg,'week','40'),fill(pg,'wunit','mi')]))
+    out.append(('classic-session-generator','moose default 5 sets',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'workout','moose')]))
+    out.append(('classic-session-generator','moose 3 sets weekly 65 km',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'workout','moose'),fill(pg,'opt_sets','3'),fill(pg,'week','65')]))
     out.append(('classic-session-generator','ladder up half jog',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','ladder'),fill(pg,'opt_order','up'),fill(pg,'opt_tail','2')]))
     out.append(('classic-session-generator','pre 20 pairs',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:45'),fill(pg,'workout','pre'),fill(pg,'opt_pairs','20')]))
     out.append(('classic-session-generator','prog tempo default',lambda pg:[fill(pg,'dist','5'),fill(pg,'time','18:52'),fill(pg,'workout','prog')]))

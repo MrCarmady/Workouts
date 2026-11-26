@@ -160,7 +160,7 @@ tr.easy td:first-child { padding-left: 11px; }
     <h2>How this is calculated</h2>
     <ul>
       <li><b>The draw.</b> A coin flip picks the family, Classic or Sub-Threshold. Then every session in that family that fits the time has the same chance, and one version of it is picked at random. There is no filter for recent training, hard days or weekly TSS.</li>
-      <li><b>Classic sessions.</b> Tempo, Rowland Tempo, ladder, Aussie quarters, 1 min I / 1 min MP, Pre's 200s, Mona fartlek, Yasso 800s, Rosario 800s, 1km repeats, mile repeats, 30/30, the marathon-pace long run, and six from Daniels' Running Formula: cruise intervals, descending T (20-12-5), timed hard reps, R repeats, R sets and MP with T surges. Structure, paces and notes are the Classic Session Generator's, with its default options and a range of rep counts.</li>
+      <li><b>Classic sessions.</b> Tempo, Rowland Tempo, ladder, Aussie quarters, 1 min I / 1 min MP, Pre's 200s, Mona fartlek, Moose fartlek, Yasso 800s, Rosario 800s, 1km repeats, mile repeats, 30/30, the marathon-pace long run, and six from Daniels' Running Formula: cruise intervals, descending T (20-12-5), timed hard reps, R repeats, R sets and MP with T surges. Structure, paces and notes are the Classic Session Generator's, with its default options and a range of rep counts.</li>
       <li><b>Sub-Threshold sessions.</b> Reps of 200, 300 or 400m, or 3, 6, 8, 10, 12, 15 or 20 minutes. Paces, recoveries and rep ranges are the Sub-Threshold Session Generator's. The three short distances run faster than sub-threshold, and are named by their distance. In a short slot the rep count can drop to half the usual low end.</li>
       <li><b>Fitting the time.</b> The whole session, warm-up and cool-down included, must run between 70% and 100% of the time you pick. Warm-up and cool-down are 10 + 10 minutes for 60, 90 and 120 minutes, 8 + 8 for 45 and 5 + 5 for 30 (my choice) A session that would run under 70% of the time gets a longer warm-up and cool-down instead, up to 20 + 20 minutes, aiming for 90% of the slot.. The marathon-pace long run and MP with T surges have none.</li>
       <li><b>Weekly distance.</b> Optional. It sets marathon pace (blank assumes 70 miles a week), caps the total sub-threshold work at the Sub-Threshold Session Generator's share of weekly distance (12% for 3 to 12 minute reps, 20% for 15 and 20 minute reps, with a 6km floor), and picks the rep counts for the Daniels sessions: up to 40 miles, 41 to 70 (also used when blank) and over 70. The Classic sessions set by you in the Classic generator have no weekly limit, and the random tool applies none to them either.</li>
@@ -359,6 +359,7 @@ tr.easy td:first-child { padding-left: 11px; }
         return range(8, 16, 2, function (p) { return { pairs: p }; }).filter(function (o) { return o.pairs <= maxPairs; });
       } },
     { key: "mona", name: "Mona fartlek", cands: [{}] },
+    { key: "moose", name: "Moose fartlek", cands: range(3, 6, 1, function (n) { return { sets: n }; }) },
     { key: "yasso", name: "Yasso 800s", cands: range(4, 10, 1, function (r) { return { reps: r }; }) },
     { key: "rosario", name: "Rosario 800s", cands: range(3, 8, 1, function (r) { return { reps: r }; }) },
     { key: "k1", name: "1km repeats", cands: range(4, 8, 1, function (r) { return { reps: r, rest: 105 }; }) },
@@ -447,6 +448,13 @@ tr.easy td:first-child { padding-left: 11px; }
         add(g[0] + "s float", g[1], { s: g[0] }, pq, pq, "easy", true);
       });
       notes.push("Total 20 min: 10 min of efforts and 10 min of floats, at 85% of 5km speed. The structure and the effort guidance are from Nate Jenkins' article on the Moneghetti fartlek.");
+    } else if (key === "moose") {
+      var pMa = raceP(12), pMb = raceP(5);
+      S.struct = o.sets + " × (3 min hard, 1 min jog, 1 min at 5k pace, 1 min jog), continuous";
+      add("3 min at 12k pace", o.sets, { s: 180 }, pMa, pMa, "hard", true);
+      add("1 min at 5k pace", o.sets, { s: 60 }, pMb, pMb, "hard", true);
+      add("Jog", o.sets * 2, { s: 60 }, wcPace, wcPace, "easy", true);
+      notes.push("Total " + (o.sets * 6) + " min, continuous. The 3 minute effort is read as 12k pace, between 10k and half marathon pace and a little faster than threshold (the post asks for 10k to half marathon effort, a bit harder than threshold). The 1 minute effort is 5k pace. The post's jogs start about 45s/km slower than the 3 minute pace and end 1 to 2 minutes/km slower; they run at your easy pace here. Structure and effort guidance are from the Moose Fartlek post on run.wxm.be, which credits Julian \"Moose\" Spence of the Inside Running Podcast (episode 223) but says that attribution is the author's assumption. The paces are this page's own.");
     } else if (key === "yasso") {
       var py = raceP(5), rep800 = 0.8 * py;
       S.struct = o.reps + " × 800m, jog the same time between";

@@ -10,6 +10,8 @@ Gives paces for traditional workouts from one race result. The Sub-Threshold Ses
 | VDOT (Daniels-Gilbert) and the 15 to 85 plausibility check | Published formula, range chosen here |
 | Mona fartlek structure (2×90s, 4×60s, 4×30s, 4×15s, equal recoveries) and effort guidance (about 5k effort for the 90s, faster as the reps shorten) | As described by Nate Jenkins in his 2015 blog post on the Moneghetti fartlek |
 | Mona effort paces and float pace (85% of 5km speed) | Set by the author |
+| Moose fartlek structure (5 × [3 min hard, 1 min jog, 1 min at 5k effort, 1 min jog], 30 min continuous) and effort guidance (3 min at 10k to half marathon effort, a bit harder than threshold; 1 min at 5k effort) | As described in the Moose Fartlek post on run.wxm.be (28 Feb 2026). The post credits Julian "Moose" Spence of the Inside Running Podcast (episode 223) but says that attribution is the author's assumption |
+| Moose fartlek paces (3 min at race(12), 1 min at race(5), jogs at the warm-up pace) | Set by the author on 2026-11-26. Race(12) is my reading of "10k to half marathon effort, a bit harder than threshold": between 10k and half marathon pace and faster than threshold (race(16)) |
 | All other session structures and every pace choice below | Set by the author from his own descriptions, not published prescriptions |
 | TSS = hours × (threshold pace ÷ pace)² × 100 | The same method as the other tools |
 
@@ -27,6 +29,8 @@ In this document, race(x) is the predicted race pace over x km, from the Race Pr
 | Pre's 200s | Fast 200m from mile pace to 2% slower (race(1.609), my reading of "slightly slower than mile pace") | Float 200m (P, 2026-10-22: "float" rather than "recovery", which suggests an easy pace), 33⅓% slower than the fast ones (the article's figure), continuous with no standing rest. 12 pairs by default (4.8km, about the article's 3 miles), 4 to 30 pairs. From the Outside article on Pre's 200s, which credits Bill Bowerman; the article suggests using it before the final taper. The 2% upper end and the default pair count are mine |
 | Mona fartlek structure (2×90s, 4×60s, 4×30s, 4×15s, equal recoveries) and effort guidance (about 5k effort for the 90s, faster as the reps shorten) | As described by Nate Jenkins in his 2015 blog post on the Moneghetti fartlek |
 | Mona effort paces and float pace (85% of 5km speed) | Set by the author |
+| Moose fartlek structure (5 × [3 min hard, 1 min jog, 1 min at 5k effort, 1 min jog], 30 min continuous) and effort guidance (3 min at 10k to half marathon effort, a bit harder than threshold; 1 min at 5k effort) | As described in the Moose Fartlek post on run.wxm.be (28 Feb 2026). The post credits Julian "Moose" Spence of the Inside Running Podcast (episode 223) but says that attribution is the author's assumption |
+| Moose fartlek paces (3 min at race(12), 1 min at race(5), jogs at the warm-up pace) | Set by the author on 2026-11-26. Race(12) is my reading of "10k to half marathon effort, a bit harder than threshold": between 10k and half marathon pace and faster than threshold (race(16)) |
 | All other session structures and every pace choice below | Set by the author from his own descriptions, not published prescriptions |
 | TSS = hours × (threshold pace ÷ pace)² × 100 | The same method as the other tools |
 
@@ -42,6 +46,7 @@ In this document, race(x) is the predicted race pace over x km, from the Race Pr
 | Aussie quarters | 400m at race(4) | 200m float from marathon pace to 3% faster, continuous. Float marathon pace ignores weekly distance (70-mile default). 8 reps by default (4.8km), optional 200m float first (5km) |
 | 1 min I / 1 min MP | 1 min at race(4), the same pace as the Aussie quarters | 1 min at marathon pace (exact, set by the author 2026-11-13), continuous. 8 reps by default, the number in the Reddit post he saw (not read by me); 2 to 20 allowed. The page shows the average pace over the repeats against threshold |
 | Mona fartlek | 90s at race(5), 60s at race(4), 30s at race(3), 15s at race(1.6) | Float of the same duration after every effort, at 85% of 5km speed (my choice; the article calls it a quick jog), so the total is 20 min (10 + 10) |
+| Moose fartlek | 3 min at race(12), then 1 min at race(5) | 1 min jog after each effort at the warm-up pace (the post's jogs slow from about 45s/km slower than the 3 min pace to 1 to 2 min/km slower; modelled here as the easy pace). 5 sets by default (30 min); 1 to 8 allowed (the post: 3 or 4 sets for beginners, 3 about a week before a race). TSS about 44 for 5 sets at an 18:52 5k |
 | Yasso 800s | 800m at race(5) | Jog for the same time as the rep, at the warm-up pace. 10 reps by default |
 | Rosario 800s | 800m at race(5) | 800m float at race(5) + 25s per 800m (31.25s/km). 4 reps by default, a float after every rep |
 | 1km repeats | 1km at race(4.5) | Jog, 105s by default |

@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright
 R=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 U=lambda f:'file://'+os.path.join(R,f)
 CLASSIC=[('tempo',{'min':20}),('tempo',{'min':45}),('prog',{'blocks':3,'brk':120}),('ladder',{'order':'down','jogmode':'half','jog':90,'tail':0}),('ladder',{'order':'up','jogmode':'half','jog':90,'tail':0}),
- ('aussie',{'start':False}),('aussie',{'start':True}),('imp',{'reps':10}),('pre',{'pairs':12}),('mona',{}),('yasso',{'reps':8}),('rosario',{'reps':5}),
+ ('aussie',{'start':False}),('aussie',{'start':True}),('imp',{'reps':10}),('pre',{'pairs':12}),('mona',{}),('moose',{'sets':5}),('moose',{'sets':3}),('yasso',{'reps':8}),('rosario',{'reps':5}),
  ('k1',{'reps':6,'rest':105}),('mile',{'reps':4,'rest':135}),('thirty',{'reps':16}),('mplr',{'total':20,'mp':10}),
  ('cruise',{'len':6,'reps':6}),('cruise',{'len':12,'reps':3}),('cruise',{'len':18,'reps':2}),('dt',{}),('hrep',{'len':3,'reps':5}),('hrep',{'len':5,'reps':4}),
  ('r400',{'reps':8}),('rset',{'sets':3}),('mpt',{'v':'1'}),('mpt',{'v':'2'}),('mpt',{'v':'3'})]
